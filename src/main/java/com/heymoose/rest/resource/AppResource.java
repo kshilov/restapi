@@ -4,15 +4,19 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.app.App;
+import com.heymoose.rest.domain.order.Question;
 import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlApp;
 import org.hibernate.Session;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("app")
 public class AppResource {
@@ -52,5 +56,13 @@ public class AppResource {
     if (app == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     return Response.ok(Mappers.toXmlApp(app)).build();
+  }
+
+  @GET
+  @Path("{id}/questions")
+  @Transactional
+  public Response questions(@QueryParam("count") @DefaultValue("1") int count) {
+    List<Question> questions = hiber().createQuery("from Question").setMaxResults(count).list();
+    return Response.ok(Mappers.toXmlQuestions(questions)).build();
   }
 }

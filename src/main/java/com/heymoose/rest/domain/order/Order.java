@@ -47,6 +47,12 @@ public class Order {
     return balance;
   }
 
+  public void addToBalance(BigDecimal amount) {
+    if (amount.signum() != 1)
+      throw new IllegalArgumentException("Amount must be positive");
+    balance = balance.add(amount);
+  }
+
   public String name() {
     return name;
   }

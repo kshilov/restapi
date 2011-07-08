@@ -4,8 +4,10 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "targeting")
 public class Targeting {
   @Id
   @GeneratedValue
@@ -25,7 +27,7 @@ public class Targeting {
 
   private Targeting() {}
 
-  public Targeting(Integer age, Boolean male, String city, String country) {
+  public Targeting(int age, boolean male, String city, String country) {
     this.age = age;
     this.male = male;
     this.city = city;
@@ -36,7 +38,11 @@ public class Targeting {
     return id;
   }
 
-  public Boolean male() {
+  public int age() {
+    return age;
+  }
+
+  public boolean male() {
     return male;
   }
 

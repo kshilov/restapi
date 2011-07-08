@@ -11,8 +11,6 @@ import static org.junit.Assert.*;
 
 public class AppTest extends ApiTest {
 
-  private final static Logger log = LoggerFactory.getLogger(AppTest.class);
-
   void putApp(XmlApp xmlApp) {
     client().path("app").path(xmlApp.appId.toString()).put(xmlApp);
   }

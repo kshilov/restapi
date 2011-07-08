@@ -3,8 +3,10 @@ package com.heymoose.rest.domain.app;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "application")
 public class App {
 
   @Id
