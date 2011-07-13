@@ -45,7 +45,7 @@ public class ApiTest {
     Transaction tx =  session.beginTransaction();
     try {
       session.createQuery("delete from App").executeUpdate();
-      session.createQuery("delete from Order").executeUpdate();
+      session.createQuery("delete from PollOrder").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       tx.rollback();

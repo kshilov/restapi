@@ -1,5 +1,7 @@
 package com.heymoose.rest.domain.order;
 
+import com.heymoose.rest.domain.base.IdEntity;
+
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,10 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "targeting")
-public class Targeting {
-  @Id
-  @GeneratedValue
-  private Integer id;
+public class Targeting extends IdEntity {
 
   @Basic
   private Integer age;
@@ -32,10 +31,6 @@ public class Targeting {
     this.male = male;
     this.city = city;
     this.country = country;
-  }
-
-  public Integer id() {
-    return id;
   }
 
   public int age() {

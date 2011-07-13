@@ -17,7 +17,7 @@ import java.util.Properties;
 
 public class Launcher {
 
-  private static GrizzlyWebServer server;
+  private volatile static GrizzlyWebServer server;
   
   private static Properties settings() {
     Injector injector = Guice.createInjector(new SettingsModule());

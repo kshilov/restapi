@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.app.App;
-import com.heymoose.rest.domain.order.Question;
+import com.heymoose.rest.domain.poll.BaseQuestion;
 import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlApp;
 import org.hibernate.Session;
@@ -62,7 +62,7 @@ public class AppResource {
   @Path("{id}/questions")
   @Transactional
   public Response questions(@QueryParam("count") @DefaultValue("1") int count) {
-    List<Question> questions = hiber().createQuery("from Question").setMaxResults(count).list();
+    List<BaseQuestion> questions = hiber().createQuery("from AbstractQuestion").setMaxResults(count).list();
     return Response.ok(Mappers.toXmlQuestions(questions)).build();
   }
 }

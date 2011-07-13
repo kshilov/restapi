@@ -3,6 +3,7 @@ package com.heymoose.rest.resource;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Targeting;
@@ -15,11 +16,11 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.util.Properties;
 
 @Path("order")
 @Singleton
@@ -28,10 +29,13 @@ public class OrderResource {
   private final static Logger log = LoggerFactory.getLogger(OrderResource.class);
 
   private final Provider<Session> sessionProvider;
+  private final Properties settings;
 
   @Inject
-  public OrderResource(Provider<Session> sessionProvider) {
+  public OrderResource(Provider<Session> sessionProvider,
+                       @Named("settings") Properties settings) {
     this.sessionProvider = sessionProvider;
+    this.settings = settings;
   }
 
   private Session hiber() {
@@ -41,17 +45,18 @@ public class OrderResource {
   @POST
   @Transactional
   public Response create(XmlOrder xmlOrder) {
-    Order order = new Order(
-            new BigDecimal(xmlOrder.balance),
-            xmlOrder.name
-    );
     Targeting targeting = new Targeting(
             xmlOrder.targeting.age,
             xmlOrder.targeting.male,
             xmlOrder.targeting.city,
             xmlOrder.targeting.country
     );
-    order.setTargeting(targeting);
+    Order order = new Order(
+            new BigDecimal(xmlOrder.balance),
+            xmlOrder.name,
+            targeting,
+            new BigDecimal(settings.getProperty("question-cost"))
+    );
     hiber().save(order);
     return Response.ok(Integer.toString(order.id())).build();
   }
@@ -73,13 +78,13 @@ public class OrderResource {
     Order order = (Order) hiber().get(Order.class, orderId);
     if (order == null)
       return Response.status(Response.Status.NOT_FOUND).build();
-    log.debug("Balance before: " + order.balance().toString());
+    log.debug("Balance before: " + order.account().toString());
     try {
-      order.addToBalance(new BigDecimal(amount));
+      order.addToBalance(new BigDecimal(amount), "replenishment");
     } catch (IllegalArgumentException e) {
       Response.status(Response.Status.BAD_REQUEST).build();
     }
-    log.debug("Balance after: " + order.balance().toString());
+    log.debug("Balance after: " + order.account().toString());
     return Response.ok().build();
   }
 }

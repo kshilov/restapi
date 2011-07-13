@@ -1,11 +1,13 @@
 package com.heymoose.rest.domain.order;
 
+import com.heymoose.rest.domain.account.AccountOwner;
+import com.heymoose.rest.domain.poll.BaseQuestion;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -15,49 +17,34 @@ import java.util.Set;
 
 @Entity
 @Table(name = "poll_order")
-public class Order {
-  @Id
-  @GeneratedValue
-  private Integer id;
-
-  @Basic
-  private BigDecimal balance;
+public class Order extends AccountOwner<Order> {
 
   @Basic
   private String name;
 
-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-  private Set<Question> questions;
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Set<BaseQuestion> questions;
 
   @OneToOne(cascade = CascadeType.ALL)
   private Targeting targeting;
 
+  @Column(name = "cost_per_answer")
+  private BigDecimal costPerAnswer;
+
   private Order() {}
 
-  public Order(BigDecimal balance, String name) {
-    this.balance = balance;
+  public Order(BigDecimal balance, String name, Targeting targeting, BigDecimal costPerAnswer) {
+    super(balance);
     this.name = name;
-  }
-
-  public Integer id() {
-    return id;
-  }
-
-  public BigDecimal balance() {
-    return balance;
-  }
-
-  public void addToBalance(BigDecimal amount) {
-    if (amount.signum() != 1)
-      throw new IllegalArgumentException("Amount must be positive");
-    balance = balance.add(amount);
+    this.targeting = targeting;
+    this.costPerAnswer = costPerAnswer;
   }
 
   public String name() {
     return name;
   }
 
-  public Set<Question> questions() {
+  public Set<BaseQuestion> questions() {
     if (questions == null)
       return Collections.emptySet();
     return Collections.unmodifiableSet(questions);
@@ -69,5 +56,13 @@ public class Order {
 
   public void setTargeting(Targeting targeting) {
     this.targeting = targeting;
+  }
+
+  public BigDecimal costPerAnswer() {
+    return costPerAnswer;
+  }
+
+  public void setCostPerAnswer(BigDecimal newCost) {
+    costPerAnswer = newCost;     
   }
 }

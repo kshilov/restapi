@@ -11,12 +11,13 @@ import org.junit.Ignore;
 @Ignore
 public class TestContextListener extends GuiceServletContextListener {
 
-  private static Injector injector;
+  private volatile static Injector injector;
 
   @Override
   protected Injector getInjector() {
+    if (injector != null)
+      return injector;
     return (injector = Guice.createInjector(
-            new SettingsModule(),
             new JerseyModule(),
             new CommonModule(),
             new TestModule()

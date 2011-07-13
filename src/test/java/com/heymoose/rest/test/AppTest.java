@@ -3,6 +3,8 @@ package com.heymoose.rest.test;
 import com.heymoose.rest.resource.xml.XmlApp;
 import com.heymoose.rest.test.base.ApiTest;
 import com.sun.jersey.api.client.UniformInterfaceException;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,10 @@ public class AppTest extends ApiTest {
   }
 
   @Test public void getNonExistent() {
+    Configuration cfg = injector().getInstance(Configuration.class);
+    SchemaExport export = new SchemaExport(cfg);
+    export.setOutputFile("/tmp/schema.sql");
+    export.create(true, true);
     try {
       getApp(1);
       fail();
