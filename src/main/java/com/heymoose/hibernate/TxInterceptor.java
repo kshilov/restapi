@@ -1,12 +1,11 @@
 package com.heymoose.hibernate;
 
+import com.google.inject.Provider;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
-import com.google.inject.Provider;
 
 public class TxInterceptor implements MethodInterceptor {
 	

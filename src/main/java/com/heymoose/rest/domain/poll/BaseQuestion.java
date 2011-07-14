@@ -5,8 +5,6 @@ import com.heymoose.rest.domain.order.Order;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
@@ -30,13 +28,16 @@ public abstract class BaseQuestion extends IdEntity {
 
   private BaseQuestion() {}
 
-  public BaseQuestion(String text, Order order) {
+  public BaseQuestion(String text) {
     this.text = text;
-    this.order = order;
   }
 
   public String text() {
     return text;
+  }
+
+  public void setOrder(Order order) {
+    this.order = order;
   }
 
   public Order order() {

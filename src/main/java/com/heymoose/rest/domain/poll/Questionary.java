@@ -22,5 +22,5 @@ public class Questionary extends IdEntity {
 
   public Set<BaseQuestion> questions() {
     return Collections.unmodifiableSet(questions);
-  }  
+  }
 }

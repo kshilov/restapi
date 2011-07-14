@@ -3,8 +3,8 @@ package com.heymoose.rest.resource.xml;
 import com.google.common.collect.Lists;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.order.Order;
-import com.heymoose.rest.domain.poll.BaseQuestion;
 import com.heymoose.rest.domain.order.Targeting;
+import com.heymoose.rest.domain.poll.BaseQuestion;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class Mappers {
     XmlOrder xmlOrder = new XmlOrder();
     xmlOrder.id = order.id();
     xmlOrder.name = order.name();
-    xmlOrder.balance = order.account().balance().toString();
+    xmlOrder.balance = order.account().actual().balance().toString();
     xmlOrder.targeting = toXmlTargeting(order.targeting());
     return xmlOrder;
   }
@@ -35,13 +35,11 @@ public class Mappers {
     return xmlTargeting;
   }
 
-  public static XmlQuestions toXmlQuestions(Iterable<BaseQuestion> questions) {
+  public static List<XmlQuestion> toXmlQuestions(Iterable<BaseQuestion> questions) {
     List<XmlQuestion> xmlQuestionsList = Lists.newArrayList();
     for (BaseQuestion question : questions)
       xmlQuestionsList.add(toXmlQuestion(question));
-    XmlQuestions xmlQuestions = new XmlQuestions();
-    xmlQuestions.questions = xmlQuestionsList;
-    return xmlQuestions;
+    return xmlQuestionsList;
   }
 
   public static XmlQuestion toXmlQuestion(BaseQuestion question) {

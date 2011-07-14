@@ -4,10 +4,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.heymoose.rest.domain.account.AccountOwner;
+import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.account.AccountTx;
-import com.heymoose.rest.domain.base.IdEntity;
+import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.poll.BaseAnswer;
 import com.heymoose.rest.domain.poll.BaseQuestion;
@@ -44,8 +44,9 @@ public class TestModule extends AbstractModule {
     config.addAnnotatedClass(Poll.class);
     config.addAnnotatedClass(Question.class);
     config.addAnnotatedClass(Vote.class);
+    config.addAnnotatedClass(Account.class);
     config.addAnnotatedClass(AccountTx.class);
-    config.addAnnotatedClass(AccountOwner.class);
+    config.addAnnotatedClass(Reservation.class);
     
     config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
     config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");

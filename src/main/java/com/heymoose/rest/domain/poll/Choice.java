@@ -2,9 +2,8 @@ package com.heymoose.rest.domain.poll;
 
 import com.heymoose.rest.domain.base.IdEntity;
 
+import javax.persistence.Basic;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -15,11 +14,24 @@ public class Choice extends IdEntity {
   @ManyToOne
   private Poll poll;
 
-  public Choice(Poll poll) {
+  @Basic
+  private String text;
+
+  private Choice() {}
+
+  public Choice(String text) {
+    this.text = text;
+  }
+
+  public void setPoll(Poll poll) {
     this.poll = poll;
   }
 
   public Poll poll() {
     return poll;
+  }
+
+  public String text() {
+    return text;
   }
 }

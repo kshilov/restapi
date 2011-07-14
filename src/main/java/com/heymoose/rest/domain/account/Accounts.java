@@ -23,7 +23,9 @@ public class Accounts {
   }
 
   @Transactional
-  public void transfer(AccountOwner from, AccountOwner to, BigDecimal amount) {
+  public void transfer(Account from, Account to, BigDecimal amount) {
+    if (from.equals(to))
+      throw new IllegalArgumentException("Accounts must not be same");
     String desc = String.format("Transfering %s from %s to %s", amount, from, to);
     AccountTx tx1 = from.subtractFromBalance(amount, desc);
     AccountTx tx2 = to.addToBalance(amount, desc);

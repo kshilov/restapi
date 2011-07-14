@@ -5,6 +5,7 @@ import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Orders;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.poll.Answer;
+import com.heymoose.rest.domain.poll.BaseQuestion;
 import com.heymoose.rest.domain.poll.Question;
 import com.heymoose.rest.test.base.ApiTest;
 import org.hibernate.Session;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 public class QuestionTest extends ApiTest {
@@ -36,12 +38,13 @@ public class QuestionTest extends ApiTest {
 
 
     Targeting t = new Targeting(20, true, "Moscow", "Russia");
-    Order order = new Order(new BigDecimal("10.0"), "O1", t, new BigDecimal("5.0"));
+    Order order = new Order(new BigDecimal("10.0"), "O1", t, new BigDecimal("5.0"), Collections.<BaseQuestion>emptyList(), false);
     session.save(order);
 
-    log.info("account before: {}", order.account().balance().toString());
+    log.info("account before: {}", order.account().actual().balance().toString());
 
-    Question q = new Question("Some q", order);
+    Question q = new Question("Some q");
+    q.setOrder(order);
     q.ask();
     session.save(q);
     Answer a = new Answer(q, "RTFM!!!");
@@ -60,7 +63,7 @@ public class QuestionTest extends ApiTest {
     Orders p = injector().getInstance(Orders.class);
     p.maybeExecute(q);
 
-    log.info("account after: {}", order.account().balance().toString());
+    log.info("account after: {}", order.account().actual().balance().toString());
 
     List<AccountTx> txx = session.createQuery("from AccountTx").list();
     for (AccountTx tx : txx) {

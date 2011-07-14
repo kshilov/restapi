@@ -1,7 +1,6 @@
 package com.heymoose.rest.domain.poll;
 
 import com.google.common.collect.Sets;
-import com.heymoose.rest.domain.order.Order;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -18,9 +17,11 @@ public class Poll extends BaseQuestion {
   @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Set<Choice> choices;
 
-  public Poll(String text, Order order, Iterable<Choice> choices) {
-    super(text, order);
+  public Poll(String text, Iterable<Choice> choices) {
+    super(text);
     this.choices = Sets.newHashSet(choices);
+    for (Choice c : this.choices)
+      c.setPoll(this);
   }
 
   public Set<Choice> choices() {

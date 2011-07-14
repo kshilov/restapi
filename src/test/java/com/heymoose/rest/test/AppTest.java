@@ -23,7 +23,7 @@ public class AppTest extends ApiTest {
 
   private XmlApp someXmlApp() {
     XmlApp xmlApp = new XmlApp();
-    xmlApp.appId = 1;
+    xmlApp.appId = 345;
     xmlApp.secret = "s";
     return xmlApp;
   }

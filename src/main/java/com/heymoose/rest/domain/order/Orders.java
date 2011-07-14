@@ -29,8 +29,8 @@ public class Orders {
       .uniqueResult();
     if (count >= MIN_ANSWERS_PER_PAYMENT) {
       int acceptedCount = 0;
-      while (acceptedCount < count && question.order().account().balance().compareTo(question.order().costPerAnswer()) != -1) {
-         AccountTx tx = question.order().subtractFromBalance(question.order().costPerAnswer(), "answer was accepted");
+      while (acceptedCount < count && question.order().account().actual().balance().compareTo(question.order().costPerAnswer()) != -1) {
+         AccountTx tx = question.order().account().subtractFromBalance(question.order().costPerAnswer(), "answer was accepted");
          hiber().save(tx);
          acceptedCount++;
       }

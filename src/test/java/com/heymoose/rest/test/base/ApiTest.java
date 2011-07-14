@@ -9,11 +9,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 @Ignore
 public class ApiTest {
+
+  private final static Logger log = LoggerFactory.getLogger(ApiTest.class);
 
   private final static int TEST_PORT = 5467;
   private static Injector injector;
@@ -44,10 +48,14 @@ public class ApiTest {
     Session session =  sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
+      session.createQuery("delete from BaseAnswer").executeUpdate();
+      session.createQuery("delete from BaseQuestion").executeUpdate();
       session.createQuery("delete from App").executeUpdate();
-      session.createQuery("delete from PollOrder").executeUpdate();
+      session.createQuery("delete from Order").executeUpdate();
+      session.createQuery("delete from Reservation").executeUpdate();
       tx.commit();
     } catch (Exception e) {
+      log.error("Error while cleaning db, rollback", e);
       tx.rollback();
     }
     session.close();
