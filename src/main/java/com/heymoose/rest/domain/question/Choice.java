@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.poll;
+package com.heymoose.rest.domain.question;
 
 import com.heymoose.rest.domain.base.IdEntity;
 

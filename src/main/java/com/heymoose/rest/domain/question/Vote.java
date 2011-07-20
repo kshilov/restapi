@@ -1,4 +1,6 @@
-package com.heymoose.rest.domain.poll;
+package com.heymoose.rest.domain.question;
+
+import com.heymoose.rest.domain.app.UserProfile;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -11,8 +13,8 @@ public class Vote extends BaseAnswer<Poll> {
   @ManyToOne
   private Choice choice;
 
-  public Vote(Poll question, Choice choice) {
-    super(question);
+  public Vote(Poll question, UserProfile user, Choice choice) {
+    super(question, user);
     this.choice = choice;
   }
 

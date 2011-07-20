@@ -86,7 +86,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     if (amount.signum() != 1)
       throw new IllegalArgumentException("Amount must be positive");
     if (balance.compareTo(amount) == -1)
-      throw new IllegalArgumentException("No enough money");
+      throw new IllegalStateException("No enough money");
     AccountTx newAccount = new AccountTx();
     newAccount.account = this.account;
     newAccount.version = this.version + 1;

@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.app.App;
-import com.heymoose.rest.domain.poll.BaseQuestion;
+import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlApp;
 import org.hibernate.Session;

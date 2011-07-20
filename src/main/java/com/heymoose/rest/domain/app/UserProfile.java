@@ -20,6 +20,8 @@ public class UserProfile extends IdEntity {
   @JoinColumn(name = "app_id")
   private App app;
 
+  private UserProfile() {}
+
   public UserProfile(String extId, App app) {
     this.extId = extId;
     this.app = app;

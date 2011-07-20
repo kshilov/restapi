@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.poll;
+package com.heymoose.rest.domain.question;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -6,6 +6,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "question")
 public class Question extends BaseQuestion {
+  private Question() {}
   public Question(String text) {
     super(text);
   }

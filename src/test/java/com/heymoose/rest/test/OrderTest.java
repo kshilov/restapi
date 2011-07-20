@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.heymoose.rest.resource.xml.XmlOrder;
 import com.heymoose.rest.resource.xml.XmlQuestion;
 import com.heymoose.rest.resource.xml.XmlTargeting;
-import com.heymoose.rest.test.base.ApiTest;
+import com.heymoose.rest.test.base.RestTest;
 import com.sun.jersey.api.representation.Form;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class OrderTest extends ApiTest {
+public class OrderTest extends RestTest {
 
   private final static String ORDER_NAME = "Order1";
   private final static String CITY = "Moscow";
@@ -58,8 +58,8 @@ public class OrderTest extends ApiTest {
     client().path("order").path(Integer.toString(orderId)).path("balance").post(form);
     XmlOrder xmlOrder = getOrder(orderId);
     assertEquals(
-            new BigDecimal(BALANCE).add(new BigDecimal(amount)).longValue(),
-            new BigDecimal(xmlOrder.balance).longValue()
+            new BigDecimal(BALANCE).add(new BigDecimal(amount)).setScale(2).toString(),
+            new BigDecimal(xmlOrder.balance).setScale(2).toString()
     );
   }
 }

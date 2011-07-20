@@ -15,14 +15,14 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 @Ignore
-public class ApiTest {
+public class RestTest {
 
-  private final static Logger log = LoggerFactory.getLogger(ApiTest.class);
+  protected final static Logger log = LoggerFactory.getLogger(RestTest.class);
 
   private final static int TEST_PORT = 5467;
   private static Injector injector;
 
-  protected ApiTest() {
+  protected RestTest() {
     try {
       Launcher.launch(TEST_PORT, TestContextListener.class);
     } catch (IOException e) {

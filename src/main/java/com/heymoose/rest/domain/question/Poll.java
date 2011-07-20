@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.poll;
+package com.heymoose.rest.domain.question;
 
 import com.google.common.collect.Sets;
 
@@ -13,6 +13,8 @@ import java.util.Set;
 @Entity
 @Table(name = "poll")
 public class Poll extends BaseQuestion {
+
+  private Poll() {}
 
   @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Set<Choice> choices;

@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.heymoose.rest.domain.account.AccountTx;
-import com.heymoose.rest.domain.poll.Question;
+import com.heymoose.rest.domain.question.Question;
 import org.hibernate.Session;
 
 @Singleton

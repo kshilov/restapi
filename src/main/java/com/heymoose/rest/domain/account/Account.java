@@ -41,13 +41,16 @@ public class Account extends IdEntity {
   }
 
   public AccountTx addToBalance(BigDecimal amount, String description) {
-    AccountTx tx =  actual().add(amount, description);
     assertTransactions();
+    AccountTx tx = actual() == null ?
+                    new AccountTx(this, amount) : actual().add(amount, description);
     transactions.add(tx);
     return tx;
   }
 
   public AccountTx subtractFromBalance(BigDecimal amount, String description) {
+    if (actual() == null)
+      throw new IllegalStateException("No enough money");
     AccountTx tx = actual().subtract(amount, description);
     assertTransactions();
     transactions.add(tx);

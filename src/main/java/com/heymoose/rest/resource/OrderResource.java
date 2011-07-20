@@ -8,11 +8,12 @@ import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Targeting;
-import com.heymoose.rest.domain.poll.BaseQuestion;
-import com.heymoose.rest.domain.poll.Choice;
-import com.heymoose.rest.domain.poll.Poll;
-import com.heymoose.rest.domain.poll.Question;
+import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.Poll;
+import com.heymoose.rest.domain.question.Question;
 import com.heymoose.rest.resource.xml.Mappers;
+import com.heymoose.rest.resource.xml.XmlChoice;
 import com.heymoose.rest.resource.xml.XmlOrder;
 import com.heymoose.rest.resource.xml.XmlQuestion;
 import org.hibernate.Session;
@@ -60,13 +61,12 @@ public class OrderResource {
             xmlOrder.targeting.city,
             xmlOrder.targeting.country
     );
-    List<BaseQuestion> questions = questions(xmlOrder.questions);
     Order order = new Order(
             new BigDecimal(xmlOrder.balance),
             xmlOrder.name,
             targeting,
-            new BigDecimal(settings.getProperty("question-cost")),
-            questions,
+            new BigDecimal(settings.getProperty("answer-cost")),
+            questions(xmlOrder.questions),
             xmlOrder.questionary
     );
     hiber().save(order);
@@ -78,8 +78,8 @@ public class OrderResource {
     for (XmlQuestion xmlQuestion : from) {
       if (xmlQuestion.poll) {
         List<Choice> choices = Lists.newArrayList();
-        for (String choice : xmlQuestion.choices)
-          choices.add(new Choice(choice));
+        for (XmlChoice choice : xmlQuestion.choices)
+          choices.add(new Choice(choice.text));
         Poll poll = new Poll(xmlQuestion.text, choices);
         ret.add(poll);
       } else {

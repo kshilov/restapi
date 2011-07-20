@@ -3,7 +3,7 @@ package com.heymoose.rest.domain.order;
 import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.base.IdEntity;
-import com.heymoose.rest.domain.poll.BaseQuestion;
+import com.heymoose.rest.domain.question.BaseQuestion;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -35,19 +35,19 @@ public class Order extends IdEntity {
   @OneToOne(cascade = CascadeType.ALL)
   private Targeting targeting;
 
-  @Column(name = "cost_per_answer")
-  private BigDecimal costPerAnswer;
+  @Column(name = "answer_cost")
+  private BigDecimal answerCost;
 
   @Basic
   private boolean questionary;
 
-  private Order() {}
+  protected Order() {}
 
-  public Order(BigDecimal balance, String name, Targeting targeting, BigDecimal costPerAnswer, Iterable<BaseQuestion> questions, boolean questionary) {
+  public Order(BigDecimal balance, String name, Targeting targeting, BigDecimal answerCost, Iterable<BaseQuestion> questions, boolean questionary) {
     this.name = name;
     this.account = new Account(balance);
     this.targeting = targeting;
-    this.costPerAnswer = costPerAnswer;
+    this.answerCost = answerCost;
     this.questions = Sets.newHashSet(questions);
     for (BaseQuestion q  : this.questions)
       q.setOrder(this);
@@ -81,10 +81,10 @@ public class Order extends IdEntity {
   }
 
   public BigDecimal costPerAnswer() {
-    return costPerAnswer;
+    return answerCost;
   }
 
-  public void setCostPerAnswer(BigDecimal newCost) {
-    costPerAnswer = newCost;     
+  public void setAnswerCost(BigDecimal newCost) {
+    answerCost = newCost;
   }
 }

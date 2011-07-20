@@ -8,15 +8,16 @@ import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.account.AccountTx;
 import com.heymoose.rest.domain.app.Reservation;
+import com.heymoose.rest.domain.app.UserProfile;
 import com.heymoose.rest.domain.order.Order;
-import com.heymoose.rest.domain.poll.BaseAnswer;
-import com.heymoose.rest.domain.poll.BaseQuestion;
+import com.heymoose.rest.domain.question.BaseAnswer;
+import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.order.Targeting;
-import com.heymoose.rest.domain.poll.Answer;
-import com.heymoose.rest.domain.poll.Choice;
-import com.heymoose.rest.domain.poll.Poll;
-import com.heymoose.rest.domain.poll.Question;
-import com.heymoose.rest.domain.poll.Vote;
+import com.heymoose.rest.domain.question.Answer;
+import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.Poll;
+import com.heymoose.rest.domain.question.Question;
+import com.heymoose.rest.domain.question.Vote;
 import org.hibernate.cfg.Configuration;
 import org.junit.Ignore;
 
@@ -47,6 +48,7 @@ public class TestModule extends AbstractModule {
     config.addAnnotatedClass(Account.class);
     config.addAnnotatedClass(AccountTx.class);
     config.addAnnotatedClass(Reservation.class);
+    config.addAnnotatedClass(UserProfile.class);
     
     config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
     config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
@@ -69,7 +71,8 @@ public class TestModule extends AbstractModule {
   @Named("settings")
   protected Properties settings() {
     Properties settings = new Properties();
-    settings.setProperty("question-cost", "15.0");
+    settings.setProperty("answer-cost", "15.0");
+    settings.setProperty("max-shows", "1000");
     return settings;
   }
 }

@@ -1,17 +1,15 @@
 package com.heymoose.rest.test;
 
 import com.heymoose.rest.resource.xml.XmlApp;
-import com.heymoose.rest.test.base.ApiTest;
+import com.heymoose.rest.test.base.RestTest;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
-public class AppTest extends ApiTest {
+public class AppTest extends RestTest {
 
   void putApp(XmlApp xmlApp) {
     client().path("app").path(xmlApp.appId.toString()).put(xmlApp);
