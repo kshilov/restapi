@@ -3,6 +3,7 @@ package com.heymoose.rest.domain.question;
 import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.base.IdEntity;
+import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.Order;
 
 import javax.persistence.Basic;
@@ -14,7 +15,6 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Collections;
 import java.util.Set;
@@ -22,20 +22,14 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "base_question")
-public abstract class BaseQuestion extends IdEntity {
+public abstract class BaseQuestion extends Reservable {
 
   @Basic
   private String text;
 
-  @ManyToOne(optional = false, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_id")
-  private Order order;
-
-  @OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-  private Set<Reservation> reservations;
-
-  @Basic
-  private int asked;
+  @ManyToOne(optional = true, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @JoinColumn(name = "form_id")
+  private Form form;
 
   protected BaseQuestion() {}
 
@@ -47,35 +41,19 @@ public abstract class BaseQuestion extends IdEntity {
     return text;
   }
 
-  public void setOrder(Order order) {
-    this.order = order;
+  public void setForm(Form form) {
+    this.form = form;
   }
 
-  public Order order() {
-    return order;
+  public Form form() {
+    return form;
   }
 
-  public void addReservation(Reservation reservation) {
-    assertReservations();
-    reservations.add(reservation);
+  public boolean hashOrder() {
+    return order != null;
   }
 
-  public Set<Reservation> reservations() {
-    if (reservations == null)
-      return Collections.emptySet();
-    return Collections.unmodifiableSet(reservations);
-  }
-
-  private void assertReservations() {
-    if (reservations == null)
-      reservations = Sets.newHashSet();
-  }
-
-  public int asked() {
-    return asked;
-  }
-
-  public void ask() {
-    asked++;
+  public boolean hasForm() {
+    return form != null;
   }
 }

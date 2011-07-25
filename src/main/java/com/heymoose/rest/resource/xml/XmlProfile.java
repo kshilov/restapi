@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "profile'")
 public class XmlProfile {
-  @XmlAttribute
-  public String extId;
+  @XmlAttribute(name = "id")
+  public String profileId;
 }
 

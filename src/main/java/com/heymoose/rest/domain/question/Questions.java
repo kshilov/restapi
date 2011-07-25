@@ -5,9 +5,8 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.account.Accounts;
-import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.app.Reservation;
-import com.heymoose.rest.domain.order.Order;
+import com.heymoose.rest.domain.order.BaseOrder;
 import org.hibernate.Session;
 
 @Singleton
@@ -28,11 +27,11 @@ public class Questions {
   }
 
   @Transactional
-  public void reserve(BaseQuestion question) {
-    Reservation reservation = new Reservation(question);
+  public void reserve(Reservable reservable) {
+    Reservation reservation = new Reservation(reservable);
     hiber().save(reservation);
-    Order order = question.order();
+    BaseOrder order = reservable.order();
     accounts.transfer(order.account(), reservation.account(), order.costPerAnswer());
-    question.ask();
+    reservable.ask();
   }
 }

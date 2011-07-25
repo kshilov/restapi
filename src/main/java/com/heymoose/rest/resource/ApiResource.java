@@ -8,10 +8,19 @@ import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.app.UserProfile;
+import com.heymoose.rest.domain.question.Answer;
+import com.heymoose.rest.domain.question.Answers;
+import com.heymoose.rest.domain.question.BaseAnswer;
 import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.Poll;
+import com.heymoose.rest.domain.question.Question;
 import com.heymoose.rest.domain.question.Questions;
+import com.heymoose.rest.domain.question.Vote;
 import com.heymoose.rest.domain.security.Secured;
 import com.heymoose.rest.resource.xml.Mappers;
+import com.heymoose.rest.resource.xml.XmlAnswer;
+import com.heymoose.rest.resource.xml.XmlAnswers;
 import com.heymoose.rest.resource.xml.XmlProfile;
 import com.heymoose.rest.resource.xml.XmlProfiles;
 import org.hibernate.Session;
@@ -25,6 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -40,15 +50,17 @@ public class ApiResource {
   private final Provider<Session> sessionProvider;
   private final int maxShows;
   private final Questions questions;
+  private final Answers answers;
 
   private Session hiber() {
     return sessionProvider.get();
   }
 
   @Inject
-  public ApiResource(Provider<Session> sessionProvider, @Named("settings") Properties settings, Questions questions) {
+  public ApiResource(Provider<Session> sessionProvider, @Named("settings") Properties settings, Questions questions, Answers answers) {
     this.sessionProvider = sessionProvider;
     this.questions = questions;
+    this.answers = answers;
     this.maxShows = Integer.parseInt(settings.getProperty("max-shows"));
   }
 
@@ -60,7 +72,7 @@ public class ApiResource {
     if (app == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     for (XmlProfile xmlProfile : profiles.profiles) {
-      String extId = xmlProfile.extId;
+      String extId = xmlProfile.profileId;
       // TODO: optimize
       UserProfile profile = profileBy(app, extId);
       if (profile == null) {
@@ -82,7 +94,7 @@ public class ApiResource {
     App app = existing((App) hiber().get(App.class, appId));
 
     List<BaseQuestion> questions = hiber()
-              .createQuery("from BaseQuestion where asked <= :maxShows")
+              .createQuery("from BaseQuestion where asked <= :maxShows and form is null")
               .setParameter("maxShows", maxShows)
               .setMaxResults(count)
               .list();
@@ -104,14 +116,14 @@ public class ApiResource {
 
     Set<String> extIds = Sets.newHashSet();
     for (XmlProfile xmlProfile : xmlProfiles.profiles)
-      extIds.add(xmlProfile.extId);
+      extIds.add(xmlProfile.profileId);
 
     Set<String> existing = existingProfileExtIds(extIds, app);
 
     for (XmlProfile xmlProfile : xmlProfiles.profiles) {
-      if (existing.contains(xmlProfile.extId))
+      if (existing.contains(xmlProfile.profileId))
         continue;
-      UserProfile profile = new UserProfile(xmlProfile.extId, app);
+      UserProfile profile = new UserProfile(xmlProfile.profileId, app);
       hiber().save(profile);
     }
     
@@ -125,6 +137,41 @@ public class ApiResource {
   public Response getQuestionary(@QueryParam("app") int appId) {
 
     return null;
+  }
+
+  @POST
+  @Path("answers")
+  @Transactional
+  public Response sendAnswers(@QueryParam("app") int appId, XmlAnswers xmlAnswers) {
+    for (XmlAnswer xmlAnswer : xmlAnswers.answers) {
+      BaseAnswer answer = answer(xmlAnswer);
+      hiber().saveOrUpdate(answer);
+      answers.acceptAnswer(answer);
+    }
+    return Response.ok().build();
+  }
+
+  public BaseAnswer answer(XmlAnswer xmlAnswer) {
+    // TODO: optimize via batch
+    BaseAnswer existing = (BaseAnswer) hiber()
+            .createQuery("from BaseAnswer where user.id = :userId")
+            .setParameter("userId", xmlAnswer.profileId)
+            .uniqueResult();
+    if (existing != null)
+      return existing;
+
+    if (xmlAnswer.vote)
+      return new Vote(
+              existing(Poll.class, xmlAnswer.questionId),
+              existing(UserProfile.class, xmlAnswer.profileId),
+              existing(Choice.class, xmlAnswer.choice)
+      );
+    else
+      return new Answer(
+              existing(Question.class, xmlAnswer.questionId),
+              existing(UserProfile.class, xmlAnswer.profileId),
+              xmlAnswer.text
+      );
   }
 
   @Transactional
@@ -141,6 +188,7 @@ public class ApiResource {
     if (extIds.isEmpty())
       return Collections.emptySet();
 
+    @SuppressWarnings("unchecked")
     List<UserProfile> profiles =  hiber()
             .createQuery("from UserProfile where extId in :extIds and app = :app")
             .setParameterList("extIds", extIds)
@@ -157,5 +205,9 @@ public class ApiResource {
     if (obj == null)
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     return obj;
+  }
+
+  public <T> T existing(Class<T> klass, Serializable id) {
+    return existing((T) hiber().get(klass, id));
   }
 }

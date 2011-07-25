@@ -9,6 +9,9 @@ import com.heymoose.rest.resource.xml.XmlQuestion;
 import com.heymoose.rest.resource.xml.XmlQuestions;
 import com.heymoose.rest.resource.xml.XmlTargeting;
 import com.heymoose.rest.test.base.RestTest;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.junit.Test;
 
 import java.util.List;
@@ -36,7 +39,7 @@ public class ApiTest extends RestTest {
     XmlProfiles xmlProfiles = new XmlProfiles();
     xmlProfiles.profiles = Lists.newArrayList();
     XmlProfile xmlProfile = new XmlProfile();
-    xmlProfile.extId = "ext1";
+    xmlProfile.profileId = "ext1";
     xmlProfiles.profiles.add(xmlProfile);
     return xmlProfiles;
   }
@@ -76,6 +79,11 @@ public class ApiTest extends RestTest {
   }
 
   @Test public void sendProfiles() {
+    Configuration cfg = injector().getInstance(Configuration.class);
+    SchemaExport export = new SchemaExport(cfg);
+    export.setOutputFile("/tmp/schema.sql");
+    export.create(true, true);
+
     XmlApp someApp = someXmlApp();
     putApp(someApp);
     XmlProfiles xmlProfiles = someXmlProfiles();

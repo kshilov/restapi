@@ -6,6 +6,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.BaseQuestion;
@@ -61,13 +62,12 @@ public class OrderResource {
             xmlOrder.targeting.city,
             xmlOrder.targeting.country
     );
-    Order order = new Order(
+    BaseOrder order = new Order(
             new BigDecimal(xmlOrder.balance),
             xmlOrder.name,
             targeting,
             new BigDecimal(settings.getProperty("answer-cost")),
-            questions(xmlOrder.questions),
-            xmlOrder.questionary
+            questions(xmlOrder.questions)
     );
     hiber().save(order);
     return Response.ok(Integer.toString(order.id())).build();
@@ -94,7 +94,7 @@ public class OrderResource {
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") int orderId) {
-    Order order = (Order) hiber().get(Order.class, orderId);
+    BaseOrder order = (BaseOrder) hiber().get(BaseOrder.class, orderId);
     if (order == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     return Response.ok(Mappers.toXmlOrder(order)).build();
@@ -104,7 +104,7 @@ public class OrderResource {
   @Path("{id}/balance")
   @Transactional
   public Response addToBalance(@PathParam("id") int orderId, @FormParam("amount") String amount) {
-    Order order = (Order) hiber().get(Order.class, orderId);
+    BaseOrder order = (BaseOrder) hiber().get(BaseOrder.class, orderId);
     if (order == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     log.debug("Balance before: " + order.account().actual().balance().toString());

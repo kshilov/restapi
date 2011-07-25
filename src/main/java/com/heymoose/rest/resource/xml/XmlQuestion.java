@@ -8,6 +8,8 @@ import java.util.List;
 
 @XmlRootElement(name = "question")
 public class XmlQuestion {
+  @XmlAttribute(name = "id")
+  public Integer id;
   @XmlAttribute
   public boolean poll;
   @XmlElement(name = "order-id")

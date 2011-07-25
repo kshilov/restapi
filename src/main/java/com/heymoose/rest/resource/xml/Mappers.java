@@ -2,13 +2,11 @@ package com.heymoose.rest.resource.xml;
 
 import com.google.common.collect.Lists;
 import com.heymoose.rest.domain.app.App;
-import com.heymoose.rest.domain.order.Order;
+import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Poll;
-
-import java.util.List;
 
 public class Mappers {
 
@@ -19,7 +17,7 @@ public class Mappers {
     return xmlApp;
   }
 
-  public static XmlOrder toXmlOrder(Order order) {
+  public static XmlOrder toXmlOrder(BaseOrder order) {
     XmlOrder xmlOrder = new XmlOrder();
     xmlOrder.id = order.id();
     xmlOrder.name = order.name();
@@ -47,6 +45,7 @@ public class Mappers {
 
   public static XmlQuestion toXmlQuestion(BaseQuestion question) {
     XmlQuestion xmlQuestion = new XmlQuestion();
+    xmlQuestion.id = question.id();
     xmlQuestion.text = question.text();
     xmlQuestion.orderId = question.order().id();
     if (question instanceof Poll) {

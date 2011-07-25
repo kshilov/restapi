@@ -11,14 +11,14 @@ import javax.persistence.Table;
 public class Answer extends BaseAnswer<Question> {
 
   @Basic
-  private String answer;
+  private String text;
 
-  public Answer(Question question, UserProfile user, String answer) {
+  public Answer(Question question, UserProfile user, String text) {
     super(question, user);
-    this.answer = answer;
+    this.text = text;
   }
 
-  public String answer() {
-    return answer;
+  public String text() {
+    return text;
   }
 }

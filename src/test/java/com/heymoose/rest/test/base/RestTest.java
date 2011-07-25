@@ -48,11 +48,14 @@ public class RestTest {
     Session session =  sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
+      session.createQuery("delete from Vote").executeUpdate();
+      session.createQuery("delete from Choice").executeUpdate();
       session.createQuery("delete from BaseAnswer").executeUpdate();
-      session.createQuery("delete from BaseQuestion").executeUpdate();
-      session.createQuery("delete from App").executeUpdate();
-      session.createQuery("delete from Order").executeUpdate();
       session.createQuery("delete from Reservation").executeUpdate();
+      session.createQuery("delete from Reservable").executeUpdate();
+      session.createQuery("delete from UserProfile").executeUpdate();
+      session.createQuery("delete from App").executeUpdate();
+      session.createQuery("delete from BaseOrder").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       log.error("Error while cleaning db, rollback", e);

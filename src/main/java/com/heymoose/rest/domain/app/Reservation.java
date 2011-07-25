@@ -2,8 +2,8 @@ package com.heymoose.rest.domain.app;
 
 import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.base.IdEntity;
-import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.Reservable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,7 +15,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
 @Entity
@@ -31,24 +30,24 @@ public class Reservation extends IdEntity {
   private Account account;
 
   @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @JoinColumn(name = "question_id")
-  private BaseQuestion question;
+  @JoinColumn(name = "target_id")
+  private Reservable target;
 
   private Reservation() {}
 
-  public Reservation(BaseQuestion question) {
+  public Reservation(Reservable reservable) {
     this.creationTime = new Date();
     this.account = new Account();
-    this.question = question;
-    this.question.addReservation(this);
+    this.target = reservable;
+    this.target.addReservation(this);
   }
 
   public Account account() {
     return account;
   }
 
-  public BaseQuestion question() {
-    return question;
+  public Reservable target() {
+    return target;
   }
 
   public Date creationTime() {

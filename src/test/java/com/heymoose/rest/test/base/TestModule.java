@@ -9,14 +9,18 @@ import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.account.AccountTx;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.app.UserProfile;
+import com.heymoose.rest.domain.order.BaseOrder;
+import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.question.BaseAnswer;
 import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.Answer;
 import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
+import com.heymoose.rest.domain.question.Reservable;
 import com.heymoose.rest.domain.question.Vote;
 import org.hibernate.cfg.Configuration;
 import org.junit.Ignore;
@@ -36,6 +40,8 @@ public class TestModule extends AbstractModule {
     Configuration config = new Configuration();
 
     config.addAnnotatedClass(App.class);
+    config.addAnnotatedClass(BaseOrder.class);
+    config.addAnnotatedClass(FormOrder.class);
     config.addAnnotatedClass(Order.class);
     config.addAnnotatedClass(Targeting.class);
     config.addAnnotatedClass(BaseAnswer.class);
@@ -49,6 +55,8 @@ public class TestModule extends AbstractModule {
     config.addAnnotatedClass(AccountTx.class);
     config.addAnnotatedClass(Reservation.class);
     config.addAnnotatedClass(UserProfile.class);
+    config.addAnnotatedClass(Form.class);
+    config.addAnnotatedClass(Reservable.class);
     
     config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
     config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
