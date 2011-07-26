@@ -1,6 +1,8 @@
 package com.heymoose.rest.test;
 
 import com.google.common.collect.Lists;
+import com.heymoose.rest.resource.xml.XmlAnswer;
+import com.heymoose.rest.resource.xml.XmlAnswers;
 import com.heymoose.rest.resource.xml.XmlApp;
 import com.heymoose.rest.resource.xml.XmlOrder;
 import com.heymoose.rest.resource.xml.XmlProfile;
@@ -49,7 +51,7 @@ public class ApiTest extends RestTest {
   private final static String BALANCE = "100.0";
   private final static String QUESTION_TEXT = "some question";
   
-  int createOrder() {
+  int createOrder(boolean form) {
     XmlTargeting targeting = new XmlTargeting();
     targeting.age = 20;
     targeting.male = true;
@@ -65,7 +67,7 @@ public class ApiTest extends RestTest {
     order.balance = BALANCE;
     order.targeting = targeting;
     order.questions = questions;
-    return Integer.valueOf(client().path("order").post(String.class, order));
+    return Integer.valueOf(client().path("order").queryParam("form", Boolean.toString(form)).post(String.class, order));
   }
 
   XmlQuestions getQuestions(int appId, int count, String extId) {
@@ -76,6 +78,18 @@ public class ApiTest extends RestTest {
             .queryParam("count", Integer.toString(count))
             .queryParam("extId", extId)
             .get(XmlQuestions.class);
+  }
+
+  XmlQuestions getForm(int appId) {
+    return client()
+            .path("api")
+            .path("form")
+            .queryParam("app", Integer.toString(appId))
+            .get(XmlQuestions.class);
+  }
+
+  void sendAnswers(int appId, XmlAnswers xmlAnswers) {
+    client().path("api").path("answers").queryParam("app", Integer.toString(appId)).post(xmlAnswers);
   }
 
   @Test public void sendProfiles() {
@@ -93,7 +107,7 @@ public class ApiTest extends RestTest {
   @Test public void getQuestions() {
     XmlApp someApp = someXmlApp();
     putApp(someApp);
-    int orderId = createOrder();
+    int orderId = createOrder(false);
     XmlQuestions xmlQuestions = getQuestions(someApp.appId, 1, "<UNUSED-PARAM>");
     assertEquals(1, xmlQuestions.questions.size());
     assertEquals(QUESTION_TEXT, xmlQuestions.questions.get(0).text);
@@ -101,5 +115,38 @@ public class ApiTest extends RestTest {
     assertEquals(false, xmlQuestions.questions.get(0).poll);
     xmlQuestions = getQuestions(someApp.appId, 0, "<UNUSED-PARAM>");
     assertEquals(null, xmlQuestions.questions);
+  }
+
+  @Test public void getForm() {
+    XmlApp someApp = someXmlApp();
+    putApp(someApp);
+    int orderId = createOrder(true);
+    XmlQuestions xmlQuestions = getForm(someApp.appId);
+    assertEquals(1, xmlQuestions.questions.size());
+    assertEquals(QUESTION_TEXT, xmlQuestions.questions.get(0).text);
+    assertEquals(orderId, xmlQuestions.questions.get(0).orderId);
+    assertEquals(false, xmlQuestions.questions.get(0).poll);
+  }
+
+  @Test public void sendAnswers() {
+    XmlApp someApp = someXmlApp();
+    putApp(someApp);
+
+    XmlProfiles xmlProfiles = someXmlProfiles();
+    sendProfiles(someApp.appId, xmlProfiles);
+
+    createOrder(false);
+
+    XmlQuestions xmlQuestions = getQuestions(someApp.appId, 1, "<UNUSED-PARAM>");
+
+    XmlAnswers xmlAnswers = new XmlAnswers();
+    xmlAnswers.answers = Lists.newArrayList();
+    XmlAnswer xmlAnswer = new XmlAnswer();
+    xmlAnswer.profileId = xmlProfiles.profiles.get(0).profileId;
+    xmlAnswer.questionId = xmlQuestions.questions.get(0).id;
+    xmlAnswer.text = "some answer";
+    xmlAnswers.answers.add(xmlAnswer);
+
+    sendAnswers(someApp.appId, xmlAnswers);
   }
 }

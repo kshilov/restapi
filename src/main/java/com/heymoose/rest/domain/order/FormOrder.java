@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Table(name = "form_order")
 public class FormOrder extends BaseOrder {
 
-  @OneToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "form_id")
   private Form form;
 
@@ -23,6 +23,7 @@ public class FormOrder extends BaseOrder {
   public FormOrder(BigDecimal balance, String name, Targeting targeting, BigDecimal answerCost, Form form){
     super(balance, name, targeting, answerCost);
     this.form = form;
+    this.form.setOrder(this);
   }
 
   public Form form() {

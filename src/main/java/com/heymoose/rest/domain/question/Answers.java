@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.account.Accounts;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.app.Reservation;
@@ -27,11 +28,14 @@ public class Answers {
 
   @Transactional
   public void acceptAnswer(BaseAnswer answer) {
+    if (answer.question().hasForm())
+      throw new IllegalArgumentException();
     Reservation reservation = (Reservation) hiber()
-            .createQuery("from Reservation where question = :question and app = :app")
+            .createQuery("from Reservation where target = :question")
             .setParameter("question", answer.question())
-            .setParameter("app", answer.user().app())
             .uniqueResult();
-    
+    Account reservationAccount = reservation.account();
+    Account appAccount = answer.user().app().account();
+    accounts.transfer(reservationAccount, appAccount, reservationAccount.actual().balance());
   }
 }

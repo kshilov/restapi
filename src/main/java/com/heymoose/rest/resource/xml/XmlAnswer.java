@@ -9,7 +9,7 @@ public class XmlAnswer {
   @XmlElement(name = "question-id")
   public Integer questionId;
   @XmlElement(name = "profile-id")
-  public Integer profileId;
+  public String profileId;
   @XmlAttribute
   public boolean vote;
   public String text;

@@ -22,14 +22,10 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "reservable")
-public abstract class Reservable extends IdEntity {
+public abstract class Reservable<T extends BaseOrder> extends IdEntity {
 
-  @ManyToOne(optional = true, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_id")
-  protected Order order;
-  
   @Basic
-  private int asked;
+  protected int asked;
 
   protected Reservable() {}
 
@@ -60,11 +56,7 @@ public abstract class Reservable extends IdEntity {
     asked++;
   }
 
-  public void setOrder(Order order) {
-    this.order = order;
-  }
+  public abstract void setOrder(T order);
 
-  public BaseOrder order() {
-    return order;
-  }
+  public abstract T order();
 }

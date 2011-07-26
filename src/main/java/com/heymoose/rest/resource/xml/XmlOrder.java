@@ -16,5 +16,4 @@ public class XmlOrder {
   @XmlElementWrapper(name = "questions")
   @XmlElement(name = "question")
   public List<XmlQuestion> questions;
-  public boolean questionary;
 }

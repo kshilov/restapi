@@ -7,10 +7,12 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.order.BaseOrder;
+import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
 import com.heymoose.rest.resource.xml.Mappers;
@@ -21,11 +23,13 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
@@ -53,7 +57,7 @@ public class OrderResource {
 
   @POST
   @Transactional
-  public Response create(XmlOrder xmlOrder) {
+  public Response create(@QueryParam("form") @DefaultValue("false") boolean form, XmlOrder xmlOrder) {
     if (xmlOrder.questions == null || xmlOrder.questions.isEmpty())
       return Response.status(Response.Status.BAD_REQUEST).build();
     Targeting targeting = new Targeting(
@@ -62,15 +66,60 @@ public class OrderResource {
             xmlOrder.targeting.city,
             xmlOrder.targeting.country
     );
-    BaseOrder order = new Order(
-            new BigDecimal(xmlOrder.balance),
+    BaseOrder order = createOrder(
+            xmlOrder.balance,
             xmlOrder.name,
             targeting,
-            new BigDecimal(settings.getProperty("answer-cost")),
-            questions(xmlOrder.questions)
+            settings.getProperty("answer-cost"),
+            questions(xmlOrder.questions),
+            form
     );
     hiber().save(order);
     return Response.ok(Integer.toString(order.id())).build();
+  }
+
+  private BaseOrder createOrder(String balance,
+                                       String name,
+                                       Targeting targeting,
+                                       String answerCost,
+                                       List<BaseQuestion> questions,
+                                       boolean form) {
+    if (form)
+      return createFormOrder(balance, name, targeting, answerCost, questions);
+    else
+      return createSimpleOrder(balance, name, targeting, answerCost, questions);
+  }
+
+  private static BaseOrder createSimpleOrder(String balance,
+                                       String name,
+                                       Targeting targeting,
+                                       String answerCost,
+                                       List<BaseQuestion> questions) {
+    return new Order(
+            new BigDecimal(balance),
+            name,
+            targeting,
+            new BigDecimal(answerCost),
+            questions
+    );
+  }
+
+  private BaseOrder createFormOrder(String balance,
+                                       String name,
+                                       Targeting targeting,
+                                       String answerCost,
+                                       List<BaseQuestion> questions) {
+    Form form = new Form(questions);
+    FormOrder formOrder = new FormOrder(
+            new BigDecimal(balance),
+            name,
+            targeting,
+            new BigDecimal(answerCost),
+            form
+    );
+    hiber().save(formOrder);
+    hiber().save(form);
+    return formOrder;
   }
 
   private static List<BaseQuestion> questions(Iterable<XmlQuestion> from) {

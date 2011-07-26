@@ -22,10 +22,14 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "base_question")
-public abstract class BaseQuestion extends Reservable {
+public abstract class BaseQuestion extends Reservable<Order> {
 
   @Basic
   private String text;
+
+  @ManyToOne(optional = true, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, targetEntity = Order.class)
+  @JoinColumn(name = "order_id")
+  protected Order order;
 
   @ManyToOne(optional = true, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   @JoinColumn(name = "form_id")
@@ -55,5 +59,15 @@ public abstract class BaseQuestion extends Reservable {
 
   public boolean hasForm() {
     return form != null;
+  }
+
+  @Override
+  public Order order() {
+    return order;
+  }
+
+  @Override
+  public void setOrder(Order order) {
+    this.order = order;
   }
 }

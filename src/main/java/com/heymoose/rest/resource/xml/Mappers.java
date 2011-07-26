@@ -47,7 +47,10 @@ public class Mappers {
     XmlQuestion xmlQuestion = new XmlQuestion();
     xmlQuestion.id = question.id();
     xmlQuestion.text = question.text();
-    xmlQuestion.orderId = question.order().id();
+    if (question.hasForm())
+      xmlQuestion.orderId = question.form().order().id();
+    else if (question.hashOrder())
+      xmlQuestion.orderId = question.order().id();
     if (question instanceof Poll) {
       xmlQuestion.choices = Lists.newArrayList();
       Poll poll = (Poll) question;

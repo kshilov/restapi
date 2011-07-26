@@ -52,6 +52,9 @@ public class RestTest {
       session.createQuery("delete from Choice").executeUpdate();
       session.createQuery("delete from BaseAnswer").executeUpdate();
       session.createQuery("delete from Reservation").executeUpdate();
+      session.createQuery("delete from Question").executeUpdate();
+      session.createQuery("delete from Form").executeUpdate();
+      session.createQuery("delete from Question").executeUpdate();
       session.createQuery("delete from Reservable").executeUpdate();
       session.createQuery("delete from UserProfile").executeUpdate();
       session.createQuery("delete from App").executeUpdate();

@@ -13,6 +13,7 @@ import com.heymoose.rest.domain.question.Answers;
 import com.heymoose.rest.domain.question.BaseAnswer;
 import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
 import com.heymoose.rest.domain.question.Questions;
@@ -99,9 +100,13 @@ public class ApiResource {
               .setMaxResults(count)
               .list();
 
-    // WARNING: may be races
-    for (BaseQuestion question : questions)
-      this.questions.reserve(question);
+    try {
+      // WARNING: may be races
+      for (BaseQuestion question : questions)
+        this.questions.reserve(question);
+    } catch (IllegalStateException e) {
+      return Response.status(Response.Status.CONFLICT).build();
+    }
 
     // TODO: check for user answers by extId
 
@@ -131,12 +136,20 @@ public class ApiResource {
   }
 
   @GET
-  @Path("questionary")
+  @Path("form")
   @Transactional
-  @SuppressWarnings("unchecked")
-  public Response getQuestionary(@QueryParam("app") int appId) {
+  public Response getForm(@QueryParam("app") int appId) {
+    App app = existing((App) hiber().get(App.class, appId));
 
-    return null;
+    Form form = (Form) hiber().createQuery("from Form where asked <= :maxShows")
+      .setParameter("maxShows", maxShows)
+      .uniqueResult();
+
+    // WARNING: may be races
+    this.questions.reserve(form);
+
+    // TODO: check for user answers by extId
+    return Response.ok(Mappers.toXmlQuestions(form.questions())).build();
   }
 
   @POST
@@ -154,22 +167,27 @@ public class ApiResource {
   public BaseAnswer answer(XmlAnswer xmlAnswer) {
     // TODO: optimize via batch
     BaseAnswer existing = (BaseAnswer) hiber()
-            .createQuery("from BaseAnswer where user.id = :userId")
+            .createQuery("from BaseAnswer where user.extId = :userId")
             .setParameter("userId", xmlAnswer.profileId)
             .uniqueResult();
     if (existing != null)
       return existing;
 
+    UserProfile profile = (UserProfile) hiber()
+            .createQuery("from UserProfile where extId = :extId")
+            .setParameter("extId", xmlAnswer.profileId)
+            .uniqueResult();
+
     if (xmlAnswer.vote)
       return new Vote(
               existing(Poll.class, xmlAnswer.questionId),
-              existing(UserProfile.class, xmlAnswer.profileId),
+              existing(profile),
               existing(Choice.class, xmlAnswer.choice)
       );
     else
       return new Answer(
               existing(Question.class, xmlAnswer.questionId),
-              existing(UserProfile.class, xmlAnswer.profileId),
+              existing(profile),
               xmlAnswer.text
       );
   }

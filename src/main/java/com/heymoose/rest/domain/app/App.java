@@ -49,7 +49,7 @@ public class App {
     this.account = new Account();
   }
 
-  private App() {
+  protected App() {
   }
 
   public Account account() {

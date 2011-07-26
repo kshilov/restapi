@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name = "t_order")
 public class Order extends BaseOrder {
   
-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Reservable.class)
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   protected Set<BaseQuestion> questions;
 
   protected Order() {}
