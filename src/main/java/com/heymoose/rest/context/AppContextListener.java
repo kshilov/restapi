@@ -10,7 +10,8 @@ public class AppContextListener extends GuiceServletContextListener {
     return Guice.createInjector(
             new SettingsModule(),
             new JerseyModule(),
-            new CommonModule()
+            new CommonModule(),
+            new ProductionModule()
     );
   }
 }
