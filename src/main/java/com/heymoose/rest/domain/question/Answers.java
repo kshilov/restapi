@@ -34,8 +34,11 @@ public class Answers {
             .createQuery("from Reservation where target = :question")
             .setParameter("question", answer.question())
             .uniqueResult();
+    if (reservation.done())
+      throw new IllegalStateException();
     Account reservationAccount = reservation.account();
     Account appAccount = answer.user().app().account();
     accounts.transfer(reservationAccount, appAccount, reservationAccount.actual().balance());
+    reservation.cancel();
   }
 }

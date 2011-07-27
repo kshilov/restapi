@@ -56,6 +56,10 @@ public abstract class Reservable<T extends BaseOrder> extends IdEntity {
     asked++;
   }
 
+  public void restore() {
+    asked--;
+  }
+
   public abstract void setOrder(T order);
 
   public abstract T order();

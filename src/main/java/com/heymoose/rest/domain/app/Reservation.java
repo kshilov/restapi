@@ -5,6 +5,7 @@ import com.heymoose.rest.domain.base.IdEntity;
 import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.question.Reservable;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,9 @@ public class Reservation extends IdEntity {
   @JoinColumn(name = "target_id")
   private Reservable target;
 
+  @Basic
+  private boolean done;
+
   private Reservation() {}
 
   public Reservation(Reservable reservable) {
@@ -52,5 +56,13 @@ public class Reservation extends IdEntity {
 
   public Date creationTime() {
     return creationTime;
+  }
+
+  public void cancel() {
+    done = true;
+  }
+
+  public boolean done() {
+    return done;
   }
 }
