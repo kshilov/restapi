@@ -13,6 +13,8 @@ public class Answer extends BaseAnswer<Question> {
   @Basic
   private String text;
 
+  protected Answer(){}
+
   public Answer(Question question, UserProfile user, String text) {
     super(question, user);
     this.text = text;

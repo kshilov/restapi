@@ -27,7 +27,7 @@ public class BaseAnswer<T extends BaseQuestion> extends IdEntity {
   @JoinColumn(name = "user_id")
   private UserProfile user;
 
-  private BaseAnswer(){}
+  protected BaseAnswer(){}
   
   public BaseAnswer(T question, UserProfile user) {
     this.question = question;

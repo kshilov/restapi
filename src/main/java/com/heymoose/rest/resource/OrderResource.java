@@ -19,6 +19,7 @@ import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlChoice;
 import com.heymoose.rest.resource.xml.XmlOrder;
 import com.heymoose.rest.resource.xml.XmlQuestion;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

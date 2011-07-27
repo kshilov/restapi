@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.heymoose.util.PropertiesUtil.subTree;
+
 public class ProductionModule extends AbstractModule {
 
   private final static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -27,25 +29,15 @@ public class ProductionModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected Configuration hibernateConfig(@Named("entities") Set<Class> classes) {
+  protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, @Named("settings") Properties settings) {
     Configuration config = new Configuration();
 
     for (Class klass : classes)
       config.addAnnotatedClass(klass);
 
-    config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
-    config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
-    config.setProperty("hibernate.connection.username", "sa");
-    config.setProperty("hibernate.connection.password", "");
-
-    config.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
-
-    config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-    config.setProperty("hibernate.show_sql", "true");
-    config.setProperty("hibernate.format_sql", "false");
-    config.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
-    config.setProperty("hibernate.current_session_context_class", "thread");
-    config.setProperty("hibernate.jdbc.batch_size", "0");
+    Properties hibernateProperties = subTree(settings, "hibernate", "hibernate");
+    config.setProperties(hibernateProperties);
+    
     return config;
   }
 

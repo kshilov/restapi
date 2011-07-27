@@ -4,6 +4,7 @@ import com.heymoose.rest.domain.base.IdEntity;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -21,7 +22,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   @Basic
   private Integer version;
 
-  @Basic
+  @Column(name = "parent_id")
   private Integer parentId;
 
   @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -42,6 +43,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   public AccountTx(Account account, BigDecimal balance) {
     this.account = account;
     this.balance = balance;
+    this.diff = balance;
     this.version = 1;
   }
 

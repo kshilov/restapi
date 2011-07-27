@@ -13,6 +13,8 @@ public class Vote extends BaseAnswer<Poll> {
   @ManyToOne
   private Choice choice;
 
+  protected Vote() {}
+
   public Vote(Poll question, UserProfile user, Choice choice) {
     super(question, user);
     this.choice = choice;
