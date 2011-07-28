@@ -11,30 +11,43 @@ import com.heymoose.rest.resource.xml.XmlQuestion;
 import com.heymoose.rest.resource.xml.XmlQuestions;
 import com.heymoose.rest.resource.xml.XmlTargeting;
 import com.heymoose.rest.test.base.RestTest;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
+import com.sun.jersey.api.client.WebResource;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ApiTest extends RestTest {
 
-  void putApp(XmlApp xmlApp) {
-    client().path("app").path(xmlApp.appId.toString()).put(xmlApp);
-  }
+  WebResource apiClient;
 
-  void sendProfiles(int appId, XmlProfiles xmlProfiles) {
-    client().path("api").path("profiles").queryParam("app", Integer.toString(appId)).post(xmlProfiles);
-  }
+  WebResource apiClient(int appId, String secret) {
+    return client().path("api").queryParam("app", Integer.toString(appId)).queryParam("secret", secret);
+  }  
 
   XmlApp someXmlApp() {
     XmlApp xmlApp = new XmlApp();
     xmlApp.appId = 345;
     xmlApp.secret = "s";
     return xmlApp;
+  }
+
+  void putApp(XmlApp xmlApp) {
+    client().path("app").path(xmlApp.appId.toString()).put(xmlApp);
+  }
+
+  @Before
+  public void createApiClient() {
+    XmlApp xmlApp = someXmlApp();
+    putApp(xmlApp);
+    apiClient = apiClient(xmlApp.appId, xmlApp.secret);
+  }
+
+
+  void sendProfiles(XmlProfiles xmlProfiles) {
+    apiClient.path("profiles").post(xmlProfiles);
   }
 
   XmlProfiles someXmlProfiles() {
@@ -70,50 +83,38 @@ public class ApiTest extends RestTest {
     return Integer.valueOf(client().path("order").queryParam("form", Boolean.toString(form)).post(String.class, order));
   }
 
-  XmlQuestions getQuestions(int appId, int count, String extId) {
-    return client()
-            .path("api")
+  XmlQuestions getQuestions(int count, String extId) {
+    return apiClient
             .path("questions")
-            .queryParam("app", Integer.toString(appId))
             .queryParam("count", Integer.toString(count))
             .queryParam("extId", extId)
             .get(XmlQuestions.class);
   }
 
-  XmlQuestions getForm(int appId) {
-    return client()
-            .path("api")
+  XmlQuestions getXmlForm() {
+    return apiClient
             .path("form")
-            .queryParam("app", Integer.toString(appId))
             .get(XmlQuestions.class);
   }
 
-  void sendAnswers(int appId, XmlAnswers xmlAnswers) {
-    client().path("api").path("answers").queryParam("app", Integer.toString(appId)).post(xmlAnswers);
+  void sendAnswers(XmlAnswers xmlAnswers) {
+    apiClient.path("answers").post(xmlAnswers);
   }
 
   @Test public void sendProfiles() {
-    Configuration cfg = injector().getInstance(Configuration.class);
-    SchemaExport export = new SchemaExport(cfg);
-    export.setOutputFile("/tmp/schema.sql");
-    export.create(true, true);
-
-    XmlApp someApp = someXmlApp();
-    putApp(someApp);
-    XmlProfiles xmlProfiles = someXmlProfiles();
-    sendProfiles(someApp.appId, xmlProfiles);
+    sendProfiles(someXmlProfiles());
   }
 
   @Test public void getQuestions() {
     XmlApp someApp = someXmlApp();
     putApp(someApp);
     int orderId = createOrder(false);
-    XmlQuestions xmlQuestions = getQuestions(someApp.appId, 1, "<UNUSED-PARAM>");
+    XmlQuestions xmlQuestions = getQuestions(1, "<UNUSED-PARAM>");
     assertEquals(1, xmlQuestions.questions.size());
     assertEquals(QUESTION_TEXT, xmlQuestions.questions.get(0).text);
     assertEquals(orderId, xmlQuestions.questions.get(0).orderId);
     assertEquals(false, xmlQuestions.questions.get(0).poll);
-    xmlQuestions = getQuestions(someApp.appId, 0, "<UNUSED-PARAM>");
+    xmlQuestions = getQuestions(0, "<UNUSED-PARAM>");
     assertEquals(null, xmlQuestions.questions);
   }
 
@@ -121,7 +122,7 @@ public class ApiTest extends RestTest {
     XmlApp someApp = someXmlApp();
     putApp(someApp);
     int orderId = createOrder(true);
-    XmlQuestions xmlQuestions = getForm(someApp.appId);
+    XmlQuestions xmlQuestions = getXmlForm();
     assertEquals(1, xmlQuestions.questions.size());
     assertEquals(QUESTION_TEXT, xmlQuestions.questions.get(0).text);
     assertEquals(orderId, xmlQuestions.questions.get(0).orderId);
@@ -129,15 +130,12 @@ public class ApiTest extends RestTest {
   }
 
   @Test public void sendAnswers() {
-    XmlApp someApp = someXmlApp();
-    putApp(someApp);
-
     XmlProfiles xmlProfiles = someXmlProfiles();
-    sendProfiles(someApp.appId, xmlProfiles);
+    sendProfiles(xmlProfiles);
 
     createOrder(false);
 
-    XmlQuestions xmlQuestions = getQuestions(someApp.appId, 1, "<UNUSED-PARAM>");
+    XmlQuestions xmlQuestions = getQuestions(1, "<UNUSED-PARAM>");
 
     XmlAnswers xmlAnswers = new XmlAnswers();
     xmlAnswers.answers = Lists.newArrayList();
@@ -147,6 +145,6 @@ public class ApiTest extends RestTest {
     xmlAnswer.text = "some answer";
     xmlAnswers.answers.add(xmlAnswer);
 
-    sendAnswers(someApp.appId, xmlAnswers);
+    sendAnswers(xmlAnswers);
   }
 }

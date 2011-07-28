@@ -1,6 +1,5 @@
-package com.heymoose.rest.domain.security;
+package com.heymoose.rest.security;
 
-import com.google.common.base.Strings;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import org.aopalliance.intercept.MethodInterceptor;

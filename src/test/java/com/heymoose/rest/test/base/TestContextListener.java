@@ -6,6 +6,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.rest.context.CommonModule;
 import com.heymoose.rest.context.JerseyModule;
 import com.heymoose.rest.context.SettingsModule;
+import com.heymoose.rest.security.SecurityModule;
 import org.junit.Ignore;
 
 @Ignore
@@ -20,7 +21,8 @@ public class TestContextListener extends GuiceServletContextListener {
     return (injector = Guice.createInjector(
             new JerseyModule(),
             new CommonModule(),
-            new TestModule()
+            new TestModule(),
+            new SecurityModule()
     ));
   }
 

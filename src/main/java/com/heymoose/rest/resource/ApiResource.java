@@ -18,7 +18,7 @@ import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
 import com.heymoose.rest.domain.question.Questions;
 import com.heymoose.rest.domain.question.Vote;
-import com.heymoose.rest.domain.security.Secured;
+import com.heymoose.rest.security.Secured;
 import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlAnswer;
 import com.heymoose.rest.resource.xml.XmlAnswers;
@@ -143,8 +143,12 @@ public class ApiResource {
 
     Form form = (Form) hiber().createQuery("from Form where asked <= :maxShows")
       .setParameter("maxShows", maxShows)
+      .setMaxResults(1)
       .uniqueResult();
 
+    if (form == null)
+      return Response.status(Response.Status.NOT_FOUND).build();
+    
     // WARNING: may be races
     this.questions.reserve(form);
 

@@ -20,12 +20,4 @@ public class PropertiesUtil {
     }
     return ret;
   }
-
-  public static void main(String[] args) {
-    Properties p = new Properties();
-    p.setProperty("foo.bar", "val");
-    p.setProperty("baz.bag", "val2");
-   // p = subTree(p, "foo", "foo");
-    System.out.println(p);
-  }
 }
