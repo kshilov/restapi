@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.base.IdEntity;
 import com.heymoose.rest.domain.order.BaseOrder;
-import com.heymoose.rest.domain.order.Order;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -12,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Collections;

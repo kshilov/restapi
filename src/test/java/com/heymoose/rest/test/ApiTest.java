@@ -91,9 +91,10 @@ public class ApiTest extends RestTest {
             .get(XmlQuestions.class);
   }
 
-  XmlQuestions getXmlForm() {
+  XmlQuestions getXmlForm(String extId) {
     return apiClient
             .path("form")
+            .queryParam("extId", extId)
             .get(XmlQuestions.class);
   }
 
@@ -107,14 +108,16 @@ public class ApiTest extends RestTest {
 
   @Test public void getQuestions() {
     XmlApp someApp = someXmlApp();
+    XmlProfiles xmlProfiles = someXmlProfiles();
+    sendProfiles(xmlProfiles);
     putApp(someApp);
     int orderId = createOrder(false);
-    XmlQuestions xmlQuestions = getQuestions(1, "<UNUSED-PARAM>");
+    XmlQuestions xmlQuestions = getQuestions(1, xmlProfiles.profiles.get(0).profileId);
     assertEquals(1, xmlQuestions.questions.size());
     assertEquals(QUESTION_TEXT, xmlQuestions.questions.get(0).text);
     assertEquals(orderId, xmlQuestions.questions.get(0).orderId);
     assertEquals(false, xmlQuestions.questions.get(0).poll);
-    xmlQuestions = getQuestions(0, "<UNUSED-PARAM>");
+    xmlQuestions = getQuestions(1, xmlProfiles.profiles.get(0).profileId);
     assertEquals(null, xmlQuestions.questions);
   }
 
@@ -122,7 +125,9 @@ public class ApiTest extends RestTest {
     XmlApp someApp = someXmlApp();
     putApp(someApp);
     int orderId = createOrder(true);
-    XmlQuestions xmlQuestions = getXmlForm();
+    XmlProfiles xmlProfiles = someXmlProfiles();
+    sendProfiles(xmlProfiles);
+    XmlQuestions xmlQuestions = getXmlForm(xmlProfiles.profiles.get(0).profileId);
     assertEquals(1, xmlQuestions.questions.size());
     assertEquals(QUESTION_TEXT, xmlQuestions.questions.get(0).text);
     assertEquals(orderId, xmlQuestions.questions.get(0).orderId);
@@ -135,7 +140,7 @@ public class ApiTest extends RestTest {
 
     createOrder(false);
 
-    XmlQuestions xmlQuestions = getQuestions(1, "<UNUSED-PARAM>");
+    XmlQuestions xmlQuestions = getQuestions(1, xmlProfiles.profiles.get(0).profileId);
 
     XmlAnswers xmlAnswers = new XmlAnswers();
     xmlAnswers.answers = Lists.newArrayList();

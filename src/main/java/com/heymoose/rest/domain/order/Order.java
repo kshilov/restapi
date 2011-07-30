@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Set;
 
 @Entity
-@Table(name = "t_order")
+@Table(name = "orders")
 public class Order extends BaseOrder {
   
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

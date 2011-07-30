@@ -6,7 +6,10 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.rest.domain.account.Account;
+import com.heymoose.rest.domain.account.Accounts;
 import com.heymoose.rest.domain.app.App;
+import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.app.UserProfile;
 import com.heymoose.rest.domain.question.Answer;
 import com.heymoose.rest.domain.question.Answers;
@@ -29,10 +32,12 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -53,32 +58,43 @@ public class ApiResource {
   private final int maxShows;
   private final Questions questions;
   private final Answers answers;
+  private final Provider<Integer> appProvider;
+  private final Accounts accounts;
 
   private Session hiber() {
     return sessionProvider.get();
   }
 
+  @Transactional
+  private App app() {
+    return (App) hiber().load(App.class, appProvider.get());
+  }
+
   @Inject
-  public ApiResource(Provider<Session> sessionProvider, @Named("settings") Properties settings, Questions questions, Answers answers) {
+  public ApiResource(Provider<Session> sessionProvider,
+                     @Named("settings") Properties settings,
+                     Questions questions,
+                     Answers answers,
+                     @Named("app") Provider<Integer> appProvider,
+                     Accounts accounts) {
     this.sessionProvider = sessionProvider;
     this.questions = questions;
     this.answers = answers;
+    this.appProvider = appProvider;
+    this.accounts = accounts;
     this.maxShows = Integer.parseInt(settings.getProperty("max-shows"));
   }
 
   @PUT
   @Path("profiles")
   @Transactional
-  public Response putUserProfiles(@QueryParam("app") int appId, XmlProfiles profiles) {
-    App app = (App) hiber().get(App.class, appId);
-    if (app == null)
-      return Response.status(Response.Status.NOT_FOUND).build();
+  public Response putUserProfiles(XmlProfiles profiles) {
     for (XmlProfile xmlProfile : profiles.profiles) {
       String extId = xmlProfile.profileId;
       // TODO: optimize
-      UserProfile profile = profileBy(app, extId);
+      UserProfile profile = profileBy(extId);
       if (profile == null) {
-        profile = new UserProfile(extId, app);
+        profile = new UserProfile(extId, app());
         hiber().save(profile);
       }
     }
@@ -89,26 +105,21 @@ public class ApiResource {
   @Path("questions")
   @Transactional
   @SuppressWarnings("unchecked")
-  public Response getQuestions(@QueryParam("app") int appId,
-                               @QueryParam("count") int count,
-                               @QueryParam("extId") String extId) {
-
-    App app = existing((App) hiber().get(App.class, appId));
-
+  public Response getQuestions(@QueryParam("count") int count, @QueryParam("extId") String extId) {
+    UserProfile user = existing(profileBy(extId));
+    
     // rand() is hack
     List<BaseQuestion> questions = hiber()
-              .createQuery("from Question q " +
-                      "where q.asked <= :maxShows and q.form is null and q.id not in (select a.question.id from BaseAnswer a left join a.user u where u.extId = :extId)" +
-                      "order by rand()")
-              .setParameter("maxShows", maxShows)
-              .setParameter("extId", extId)
-              .setMaxResults(count)
-              .setLockOptions(LockOptions.UPGRADE)
-              .list();
+                  .createQuery("from Question q where q.asked <= :maxShows and q.form is null and q.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
+                  .setParameter("maxShows", maxShows)
+                  .setParameter("extId", extId)
+                  .setMaxResults(count)
+                  .setLockOptions(LockOptions.UPGRADE)
+                  .list();
 
     try {
       for (BaseQuestion question : questions)
-        this.questions.reserve(question);
+        this.questions.reserve(question, user);
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
     }
@@ -120,26 +131,19 @@ public class ApiResource {
   @Path("polls")
   @Transactional
   @SuppressWarnings("unchecked")
-  public Response getPolls(@QueryParam("app") int appId,
-                               @QueryParam("count") int count,
-                               @QueryParam("extId") String extId) {
-
-    App app = existing((App) hiber().get(App.class, appId));
-
+  public Response getPolls(@QueryParam("count") int count, @QueryParam("extId") String extId) {
+    UserProfile user = existing(profileBy(extId));
     // rand() is hack
     List<BaseQuestion> questions = hiber()
-              .createQuery("from Poll q " +
-                      "where q.asked <= :maxShows and q.form is null and q.id not in (select a.question.id from BaseAnswer a left join a.user u where u.extId = :extId)" +
-                      "order by rand()")
-              .setParameter("maxShows", maxShows)
-              .setParameter("extId", extId)
-              .setMaxResults(count)
-              .setLockOptions(LockOptions.UPGRADE)
-              .list();
-
+                  .createQuery("from Poll q where q.asked <= :maxShows and q.form is null and q.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
+                  .setParameter("maxShows", maxShows)
+                  .setParameter("extId", extId)
+                  .setMaxResults(count)
+                  .setLockOptions(LockOptions.UPGRADE)
+                  .list();
     try {
       for (BaseQuestion question : questions)
-        this.questions.reserve(question);
+        this.questions.reserve(question, user);
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
     }
@@ -150,19 +154,17 @@ public class ApiResource {
   @POST
   @Path("profiles")
   @Transactional
-  public Response sendProfiles(@QueryParam("app") int appId, XmlProfiles xmlProfiles) {
-    App app = existing((App) hiber().get(App.class, appId));
-
+  public Response sendProfiles(XmlProfiles xmlProfiles) {
     Set<String> extIds = Sets.newHashSet();
     for (XmlProfile xmlProfile : xmlProfiles.profiles)
       extIds.add(xmlProfile.profileId);
 
-    Set<String> existing = existingProfileExtIds(extIds, app);
+    Set<String> existing = existingProfileExtIds(extIds, app());
 
     for (XmlProfile xmlProfile : xmlProfiles.profiles) {
       if (existing.contains(xmlProfile.profileId))
         continue;
-      UserProfile profile = new UserProfile(xmlProfile.profileId, app);
+      UserProfile profile = new UserProfile(xmlProfile.profileId, app());
       hiber().save(profile);
     }
     
@@ -172,32 +174,48 @@ public class ApiResource {
   @GET
   @Path("form")
   @Transactional
-  public Response getForm(@QueryParam("app") int appId) {
-    App app = existing((App) hiber().get(App.class, appId));
-
-    Form form = (Form) hiber().createQuery("from Form where asked <= :maxShows")
+  public Response getForm(@QueryParam("extId") String extId) {
+    UserProfile user = existing(profileBy(extId));
+    Form form = (Form) hiber().createQuery("from Form f where f.asked <= :maxShows and f.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
       .setParameter("maxShows", maxShows)
+      .setParameter("extId", extId)
       .setMaxResults(1)
+      .setLockOptions(LockOptions.UPGRADE)
       .uniqueResult();
 
     if (form == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     
-    // WARNING: may be races
-    this.questions.reserve(form);
-
-    // TODO: check for user answers by extId
+    this.questions.reserve(form, user);
     return Response.ok(Mappers.toXmlQuestions(form.questions())).build();
   }
 
   @POST
   @Path("answers")
   @Transactional
-  public Response sendAnswers(@QueryParam("app") int appId, XmlAnswers xmlAnswers) {
+  public Response sendAnswers(XmlAnswers xmlAnswers) {
     for (XmlAnswer xmlAnswer : xmlAnswers.answers) {
       BaseAnswer answer = answer(xmlAnswer);
       hiber().saveOrUpdate(answer);
       answers.acceptAnswer(answer);
+    }
+    return Response.ok().build();
+  }
+
+  @DELETE
+  @Path("question/{id}")
+  @Transactional
+  public Response returnQuestion(@PathParam("id") int questionId, @QueryParam("extId") String extId) {
+    UserProfile user = profileBy(extId);
+    Reservation reservation = (Reservation) hiber()
+            .createQuery("from Reservation where user = :user target.id = :id")
+            .setParameter("user", user)
+            .setParameter("id", questionId)
+            .uniqueResult();
+    if (reservation != null) {
+      Account reservationAccount = reservation.account();
+      accounts.transfer(reservationAccount, reservation.target().order().account(), reservationAccount.actual().balance());
+      reservation.cancel();
     }
     return Response.ok().build();
   }
@@ -231,9 +249,14 @@ public class ApiResource {
   }
 
   @Transactional
+  private UserProfile profileBy(String extId) {
+    return profileBy(app(), extId);
+  }
+
+  @Transactional
   private UserProfile profileBy(App app, String extId) {
     return (UserProfile) hiber()
-              .createQuery("from UserProfile where app = :appId and extId = :extId")
+              .createQuery("from UserProfile where app = :app and extId = :extId")
               .setParameter("app", app)
               .setParameter("extId", extId)
               .uniqueResult();

@@ -75,7 +75,7 @@ public abstract class BaseQuestion<T extends BaseAnswer> extends Reservable<Orde
     this.order = order;
   }
 
-  public T getAnswer() {
+  public T answer() {
     return answer;
   }
 

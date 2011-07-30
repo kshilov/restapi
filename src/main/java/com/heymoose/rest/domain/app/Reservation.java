@@ -2,7 +2,6 @@ package com.heymoose.rest.domain.app;
 
 import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.base.IdEntity;
-import com.heymoose.rest.domain.question.BaseQuestion;
 import com.heymoose.rest.domain.question.Reservable;
 
 import javax.persistence.Basic;
@@ -34,15 +33,20 @@ public class Reservation extends IdEntity {
   @JoinColumn(name = "target_id")
   private Reservable target;
 
+  @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id")
+  private UserProfile user;
+
   @Basic
   private boolean done;
 
   private Reservation() {}
 
-  public Reservation(Reservable reservable) {
+  public Reservation(Reservable reservable, UserProfile user) {
     this.creationTime = new Date();
     this.account = new Account();
     this.target = reservable;
+    this.user = user;
     this.target.addReservation(this);
   }
 
@@ -64,5 +68,9 @@ public class Reservation extends IdEntity {
 
   public boolean done() {
     return done;
+  }
+
+  public UserProfile user() {
+    return user;
   }
 }
