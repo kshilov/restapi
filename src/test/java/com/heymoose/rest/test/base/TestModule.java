@@ -47,8 +47,13 @@ public class TestModule extends AbstractModule {
     config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
     config.setProperty("hibernate.connection.username", "sa");
     config.setProperty("hibernate.connection.password", "");
-
     config.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+
+    /*config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+    config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/heymoose");
+    config.setProperty("hibernate.connection.username", "postgres");
+    config.setProperty("hibernate.connection.password", "");
+    config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");*/
 
     config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
     config.setProperty("hibernate.show_sql", "true");

@@ -14,8 +14,7 @@ import java.math.BigDecimal;
 @Table(name = "form_order")
 public class FormOrder extends BaseOrder {
 
-  @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "form_id")
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "order")
   private Form form;
 
   protected FormOrder() {}

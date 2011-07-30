@@ -5,7 +5,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "question")
-public class Question extends BaseQuestion {
+public class Question extends BaseQuestion<Answer> {
   private Question() {}
   public Question(String text) {
     super(text);

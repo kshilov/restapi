@@ -1,4 +1,4 @@
-package com.heymoose.rest.job;
+package com.heymoose.job;
 
 import java.net.InetAddress;
 import java.util.concurrent.ScheduledExecutorService;

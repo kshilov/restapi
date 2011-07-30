@@ -6,6 +6,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
@@ -19,8 +20,10 @@ import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlChoice;
 import com.heymoose.rest.resource.xml.XmlOrder;
 import com.heymoose.rest.resource.xml.XmlQuestion;
+import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Properties;
@@ -44,12 +48,14 @@ public class OrderResource {
 
   private final Provider<Session> sessionProvider;
   private final Properties settings;
+  private final SessionFactory sessionFactory;
 
   @Inject
   public OrderResource(Provider<Session> sessionProvider,
-                       @Named("settings") Properties settings) {
+                       @Named("settings") Properties settings, SessionFactory sessionFactory) {
     this.sessionProvider = sessionProvider;
     this.settings = settings;
+    this.sessionFactory = sessionFactory;
   }
 
   private Session hiber() {
@@ -157,13 +163,16 @@ public class OrderResource {
     BaseOrder order = (BaseOrder) hiber().get(BaseOrder.class, orderId);
     if (order == null)
       return Response.status(Response.Status.NOT_FOUND).build();
-    log.debug("Balance before: " + order.account().actual().balance().toString());
+    Account account = order.account();
+    hiber().buildLockRequest(LockOptions.UPGRADE).lock(account);
+    hiber().refresh(account);
+    log.debug("Balance before: " + account.actual().balance().toString());
     try {
-      order.account().addToBalance(new BigDecimal(amount), "replenishment");
+      account.addToBalance(new BigDecimal(amount), "replenishment");
     } catch (IllegalArgumentException e) {
       Response.status(Response.Status.BAD_REQUEST).build();
     }
-    log.debug("Balance after: " + order.account().actual().balance().toString());
+    log.debug("Balance after: " + account.actual().balance().toString());
     return Response.ok().build();
   }
 }

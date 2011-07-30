@@ -15,6 +15,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Collections;
 import java.util.Set;
@@ -22,7 +23,7 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "base_question")
-public abstract class BaseQuestion extends Reservable<Order> {
+public abstract class BaseQuestion<T extends BaseAnswer> extends Reservable<Order> {
 
   @Basic
   private String text;
@@ -34,6 +35,9 @@ public abstract class BaseQuestion extends Reservable<Order> {
   @ManyToOne(optional = true, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   @JoinColumn(name = "form_id")
   private Form form;
+
+  @OneToOne(mappedBy = "question", targetEntity = BaseAnswer.class)
+  private T answer;
 
   protected BaseQuestion() {}
 
@@ -69,5 +73,13 @@ public abstract class BaseQuestion extends Reservable<Order> {
   @Override
   public void setOrder(Order order) {
     this.order = order;
+  }
+
+  public T getAnswer() {
+    return answer;
+  }
+
+  public void setAnswer(T answer) {
+    this.answer = answer;
   }
 }

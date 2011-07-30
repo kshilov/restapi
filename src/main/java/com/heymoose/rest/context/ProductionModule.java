@@ -6,8 +6,8 @@ import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.heymoose.rest.job.JobRunner;
-import com.heymoose.rest.job.ReservationCleaner;
+import com.heymoose.job.JobRunner;
+import com.heymoose.job.ReservationCleaner;
 import org.hibernate.cfg.Configuration;
 
 import java.util.Properties;

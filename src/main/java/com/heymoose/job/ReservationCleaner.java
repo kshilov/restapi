@@ -1,4 +1,4 @@
-package com.heymoose.rest.job;
+package com.heymoose.job;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -10,9 +10,6 @@ import com.heymoose.rest.domain.account.Accounts;
 import com.heymoose.rest.domain.app.Reservation;
 import org.hibernate.Session;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;

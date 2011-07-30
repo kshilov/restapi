@@ -18,11 +18,11 @@ import java.util.Set;
 @Table(name = "form")
 public class Form extends Reservable<FormOrder> {
 
-  @ManyToOne(optional = true, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, targetEntity = FormOrder.class)
+  @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, targetEntity = FormOrder.class)
   @JoinColumn(name = "form_order_id")
   protected FormOrder order;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "form")
   private Set<BaseQuestion> questions;
 
   @Basic

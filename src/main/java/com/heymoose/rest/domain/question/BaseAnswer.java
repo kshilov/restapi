@@ -17,9 +17,9 @@ import javax.persistence.Table;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "base_answer")
-public class BaseAnswer<T extends BaseQuestion> extends IdEntity {
+public abstract class BaseAnswer<T extends BaseQuestion> extends IdEntity {
 
-  @ManyToOne(targetEntity = BaseQuestion.class)
+  @ManyToOne(targetEntity = BaseQuestion.class, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "question_id")
   private T question;
 
@@ -31,6 +31,7 @@ public class BaseAnswer<T extends BaseQuestion> extends IdEntity {
   
   public BaseAnswer(T question, UserProfile user) {
     this.question = question;
+    this.question.setAnswer(this);
     this.user = user;
   }
 

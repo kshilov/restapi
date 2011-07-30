@@ -24,6 +24,7 @@ import com.heymoose.rest.resource.xml.XmlAnswer;
 import com.heymoose.rest.resource.xml.XmlAnswers;
 import com.heymoose.rest.resource.xml.XmlProfile;
 import com.heymoose.rest.resource.xml.XmlProfiles;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,21 +95,54 @@ public class ApiResource {
 
     App app = existing((App) hiber().get(App.class, appId));
 
+    // rand() is hack
     List<BaseQuestion> questions = hiber()
-              .createQuery("from BaseQuestion where asked <= :maxShows and form is null")
+              .createQuery("from Question q " +
+                      "where q.asked <= :maxShows and q.form is null and q.id not in (select a.question.id from BaseAnswer a left join a.user u where u.extId = :extId)" +
+                      "order by rand()")
               .setParameter("maxShows", maxShows)
+              .setParameter("extId", extId)
               .setMaxResults(count)
+              .setLockOptions(LockOptions.UPGRADE)
               .list();
 
     try {
-      // WARNING: may be races
       for (BaseQuestion question : questions)
         this.questions.reserve(question);
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
     }
 
-    // TODO: check for user answers by extId
+    return Response.ok(Mappers.toXmlQuestions(questions)).build();
+  }
+
+  @GET
+  @Path("polls")
+  @Transactional
+  @SuppressWarnings("unchecked")
+  public Response getPolls(@QueryParam("app") int appId,
+                               @QueryParam("count") int count,
+                               @QueryParam("extId") String extId) {
+
+    App app = existing((App) hiber().get(App.class, appId));
+
+    // rand() is hack
+    List<BaseQuestion> questions = hiber()
+              .createQuery("from Poll q " +
+                      "where q.asked <= :maxShows and q.form is null and q.id not in (select a.question.id from BaseAnswer a left join a.user u where u.extId = :extId)" +
+                      "order by rand()")
+              .setParameter("maxShows", maxShows)
+              .setParameter("extId", extId)
+              .setMaxResults(count)
+              .setLockOptions(LockOptions.UPGRADE)
+              .list();
+
+    try {
+      for (BaseQuestion question : questions)
+        this.questions.reserve(question);
+    } catch (IllegalStateException e) {
+      return Response.status(Response.Status.CONFLICT).build();
+    }
 
     return Response.ok(Mappers.toXmlQuestions(questions)).build();
   }
