@@ -50,7 +50,7 @@ public class RestTest {
     try {
       session.createQuery("delete from Vote").executeUpdate();
       session.createQuery("delete from Choice").executeUpdate();
-      session.createQuery("delete from BaseAnswer").executeUpdate();
+      session.createQuery("delete from AnswerBase").executeUpdate();
       session.createQuery("delete from Reservation").executeUpdate();
       session.createQuery("delete from Question").executeUpdate();
       session.createQuery("delete from Form").executeUpdate();

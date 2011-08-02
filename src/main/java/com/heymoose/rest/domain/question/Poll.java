@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "poll")
-public class Poll extends BaseQuestion {
+public class Poll extends QuestionBase {
 
   private Poll() {}
 

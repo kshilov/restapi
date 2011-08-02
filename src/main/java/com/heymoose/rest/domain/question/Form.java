@@ -23,20 +23,20 @@ public class Form extends Reservable<FormOrder> {
   protected FormOrder order;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "form")
-  private Set<BaseQuestion> questions;
+  private Set<QuestionBase> questions;
 
   @Basic
   private int asked;
 
   private Form() {}
 
-  public Form(Iterable<BaseQuestion> questions) {
+  public Form(Iterable<QuestionBase> questions) {
     this.questions = Sets.newHashSet(questions);
-    for (BaseQuestion q : this.questions)
+    for (QuestionBase q : this.questions)
       q.setForm(this);
   }
 
-  public Set<BaseQuestion> questions() {
+  public Set<QuestionBase> questions() {
     if (questions == null)
       return Collections.emptySet();
     return Collections.unmodifiableSet(questions);

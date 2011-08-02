@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "vote")
-public class Vote extends BaseAnswer<Poll> {
+public class Vote extends AnswerBase<Poll> {
 
   @ManyToOne
   private Choice choice;

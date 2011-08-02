@@ -14,8 +14,8 @@ import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.Answer;
 import com.heymoose.rest.domain.question.Answers;
-import com.heymoose.rest.domain.question.BaseAnswer;
-import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.AnswerBase;
+import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
@@ -43,8 +43,8 @@ public class CommonModule extends AbstractModule {
             FormOrder.class,
             Order.class,
             Targeting.class,
-            BaseAnswer.class,
-            BaseQuestion.class,
+            AnswerBase.class,
+            QuestionBase.class,
             Answer.class,
             Choice.class,
             Poll.class,

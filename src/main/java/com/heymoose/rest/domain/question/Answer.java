@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "answer")
-public class Answer extends BaseAnswer<Question> {
+public class Answer extends AnswerBase<Question> {
 
   @Basic
   private String text;

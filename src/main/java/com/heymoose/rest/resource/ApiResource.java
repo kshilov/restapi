@@ -12,9 +12,9 @@ import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.app.UserProfile;
 import com.heymoose.rest.domain.question.Answer;
+import com.heymoose.rest.domain.question.AnswerBase;
 import com.heymoose.rest.domain.question.Answers;
-import com.heymoose.rest.domain.question.BaseAnswer;
-import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
@@ -111,13 +111,13 @@ public class ApiResource {
     String hql = "from Question q where " +
             "q.asked <= :maxShows " +
             "and q.form is null " +
-            "and (select a from BaseAnswer a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
+            "and (select a from AnswerBase a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
             "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
             "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
             "order by rand()";
     
     // rand() is hack
-    List<BaseQuestion> questions = hiber()
+    List<QuestionBase> questions = hiber()
                   .createQuery(hql)
                   .setParameter("maxShows", maxShows)
                   .setParameter("extId", extId)
@@ -126,7 +126,7 @@ public class ApiResource {
                   .list();
 
     try {
-      for (BaseQuestion question : questions)
+      for (QuestionBase question : questions)
         this.questions.reserve(question, user);
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
@@ -144,12 +144,12 @@ public class ApiResource {
     String hql = "from Poll q where " +
                 "q.asked <= :maxShows " +
                 "and q.form is null " +
-                "and (select a from BaseAnswer a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
+                "and (select a from AnswerBase a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
                 "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
                 "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
                 "order by rand()";
     // rand() is hack
-    List<BaseQuestion> questions = hiber()
+    List<QuestionBase> questions = hiber()
                   .createQuery(hql)
                   .setParameter("maxShows", maxShows)
                   .setParameter("extId", extId)
@@ -157,7 +157,7 @@ public class ApiResource {
                   .setLockOptions(LockOptions.UPGRADE)
                   .list();
     try {
-      for (BaseQuestion question : questions)
+      for (QuestionBase question : questions)
         this.questions.reserve(question, user);
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
@@ -194,7 +194,7 @@ public class ApiResource {
     String hql = "from Form q where " +
                 "q.asked <= :maxShows " +
                 "and q.form is null " +
-                "and (select a from BaseAnswer a inner join a.user u inner join a.question q1 where q1.id in q.questions and u.extId = :extId) is null " +
+                "and (select a from AnswerBase a inner join a.user u inner join a.question q1 where q1.id in q.questions and u.extId = :extId) is null " +
                 "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
                 "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
                 "order by rand()";
@@ -217,7 +217,7 @@ public class ApiResource {
   @Transactional
   public Response sendAnswers(XmlAnswers xmlAnswers) {
     for (XmlAnswer xmlAnswer : xmlAnswers.answers) {
-      BaseAnswer answer = answer(xmlAnswer);
+      AnswerBase answer = answer(xmlAnswer);
       hiber().saveOrUpdate(answer);
       answers.acceptAnswer(answer);
     }
@@ -242,10 +242,10 @@ public class ApiResource {
     return Response.ok().build();
   }
 
-  public BaseAnswer answer(XmlAnswer xmlAnswer) {
+  public AnswerBase answer(XmlAnswer xmlAnswer) {
     // TODO: optimize via batch
-    BaseAnswer existing = (BaseAnswer) hiber()
-            .createQuery("from BaseAnswer where user.extId = :userId")
+    AnswerBase existing = (AnswerBase) hiber()
+            .createQuery("from AnswerBase where user.extId = :userId")
             .setParameter("userId", xmlAnswer.profileId)
             .uniqueResult();
     if (existing != null)

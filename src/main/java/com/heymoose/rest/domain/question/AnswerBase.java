@@ -3,7 +3,6 @@ package com.heymoose.rest.domain.question;
 import com.heymoose.rest.domain.app.UserProfile;
 import com.heymoose.rest.domain.base.IdEntity;
 
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,9 +16,9 @@ import javax.persistence.Table;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "base_answer")
-public abstract class BaseAnswer<T extends BaseQuestion> extends IdEntity {
+public abstract class AnswerBase<T extends QuestionBase> extends IdEntity {
 
-  @ManyToOne(targetEntity = BaseQuestion.class, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
+  @ManyToOne(targetEntity = QuestionBase.class, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "question_id")
   private T question;
 
@@ -27,9 +26,9 @@ public abstract class BaseAnswer<T extends BaseQuestion> extends IdEntity {
   @JoinColumn(name = "user_id")
   private UserProfile user;
 
-  protected BaseAnswer(){}
+  protected AnswerBase(){}
   
-  public BaseAnswer(T question, UserProfile user) {
+  public AnswerBase(T question, UserProfile user) {
     this.question = question;
     this.question.addAnswer(this);
     this.user = user;

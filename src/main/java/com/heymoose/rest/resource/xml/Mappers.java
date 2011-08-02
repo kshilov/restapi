@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.Targeting;
-import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Poll;
 
@@ -35,15 +35,15 @@ public class Mappers {
     return xmlTargeting;
   }
 
-  public static XmlQuestions toXmlQuestions(Iterable<BaseQuestion> questions) {
+  public static XmlQuestions toXmlQuestions(Iterable<QuestionBase> questions) {
     XmlQuestions xmlQuestions = new XmlQuestions();
     xmlQuestions.questions = Lists.newArrayList();
-    for (BaseQuestion question : questions)
+    for (QuestionBase question : questions)
       xmlQuestions.questions.add(toXmlQuestion(question));
     return xmlQuestions;
   }
 
-  public static XmlQuestion toXmlQuestion(BaseQuestion question) {
+  public static XmlQuestion toXmlQuestion(QuestionBase question) {
     XmlQuestion xmlQuestion = new XmlQuestion();
     xmlQuestion.id = question.id();
     xmlQuestion.text = question.text();

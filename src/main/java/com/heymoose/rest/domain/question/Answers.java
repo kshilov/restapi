@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.account.Accounts;
-import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.app.Reservation;
 import org.hibernate.Session;
 
@@ -27,7 +26,7 @@ public class Answers {
   }
 
   @Transactional
-  public void acceptAnswer(BaseAnswer answer) {
+  public void acceptAnswer(AnswerBase answer) {
     if (answer.question().hasForm())
       throw new IllegalArgumentException();
     Reservation reservation = (Reservation) hiber()

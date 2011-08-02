@@ -11,7 +11,7 @@ import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.Targeting;
-import com.heymoose.rest.domain.question.BaseQuestion;
+import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
@@ -20,7 +20,6 @@ import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlChoice;
 import com.heymoose.rest.resource.xml.XmlOrder;
 import com.heymoose.rest.resource.xml.XmlQuestion;
-import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -35,7 +34,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Properties;
@@ -89,7 +87,7 @@ public class OrderResource {
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
-                                       List<BaseQuestion> questions,
+                                       List<QuestionBase> questions,
                                        boolean form) {
     if (form)
       return createFormOrder(balance, name, targeting, answerCost, questions);
@@ -101,7 +99,7 @@ public class OrderResource {
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
-                                       List<BaseQuestion> questions) {
+                                       List<QuestionBase> questions) {
     return new Order(
             new BigDecimal(balance),
             name,
@@ -115,7 +113,7 @@ public class OrderResource {
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
-                                       List<BaseQuestion> questions) {
+                                       List<QuestionBase> questions) {
     Form form = new Form(questions);
     FormOrder formOrder = new FormOrder(
             new BigDecimal(balance),
@@ -129,8 +127,8 @@ public class OrderResource {
     return formOrder;
   }
 
-  private static List<BaseQuestion> questions(Iterable<XmlQuestion> from) {
-    List<BaseQuestion> ret = Lists.newArrayList();
+  private static List<QuestionBase> questions(Iterable<XmlQuestion> from) {
+    List<QuestionBase> ret = Lists.newArrayList();
     for (XmlQuestion xmlQuestion : from) {
       if (xmlQuestion.poll) {
         List<Choice> choices = Lists.newArrayList();
