@@ -107,10 +107,18 @@ public class ApiResource {
   @SuppressWarnings("unchecked")
   public Response getQuestions(@QueryParam("count") int count, @QueryParam("extId") String extId) {
     UserProfile user = existing(profileBy(extId));
+
+    String hql = "from Question q where " +
+            "q.asked <= :maxShows " +
+            "and q.form is null " +
+            "and (select a from BaseAnswer a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
+            "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
+            "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
+            "order by rand()";
     
     // rand() is hack
     List<BaseQuestion> questions = hiber()
-                  .createQuery("from Question q where q.asked <= :maxShows and q.form is null and q.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
+                  .createQuery(hql)
                   .setParameter("maxShows", maxShows)
                   .setParameter("extId", extId)
                   .setMaxResults(count)
@@ -133,9 +141,16 @@ public class ApiResource {
   @SuppressWarnings("unchecked")
   public Response getPolls(@QueryParam("count") int count, @QueryParam("extId") String extId) {
     UserProfile user = existing(profileBy(extId));
+    String hql = "from Poll q where " +
+                "q.asked <= :maxShows " +
+                "and q.form is null " +
+                "and (select a from BaseAnswer a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
+                "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
+                "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
+                "order by rand()";
     // rand() is hack
     List<BaseQuestion> questions = hiber()
-                  .createQuery("from Poll q where q.asked <= :maxShows and q.form is null and q.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
+                  .createQuery(hql)
                   .setParameter("maxShows", maxShows)
                   .setParameter("extId", extId)
                   .setMaxResults(count)
@@ -176,6 +191,13 @@ public class ApiResource {
   @Transactional
   public Response getForm(@QueryParam("extId") String extId) {
     UserProfile user = existing(profileBy(extId));
+    String hql = "from Form q where " +
+                "q.asked <= :maxShows " +
+                "and q.form is null " +
+                "and (select a from BaseAnswer a inner join a.user u inner join a.question q1 where q1.id in q.questions and u.extId = :extId) is null " +
+                "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
+                "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
+                "order by rand()";
     Form form = (Form) hiber().createQuery("from Form f where f.asked <= :maxShows and f.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
       .setParameter("maxShows", maxShows)
       .setParameter("extId", extId)

@@ -19,11 +19,11 @@ import javax.persistence.Table;
 @Table(name = "base_answer")
 public abstract class BaseAnswer<T extends BaseQuestion> extends IdEntity {
 
-  @ManyToOne(targetEntity = BaseQuestion.class, cascade = CascadeType.PERSIST)
+  @ManyToOne(targetEntity = BaseQuestion.class, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "question_id")
   private T question;
 
-  @OneToOne(optional = false, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+  @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id")
   private UserProfile user;
 
@@ -31,7 +31,7 @@ public abstract class BaseAnswer<T extends BaseQuestion> extends IdEntity {
   
   public BaseAnswer(T question, UserProfile user) {
     this.question = question;
-    this.question.setAnswer(this);
+    this.question.addAnswer(this);
     this.user = user;
   }
 

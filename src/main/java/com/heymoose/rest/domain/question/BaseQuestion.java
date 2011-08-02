@@ -36,8 +36,8 @@ public abstract class BaseQuestion<T extends BaseAnswer> extends Reservable<Orde
   @JoinColumn(name = "form_id")
   private Form form;
 
-  @OneToOne(mappedBy = "question", targetEntity = BaseAnswer.class)
-  private T answer;
+  @OneToMany(targetEntity = BaseAnswer.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "question")
+  private Set<T> answers;
 
   protected BaseQuestion() {}
 
@@ -75,11 +75,15 @@ public abstract class BaseQuestion<T extends BaseAnswer> extends Reservable<Orde
     this.order = order;
   }
 
-  public T answer() {
-    return answer;
+  public Set<T> answers() {
+    if (answers == null)
+      return Collections.emptySet();
+    return Collections.unmodifiableSet(answers);
   }
 
-  public void setAnswer(T answer) {
-    this.answer = answer;
+  public void addAnswer(T answer) {
+    if (answers == null)
+      answers = Sets.newHashSet();
+    answers.add(answer);
   }
 }
