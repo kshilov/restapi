@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "base_order")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class BaseOrder extends IdEntity {
+public abstract class OrderBase extends IdEntity {
 
   @Basic
   protected String name;
@@ -33,9 +33,9 @@ public abstract class BaseOrder extends IdEntity {
   @Column(name = "answer_cost")
   protected BigDecimal answerCost;
 
-  protected BaseOrder() {}
+  protected OrderBase() {}
 
-  public BaseOrder(BigDecimal balance, String name, Targeting targeting, BigDecimal answerCost) {
+  public OrderBase(BigDecimal balance, String name, Targeting targeting, BigDecimal answerCost) {
     this.name = name;
     this.account = new Account(balance);
     this.targeting = targeting;

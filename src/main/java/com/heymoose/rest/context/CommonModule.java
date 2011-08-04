@@ -8,9 +8,9 @@ import com.heymoose.rest.domain.account.AccountTx;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.app.UserProfile;
-import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
+import com.heymoose.rest.domain.order.OrderBase;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.Answer;
 import com.heymoose.rest.domain.question.Answers;
@@ -39,7 +39,7 @@ public class CommonModule extends AbstractModule {
     bind(Answers.class);
     bindEntities(
             App.class,
-            BaseOrder.class,
+            OrderBase.class,
             FormOrder.class,
             Order.class,
             Targeting.class,

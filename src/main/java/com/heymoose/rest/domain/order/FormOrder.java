@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "form_order")
-public class FormOrder extends BaseOrder {
+public class FormOrder extends OrderBase {
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "order")
   private Form form;

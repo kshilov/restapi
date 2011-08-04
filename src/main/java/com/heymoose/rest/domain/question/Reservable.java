@@ -3,7 +3,7 @@ package com.heymoose.rest.domain.question;
 import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.base.IdEntity;
-import com.heymoose.rest.domain.order.BaseOrder;
+import com.heymoose.rest.domain.order.OrderBase;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -19,7 +19,7 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "reservable")
-public abstract class Reservable<T extends BaseOrder> extends IdEntity {
+public abstract class Reservable<T extends OrderBase> extends IdEntity {
 
   @Basic
   protected int asked;

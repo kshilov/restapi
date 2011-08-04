@@ -7,7 +7,7 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.account.Accounts;
 import com.heymoose.rest.domain.app.Reservation;
 import com.heymoose.rest.domain.app.UserProfile;
-import com.heymoose.rest.domain.order.BaseOrder;
+import com.heymoose.rest.domain.order.OrderBase;
 import org.hibernate.Session;
 
 @Singleton
@@ -31,7 +31,7 @@ public class Questions {
   public void reserve(Reservable reservable, UserProfile user) {
     Reservation reservation = new Reservation(reservable, user);
     hiber().save(reservation);
-    BaseOrder order = reservable.order();
+    OrderBase order = reservable.order();
     accounts.transfer(order.account(), reservation.account(), order.costPerAnswer());
     reservable.ask();
   }

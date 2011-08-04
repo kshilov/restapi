@@ -58,7 +58,7 @@ public class RestTest {
       session.createQuery("delete from Reservable").executeUpdate();
       session.createQuery("delete from UserProfile").executeUpdate();
       session.createQuery("delete from App").executeUpdate();
-      session.createQuery("delete from BaseOrder").executeUpdate();
+      session.createQuery("delete from OrderBase").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       log.error("Error while cleaning db, rollback", e);

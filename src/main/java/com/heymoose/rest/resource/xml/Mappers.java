@@ -2,7 +2,7 @@ package com.heymoose.rest.resource.xml;
 
 import com.google.common.collect.Lists;
 import com.heymoose.rest.domain.app.App;
-import com.heymoose.rest.domain.order.BaseOrder;
+import com.heymoose.rest.domain.order.OrderBase;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
@@ -17,7 +17,7 @@ public class Mappers {
     return xmlApp;
   }
 
-  public static XmlOrder toXmlOrder(BaseOrder order) {
+  public static XmlOrder toXmlOrder(OrderBase order) {
     XmlOrder xmlOrder = new XmlOrder();
     xmlOrder.id = order.id();
     xmlOrder.name = order.name();

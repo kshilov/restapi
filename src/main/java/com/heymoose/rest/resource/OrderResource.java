@@ -7,9 +7,9 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rest.domain.account.Account;
-import com.heymoose.rest.domain.order.BaseOrder;
 import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
+import com.heymoose.rest.domain.order.OrderBase;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
@@ -71,7 +71,7 @@ public class OrderResource {
             xmlOrder.targeting.city,
             xmlOrder.targeting.country
     );
-    BaseOrder order = createOrder(
+    OrderBase order = createOrder(
             xmlOrder.balance,
             xmlOrder.name,
             targeting,
@@ -83,7 +83,7 @@ public class OrderResource {
     return Response.ok(Integer.toString(order.id())).build();
   }
 
-  private BaseOrder createOrder(String balance,
+  private OrderBase createOrder(String balance,
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
@@ -95,7 +95,7 @@ public class OrderResource {
       return createSimpleOrder(balance, name, targeting, answerCost, questions);
   }
 
-  private static BaseOrder createSimpleOrder(String balance,
+  private static OrderBase createSimpleOrder(String balance,
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
@@ -109,7 +109,7 @@ public class OrderResource {
     );
   }
 
-  private BaseOrder createFormOrder(String balance,
+  private OrderBase createFormOrder(String balance,
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
@@ -148,7 +148,7 @@ public class OrderResource {
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") int orderId) {
-    BaseOrder order = (BaseOrder) hiber().get(BaseOrder.class, orderId);
+    OrderBase order = (OrderBase) hiber().get(OrderBase.class, orderId);
     if (order == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     return Response.ok(Mappers.toXmlOrder(order)).build();
@@ -158,7 +158,7 @@ public class OrderResource {
   @Path("{id}/balance")
   @Transactional
   public Response addToBalance(@PathParam("id") int orderId, @FormParam("amount") String amount) {
-    BaseOrder order = (BaseOrder) hiber().get(BaseOrder.class, orderId);
+    OrderBase order = (OrderBase) hiber().get(OrderBase.class, orderId);
     if (order == null)
       return Response.status(Response.Status.NOT_FOUND).build();
     Account account = order.account();

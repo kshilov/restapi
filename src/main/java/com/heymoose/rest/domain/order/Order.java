@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "orders")
-public class Order extends BaseOrder {
+public class Order extends OrderBase {
   
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   protected Set<QuestionBase> questions;
