@@ -7,6 +7,9 @@ import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Poll;
+import com.heymoose.rest.domain.question.SingleQuestion;
+
+import java.util.Set;
 
 public class Mappers {
 
@@ -35,15 +38,15 @@ public class Mappers {
     return xmlTargeting;
   }
 
-  public static XmlQuestions toXmlQuestions(Iterable<QuestionBase> questions) {
+  public static XmlQuestions toXmlQuestions(Iterable<SingleQuestion> questions) {
     XmlQuestions xmlQuestions = new XmlQuestions();
     xmlQuestions.questions = Lists.newArrayList();
-    for (QuestionBase question : questions)
+    for (SingleQuestion question : questions)
       xmlQuestions.questions.add(toXmlQuestion(question));
     return xmlQuestions;
   }
 
-  public static XmlQuestion toXmlQuestion(QuestionBase question) {
+  public static XmlQuestion toXmlQuestion(SingleQuestion question) {
     XmlQuestion xmlQuestion = new XmlQuestion();
     xmlQuestion.id = question.id();
     xmlQuestion.text = question.text();

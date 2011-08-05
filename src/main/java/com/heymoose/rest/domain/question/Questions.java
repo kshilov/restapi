@@ -28,11 +28,10 @@ public class Questions {
   }
 
   @Transactional
-  public void reserve(Reservable reservable, UserProfile user) {
-    Reservation reservation = new Reservation(reservable, user);
+  public void reserve(QuestionBase question, UserProfile user) {
+    Reservation reservation = new Reservation(question, user);
     hiber().save(reservation);
-    OrderBase order = reservable.order();
+    OrderBase order = question.order();
     accounts.transfer(order.account(), reservation.account(), order.costPerAnswer());
-    reservable.ask();
   }
 }

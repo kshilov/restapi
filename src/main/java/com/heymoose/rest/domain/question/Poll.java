@@ -1,6 +1,7 @@
 package com.heymoose.rest.domain.question;
 
 import com.google.common.collect.Sets;
+import com.heymoose.rest.domain.order.Order;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -12,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "poll")
-public class Poll extends QuestionBase {
+public class Poll extends SingleQuestion<Vote> {
 
   private Poll() {}
 

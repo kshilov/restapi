@@ -27,10 +27,8 @@ public class Answers {
 
   @Transactional
   public void acceptAnswer(AnswerBase answer) {
-    if (answer.question().hasForm())
-      throw new IllegalArgumentException();
     Reservation reservation = (Reservation) hiber()
-            .createQuery("from Reservation where target = :question")
+            .createQuery("from Reservation where question = :question")
             .setParameter("question", answer.question())
             .uniqueResult();
     if (reservation.done())

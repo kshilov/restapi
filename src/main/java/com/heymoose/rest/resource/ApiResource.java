@@ -1,5 +1,6 @@
 package com.heymoose.rest.resource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -14,12 +15,14 @@ import com.heymoose.rest.domain.app.UserProfile;
 import com.heymoose.rest.domain.question.Answer;
 import com.heymoose.rest.domain.question.AnswerBase;
 import com.heymoose.rest.domain.question.Answers;
+import com.heymoose.rest.domain.question.FilledForm;
 import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
 import com.heymoose.rest.domain.question.Questions;
+import com.heymoose.rest.domain.question.SingleQuestion;
 import com.heymoose.rest.domain.question.Vote;
 import com.heymoose.rest.security.Secured;
 import com.heymoose.rest.resource.xml.Mappers;
@@ -112,12 +115,11 @@ public class ApiResource {
             "q.asked <= :maxShows " +
             "and q.form is null " +
             "and (select a from AnswerBase a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
-            "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
-            "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
+            "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.question t where u.extId = :extId and r.done = true) " +
+            "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.question t where u.extId = :extId))" +
             "order by rand()";
     
-    // rand() is hack
-    List<QuestionBase> questions = hiber()
+    List<SingleQuestion> questions = hiber()
                   .createQuery(hql)
                   .setParameter("maxShows", maxShows)
                   .setParameter("extId", extId)
@@ -126,8 +128,10 @@ public class ApiResource {
                   .list();
 
     try {
-      for (QuestionBase question : questions)
+      for (QuestionBase question : questions) {
         this.questions.reserve(question, user);
+        question.ask();
+      }
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
     }
@@ -145,11 +149,10 @@ public class ApiResource {
                 "q.asked <= :maxShows " +
                 "and q.form is null " +
                 "and (select a from AnswerBase a inner join a.user u inner join a.question q1 where q1.id = q.id and u.extId = :extId) is null " +
-                "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
-                "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
+                "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.question t where u.extId = :extId and r.done = true) " +
+                "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.question t where u.extId = :extId))" +
                 "order by rand()";
-    // rand() is hack
-    List<QuestionBase> questions = hiber()
+    List<SingleQuestion> questions = hiber()
                   .createQuery(hql)
                   .setParameter("maxShows", maxShows)
                   .setParameter("extId", extId)
@@ -157,8 +160,10 @@ public class ApiResource {
                   .setLockOptions(LockOptions.UPGRADE)
                   .list();
     try {
-      for (QuestionBase question : questions)
+      for (QuestionBase question : questions) {
         this.questions.reserve(question, user);
+        question.ask();
+      }
     } catch (IllegalStateException e) {
       return Response.status(Response.Status.CONFLICT).build();
     }
@@ -195,10 +200,10 @@ public class ApiResource {
                 "q.asked <= :maxShows " +
                 "and q.form is null " +
                 "and (select a from AnswerBase a inner join a.user u inner join a.question q1 where q1.id in q.questions and u.extId = :extId) is null " +
-                "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId and r.done = true) " +
-                "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.target t where u.extId = :extId))" +
+                "and (q.id in (select t.id from Reservation r inner join r.user u inner join r.question t where u.extId = :extId and r.done = true) " +
+                "or q.id not in (select t.id from Reservation r inner join r.user u inner join r.question t where u.extId = :extId))" +
                 "order by rand()";
-    Form form = (Form) hiber().createQuery("from Form f where f.asked <= :maxShows and f.id not in (select r.target.id from Reservation r where r.user.extId = :extId) order by rand()")
+    Form form = (Form) hiber().createQuery("from Form f where f.asked <= :maxShows and f.id not in (select r.question.id from Reservation r where r.user.extId = :extId) order by rand()")
       .setParameter("maxShows", maxShows)
       .setParameter("extId", extId)
       .setMaxResults(1)
@@ -209,6 +214,7 @@ public class ApiResource {
       return Response.status(Response.Status.NOT_FOUND).build();
     
     this.questions.reserve(form, user);
+    form.ask();
     return Response.ok(Mappers.toXmlQuestions(form.questions())).build();
   }
 
@@ -224,13 +230,23 @@ public class ApiResource {
     return Response.ok().build();
   }
 
+  @POST
+  @Path("form")
+  @Transactional
+  public Response sendFilledForm(XmlAnswers xmlAnswers) {
+    FilledForm filledForm = filledForm(xmlAnswers.answers);
+    hiber().save(filledForm);
+    answers.acceptAnswer(filledForm);
+    return Response.ok().build();
+  }
+
   @DELETE
   @Path("question/{id}")
   @Transactional
   public Response returnQuestion(@PathParam("id") int questionId, @QueryParam("extId") String extId) {
     UserProfile user = profileBy(extId);
     Reservation reservation = (Reservation) hiber()
-            .createQuery("from Reservation where user = :user target.id = :id")
+            .createQuery("from Reservation where user = :user question.id = :id")
             .setParameter("user", user)
             .setParameter("id", questionId)
             .uniqueResult();
@@ -240,6 +256,13 @@ public class ApiResource {
       reservation.cancel();
     }
     return Response.ok().build();
+  }
+
+  public FilledForm filledForm(Iterable<XmlAnswer> xmlAnswers) {
+    List<AnswerBase<SingleQuestion>> answers = Lists.newArrayList();
+    for (XmlAnswer xmlAnswer : xmlAnswers)
+      answers.add(answer(xmlAnswer));
+    return new FilledForm(answers);
   }
 
   public AnswerBase answer(XmlAnswer xmlAnswer) {

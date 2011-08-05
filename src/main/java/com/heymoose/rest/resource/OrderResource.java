@@ -16,6 +16,7 @@ import com.heymoose.rest.domain.question.Choice;
 import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
+import com.heymoose.rest.domain.question.SingleQuestion;
 import com.heymoose.rest.resource.xml.Mappers;
 import com.heymoose.rest.resource.xml.XmlChoice;
 import com.heymoose.rest.resource.xml.XmlOrder;
@@ -87,7 +88,7 @@ public class OrderResource {
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
-                                       List<QuestionBase> questions,
+                                       List<SingleQuestion> questions,
                                        boolean form) {
     if (form)
       return createFormOrder(balance, name, targeting, answerCost, questions);
@@ -99,7 +100,7 @@ public class OrderResource {
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
-                                       List<QuestionBase> questions) {
+                                       List<SingleQuestion> questions) {
     return new Order(
             new BigDecimal(balance),
             name,
@@ -113,7 +114,7 @@ public class OrderResource {
                                        String name,
                                        Targeting targeting,
                                        String answerCost,
-                                       List<QuestionBase> questions) {
+                                       List<SingleQuestion> questions) {
     Form form = new Form(questions);
     FormOrder formOrder = new FormOrder(
             new BigDecimal(balance),
@@ -127,8 +128,8 @@ public class OrderResource {
     return formOrder;
   }
 
-  private static List<QuestionBase> questions(Iterable<XmlQuestion> from) {
-    List<QuestionBase> ret = Lists.newArrayList();
+  private static List<SingleQuestion> questions(Iterable<XmlQuestion> from) {
+    List<SingleQuestion> ret = Lists.newArrayList();
     for (XmlQuestion xmlQuestion : from) {
       if (xmlQuestion.poll) {
         List<Choice> choices = Lists.newArrayList();

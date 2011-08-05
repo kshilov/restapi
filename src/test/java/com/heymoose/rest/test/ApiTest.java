@@ -12,6 +12,8 @@ import com.heymoose.rest.resource.xml.XmlQuestions;
 import com.heymoose.rest.resource.xml.XmlTargeting;
 import com.heymoose.rest.test.base.RestTest;
 import com.sun.jersey.api.client.WebResource;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -107,6 +109,10 @@ public class ApiTest extends RestTest {
   }
 
   @Test public void getQuestions() {
+    Configuration configuration = injector().getInstance(Configuration.class);
+    SchemaExport export = new SchemaExport(configuration);
+    export.setOutputFile("/tmp/schema.sql");
+    export.create(true, false);
     XmlApp someApp = someXmlApp();
     XmlProfiles xmlProfiles = someXmlProfiles();
     sendProfiles(xmlProfiles);

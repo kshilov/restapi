@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "base_order")
+@Table(name = "order_base")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class OrderBase extends IdEntity {
 

@@ -13,15 +13,16 @@ import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.OrderBase;
 import com.heymoose.rest.domain.order.Targeting;
 import com.heymoose.rest.domain.question.Answer;
-import com.heymoose.rest.domain.question.Answers;
 import com.heymoose.rest.domain.question.AnswerBase;
-import com.heymoose.rest.domain.question.QuestionBase;
+import com.heymoose.rest.domain.question.Answers;
 import com.heymoose.rest.domain.question.Choice;
+import com.heymoose.rest.domain.question.FilledForm;
 import com.heymoose.rest.domain.question.Form;
 import com.heymoose.rest.domain.question.Poll;
 import com.heymoose.rest.domain.question.Question;
+import com.heymoose.rest.domain.question.QuestionBase;
 import com.heymoose.rest.domain.question.Questions;
-import com.heymoose.rest.domain.question.Reservable;
+import com.heymoose.rest.domain.question.SingleQuestion;
 import com.heymoose.rest.domain.question.Vote;
 import com.heymoose.rest.resource.ApiResource;
 import com.heymoose.rest.resource.AppResource;
@@ -48,14 +49,16 @@ public class CommonModule extends AbstractModule {
             Answer.class,
             Choice.class,
             Poll.class,
+            SingleQuestion.class,
             Question.class,
             Vote.class,
             Account.class,
             AccountTx.class,
             Reservation.class,
             UserProfile.class,
-            Form.class,
-            Reservable.class
+            FilledForm.class,
+            Form.class//,
+//            Reservable.class
     );
   }
 

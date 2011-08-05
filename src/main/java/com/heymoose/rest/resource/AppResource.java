@@ -57,12 +57,4 @@ public class AppResource {
       return Response.status(Response.Status.NOT_FOUND).build();
     return Response.ok(Mappers.toXmlApp(app)).build();
   }
-
-  @GET
-  @Path("{id}/questions")
-  @Transactional
-  public Response questions(@QueryParam("count") @DefaultValue("1") int count) {
-    List<QuestionBase> questions = hiber().createQuery("from AbstractQuestion").setMaxResults(count).list();
-    return Response.ok(Mappers.toXmlQuestions(questions)).build();
-  }
 }

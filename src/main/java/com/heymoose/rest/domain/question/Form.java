@@ -16,27 +16,27 @@ import java.util.Set;
 
 @Entity
 @Table(name = "form")
-public class Form extends Reservable<FormOrder> {
+public class Form extends QuestionBase<FilledForm, FormOrder> {
 
   @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, targetEntity = FormOrder.class)
   @JoinColumn(name = "form_order_id")
   protected FormOrder order;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "form")
-  private Set<QuestionBase> questions;
+  private Set<SingleQuestion> questions;
 
   @Basic
   private int asked;
 
   private Form() {}
 
-  public Form(Iterable<QuestionBase> questions) {
+  public Form(Iterable<SingleQuestion> questions) {
     this.questions = Sets.newHashSet(questions);
-    for (QuestionBase q : this.questions)
+    for (SingleQuestion q : this.questions)
       q.setForm(this);
   }
 
-  public Set<QuestionBase> questions() {
+  public Set<SingleQuestion> questions() {
     if (questions == null)
       return Collections.emptySet();
     return Collections.unmodifiableSet(questions);
