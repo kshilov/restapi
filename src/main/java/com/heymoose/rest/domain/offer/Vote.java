@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.heymoose.rest.domain.app.UserProfile;
 
@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "vote")
-public class Vote extends AnswerBase<Poll> {
+public class Vote extends Result<Poll> {
 
   @ManyToOne
   private Choice choice;

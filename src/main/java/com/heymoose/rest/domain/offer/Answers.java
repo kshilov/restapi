@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -26,15 +26,15 @@ public class Answers {
   }
 
   @Transactional
-  public void acceptAnswer(AnswerBase answer) {
+  public void acceptAnswer(Result result) {
     Reservation reservation = (Reservation) hiber()
-            .createQuery("from Reservation where question = :question")
-            .setParameter("question", answer.question())
+            .createQuery("from Reservation where offer = :offer")
+            .setParameter("offer", result.offer())
             .uniqueResult();
     if (reservation.done())
       throw new IllegalStateException();
     Account reservationAccount = reservation.account();
-    Account appAccount = answer.user().app().account();
+    Account appAccount = result.user().app().account();
     accounts.transfer(reservationAccount, appAccount, reservationAccount.actual().balance());
     reservation.cancel();
   }

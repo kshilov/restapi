@@ -4,12 +4,9 @@ import com.google.common.collect.Lists;
 import com.heymoose.rest.domain.app.App;
 import com.heymoose.rest.domain.order.OrderBase;
 import com.heymoose.rest.domain.order.Targeting;
-import com.heymoose.rest.domain.question.QuestionBase;
-import com.heymoose.rest.domain.question.Choice;
-import com.heymoose.rest.domain.question.Poll;
-import com.heymoose.rest.domain.question.SingleQuestion;
-
-import java.util.Set;
+import com.heymoose.rest.domain.offer.Choice;
+import com.heymoose.rest.domain.offer.Poll;
+import com.heymoose.rest.domain.offer.SingleQuestion;
 
 public class Mappers {
 

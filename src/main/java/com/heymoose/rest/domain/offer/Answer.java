@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.heymoose.rest.domain.app.UserProfile;
 
@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "answer")
-public class Answer extends AnswerBase<Question> {
+public class Answer extends Result<Question> {
 
   @Basic
   private String text;

@@ -1,8 +1,5 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
-import com.heymoose.rest.domain.order.Order;
-
-import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 

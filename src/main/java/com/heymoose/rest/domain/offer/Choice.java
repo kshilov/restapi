@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.heymoose.rest.domain.base.IdEntity;
 

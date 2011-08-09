@@ -2,8 +2,8 @@ package com.heymoose.rest.domain.order;
 
 import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.account.Account;
-import com.heymoose.rest.domain.question.QuestionBase;
-import com.heymoose.rest.domain.question.SingleQuestion;
+import com.heymoose.rest.domain.offer.Offer;
+import com.heymoose.rest.domain.offer.SingleQuestion;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -30,7 +30,7 @@ public class Order extends OrderBase {
     this.targeting = targeting;
     this.answerCost = answerCost;
     this.questions = Sets.newHashSet(questions);
-    for (QuestionBase q  : this.questions)
+    for (Offer q  : this.questions)
       q.setOrder(this);
   }
 

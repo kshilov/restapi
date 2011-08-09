@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.heymoose.rest.domain.order.Order;
 
@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "single_question")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class SingleQuestion<T extends AnswerBase<? extends SingleQuestion>> extends QuestionBase<T, Order> {
+public abstract class SingleQuestion<T extends Result<? extends SingleQuestion>> extends Offer<T, Order> {
 
   @Basic
   private String text;

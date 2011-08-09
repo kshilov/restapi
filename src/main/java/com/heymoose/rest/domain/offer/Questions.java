@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -28,7 +28,7 @@ public class Questions {
   }
 
   @Transactional
-  public void reserve(QuestionBase question, UserProfile user) {
+  public void reserve(Offer question, UserProfile user) {
     Reservation reservation = new Reservation(question, user);
     hiber().save(reservation);
     OrderBase order = question.order();

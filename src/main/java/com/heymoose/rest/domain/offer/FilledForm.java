@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.google.common.collect.Sets;
 
@@ -13,26 +13,26 @@ import java.util.Set;
 
 @Entity
 @Table(name = "filled_form")
-public class FilledForm extends AnswerBase<Form> {
+public class FilledForm extends Result<Form> {
 
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "filled_form_id")
-  private Set<AnswerBase<SingleQuestion>> answers;
+  private Set<Result<SingleQuestion>> results;
 
   protected FilledForm() {}
 
-  public FilledForm(Iterable<AnswerBase<SingleQuestion>> answers) {
+  public FilledForm(Iterable<Result<SingleQuestion>> results) {
     Set<SingleQuestion> questions = Sets.newHashSet();
-    for (AnswerBase<SingleQuestion> answer : answers)
-      questions.add(answer.question());
-    if (!questions.equals(question().questions()))
+    for (Result<SingleQuestion> result : results)
+      questions.add(result.offer());
+    if (!questions.equals(offer().questions()))
       throw new IllegalArgumentException("Answers does not matches questions");
-    this.answers = Sets.newHashSet(answers);
+    this.results = Sets.newHashSet(results);
   }
 
-  public Set<AnswerBase<SingleQuestion>> answers() {
-    if (answers == null)
+  public Set<Result<SingleQuestion>> results() {
+    if (results == null)
       return Collections.emptySet();
-    return Collections.unmodifiableSet(answers);
+    return Collections.unmodifiableSet(results);
   }
 }

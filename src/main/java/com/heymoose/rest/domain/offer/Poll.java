@@ -1,7 +1,6 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.google.common.collect.Sets;
-import com.heymoose.rest.domain.order.Order;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

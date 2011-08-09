@@ -12,18 +12,18 @@ import com.heymoose.rest.domain.order.FormOrder;
 import com.heymoose.rest.domain.order.Order;
 import com.heymoose.rest.domain.order.OrderBase;
 import com.heymoose.rest.domain.order.Targeting;
-import com.heymoose.rest.domain.question.Answer;
-import com.heymoose.rest.domain.question.AnswerBase;
-import com.heymoose.rest.domain.question.Answers;
-import com.heymoose.rest.domain.question.Choice;
-import com.heymoose.rest.domain.question.FilledForm;
-import com.heymoose.rest.domain.question.Form;
-import com.heymoose.rest.domain.question.Poll;
-import com.heymoose.rest.domain.question.Question;
-import com.heymoose.rest.domain.question.QuestionBase;
-import com.heymoose.rest.domain.question.Questions;
-import com.heymoose.rest.domain.question.SingleQuestion;
-import com.heymoose.rest.domain.question.Vote;
+import com.heymoose.rest.domain.offer.Answer;
+import com.heymoose.rest.domain.offer.Result;
+import com.heymoose.rest.domain.offer.Answers;
+import com.heymoose.rest.domain.offer.Choice;
+import com.heymoose.rest.domain.offer.FilledForm;
+import com.heymoose.rest.domain.offer.Form;
+import com.heymoose.rest.domain.offer.Poll;
+import com.heymoose.rest.domain.offer.Question;
+import com.heymoose.rest.domain.offer.Offer;
+import com.heymoose.rest.domain.offer.Questions;
+import com.heymoose.rest.domain.offer.SingleQuestion;
+import com.heymoose.rest.domain.offer.Vote;
 import com.heymoose.rest.resource.ApiResource;
 import com.heymoose.rest.resource.AppResource;
 import com.heymoose.rest.resource.OrderResource;
@@ -44,8 +44,8 @@ public class CommonModule extends AbstractModule {
             FormOrder.class,
             Order.class,
             Targeting.class,
-            AnswerBase.class,
-            QuestionBase.class,
+            Result.class,
+            Offer.class,
             Answer.class,
             Choice.class,
             Poll.class,

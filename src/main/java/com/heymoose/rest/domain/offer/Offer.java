@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.app.Reservation;
@@ -18,19 +18,19 @@ import java.util.Set;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "question_base")
-public abstract class QuestionBase<T extends AnswerBase, F extends OrderBase> extends IdEntity {
+@Table(name = "offer")
+public abstract class Offer<T extends Result, F extends OrderBase> extends IdEntity {
 
-  @OneToMany(targetEntity = AnswerBase.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "question")
+  @OneToMany(targetEntity = Result.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "offer")
   private Set<T> answers;
 
   @Basic
   protected int asked;
 
-  @OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "offer", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   private Set<Reservation> reservations;
 
-  protected QuestionBase() {}
+  protected Offer() {}
 
   public abstract F order();
 

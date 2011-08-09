@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.heymoose.rest.domain.app.UserProfile;
 import com.heymoose.rest.domain.base.IdEntity;
@@ -16,26 +16,26 @@ import javax.persistence.Table;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "base_answer")
-public abstract class AnswerBase<T extends QuestionBase> extends IdEntity {
+public abstract class Result<T extends Offer> extends IdEntity {
 
-  @ManyToOne(targetEntity = QuestionBase.class, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "question_id")
-  private T question;
+  @ManyToOne(targetEntity = Offer.class, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "offer_id")
+  private T offer;
 
   @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id")
   private UserProfile user;
 
-  protected AnswerBase(){}
+  protected Result(){}
   
-  public AnswerBase(T question, UserProfile user) {
-    this.question = question;
-    this.question.addAnswer(this);
+  public Result(T offer, UserProfile user) {
+    this.offer = offer;
+    this.offer.addAnswer(this);
     this.user = user;
   }
 
-  public T question() {
-    return question;
+  public T offer() {
+    return offer;
   }
 
   public UserProfile user() {

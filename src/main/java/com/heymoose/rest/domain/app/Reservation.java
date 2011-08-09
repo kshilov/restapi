@@ -2,7 +2,7 @@ package com.heymoose.rest.domain.app;
 
 import com.heymoose.rest.domain.account.Account;
 import com.heymoose.rest.domain.base.IdEntity;
-import com.heymoose.rest.domain.question.QuestionBase;
+import com.heymoose.rest.domain.offer.Offer;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -30,8 +30,8 @@ public class Reservation extends IdEntity {
   private Account account;
 
   @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "question_id")
-  private QuestionBase question;
+  @JoinColumn(name = "offer_id")
+  private Offer offer;
 
   @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id")
@@ -42,20 +42,20 @@ public class Reservation extends IdEntity {
 
   private Reservation() {}
 
-  public Reservation(QuestionBase reservable, UserProfile user) {
+  public Reservation(Offer reservable, UserProfile user) {
     this.creationTime = new Date();
     this.account = new Account();
-    this.question = reservable;
+    this.offer = reservable;
     this.user = user;
-    this.question.addReservation(this);
+    this.offer.addReservation(this);
   }
 
   public Account account() {
     return account;
   }
 
-  public QuestionBase target() {
-    return question;
+  public Offer target() {
+    return offer;
   }
 
   public Date creationTime() {

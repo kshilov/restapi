@@ -1,4 +1,4 @@
-package com.heymoose.rest.domain.question;
+package com.heymoose.rest.domain.offer;
 
 import com.google.common.collect.Sets;
 import com.heymoose.rest.domain.order.FormOrder;
@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "form")
-public class Form extends QuestionBase<FilledForm, FormOrder> {
+public class Form extends Offer<FilledForm, FormOrder> {
 
   @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, targetEntity = FormOrder.class)
   @JoinColumn(name = "form_order_id")

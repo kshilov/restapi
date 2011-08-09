@@ -1,6 +1,6 @@
 package com.heymoose.rest.domain.order;
 
-import com.heymoose.rest.domain.question.Form;
+import com.heymoose.rest.domain.offer.Form;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
