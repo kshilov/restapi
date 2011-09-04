@@ -1,4 +1,4 @@
-package com.heymoose.rest.server;
+package com.heymoose.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -6,8 +6,8 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.heymoose.rest.context.AppContextListener;
-import com.heymoose.rest.context.SettingsModule;
+import com.heymoose.context.AppContextListener;
+import com.heymoose.context.SettingsModule;
 import com.sun.grizzly.http.embed.GrizzlyWebServer;
 import com.sun.grizzly.http.servlet.ServletAdapter;
 

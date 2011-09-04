@@ -1,4 +1,4 @@
-package com.heymoose.rest.security;
+package com.heymoose.security;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

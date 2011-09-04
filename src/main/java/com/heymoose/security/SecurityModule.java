@@ -1,6 +1,5 @@
-package com.heymoose.rest.security;
+package com.heymoose.security;
 
-import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -9,13 +8,10 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.RequestScoped;
-import com.heymoose.rest.domain.app.App;
+import com.heymoose.domain.App;
 import com.sun.jersey.api.core.HttpRequestContext;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -26,13 +22,13 @@ public class SecurityModule extends AbstractModule {
         bindInterceptor(
             Matchers.annotatedWith(Secured.class),
             Matchers.any(),
-            new SecuredInterceptor(getProvider(Key.get(Integer.class, Names.named("app")))));
+            new SecuredInterceptor(getProvider(Key.get(Long.class, Names.named("app")))));
   }
 
   @Provides
   @RequestScoped
   @Named("app")
-  protected Integer app(HttpRequestContext requestContext, Provider<SessionFactory> sessionFactoryProvider) throws Throwable {
+  protected Long app(HttpRequestContext requestContext, Provider<SessionFactory> sessionFactoryProvider) throws Throwable {
     String appId = requestContext.getQueryParameters().getFirst("app");
     String secret = requestContext.getQueryParameters().getFirst("secret");
     if (isNullOrEmpty(appId) || isNullOrEmpty(secret))
@@ -40,11 +36,12 @@ public class SecurityModule extends AbstractModule {
     Session session = sessionFactoryProvider.get().openSession();
     session.beginTransaction();
     try {
-      App app = (App) session
+      /*App app = (App) session
               .createQuery("from App where id = :id and secret = :secret")
               .setParameter("id", Integer.parseInt(appId))
               .setParameter("secret", secret)
-              .uniqueResult();
+              .uniqueResult(); */
+      App app = null;
       if (app == null)
         return null;
       return app.id();

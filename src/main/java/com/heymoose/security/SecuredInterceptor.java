@@ -1,4 +1,4 @@
-package com.heymoose.rest.security;
+package com.heymoose.security;
 
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -10,9 +10,9 @@ import javax.ws.rs.core.Response;
 
 public class SecuredInterceptor implements MethodInterceptor {
 
-  private final @Named("app") Provider<Integer> appProvider;
+  private final @Named("app") Provider<Long> appProvider;
 
-  public SecuredInterceptor(Provider<Integer> appProvider) {
+  public SecuredInterceptor(Provider<Long> appProvider) {
     this.appProvider = appProvider;
   }
 

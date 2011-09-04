@@ -1,7 +1,7 @@
 package com.heymoose.rest.test.base;
 
 import com.google.inject.Injector;
-import com.heymoose.rest.server.Launcher;
+import com.heymoose.server.Launcher;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import org.hibernate.Session;
@@ -48,17 +48,7 @@ public class RestTest {
     Session session =  sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
-      session.createQuery("delete from Vote").executeUpdate();
-      session.createQuery("delete from Choice").executeUpdate();
-      session.createQuery("delete from Result").executeUpdate();
-      session.createQuery("delete from Reservation").executeUpdate();
-      session.createQuery("delete from Question").executeUpdate();
-      session.createQuery("delete from Form").executeUpdate();
-      session.createQuery("delete from Question").executeUpdate();
-//      session.createQuery("delete from Reservable").executeUpdate();
-      session.createQuery("delete from UserProfile").executeUpdate();
-      session.createQuery("delete from App").executeUpdate();
-      session.createQuery("delete from OrderBase").executeUpdate();
+     // session.createQuery("delete from Vote").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       log.error("Error while cleaning db, rollback", e);

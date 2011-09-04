@@ -1,7 +1,6 @@
-package com.heymoose.rest.domain.account;
+package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
-import com.heymoose.rest.domain.base.IdEntity;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 

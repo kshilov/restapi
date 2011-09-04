@@ -149,6 +149,12 @@
             <version>9.0-801.jdbc4</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -175,7 +181,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.heymoose.rest.server.Launcher</mainClass>
+                                    <mainClass>com.heymoose.server.Launcher</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

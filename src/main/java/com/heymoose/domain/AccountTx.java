@@ -1,6 +1,4 @@
-package com.heymoose.rest.domain.account;
-
-import com.heymoose.rest.domain.base.IdEntity;
+package com.heymoose.domain;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -23,7 +21,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   private Integer version;
 
   @Column(name = "parent_id")
-  private Integer parentId;
+  private Long parentId;
 
   @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   @JoinColumn(name = "account_id")
@@ -55,7 +53,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     return version;
   }
 
-  public Integer parentId() {
+  public Long parentId() {
     return parentId;
   }
 

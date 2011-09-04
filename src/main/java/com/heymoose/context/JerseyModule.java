@@ -1,6 +1,5 @@
-package com.heymoose.rest.context;
+package com.heymoose.context;
 
-import com.google.inject.servlet.ServletModule;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 

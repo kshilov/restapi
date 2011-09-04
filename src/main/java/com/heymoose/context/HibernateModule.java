@@ -1,10 +1,9 @@
-package com.heymoose.rest.context;
+package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.google.inject.matcher.Matchers;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.hibernate.TxInterceptor;

@@ -1,21 +1,9 @@
-package com.heymoose.rest.context;
+package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-import com.heymoose.job.JobRunner;
-import com.heymoose.job.ReservationCleaner;
-import org.hibernate.cfg.Configuration;
 
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import static com.heymoose.util.PropertiesUtil.subTree;
 
 public class ProductionModule extends AbstractModule {
 
@@ -23,11 +11,11 @@ public class ProductionModule extends AbstractModule {
   
   @Override
   protected void configure() {
-    bind(ReservationCleaner.class);
-    bind(JobRunner.class).toProvider(jobRunnerProvider()).asEagerSingleton();
+    //bind(ReservationCleaner.class);
+    //bind(JobRunner.class).toProvider(jobRunnerProvider()).asEagerSingleton();
   }
 
-  @Provides
+ /* @Provides
   @Singleton
   protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, @Named("settings") Properties settings) {
     Configuration config = new Configuration();
@@ -39,8 +27,9 @@ public class ProductionModule extends AbstractModule {
     config.setProperties(hibernateProperties);
     
     return config;
-  }
+  }*/
 
+  /*
   protected Provider<JobRunner> jobRunnerProvider() {
     return new Provider<JobRunner>(){
 
@@ -71,5 +60,5 @@ public class ProductionModule extends AbstractModule {
         return runner;
       }
     };
-  }
+  }*/
 }

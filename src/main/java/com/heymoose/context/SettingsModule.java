@@ -1,4 +1,4 @@
-package com.heymoose.rest.context;
+package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
