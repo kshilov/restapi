@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
-@Path("app")
+@Path("apps")
 @Singleton
 public class AppResource {
 
@@ -50,6 +50,7 @@ public class AppResource {
     app.creationTime = new Date();
     app.platform = Platform.valueOf(platform);
     app.secret = UUID.randomUUID().toString();
+    app.user = user;
 
     user.apps.add(app);
     apps.put(app);
@@ -62,6 +63,6 @@ public class AppResource {
     App app = apps.get(appId);
     if (app == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlApp(app)).build();
+    return Response.ok(Mappers.toXmlApp(app, true)).build();
   }
 }

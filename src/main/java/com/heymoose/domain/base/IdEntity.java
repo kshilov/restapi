@@ -1,4 +1,4 @@
-package com.heymoose.domain;
+package com.heymoose.domain.base;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,15 +9,7 @@ public abstract class IdEntity {
   
   @Id
   @GeneratedValue
-  private Long id;
-
-  public Long id() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
-  }
+  public Long id;
 
   @Override
   public boolean equals(Object o) {

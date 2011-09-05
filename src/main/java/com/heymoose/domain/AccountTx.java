@@ -1,5 +1,7 @@
 package com.heymoose.domain;
 
+import com.heymoose.domain.base.IdEntity;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -78,7 +80,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     newAccount.balance = this.balance.add(amount);
     newAccount.description = description;
     newAccount.diff = amount;
-    newAccount.parentId = this.id();
+    newAccount.parentId = this.id;
     return newAccount;
   }
 
@@ -93,7 +95,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     newAccount.balance = this.balance.subtract(amount);
     newAccount.description = description;
     newAccount.diff = amount.negate();
-    newAccount.parentId = this.id();
+    newAccount.parentId = this.id;
     return newAccount;
   }
 

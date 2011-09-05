@@ -4,12 +4,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.Offer;
+import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.OrderRepository;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.stub.AppRepositoryStub;
+import com.heymoose.domain.stub.OfferRepositoryStub;
 import com.heymoose.domain.stub.OrderRepositoryStub;
 import com.heymoose.domain.stub.UserRepositoryStub;
 import com.heymoose.resource.AppResource;
+import com.heymoose.resource.OfferResource;
 import com.heymoose.resource.OrderResource;
 import com.heymoose.resource.UserResource;
 
@@ -21,10 +25,12 @@ public class CommonModule extends AbstractModule {
     bind(UserResource.class);
     bind(AppResource.class);
     bind(OrderResource.class);
+    bind(OfferResource.class);
 
     bind(UserRepository.class).to(UserRepositoryStub.class);
     bind(AppRepository.class).to(AppRepositoryStub.class);
     bind(OrderRepository.class).to(OrderRepositoryStub.class);
+    bind(OfferRepository.class).to(OfferRepositoryStub.class);
 
     //bindEntities();
   }

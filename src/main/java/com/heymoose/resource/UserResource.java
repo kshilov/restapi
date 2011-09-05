@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -16,7 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
-@Path("user")
+@Path("users")
 @Singleton
 public class UserResource {
 
@@ -37,23 +38,25 @@ public class UserResource {
     newUser.nickname = nickname;
     newUser.passwordHash = DigestUtils.md5Hex(password);
     users.put(newUser);
-    return Response.created(URI.create(Long.toString(newUser.id()))).build();
+    return Response.created(URI.create(Long.toString(newUser.id))).build();
   }
 
   @GET
   @Path("{id}")
-  public Response get(@PathParam("id") long id) {
+  public Response get(@PathParam("id") long id,
+                      @QueryParam("full") @DefaultValue("true") boolean full) {
     User user = users.get(id);
     if (user == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlUser(user)).build();
+    return Response.ok(Mappers.toXmlUser(user, full)).build();
   }
 
   @GET
-  public Response getByEmail(@QueryParam("email") String email) {
+  public Response getByEmail(@QueryParam("email") String email,
+                             @QueryParam("full") @DefaultValue("false") boolean full) {
     User user = users.byEmail(email);
     if (user == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlUser(user)).build();
+    return Response.ok(Mappers.toXmlUser(user, full)).build();
   }
 }

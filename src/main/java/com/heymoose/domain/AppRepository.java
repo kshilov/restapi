@@ -1,5 +1,7 @@
 package com.heymoose.domain;
 
-public interface AppRepository extends Repository<App> {
+import com.heymoose.domain.base.Repository;
 
+public interface AppRepository extends Repository<App> {
+  App byIdAndSecret(long appId, String secret);
 }

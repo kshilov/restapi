@@ -1,5 +1,7 @@
 package com.heymoose.domain;
 
+import com.heymoose.domain.base.IdEntity;
+
 import java.util.Date;
 
 public class App extends IdEntity {
@@ -7,4 +9,5 @@ public class App extends IdEntity {
   public Account account;
   public Date creationTime;
   public String secret;
+  public User user;
 }

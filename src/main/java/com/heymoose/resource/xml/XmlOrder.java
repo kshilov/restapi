@@ -14,4 +14,7 @@ public class XmlOrder {
 
   @XmlElement(name = "balance")
   public String balance;
+
+  @XmlElement(name = "user-id")
+  public Long userId;
 }

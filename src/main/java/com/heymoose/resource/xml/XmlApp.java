@@ -11,4 +11,7 @@ public class XmlApp {
 
   @XmlElement(name = "secret")
   public String secret;
+
+  @XmlElement(name = "user-id")
+  public Long userId;
 }

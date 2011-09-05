@@ -3,6 +3,7 @@ package com.heymoose.context;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.heymoose.security.SecurityModule;
 
 public class AppContextListener extends GuiceServletContextListener {
   @Override
@@ -11,7 +12,7 @@ public class AppContextListener extends GuiceServletContextListener {
             new SettingsModule(),
             new JerseyModule(),
             new CommonModule(),
-            //new SecurityModule(),
+            new SecurityModule(),
             new ProductionModule()
     );
   }

@@ -1,5 +1,7 @@
 package com.heymoose.domain;
 
+import com.heymoose.domain.base.IdEntity;
+
 import java.util.Set;
 
 public class User extends IdEntity {
