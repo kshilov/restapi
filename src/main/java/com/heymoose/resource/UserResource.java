@@ -14,6 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
@@ -28,23 +29,33 @@ public class UserResource {
     this.users = users;
   }
 
+  private void checkNotNull(Object... args) {
+    for (Object obj : args)
+      if (obj == null)
+        throw new WebApplicationException(400);
+  }
+
   @POST
-  public Response register(@FormParam("email") String email, @FormParam("password") String password, @FormParam("nickname") String nickname) {
+  public Response register(@FormParam("email") String email,
+                           @FormParam("passwordHash") String passwordHash,
+                           @FormParam("nickname") String nickname) {
+    checkNotNull(email, passwordHash, nickname);
     User existing = users.byEmail(email);
     if (existing != null)
       return Response.status(400).build();
     User newUser = new User();
     newUser.email = email;
     newUser.nickname = nickname;
-    newUser.passwordHash = DigestUtils.md5Hex(password);
+    newUser.passwordHash = passwordHash;
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id))).build();
   }
 
   @GET
   @Path("{id}")
-  public Response get(@PathParam("id") long id,
+  public Response get(@PathParam("id") Long id,
                       @QueryParam("full") @DefaultValue("true") boolean full) {
+    checkNotNull(id);
     User user = users.get(id);
     if (user == null)
       return Response.status(404).build();
@@ -54,6 +65,7 @@ public class UserResource {
   @GET
   public Response getByEmail(@QueryParam("email") String email,
                              @QueryParam("full") @DefaultValue("false") boolean full) {
+    checkNotNull(email);
     User user = users.byEmail(email);
     if (user == null)
       return Response.status(404).build();

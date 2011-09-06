@@ -28,11 +28,13 @@ public class SecurityModule extends AbstractModule {
   @Named("app")
   protected Long app(HttpRequestContext requestContext, AppRepository apps) throws Throwable {
     String appId = requestContext.getQueryParameters().getFirst("app");
-    String secret = requestContext.getQueryParameters().getFirst("secret");
-    if (isNullOrEmpty(appId) || isNullOrEmpty(secret))
+    String sign = requestContext.getQueryParameters().getFirst("sig");
+    if (isNullOrEmpty(appId) || isNullOrEmpty(sign))
       return null;
-    App app = apps.byIdAndSecret(Long.parseLong(appId), secret);
+    App app = apps.get(Long.parseLong(appId));
     if (app == null)
+      return null;
+    if (!sign.equals(Signer.sign(app.id, app.secret)))
       return null;
     return app.id;
   }

@@ -32,7 +32,7 @@ public class Mappers {
     XmlOrder xmlOrder = new XmlOrder();
     xmlOrder.id = order.id;
     xmlOrder.balance = order.account.actual().balance().toString();
-    xmlOrder.title = order.offer.action.title;
+    xmlOrder.title = order.offer.title;
     if (full)
       xmlOrder.userId = order.user.id;
     return xmlOrder;

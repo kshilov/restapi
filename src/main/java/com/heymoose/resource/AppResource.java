@@ -17,6 +17,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Date;
@@ -35,8 +36,15 @@ public class AppResource {
     this.apps = apps;
   }
 
+  private void checkNotNull(Object... args) {
+    for (Object obj : args)
+      if (obj == null)
+        throw new WebApplicationException(400);
+  }
+
   @POST
-  public Response create(@FormParam("userId") long userId, @FormParam("platform") String platform) {
+  public Response create(@FormParam("userId") Long userId, @FormParam("platform") String platform) {
+    checkNotNull(userId, platform);
     User user = users.get(userId);
     if (user == null)
       return Response.status(404).build();
@@ -59,7 +67,8 @@ public class AppResource {
 
   @GET
   @Path("{id}")
-  public Response get(@PathParam("id") long appId) {
+  public Response get(@PathParam("id") Long appId) {
+    checkNotNull(appId);
     App app = apps.get(appId);
     if (app == null)
       return Response.status(404).build();

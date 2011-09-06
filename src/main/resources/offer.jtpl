@@ -1,0 +1,27 @@
+<!-- BEGIN: main -->
+<div style="width: 607px; height: 136px; margin: auto; border: 1px solid black; color: black; background-color: white; font-family: Arial; margin-bottom: 4px;">
+    <div style="width: 128px; height: 128px; float: left; border: 1px solid black; margin: 3px;">
+    </div>
+    <div style="width: 461px; float: left; margin: 4px;">
+        <div style="width: 100%; height: 32px; font: bold 18px/32px Arial; margin: 0;">
+            {TITLE}
+        </div>
+        <div style="height: 60px; width: 100%; font: normal 14px/20px Arial; text-align: justify; margin: 0;">
+            {BODY}
+        </div>
+        <div style="margin: 0;">
+            <div style="float: left; border: 1px solid black; color: black; height:20px; background-color: #F5F5DC; padding: 4px; margin-top: 7px;">
+                {TIME}
+            </div>
+            <div style="float: right; color: orange; height:20px; padding: 4px; margin-top: 7px;">
+                <form id="offerform" action="/offers?app={APP}&sig={SIG}" method="post"
+                      target="_blank">
+                    <input type="hidden" name="offer_id" value="{OFFER}">
+                    <input type="hidden" name="user_id" class="user_id" value="">
+                    <input type="submit" class="send" value="Пройти оффер"/>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: main -->

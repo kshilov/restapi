@@ -5,14 +5,8 @@ import com.heymoose.domain.base.IdEntity;
 import java.util.Date;
 
 public class Action extends IdEntity {
-
-  public String title;
-  public String body;
-  public ActionType type;
-  public byte[] image;
+  public Performer performer;
+  public Offer offer;
   public Date creationTime;
-
-  public static enum ActionType {
-    URL_ACTION
-  }
+  public AccountTx reservation;
 }

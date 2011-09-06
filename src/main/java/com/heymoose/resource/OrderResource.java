@@ -2,7 +2,6 @@ package com.heymoose.resource;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Account;
-import com.heymoose.domain.Action;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Order;
@@ -18,10 +17,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.Date;
 
 @Path("orders")
@@ -50,14 +47,11 @@ public class OrderResource {
       return Response.status(404).build();
     Date now = new Date();
 
-    Action action = new Action();
-    action.title = title;
-    action.type = Action.ActionType.URL_ACTION;
-    action.body = body;
-    action.creationTime = now;
-
     Offer offer = new Offer();
-    offer.action = action;
+    offer.title = title;
+    offer.type = Offer.Type.URL;
+    offer.body = body;
+    offer.creationTime = now;
     offers.put(offer);
 
     Order order = new Order();
