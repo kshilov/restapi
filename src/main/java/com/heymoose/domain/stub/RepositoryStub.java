@@ -14,7 +14,7 @@ public abstract class RepositoryStub<T extends IdEntity> implements Repository<T
   protected long counter = 1;
 
   @Override
-  public T get(long id) {
+  public T byId(long id) {
     return identityMap.get(id);
   }
 

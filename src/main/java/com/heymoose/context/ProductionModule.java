@@ -40,7 +40,7 @@ public class ProductionModule extends AbstractModule {
       private ReservationCleaner cleaner;
 
       @Override
-      public JobRunner get() {
+      public JobRunner byId() {
         String targetHost = settings.getProperty("job-target-host").trim();
         JobRunner runner = new JobRunner(
                 scheduler,

@@ -28,4 +28,8 @@ public class XmlUser {
 
   @XmlElement(name = "app")
   public XmlApp app;
+
+  @XmlElementWrapper(name = "roles")
+  @XmlElement(name = "role")
+  public Set<String> roles = Sets.newHashSet();
 }

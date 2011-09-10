@@ -2,6 +2,7 @@ package com.heymoose.resource.xml;
 
 import com.heymoose.domain.App;
 import com.heymoose.domain.Order;
+import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 
 public class Mappers {
@@ -14,6 +15,9 @@ public class Mappers {
     xmlUser.email = user.email;
     xmlUser.nickname = user.nickname;
     xmlUser.passwordHash = user.passwordHash;
+    if (user.roles != null)
+      for (Role role : user.roles)
+        xmlUser.roles.add(role.toString());
     if (!full)
       return xmlUser;
     if (user.orders != null)

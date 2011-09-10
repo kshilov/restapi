@@ -6,6 +6,7 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
+import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.resource.xml.Mappers;
@@ -42,9 +43,12 @@ public class OrderResource {
                          @FormParam("body") String body,
                          @FormParam("balance") String balance,
                          @FormParam("cpa") String cpa) {
-    User user = users.get(userId);
+    User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
+    if (user.roles == null || !user.roles.contains(Role.CUSTOMER))
+      return Response.status(Response.Status.CONFLICT).build();
+
     Date now = new Date();
 
     Offer offer = new Offer();
@@ -64,15 +68,15 @@ public class OrderResource {
 
     if (user.orders == null)
       user.orders = Sets.newHashSet();
-
     user.orders.add(order);
+
     return Response.ok().build();
   }
 
   @GET
   @Path("{id}")
   public Response get(@PathParam("id") long orderId) {
-    Order order = orders.get(orderId);
+    Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
     return Response.ok(Mappers.toXmlOrder(order, true)).build();

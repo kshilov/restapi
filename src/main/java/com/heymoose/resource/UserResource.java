@@ -1,9 +1,11 @@
 package com.heymoose.resource;
 
+import com.google.common.collect.Sets;
+import com.heymoose.domain.Account;
+import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.resource.xml.Mappers;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -11,6 +13,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -56,9 +59,7 @@ public class UserResource {
   public Response get(@PathParam("id") Long id,
                       @QueryParam("full") @DefaultValue("true") boolean full) {
     checkNotNull(id);
-    User user = users.get(id);
-    if (user == null)
-      return Response.status(404).build();
+    User user = existing(id);
     return Response.ok(Mappers.toXmlUser(user, full)).build();
   }
 
@@ -70,5 +71,27 @@ public class UserResource {
     if (user == null)
       return Response.status(404).build();
     return Response.ok(Mappers.toXmlUser(user, full)).build();
+  }
+
+  @PUT
+  @Path("{id}")
+  public Response addRole(@PathParam("id") Long id, @FormParam("role") Role role) {
+    checkNotNull(id, role);
+    User user = existing(id);
+    if (user.roles == null)
+      user.roles = Sets.newHashSet();
+    user.roles.add(role);
+    if (role.equals(Role.CUSTOMER) && user.customerAccount == null)
+      user.customerAccount = new Account();
+    if (role.equals(Role.DEVELOPER) && user.developerAccount == null)
+      user.developerAccount = new Account();
+    return Response.ok().build();
+  }
+
+  private User existing(long id) {
+    User user = users.byId(id);
+    if (user == null)
+      throw new WebApplicationException(404);
+    return user;
   }
 }

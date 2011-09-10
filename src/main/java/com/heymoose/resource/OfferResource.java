@@ -13,7 +13,6 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
@@ -44,7 +43,7 @@ public class OfferResource {
   }
 
   private String secret() {
-    return apps.get(appId()).secret;
+    return apps.byId(appId()).secret;
   }
 
   @GET
