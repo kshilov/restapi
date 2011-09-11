@@ -9,4 +9,6 @@ public class Action extends IdEntity {
   public Offer offer;
   public Date creationTime;
   public AccountTx reservation;
+  public boolean done;
+  public boolean deleted;
 }

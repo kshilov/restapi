@@ -11,6 +11,7 @@ public class Offer extends IdEntity {
   public Type type;
   public byte[] image;
   public Date creationTime;
+  public Order order;
 
   public static enum Type {
     URL

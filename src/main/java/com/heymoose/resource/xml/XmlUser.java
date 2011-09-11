@@ -22,6 +22,12 @@ public class XmlUser {
   @XmlElement(name = "password-hash")
   public String passwordHash;
 
+  @XmlElement(name = "customer-account")
+  public String customerAccount;
+
+  @XmlElement(name = "developer-account")
+  public String developerAccount;
+
   @XmlElementWrapper(name = "orders")
   @XmlElement(name = "order")
   public Set<XmlOrder> orders = Sets.newHashSet();

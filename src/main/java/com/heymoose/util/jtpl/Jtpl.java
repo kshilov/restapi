@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  * License: Apache 2.0<br>
 */
 
-public class Jtpl 
+class Jtpl
 {
 	private HashMap blocks = new HashMap();
 	private HashMap parsedBlocks = new HashMap();

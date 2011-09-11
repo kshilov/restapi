@@ -14,10 +14,9 @@
                 {TIME}
             </div>
             <div style="float: right; color: orange; height:20px; padding: 4px; margin-top: 7px;">
-                <form id="offerform" action="/offers?app={APP}&sig={SIG}" method="post"
-                      target="_blank">
-                    <input type="hidden" name="offer_id" value="{OFFER}">
-                    <input type="hidden" name="user_id" class="user_id" value="">
+                <form id="offerform" action="/offers/{OFFER}?app={APP}&sig={SIG}" method="post" target="_blank">
+                    <input type="hidden" name="platform" value="FACEBOOK">
+                    <input type="hidden" name="extId" value="{EXT}">
                     <input type="submit" class="send" value="Пройти оффер"/>
                 </form>
             </div>

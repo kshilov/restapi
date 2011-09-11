@@ -33,7 +33,7 @@ public class Account extends IdEntity {
       transactions = Sets.newTreeSet();
   }
 
-  public AccountTx actual() {
+  public AccountTx currentState() {
     assertTransactions();
     if (transactions.isEmpty())
       return null;
@@ -42,16 +42,16 @@ public class Account extends IdEntity {
 
   public AccountTx addToBalance(BigDecimal amount, String description) {
     assertTransactions();
-    AccountTx tx = actual() == null ?
-                    new AccountTx(this, amount) : actual().add(amount, description);
+    AccountTx tx = currentState() == null ?
+                    new AccountTx(this, amount) : currentState().add(amount, description);
     transactions.add(tx);
     return tx;
   }
 
   public AccountTx subtractFromBalance(BigDecimal amount, String description) {
-    if (actual() == null)
+    if (currentState() == null)
       throw new IllegalStateException("No enough money");
-    AccountTx tx = actual().subtract(amount, description);
+    AccountTx tx = currentState().subtract(amount, description);
     assertTransactions();
     transactions.add(tx);
     return  tx;

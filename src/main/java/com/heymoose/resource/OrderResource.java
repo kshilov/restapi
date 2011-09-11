@@ -60,11 +60,20 @@ public class OrderResource {
 
     Order order = new Order();
     order.creationTime = now;
-    order.account = new Account(new BigDecimal(balance));
+    order.account = new Account();
+
+    BigDecimal amount = new BigDecimal(balance);
+    String desc = String.format("Transfering %s from %s to %s", balance, user.customerAccount, order.account);
+    user.customerAccount.subtractFromBalance(amount, desc);
+    order.account.addToBalance(amount, desc);
+
     order.offer = offer;
     order.cpa = new BigDecimal(cpa);
     order.user = user;
+    order.offer = offer;
     orders.put(order);
+
+    offer.order = order;
 
     if (user.orders == null)
       user.orders = Sets.newHashSet();

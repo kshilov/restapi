@@ -19,7 +19,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.net.URI;
+
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("users")
 @Singleton
@@ -30,12 +33,6 @@ public class UserResource {
   @Inject
   public UserResource(UserRepository users) {
     this.users = users;
-  }
-
-  private void checkNotNull(Object... args) {
-    for (Object obj : args)
-      if (obj == null)
-        throw new WebApplicationException(400);
   }
 
   @POST
@@ -85,6 +82,17 @@ public class UserResource {
       user.customerAccount = new Account();
     if (role.equals(Role.DEVELOPER) && user.developerAccount == null)
       user.developerAccount = new Account();
+    return Response.ok().build();
+  }
+
+  @PUT
+  @Path("{id}/customer-account")
+  public Response addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
+    checkNotNull(id, amount);
+    User user = existing(id);
+    if (user.roles == null || !user.roles.contains(Role.CUSTOMER))
+      return Response.status(Response.Status.CONFLICT).build();
+    user.customerAccount.addToBalance(new BigDecimal(amount), "Adding to balance");
     return Response.ok().build();
   }
 
