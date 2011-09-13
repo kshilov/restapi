@@ -93,8 +93,20 @@ public class OfferResource {
   }
 
   @GET
+  @Path("all")
+  @Produces("text/html; charset=utf-8")
+  public Response all() {
+    StringBuilder html = new StringBuilder();
+    for (Offer offer : offers.approved())
+      html.append(applyTemplate("", offer));
+    return Response.ok(html.toString()).build();
+  }
+
+
+  @GET
   @Produces("text/html; charset=utf-8")
   public Response get(@QueryParam("extId") String extId) {
+    checkNotNull(extId);
     StringBuilder html = new StringBuilder();
     for (Offer offer : getAvailableOffers(extId))
       html.append(applyTemplate(extId, offer));
@@ -105,6 +117,7 @@ public class OfferResource {
   @Path("done")
   @Produces("text/html; charset=utf-8")
   public Response getDone(@QueryParam("extId") String extId) {
+    checkNotNull(extId);
     StringBuilder html = new StringBuilder();
     for (Offer offer : getDoneOffers(extId))
       html.append(applyTemplate(extId, offer));
@@ -112,15 +125,13 @@ public class OfferResource {
   }
 
   private Iterable<Offer> getAvailableOffers(String extId) {
-    if (extId == null)
-      return offers.all();
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
-      return offers.all();
+      return offers.approved();
     return offers.availableFor(performer.id);
   }
 
-  public Iterable<Offer> getDoneOffers(String extId) {
+  private Iterable<Offer> getDoneOffers(String extId) {
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
       return Collections.emptyList();

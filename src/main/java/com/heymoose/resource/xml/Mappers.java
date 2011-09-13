@@ -50,6 +50,7 @@ public class Mappers {
     xmlOrder.id = order.id;
     xmlOrder.balance = order.account.currentState().balance().toString();
     xmlOrder.title = order.offer.title;
+    xmlOrder.approved = order.approved;
     if (full)
       xmlOrder.userId = order.user.id;
     return xmlOrder;

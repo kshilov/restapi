@@ -17,4 +17,7 @@ public class XmlOrder {
 
   @XmlElement(name = "user-id")
   public Long userId;
+
+  @XmlElement(name = "approved")
+  public Boolean approved;
 }

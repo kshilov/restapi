@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
@@ -89,5 +90,15 @@ public class OrderResource {
     if (order == null)
       return Response.status(404).build();
     return Response.ok(Mappers.toXmlOrder(order, true)).build();
+  }
+
+  @PUT
+  @Path("{id}")
+  public Response approve(@PathParam("id") long orderId) {
+    Order order = orders.byId(orderId);
+    if (order == null)
+      return Response.status(404).build();
+    order.approved = true;
+    return Response.ok().build();
   }
 }

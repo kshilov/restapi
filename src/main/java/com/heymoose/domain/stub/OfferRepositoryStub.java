@@ -39,6 +39,15 @@ public class OfferRepositoryStub extends RepositoryStub<Offer> implements OfferR
     for (Action action : actions.all())
       if (action.performer.id.equals(performerId) && action.done)
         done.add(action.offer);
-    return done;
+    return Collections.unmodifiableSet(done);
+  }
+
+  @Override
+  public Set<Offer> approved() {
+    Set<Offer> approved = Sets.newHashSet();
+    for (Offer offer : all())
+      if (offer.order.approved)
+        approved.add(offer);
+    return Collections.unmodifiableSet(approved);
   }
 }
