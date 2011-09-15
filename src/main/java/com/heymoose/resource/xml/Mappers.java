@@ -64,6 +64,7 @@ public class Mappers {
     XmlApp xmlApp = new XmlApp();
     xmlApp.id = app.id;
     xmlApp.secret = app.secret;
+    xmlApp.deleted = app.deleted;
     if (full)
       xmlApp.userId = app.user.id;
     return xmlApp;

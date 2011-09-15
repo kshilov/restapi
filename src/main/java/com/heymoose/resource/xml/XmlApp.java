@@ -14,4 +14,7 @@ public class XmlApp {
 
   @XmlElement(name = "user-id")
   public Long userId;
+
+  @XmlElement(name = "deleted")
+  public Boolean deleted;
 }

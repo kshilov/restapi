@@ -9,4 +9,5 @@ public class App extends IdEntity {
   public Date creationTime;
   public String secret;
   public User user;
+  public boolean deleted;
 }

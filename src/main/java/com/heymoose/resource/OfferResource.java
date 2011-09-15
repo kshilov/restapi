@@ -125,6 +125,8 @@ public class OfferResource {
   }
 
   private Iterable<Offer> getAvailableOffers(String extId) {
+    if (apps.byId(appId()).deleted)
+      return Collections.emptySet();
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
       return offers.approved();

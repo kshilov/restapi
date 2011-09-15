@@ -10,6 +10,7 @@ import com.heymoose.resource.xml.Mappers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -61,8 +62,7 @@ public class AppResource {
 
   @GET
   @Path("{id}")
-  public Response get(@PathParam("id") Long appId) {
-    checkNotNull(appId);
+  public Response get(@PathParam("id") long appId) {
     App app = apps.byId(appId);
     if (app == null)
       return Response.status(404).build();
@@ -71,12 +71,21 @@ public class AppResource {
 
   @PUT
   @Path("{id}")
-  public Response regenerateSecret(@PathParam("id") Long appId) {
-    checkNotNull(appId);
+  public Response regenerateSecret(@PathParam("id") long appId) {
     App app = apps.byId(appId);
     if (app == null)
       return Response.status(404).build();
     app.secret = UUID.randomUUID().toString();
+    return Response.ok().build();
+  }
+
+  @DELETE
+  @Path("{id}")
+  public Response delete(@PathParam("id") Long appId) {
+    App app = apps.byId(appId);
+    if (app == null)
+      return Response.status(404).build();
+    app.deleted = true;
     return Response.ok().build();
   }
 }
