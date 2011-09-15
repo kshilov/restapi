@@ -44,6 +44,15 @@ public class OrderResource {
                          @FormParam("body") String body,
                          @FormParam("balance") String balance,
                          @FormParam("cpa") String cpa) {
+    BigDecimal decCpa = new BigDecimal(cpa);
+    BigDecimal decBalance = new BigDecimal(balance);
+
+    if (decCpa.signum() != 1 || decBalance.signum() != 1)
+      return Response.status(400).build();
+
+    if (decCpa.compareTo(decBalance) == 1)
+      return Response.status(400).build();
+
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -69,7 +78,7 @@ public class OrderResource {
     order.account.addToBalance(amount, desc);
 
     order.offer = offer;
-    order.cpa = new BigDecimal(cpa);
+    order.cpa = decCpa;
     order.user = user;
     order.offer = offer;
     orders.put(order);
