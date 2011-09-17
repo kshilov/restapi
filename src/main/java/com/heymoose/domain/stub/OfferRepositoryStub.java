@@ -25,9 +25,13 @@ public class OfferRepositoryStub extends RepositoryStub<Offer> implements OfferR
   public Set<Offer> availableFor(long performerId) {
     Set<Action> already = Sets.newHashSet();
     for (Action action : actions.all())
-      if (action.performer.id.equals(performerId))
+      if (action.performer.id.equals(performerId)) {
         already.add(action);
-    Set<Offer> offers = Sets.newHashSet(all());
+      }
+    Set<Offer> offers = Sets.newHashSet();
+    for (Offer offer : all())
+      if (offer.order.cpa.compareTo(offer.order.account.currentState().balance()) != 1)
+        offers.add(offer);
     for (Action action : already)
       offers.remove(action.offer);
     return Collections.unmodifiableSet(offers);
@@ -49,5 +53,22 @@ public class OfferRepositoryStub extends RepositoryStub<Offer> implements OfferR
       if (offer.order.approved)
         approved.add(offer);
     return Collections.unmodifiableSet(approved);
+  }
+
+  @Override
+  public Offer byId(long id) {
+    Offer offer = super.byId(id);
+    if (offer.order.deleted)
+      return null;
+    return offer;
+  }
+
+  @Override
+  public Set<Offer> all() {
+    Set<Offer> offers = Sets.newHashSet();
+    for (Offer offer : super.all())
+      if (!offer.order.deleted)
+        offers.add(offer);
+    return Collections.unmodifiableSet(offers);
   }
 }

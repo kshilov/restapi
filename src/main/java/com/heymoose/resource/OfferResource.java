@@ -165,6 +165,8 @@ public class OfferResource {
     Offer offer = offers.byId(offerId);
     if (offer == null)
       return Response.status(404).build();
+    if (!offer.order.approved)
+      return Response.status(409).build();
     Action action = actions.byPerformerAndOffer(performer.id, offer.id);
     if (action != null)
       return Response.status(Response.Status.CONFLICT).build();

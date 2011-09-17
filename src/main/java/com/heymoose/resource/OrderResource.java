@@ -13,6 +13,7 @@ import com.heymoose.resource.xml.Mappers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -44,6 +45,7 @@ public class OrderResource {
                          @FormParam("body") String body,
                          @FormParam("balance") String balance,
                          @FormParam("cpa") String cpa) {
+    
     BigDecimal decCpa = new BigDecimal(cpa);
     BigDecimal decBalance = new BigDecimal(balance);
 
@@ -56,6 +58,7 @@ public class OrderResource {
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
+    
     if (user.roles == null || !user.roles.contains(Role.CUSTOMER))
       return Response.status(Response.Status.CONFLICT).build();
 
@@ -108,6 +111,16 @@ public class OrderResource {
     if (order == null)
       return Response.status(404).build();
     order.approved = true;
+    return Response.ok().build();
+  }
+
+  @DELETE
+  @Path("{id}")
+  public Response delete(@PathParam("id") long orderId) {
+    Order order = orders.byId(orderId);
+    if (order == null)
+      return Response.status(404).build();
+    order.deleted = true;
     return Response.ok().build();
   }
 }

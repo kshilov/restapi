@@ -33,7 +33,6 @@ public class ActionResource {
     if (action == null)
       return Response.status(404).build();
     action.done = true;
-    action.reservation.balance();
     action.performer.app.user.developerAccount.addToBalance(action.reservation.diff().negate(), "Action approved");
     return Response.ok().build();
   }
@@ -42,12 +41,15 @@ public class ActionResource {
   @Path("{id}")
   public Response delete(@PathParam("id") Long actionId) {
     Action action = actions.byId(actionId);
-    if (action != null) {
-      if (!action.done)
-        return Response.status(Response.Status.CONFLICT).build();
-      action.deleted = true;
-    }
-    action.offer.order.account.addToBalance(action.reservation.diff().negate(), "Action deleted");
+    if (action == null)
+      return Response.status(404).build();
+    if (action.deleted)
+      return Response.ok().build();
+    if (action.offer.order.deleted)
+      action.offer.order.user.customerAccount.addToBalance(action.reservation.diff().negate(), "Action deleted");
+    else
+      action.offer.order.account.addToBalance(action.reservation.diff().negate(), "Action deleted");
+    action.deleted = true;
     return Response.ok().build();
   }
 

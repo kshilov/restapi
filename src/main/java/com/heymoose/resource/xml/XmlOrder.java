@@ -20,4 +20,7 @@ public class XmlOrder {
 
   @XmlElement(name = "approved")
   public Boolean approved;
+
+  @XmlElement(name = "deleted")
+  public Boolean deleted;
 }

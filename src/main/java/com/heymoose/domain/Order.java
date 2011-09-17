@@ -12,4 +12,5 @@ public class Order extends IdEntity {
   public BigDecimal cpa;
   public User user;
   public boolean approved;
+  public boolean deleted;
 }

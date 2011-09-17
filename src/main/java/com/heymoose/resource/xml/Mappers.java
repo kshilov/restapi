@@ -51,6 +51,7 @@ public class Mappers {
     xmlOrder.balance = order.account.currentState().balance().toString();
     xmlOrder.title = order.offer.title;
     xmlOrder.approved = order.approved;
+    xmlOrder.deleted = order.deleted;
     if (full)
       xmlOrder.userId = order.user.id;
     return xmlOrder;
