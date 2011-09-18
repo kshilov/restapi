@@ -10,16 +10,19 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.resource.xml.Mappers;
+import com.sun.grizzly.util.http.mapper.Mapper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -37,6 +40,12 @@ public class OrderResource {
     this.users = users;
     this.orders = orders;
     this.offers = offers;
+  }
+
+  @GET
+  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
+                       @QueryParam("limit") @DefaultValue("20") int limit) {
+    return Response.ok(Mappers.toXmlOrders(orders.list(offset, limit))).build();
   }
 
   @POST

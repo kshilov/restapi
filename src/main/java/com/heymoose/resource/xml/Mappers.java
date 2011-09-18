@@ -24,7 +24,7 @@ public class Mappers {
     }
     if (user.developerAccount != null) {
       if (user.developerAccount.currentState() == null)
-        xmlUser.developerAccount = "0.0.";
+        xmlUser.developerAccount = "0.0";
       else
         xmlUser.developerAccount = user.developerAccount.currentState().balance().toString();
     }
@@ -39,6 +39,13 @@ public class Mappers {
     if (user.apps != null && !user.apps.isEmpty())
       xmlUser.app = toXmlApp(user.apps.iterator().next());
     return xmlUser;
+  }
+
+  public static XmlOrders toXmlOrders(Iterable<Order> orders) {
+    XmlOrders xmlOrders = new XmlOrders();
+    for (Order order : orders)
+      xmlOrders.orders.add(toXmlOrder(order));
+    return xmlOrders;
   }
 
   public static XmlOrder toXmlOrder(Order order) {

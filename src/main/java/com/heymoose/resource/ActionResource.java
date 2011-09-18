@@ -54,7 +54,7 @@ public class ActionResource {
   }
 
   @GET
-  public Response getAll(@QueryParam("offset") @DefaultValue("0") int offset,
+  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
                          @QueryParam("limit") @DefaultValue("50") int limit) {
     Iterable<Action> page = actions.list(ActionRepository.Ordering.BY_CREATION_TIME_DESC, offset, limit);
     return Response.ok(Mappers.toXmlActions(page)).build();

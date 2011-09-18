@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
+import com.heymoose.util.Paging;
 
 import javax.inject.Singleton;
 import java.util.Collections;
@@ -47,16 +48,7 @@ public class ActionRepositoryStub extends RepositoryStub<Action> implements Acti
     };
     List<Action> all = Lists.newArrayList(identityMap.values());
     Collections.sort(all, actionComparator);
-    List<Action> page = Lists.newArrayList();
-    int counter = 0;
-    for (int i = 0; i < all.size(); i++) {
-      if (i < offset)
-        continue;
-      if (counter >= limit)
-        break;
-      page.add(all.get(i));
-      counter++;
-    }
+    List<Action> page = Paging.page(all, offset, limit);
     return Collections.unmodifiableList(page);
   }
 
