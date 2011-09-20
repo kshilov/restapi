@@ -1,9 +1,17 @@
 package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import org.hibernate.cfg.Configuration;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
+import static com.heymoose.util.PropertiesUtil.subTree;
 
 public class ProductionModule extends AbstractModule {
 
@@ -15,7 +23,7 @@ public class ProductionModule extends AbstractModule {
     //bind(JobRunner.class).toProvider(jobRunnerProvider()).asEagerSingleton();
   }
 
- /* @Provides
+  @Provides
   @Singleton
   protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, @Named("settings") Properties settings) {
     Configuration config = new Configuration();
@@ -27,7 +35,7 @@ public class ProductionModule extends AbstractModule {
     config.setProperties(hibernateProperties);
     
     return config;
-  }*/
+  }
 
   /*
   protected Provider<JobRunner> jobRunnerProvider() {

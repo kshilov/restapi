@@ -9,6 +9,7 @@ import com.heymoose.domain.OrderRepository;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.sun.grizzly.util.http.mapper.Mapper;
 
@@ -43,12 +44,14 @@ public class OrderResource {
   }
 
   @GET
+  @Transactional
   public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit) {
     return Response.ok(Mappers.toXmlOrders(orders.list(offset, limit))).build();
   }
 
   @POST
+  @Transactional
   public Response create(@FormParam("userId") int userId,
                          @FormParam("title") String title,
                          @FormParam("body") String body,
@@ -106,6 +109,7 @@ public class OrderResource {
 
   @GET
   @Path("{id}")
+  @Transactional
   public Response get(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
     if (order == null)
@@ -115,6 +119,7 @@ public class OrderResource {
 
   @PUT
   @Path("{id}")
+  @Transactional
   public Response approve(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
     if (order == null)
@@ -125,6 +130,7 @@ public class OrderResource {
 
   @DELETE
   @Path("{id}")
+  @Transactional
   public Response delete(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
     if (order == null)

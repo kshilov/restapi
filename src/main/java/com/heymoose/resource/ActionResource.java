@@ -2,6 +2,7 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ public class ActionResource {
 
   @PUT
   @Path("{id}")
+  @Transactional
   public Response approve(@PathParam("id") Long actionId) {
     Action action = actions.byId(actionId);
     if (action == null)
@@ -39,6 +41,7 @@ public class ActionResource {
 
   @DELETE
   @Path("{id}")
+  @Transactional
   public Response delete(@PathParam("id") Long actionId) {
     Action action = actions.byId(actionId);
     if (action == null)
@@ -54,6 +57,7 @@ public class ActionResource {
   }
 
   @GET
+  @Transactional
   public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
                          @QueryParam("limit") @DefaultValue("50") int limit) {
     Iterable<Action> page = actions.list(ActionRepository.Ordering.BY_CREATION_TIME_DESC, offset, limit);

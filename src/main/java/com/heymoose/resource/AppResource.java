@@ -6,6 +6,7 @@ import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 
 import javax.inject.Inject;
@@ -37,6 +38,7 @@ public class AppResource {
   }
 
   @POST
+  @Transactional
   public Response create(@FormParam("userId") Long userId) {
     checkNotNull(userId);
     User user = users.byId(userId);
@@ -62,6 +64,7 @@ public class AppResource {
 
   @GET
   @Path("{id}")
+  @Transactional
   public Response get(@PathParam("id") long appId) {
     App app = apps.byId(appId);
     if (app == null)
@@ -71,6 +74,7 @@ public class AppResource {
 
   @PUT
   @Path("{id}")
+  @Transactional
   public Response regenerateSecret(@PathParam("id") long appId) {
     App app = apps.byId(appId);
     if (app == null)
@@ -81,6 +85,7 @@ public class AppResource {
 
   @DELETE
   @Path("{id}")
+  @Transactional
   public Response delete(@PathParam("id") Long appId) {
     App app = apps.byId(appId);
     if (app == null)

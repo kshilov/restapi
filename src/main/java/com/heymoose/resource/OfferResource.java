@@ -10,6 +10,7 @@ import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.security.Secured;
 import com.heymoose.security.Signer;
 import com.heymoose.util.jtpl.Template;
@@ -95,6 +96,7 @@ public class OfferResource {
   @GET
   @Path("all")
   @Produces("text/html; charset=utf-8")
+  @Transactional
   public Response all() {
     StringBuilder html = new StringBuilder();
     for (Offer offer : offers.approved())
@@ -105,6 +107,7 @@ public class OfferResource {
 
   @GET
   @Produces("text/html; charset=utf-8")
+  @Transactional
   public Response get(@QueryParam("extId") String extId) {
     checkNotNull(extId);
     StringBuilder html = new StringBuilder();
@@ -116,6 +119,7 @@ public class OfferResource {
   @GET
   @Path("done")
   @Produces("text/html; charset=utf-8")
+  @Transactional
   public Response getDone(@QueryParam("extId") String extId) {
     checkNotNull(extId);
     StringBuilder html = new StringBuilder();
@@ -142,6 +146,7 @@ public class OfferResource {
 
   @POST
   @Path("{id}")
+  @Transactional
   public Response doOffer(@PathParam("id") Long offerId,
                           @FormParam("extId") String extId,
                           @FormParam("platform") Platform platform) {

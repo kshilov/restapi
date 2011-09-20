@@ -5,6 +5,7 @@ import com.heymoose.domain.Account;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ public class UserResource {
   }
 
   @POST
+  @Transactional
   public Response register(@FormParam("email") String email,
                            @FormParam("passwordHash") String passwordHash,
                            @FormParam("nickname") String nickname) {
@@ -53,6 +55,7 @@ public class UserResource {
 
   @GET
   @Path("{id}")
+  @Transactional
   public Response get(@PathParam("id") Long id,
                       @QueryParam("full") @DefaultValue("true") boolean full) {
     checkNotNull(id);
@@ -61,6 +64,7 @@ public class UserResource {
   }
 
   @GET
+  @Transactional
   public Response getByEmail(@QueryParam("email") String email,
                              @QueryParam("full") @DefaultValue("false") boolean full) {
     checkNotNull(email);
@@ -72,6 +76,7 @@ public class UserResource {
 
   @PUT
   @Path("{id}")
+  @Transactional
   public Response addRole(@PathParam("id") Long id, @FormParam("role") Role role) {
     checkNotNull(id, role);
     User user = existing(id);
@@ -87,6 +92,7 @@ public class UserResource {
 
   @PUT
   @Path("{id}/customer-account")
+  @Transactional
   public Response addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
     checkNotNull(id, amount);
     User user = existing(id);
