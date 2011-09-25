@@ -11,7 +11,6 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -26,31 +25,19 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   @Override
   public Set<Offer> availableFor(long performerId) {
     // TODO: add ordering
-    String sql = "select " +
-        "offer.id " +
-        "from " +
-        "offer " +
-        "left join action on offer.id = action.offer_id " +
-        "inner join offer_order on offer.id = offer_order.offer_id " +
+    String sql = "select offer.id " +
+        "from offer " +
+        "inner join offer_order on offer_order.offer_id = offer.id " +
         "where " +
-        "action.performer_id <> :performerId and not offer_order.deleted";
+        "offer.id not in (select action.offer_id from action where performer_id = :performerId and not action.deleted) " +
+        "and (select offer_order.cpa <= balance from account_tx where account_tx.account_id = offer_order.account_id order by version desc limit 1) " +
+        "and not offer_order.deleted  " +
+        "and offer_order.approved";
     List<BigInteger> ids = (List<BigInteger>) hiber()
         .createSQLQuery(sql)
         .setParameter("performerId", performerId)
         .list();
-    if (ids.isEmpty())
-      return Collections.emptySet();
-    List<Offer> offers = hiber()
-        .createQuery("from Offer where id in :ids")
-        .setParameterList("ids", longs(ids))
-        .list();
-    Iterator<Offer> it = offers.iterator();
-    while (it.hasNext()) {
-      Offer offer = it.next();
-      if (offer.order.cpa.compareTo(offer.order.account.currentState().balance()) == 1)
-        it.remove();
-    }
-    return Sets.newHashSet(offers);
+    return loadByIds(longs(ids));
   }
 
   @Override
@@ -65,13 +52,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
             .createSQLQuery(sql)
             .setParameter("performerId", performerId)
             .list();
-    if (ids.isEmpty())
-      return Collections.emptySet();
-    List<Offer> offers = hiber()
-        .createQuery("from Offer where id in :ids")
-        .setParameterList("ids", longs(ids))
-        .list();
-    return Sets.newHashSet(offers);
+    return loadByIds(longs(ids));
   }
 
   @Override
@@ -79,17 +60,11 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     String sql = "select " +
         "offer.id " +
         "from offer inner join offer_order on offer.id = offer_order.offer_id " +
-        "where offer_order.approved";
+        "where not offer_order.deleted and offer_order.approved";
     List<BigInteger> ids = (List<BigInteger>) hiber()
             .createSQLQuery(sql)
             .list();
-    if (ids.isEmpty())
-      return Collections.emptySet();
-    List<Offer> offers = hiber()
-        .createQuery("from Offer where id in :ids")
-        .setParameterList("ids", longs(ids))
-        .list();
-    return Sets.newHashSet(offers);
+    return loadByIds(longs(ids));
   }
 
   @Override
@@ -112,10 +87,20 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return Offer.class;
   }
 
-  private static List<Long> longs(Iterable<BigInteger> from) {
-    List<Long> longs = Lists.newArrayList();
+  private static List<Long> longs(List<BigInteger> from) {
+    List<Long> longs = Lists.newArrayListWithCapacity(from.size());
     for (BigInteger x : from)
       longs.add(x.longValue());
     return longs;
+  }
+
+  private Set<Offer> loadByIds(List<Long> ids) {
+    if (ids.isEmpty())
+      return Collections.emptySet();
+    List<Offer> offers = hiber()
+        .createQuery("from Offer where id in :ids")
+        .setParameterList("ids", ids)
+        .list();
+    return Sets.newHashSet(offers);
   }
 }

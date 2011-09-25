@@ -41,6 +41,9 @@ public class Offer extends IdEntity {
   @OneToOne(fetch = FetchType.LAZY, mappedBy = "offer")
   public Order order;
 
+  @Column(name = "auto_approve", nullable = false)
+  public boolean autoApprove;
+
   public static enum Type {
     URL
   }

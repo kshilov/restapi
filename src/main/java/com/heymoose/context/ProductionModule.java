@@ -1,26 +1,25 @@
 package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
+import com.heymoose.job.Scheduler;
+import com.heymoose.util.PropertiesUtil;
 import org.hibernate.cfg.Configuration;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static com.heymoose.util.PropertiesUtil.subTree;
 
 public class ProductionModule extends AbstractModule {
 
-  private final static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-  
   @Override
   protected void configure() {
-    //bind(ReservationCleaner.class);
-    //bind(JobRunner.class).toProvider(jobRunnerProvider()).asEagerSingleton();
+    bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
   @Provides
@@ -37,36 +36,22 @@ public class ProductionModule extends AbstractModule {
     return config;
   }
 
-  /*
-  protected Provider<JobRunner> jobRunnerProvider() {
-    return new Provider<JobRunner>(){
+  protected Provider<Scheduler> schedulerProvider() {
+    return new Provider<Scheduler>() {
 
       @Inject @Named("settings")
       private Properties settings;
 
-      @Inject
-      private ReservationCleaner cleaner;
-
       @Override
-      public JobRunner byId() {
-        String targetHost = settings.getProperty("job-target-host").trim();
-        JobRunner runner = new JobRunner(
-                scheduler,
-                targetHost,
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    cleaner.deleteExpiredReservations();
-                  }
-                }
-        );
-        try {
-          runner.startJob();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-        return runner;
+      public Scheduler get() {
+        Properties schedProps = PropertiesUtil.subTree(settings, "scheduler", "");
+        String targetHost = schedProps.getProperty("target-host").trim();
+        int runAtHours = Integer.parseInt(schedProps.getProperty("ru-at-hours"));
+        int runAtMinutes = Integer.parseInt(schedProps.getProperty("ru-at-minutes"));
+        Scheduler scheduler = new Scheduler(targetHost, runAtHours, runAtMinutes, null);
+        scheduler.schedule();
+        return scheduler;
       }
     };
-  }*/
+  }
 }

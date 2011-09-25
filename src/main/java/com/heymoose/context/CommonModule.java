@@ -28,6 +28,7 @@ import com.heymoose.resource.ActionResource;
 import com.heymoose.resource.AppResource;
 import com.heymoose.resource.OfferResource;
 import com.heymoose.resource.OrderResource;
+import com.heymoose.resource.PerformerResource;
 import com.heymoose.resource.UserResource;
 
 public class CommonModule extends AbstractModule {
@@ -40,13 +41,7 @@ public class CommonModule extends AbstractModule {
     bind(OrderResource.class);
     bind(OfferResource.class);
     bind(ActionResource.class);
-
-    /*bind(UserRepository.class).to(UserRepositoryStub.class);
-    bind(AppRepository.class).to(AppRepositoryStub.class);
-    bind(OrderRepository.class).to(OrderRepositoryStub.class);
-    bind(OfferRepository.class).to(OfferRepositoryStub.class);
-    bind(PerformerRepository.class).to(PerformerRepositoryStub.class);
-    bind(ActionRepository.class).to(ActionRepositoryStub.class);*/
+    bind(PerformerResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);

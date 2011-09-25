@@ -1,5 +1,6 @@
 package com.heymoose.domain.hiber;
 
+import com.google.common.collect.Sets;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import org.hibernate.Session;
@@ -7,6 +8,7 @@ import org.hibernate.Session;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import java.util.Set;
 
 @Singleton
 public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepository {
@@ -17,11 +19,14 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
 
   @Override
-  public App byIdAndSecret(long appId, String secret) {
-    return (App) hiber()
-        .createQuery("from App where id = :id and secret = :secret")
-        .setParameter("id", appId)
-        .setParameter("secret", secret)
+  public Set<App> all() {
+    return Sets.newHashSet(hiber().createQuery("from App where deleted = false").list());
+  }
+
+  @Override
+  public App byId(long id) {
+    return (App) hiber().createQuery("from App where id = :id and deleted = false")
+        .setParameter("id", id)
         .uniqueResult();
   }
 

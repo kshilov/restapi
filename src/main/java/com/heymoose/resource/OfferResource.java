@@ -181,6 +181,8 @@ public class OfferResource {
     action.offer = offer;
     action.performer = performer;
     action.reservation = reservation;
+    if (offer.autoApprove)
+      action.done = true;
     actions.put(action);
     return Response.status(302).location(URI.create(offer.body)).build();
   }

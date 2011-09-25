@@ -56,7 +56,8 @@ public class OrderResource {
                          @FormParam("title") String title,
                          @FormParam("body") String body,
                          @FormParam("balance") String balance,
-                         @FormParam("cpa") String cpa) {
+                         @FormParam("cpa") String cpa,
+                         @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove) {
     
     BigDecimal decCpa = new BigDecimal(cpa);
     BigDecimal decBalance = new BigDecimal(balance);
@@ -81,6 +82,7 @@ public class OrderResource {
     offer.type = Offer.Type.URL;
     offer.body = body;
     offer.creationTime = now;
+    offer.autoApprove = autoApprove;
     offers.put(offer);
 
     Order order = new Order();
