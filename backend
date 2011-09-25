@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -DsettingsFile=/etc/backend/settings.properties -jar /usr/share/backend/backend.jar

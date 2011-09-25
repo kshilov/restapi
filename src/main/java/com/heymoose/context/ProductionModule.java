@@ -19,7 +19,7 @@ public class ProductionModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
+//    bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
   @Provides

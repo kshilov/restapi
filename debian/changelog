@@ -1,0 +1,5 @@
+backend (1.0.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- denis <denis@unknown>  Sun, 25 Sep 2011 20:55:40 +0400

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+
+adduser --system --disabled-password --no-create-home --disabled-login backend || true
