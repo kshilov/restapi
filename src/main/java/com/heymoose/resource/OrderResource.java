@@ -12,6 +12,7 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.sun.grizzly.util.http.mapper.Mapper;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -72,40 +73,19 @@ public class OrderResource {
     if (user == null)
       return Response.status(404).build();
     
-    if (user.roles == null || !user.roles.contains(Role.CUSTOMER))
+    if (!user.isCustomer())
       return Response.status(Response.Status.CONFLICT).build();
 
-    Date now = new Date();
-
-    Offer offer = new Offer();
-    offer.title = title;
-    offer.type = Offer.Type.URL;
-    offer.body = body;
-    offer.creationTime = now;
-    offer.autoApprove = autoApprove;
-    offers.put(offer);
-
-    Order order = new Order();
-    order.creationTime = now;
-    order.account = new Account();
-
+    DateTime now = DateTime.now();
+    Offer offer = new Offer(title, body, autoApprove, now);
+    Order order = new Order(offer, decCpa, user, now);
+    
     BigDecimal amount = new BigDecimal(balance);
-    String desc = String.format("Transfering %s from %s to %s", balance, user.customerAccount, order.account);
-    user.customerAccount.subtractFromBalance(amount, desc);
-    order.account.addToBalance(amount, desc);
+    String desc = String.format("Transfering %s from %s to %s", balance, user.customerAccount(), order.account());
+    user.customerAccount().subtractFromBalance(amount, desc);
+    order.account().addToBalance(amount, desc);
 
-    order.offer = offer;
-    order.cpa = decCpa;
-    order.user = user;
-    order.offer = offer;
     orders.put(order);
-
-    offer.order = order;
-
-    if (user.orders == null)
-      user.orders = Sets.newHashSet();
-    user.orders.add(order);
-
     return Response.ok().build();
   }
 
@@ -126,7 +106,7 @@ public class OrderResource {
     Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
-    order.approved = true;
+    order.approve();
     return Response.ok().build();
   }
 
@@ -137,7 +117,7 @@ public class OrderResource {
     Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
-    order.deleted = true;
+    order.delete();
     return Response.ok().build();
   }
 }

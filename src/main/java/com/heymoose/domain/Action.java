@@ -1,6 +1,9 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.Basic;
@@ -20,6 +23,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+
 @Entity
 @Table(
     name = "action",
@@ -27,25 +32,85 @@ import java.util.Date;
 )
 public class Action extends IdEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "performer_id", nullable = false)
-  public Performer performer;
+  private Performer performer;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "offer_id", nullable = false)
-  public Offer offer;
+  private Offer offer;
 
-  @Temporal(TemporalType.TIMESTAMP)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
-  public Date creationTime;
+  private DateTime creationTime;
+
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+  @Column(name = "approve_time", nullable = true)
+  private DateTime approveTime;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "reservation", nullable = false)
-  public AccountTx reservation;
+  private AccountTx reservation;
 
   @Basic(optional = false)
-  public boolean done;
+  private boolean done;
 
   @Basic(optional = false)
-  public boolean deleted;
+  private boolean deleted;
+
+  protected Action() {}
+
+  public Action(Offer offer, Performer performer) {
+    checkNotNull(offer, performer);
+    this.offer = offer;
+    this.performer = performer;
+    DateTime now = DateTime.now();
+    this.creationTime = now;
+    if (offer.autoApprove()) {
+      done = true;
+      approveTime = now;
+    }
+    Order order = offer.order();
+    this.reservation = order.account().subtractFromBalance(order.cpa(), "Reservation");
+  }
+
+  public boolean done() {
+    return done;
+  }
+
+  public boolean deleted() {
+    return deleted;
+  }
+
+  public Performer performer() {
+    return performer;
+  }
+
+  public AccountTx reservation() {
+    return reservation;
+  }
+
+  public Offer offer() {
+    return offer;
+  }
+
+  public void approve() {
+    if (deleted)
+      throw new IllegalStateException("Action was deleted");
+    if (done)
+      throw new IllegalStateException("Already done");
+    done = true;
+    approveTime = DateTime.now();
+    performer.app().owner().developerAccount().addToBalance(reservation.diff().negate(), "Action approved");
+  }
+
+  public void delete() {
+    if (done)
+      throw new IllegalStateException("Action is done");
+    deleted = true;
+  }
+
+  public DateTime creationTime() {
+    return creationTime;
+  }
 }

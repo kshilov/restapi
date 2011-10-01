@@ -15,6 +15,7 @@ import com.heymoose.security.Secured;
 import com.heymoose.security.Signer;
 import com.heymoose.util.jtpl.Template;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -74,17 +75,17 @@ public class OfferResource {
   }
 
   private String secret() {
-    return apps.byId(appId()).secret;
+    return apps.byId(appId()).secret();
   }
 
   private String applyTemplate(String extId, Offer offer) {
     Template offerTpl = new Template(this.offerTpl);
-    offerTpl.assign("TITLE", offer.title);
-    offerTpl.assign("BODY", offer.body);
-    offerTpl.assign("TIME", offer.creationTime.toGMTString());
+    offerTpl.assign("TITLE", offer.title());
+    offerTpl.assign("BODY", offer.body());
+     offerTpl.assign("TIME", offer.creationTime().toString());
     offerTpl.assign("APP", Long.toString(appId()));
     offerTpl.assign("SIG", Signer.sign(appId(), secret()));
-    offerTpl.assign("OFFER", Long.toString(offer.id));
+    offerTpl.assign("OFFER", Long.toString(offer.id()));
     if (!isBlank(extId))
       offerTpl.assign("EXT", extId);
     else
@@ -129,19 +130,19 @@ public class OfferResource {
   }
 
   private Iterable<Offer> getAvailableOffers(String extId) {
-    if (apps.byId(appId()).deleted)
+    if (apps.byId(appId()).deleted())
       return Collections.emptySet();
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
       return offers.approved();
-    return offers.availableFor(performer.id);
+    return offers.availableFor(performer.id());
   }
 
   private Iterable<Offer> getDoneOffers(String extId) {
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
       return Collections.emptyList();
-    return offers.doneFor(performer.id);
+    return offers.doneFor(performer.id());
   }
 
   @POST
@@ -154,36 +155,20 @@ public class OfferResource {
     if (isBlank(extId))
       return Response.status(400).build();
     App app = apps.byId(appId());
-    if (app.platform == null)
-      app.platform = platform;
-    else if (!app.platform.equals(platform))
-      return Response.status(400).build();
-    Date now = new Date();
+    app.assignPlatform(platform);
     Performer performer = performers.byAppAndExtId(appId(), extId);
-    if (performer == null) {
-      performer = new Performer();
-      performer.app = app;
-      performer.creationTime = now;
-      performer.extId = extId;
-      performers.put(performer);
-    }
+    if (performer == null)
+      performer = new Performer(extId, app, null);
     Offer offer = offers.byId(offerId);
     if (offer == null)
       return Response.status(404).build();
-    if (!offer.order.approved)
+    if (!offer.order().approved())
       return Response.status(409).build();
-    Action action = actions.byPerformerAndOffer(performer.id, offer.id);
+    Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
     if (action != null)
       return Response.status(Response.Status.CONFLICT).build();
-    AccountTx reservation = offer.order.account.subtractFromBalance(offer.order.cpa, "Reservation");
-    action = new Action();
-    action.creationTime = now;
-    action.offer = offer;
-    action.performer = performer;
-    action.reservation = reservation;
-    if (offer.autoApprove)
-      action.done = true;
+    action = new Action(offer, performer);
     actions.put(action);
-    return Response.status(302).location(URI.create(offer.body)).build();
+    return Response.status(302).location(URI.create(offer.body())).build();
   }
 }

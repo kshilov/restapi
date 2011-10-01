@@ -17,8 +17,8 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC=backend             # Introduce a short description here
 NAME=backend             # Introduce the short server's name here
-DAEMON=/usr/bin/$NAME
-DAEMON_ARGS=""             # Arguments to run the daemon with
+DAEMON=/usr/bin/java
+DAEMON_ARGS="-DsettingsFile=/etc/backend/settings.properties -jar /usr/share/backend/backend.jar" # Arguments to run the daemon with
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 

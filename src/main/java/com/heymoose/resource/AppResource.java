@@ -8,6 +8,7 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,20 +45,14 @@ public class AppResource {
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
-    if (user.roles == null || !user.roles.contains(Role.DEVELOPER))
+    if (!user.isDeveloper())
       return Response.status(Response.Status.CONFLICT).build();
-    if (user.apps == null)
-      user.apps = Sets.newHashSet();
+
     // only one app now
-    if (!user.apps.isEmpty())
+    if (!user.apps().isEmpty())
       return Response.ok().build();
-    App app = new App();
-    app.creationTime = new Date();
-    app.secret = UUID.randomUUID().toString();
-    app.user = user;
 
-    user.apps.add(app);
-
+    App app = new App(user);
     apps.put(app);
     return Response.ok().build();
   }
@@ -79,7 +74,7 @@ public class AppResource {
     App app = apps.byId(appId);
     if (app == null)
       return Response.status(404).build();
-    app.secret = UUID.randomUUID().toString();
+    app.regenerateSecret();
     return Response.ok().build();
   }
 
@@ -90,7 +85,7 @@ public class AppResource {
     App app = apps.byId(appId);
     if (app == null)
       return Response.status(404).build();
-    app.deleted = true;
+    app.delete();
     return Response.ok().build();
   }
 }

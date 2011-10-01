@@ -1,6 +1,8 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +17,11 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.ws.rs.WebApplicationException;
 import java.util.Date;
+import java.util.UUID;
+
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(name = "app")
@@ -23,19 +29,55 @@ public class App extends IdEntity {
 
   @Enumerated
   @JoinColumn(name = "platform", nullable = true)
-  public Platform platform;
+  private Platform platform;
 
-  @Temporal(TemporalType.TIMESTAMP)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
-  public Date creationTime;
+  private DateTime creationTime;
 
   @Basic(optional = false)
-  public String secret;
+  private String secret;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
-  public User user;
+  private User user;
 
   @Basic(optional = false)
-  public boolean deleted;
+  private boolean deleted;
+
+  protected App() {}
+
+  public App(User user) {
+    this.user = user;
+    this.secret =  UUID.randomUUID().toString();
+    this.creationTime = DateTime.now();
+  }
+
+  public User owner() {
+    return user;
+  }
+
+  public String secret() {
+    return secret;
+  }
+
+  public void regenerateSecret() {
+    secret = UUID.randomUUID().toString();
+  }
+
+  public boolean deleted() {
+    return deleted;
+  }
+
+  public void delete() {
+    this.deleted = true;
+  }
+
+  public void assignPlatform(Platform platform) {
+    checkNotNull(platform);
+    if (this.platform == null)
+      this.platform = platform;
+    else if (!platform.equals(this.platform))
+      throw new WebApplicationException(400);
+  }
 }

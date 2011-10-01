@@ -1,6 +1,8 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -19,32 +21,81 @@ import javax.persistence.TemporalType;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+
 @Entity
 @Table(name = "offer_order")
 public class Order extends IdEntity {
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "account_id")
-  public Account account;
+  private Account account;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "offer_id")
-  public Offer offer;
+  private Offer offer;
 
-  @Temporal(TemporalType.TIMESTAMP)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
-  public Date creationTime;
+  private DateTime creationTime;
 
   @Basic
-  public BigDecimal cpa;
+  private BigDecimal cpa;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  public User user;
+  private User user;
 
   @Basic(optional = false)
-  public boolean approved;
+  private boolean approved;
 
   @Basic(optional = false)
-  public boolean deleted;
+  private boolean deleted;
+
+  protected Order() {}
+
+  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime) {
+    checkNotNull(offer, cpa, creationTime);
+    if (cpa.signum() != 1)
+      throw new IllegalArgumentException("Cpa must be positive");
+    this.offer = offer;
+    this.cpa = cpa;
+    this.user = user;
+    this.creationTime = creationTime;
+    this.account = new Account();
+  }
+
+  public boolean deleted() {
+    return deleted;
+  }
+
+  public User customer() {
+    return user;
+  }
+
+  public Account account() {
+    return account;
+  }
+
+  public void approve() {
+    if (deleted)
+      throw new IllegalStateException("Order was deleted");
+    approved = true;
+  }
+
+  public boolean approved() {
+    return approved;
+  }
+
+  public void delete() {
+    deleted = true;
+  }
+
+  public BigDecimal cpa() {
+    return cpa;
+  }
+
+  public Offer offer() {
+    return offer;
+  }
 }

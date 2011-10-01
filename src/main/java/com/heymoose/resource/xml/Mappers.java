@@ -12,32 +12,30 @@ public class Mappers {
 
   public static XmlUser toXmlUser(User user, boolean full) {
     XmlUser xmlUser = new XmlUser();
-    xmlUser.id = user.id;
-    xmlUser.email = user.email;
-    xmlUser.nickname = user.nickname;
-    xmlUser.passwordHash = user.passwordHash;
-    if (user.customerAccount != null) {
-      if (user.customerAccount.currentState() == null)
+    xmlUser.id = user.id();
+    xmlUser.email = user.email();
+    xmlUser.nickname = user.nickname();
+    xmlUser.passwordHash = user.passwordHash();
+    if (user.customerAccount() != null) {
+      if (user.customerAccount().currentState() == null)
         xmlUser.customerAccount = "0.0";
       else
-        xmlUser.customerAccount = user.customerAccount.currentState().balance().toString();
+        xmlUser.customerAccount = user.customerAccount().currentState().balance().toString();
     }
-    if (user.developerAccount != null) {
-      if (user.developerAccount.currentState() == null)
+    if (user.developerAccount() != null) {
+      if (user.developerAccount().currentState() == null)
         xmlUser.developerAccount = "0.0";
       else
-        xmlUser.developerAccount = user.developerAccount.currentState().balance().toString();
+        xmlUser.developerAccount = user.developerAccount().currentState().balance().toString();
     }
-    if (user.roles != null)
-      for (Role role : user.roles)
-        xmlUser.roles.add(role.toString());
+    for (Role role : user.roles())
+      xmlUser.roles.add(role.toString());
     if (!full)
       return xmlUser;
-    if (user.orders != null)
-      for (Order order : user.orders)
-        xmlUser.orders.add(toXmlOrder(order));
-    if (user.apps != null && !user.apps.isEmpty())
-      xmlUser.app = toXmlApp(user.apps.iterator().next());
+    for (Order order : user.orders())
+      xmlUser.orders.add(toXmlOrder(order));
+    if (!user.apps().isEmpty())
+      xmlUser.app = toXmlApp(user.apps().iterator().next());
     return xmlUser;
   }
 
@@ -54,13 +52,13 @@ public class Mappers {
 
   public static XmlOrder toXmlOrder(Order order, boolean full) {
     XmlOrder xmlOrder = new XmlOrder();
-    xmlOrder.id = order.id;
-    xmlOrder.balance = order.account.currentState().balance().toString();
-    xmlOrder.title = order.offer.title;
-    xmlOrder.approved = order.approved;
-    xmlOrder.deleted = order.deleted;
+    xmlOrder.id = order.id();
+    xmlOrder.balance = order.account().currentState().balance().toString();
+    xmlOrder.title = order.offer().title();
+    xmlOrder.approved = order.approved();
+    xmlOrder.deleted = order.deleted();
     if (full)
-      xmlOrder.userId = order.user.id;
+      xmlOrder.userId = order.customer().id();
     return xmlOrder;
   }
 
@@ -70,11 +68,11 @@ public class Mappers {
 
   public static XmlApp toXmlApp(App app, boolean full) {
     XmlApp xmlApp = new XmlApp();
-    xmlApp.id = app.id;
-    xmlApp.secret = app.secret;
-    xmlApp.deleted = app.deleted;
+    xmlApp.id = app.id();
+    xmlApp.secret = app.secret();
+    xmlApp.deleted = app.deleted();
     if (full)
-      xmlApp.userId = app.user.id;
+      xmlApp.userId = app.owner().id();
     return xmlApp;
   }
 
@@ -87,12 +85,12 @@ public class Mappers {
 
   private static XmlAction toXmlAction(Action action) {
     XmlAction xmlAction = new XmlAction();
-    xmlAction.id = action.id;
-    xmlAction.offerId = action.offer.id;
-    xmlAction.performerId = action.performer.id;
-    xmlAction.done = action.done;
-    xmlAction.deleted = action.deleted;
-    xmlAction.creationTime = action.creationTime.toGMTString();
+    xmlAction.id = action.id();
+    xmlAction.offerId = action.offer().id();
+    xmlAction.performerId = action.performer().id();
+    xmlAction.done = action.done();
+    xmlAction.deleted = action.deleted();
+    xmlAction.creationTime = action.creationTime().toString();
     return xmlAction;
   }
 }

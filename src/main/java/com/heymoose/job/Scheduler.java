@@ -18,32 +18,33 @@ public class Scheduler {
   private final String targetHost;
   private final int runAtHours;
   private final int runAtMinutes;
-  private final Runnable task;
+  private final Job job;
 
-
-  public Scheduler(String targetHost, int runAtHours, int runAtMinutes, Runnable task) {
+  public Scheduler(String targetHost, int runAtHours, int runAtMinutes, Job job) {
     this.targetHost = targetHost;
     this.runAtHours = runAtHours;
     this.runAtMinutes = runAtMinutes;
-    this.task = task;
+    this.job = job;
   }
 
   private static class TaskWrapper implements Runnable {
 
-    private final Runnable target;
+    private final Job target;
+    private final DateTime startTime;
 
-    public TaskWrapper(Runnable target) {
+    public TaskWrapper(Job target, DateTime startTime) {
       this.target = target;
+      this.startTime = startTime;
     }
 
     @Override
     public void run() {
-      log.info("Starting task");
+      log.info("Starting job");
       try {
-        target.run();
+        target.run(startTime);
         log.info("Task finished");
       } catch (Throwable e) {
-        log.info("Error while executing task!", e);
+        log.info("Error while executing job!", e);
       }
     }
   }
@@ -64,6 +65,6 @@ public class Scheduler {
     log.info("First execution time: {}", startTime);
 
     long delay = startTime.getMillis() - DateTime.now().getMillis();
-    scheduler.scheduleAtFixedRate(new TaskWrapper(task), delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
+    scheduler.scheduleAtFixedRate(new TaskWrapper(job, startTime), delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
   }
 }

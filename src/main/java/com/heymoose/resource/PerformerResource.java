@@ -5,6 +5,7 @@ import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.hibernate.Transactional;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -41,11 +42,7 @@ public class PerformerResource {
     Performer performer = performers.byAppAndExtId(appId, extId);
     if (performer != null)
       return Response.status(409).build();
-    performer.app = app;
-    performer.extId = extId;
-    performer = new Performer();
-    performer.creationTime = new Date();
-    performer.inviter = inviter;
+    performer = new Performer(extId, app, inviter);
     performers.put(performer);
     return Response.ok().build();
   }

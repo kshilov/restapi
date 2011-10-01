@@ -34,8 +34,8 @@ public class SecurityModule extends AbstractModule {
     App app = apps.byId(Long.parseLong(appId));
     if (app == null)
       return null;
-    if (!sign.equals(Signer.sign(app.id, app.secret)))
+    if (!sign.equals(Signer.sign(app.id(), app.secret())))
       return null;
-    return app.id;
+    return app.id();
   }
 }

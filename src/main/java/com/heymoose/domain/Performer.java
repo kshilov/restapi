@@ -1,20 +1,18 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import java.util.Date;
+
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(
@@ -24,17 +22,37 @@ import java.util.Date;
 public class Performer extends IdEntity {
 
   @Column(name = "ext_id")
-  public String extId;
+  private String extId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "app_id", nullable = false)
-  public App app;
+  private App app;
 
-  @Temporal(TemporalType.TIMESTAMP)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
-  public Date creationTime;
+  private DateTime creationTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "inviter", nullable = true)
-  public Performer inviter;
+  private Performer inviter;
+
+  protected Performer() {}
+
+  public Performer(String extId, App app, Performer inviter) {
+    checkNotNull(extId, app);
+    this.extId = extId;
+    this.app = app;
+    if (inviter.equals(this))
+      throw new IllegalArgumentException();
+    this.inviter = inviter;
+    this.creationTime = DateTime.now();
+  }
+
+  public App app() {
+    return app;
+  }
+
+  public String extId() {
+    return extId;
+  }
 }

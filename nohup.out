@@ -1,0 +1,623 @@
+2011-09-25 22:35:34,910  INFO [Version.java:<clinit>:37] - Hibernate Commons Annotations 3.2.0.Final
+2011-09-25 22:35:34,918  INFO [Environment.java:<clinit>:603] - Hibernate 3.6.7.Final
+2011-09-25 22:35:34,919  INFO [Environment.java:<clinit>:636] - hibernate.properties not found
+2011-09-25 22:35:34,921  INFO [Environment.java:buildBytecodeProvider:814] - Bytecode provider name : javassist
+2011-09-25 22:35:34,924  INFO [Environment.java:<clinit>:695] - using JDK 1.4 java.sql.Timestamp handling
+2011-09-25 22:35:35,008  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Account
+2011-09-25 22:35:35,032  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Account on table account
+2011-09-25 22:35:35,090  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.AccountTx
+2011-09-25 22:35:35,092  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.AccountTx on table account_tx
+2011-09-25 22:35:35,111  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Action
+2011-09-25 22:35:35,112  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Action on table action
+2011-09-25 22:35:35,120  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.App
+2011-09-25 22:35:35,121  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.App on table app
+2011-09-25 22:35:35,128  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Offer
+2011-09-25 22:35:35,128  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Offer on table offer
+2011-09-25 22:35:35,135  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Order
+2011-09-25 22:35:35,136  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Order on table offer_order
+2011-09-25 22:35:35,139  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Performer
+2011-09-25 22:35:35,140  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Performer on table performer
+2011-09-25 22:35:35,142  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.User
+2011-09-25 22:35:35,143  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.User on table user_profile
+2011-09-25 22:35:35,163  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.Account.transactions -> account_tx
+2011-09-25 22:35:35,165  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.apps -> app
+2011-09-25 22:35:35,165  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.orders -> offer_order
+2011-09-25 22:35:35,170  INFO [Configuration.java:applyHibernateValidatorLegacyConstraintsOnDDL:1676] - Hibernate Validator not found: ignoring
+2011-09-25 22:35:35,174  INFO [HibernateSearchEventListenerRegister.java:enableHibernateSearch:75] - Unable to find org.hibernate.search.event.FullTextIndexEventListener on the classpath. Hibernate Search is not enabled.
+2011-09-25 22:35:35,181  INFO [ConnectionProviderFactory.java:initializeConnectionProviderFromConfig:173] - Initializing connection provider: org.hibernate.connection.C3P0ConnectionProvider
+2011-09-25 22:35:35,183  INFO [C3P0ConnectionProvider.java:configure:103] - C3P0 using driver: org.postgresql.Driver at URL: jdbc:postgresql://localhost/heymoose
+2011-09-25 22:35:35,183  INFO [C3P0ConnectionProvider.java:configure:104] - Connection properties: {user=postgres, password=****}
+2011-09-25 22:35:35,183  INFO [C3P0ConnectionProvider.java:configure:107] - autocommit mode: false
+Sep 25, 2011 10:35:35 PM com.mchange.v2.log.MLog <clinit>
+INFO: MLog clients using java 1.4+ standard logging.
+Sep 25, 2011 10:35:35 PM com.mchange.v2.c3p0.C3P0Registry banner
+INFO: Initializing c3p0-0.9.1.2 [built 21-May-2007 15:04:56; debug? true; trace: 10]
+Sep 25, 2011 10:35:35 PM com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource getPoolManager
+INFO: Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@1251cc5e [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@6064f3f7 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 00018i18wvsfu1hemq6h|5c1a1ff9, idleConnectionTestPeriod -> 0, initialPoolSize -> 16, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 300, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 16, maxStatements -> 256, maxStatementsPerConnection -> 32, minPoolSize -> 16, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@ce [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 00018i18wvsfu1hemq6h|40ae97c4, jdbcUrl -> jdbc:postgresql://localhost/heymoose, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 00018i18wvsfu1hemq6h|5903c29b, numHelperThreads -> 3 ]
+2011-09-25 22:35:35,459  INFO [Dialect.java:<init>:135] - Using dialect: com.heymoose.hibernate.PostgreSQLDialect
+2011-09-25 22:35:35,489  INFO [JdbcSupportLoader.java:useContextualLobCreation:108] - Disabling contextual LOB creation as createClob() method threw error : java.lang.reflect.InvocationTargetException
+2011-09-25 22:35:35,489  INFO [SettingsFactory.java:buildSettings:126] - Database ->
+       name : PostgreSQL
+    version : 8.4.8
+      major : 8
+      minor : 4
+2011-09-25 22:35:35,489  INFO [SettingsFactory.java:buildSettings:132] - Driver ->
+       name : PostgreSQL Native Driver
+    version : PostgreSQL 9.0 JDBC4 (build 801)
+      major : 9
+      minor : 0
+2011-09-25 22:35:35,492  INFO [TransactionFactoryFactory.java:buildTransactionFactory:65] - Transaction strategy: org.hibernate.transaction.JDBCTransactionFactory
+2011-09-25 22:35:35,493  INFO [TransactionManagerLookupFactory.java:getTransactionManagerLookup:83] - No TransactionManagerLookup configured (in JTA environment, use of read-write or transactional second-level cache is not recommended)
+2011-09-25 22:35:35,494  INFO [SettingsFactory.java:buildSettings:179] - Automatic flush during beforeCompletion(): disabled
+2011-09-25 22:35:35,494  INFO [SettingsFactory.java:buildSettings:183] - Automatic session close at end of transaction: disabled
+2011-09-25 22:35:35,495  INFO [SettingsFactory.java:buildSettings:198] - Scrollable result sets: enabled
+2011-09-25 22:35:35,495  INFO [SettingsFactory.java:buildSettings:206] - JDBC3 getGeneratedKeys(): enabled
+2011-09-25 22:35:35,495  INFO [SettingsFactory.java:buildSettings:214] - Connection release mode: auto
+2011-09-25 22:35:35,496  INFO [SettingsFactory.java:buildSettings:241] - Default batch fetch size: 1
+2011-09-25 22:35:35,496  INFO [SettingsFactory.java:buildSettings:245] - Generate SQL with comments: disabled
+2011-09-25 22:35:35,496  INFO [SettingsFactory.java:buildSettings:249] - Order SQL updates by primary key: disabled
+2011-09-25 22:35:35,497  INFO [SettingsFactory.java:buildSettings:253] - Order SQL inserts for batching: disabled
+2011-09-25 22:35:35,497  INFO [SettingsFactory.java:createQueryTranslatorFactory:431] - Query translator: org.hibernate.hql.ast.ASTQueryTranslatorFactory
+2011-09-25 22:35:35,498  INFO [ASTQueryTranslatorFactory.java:<init>:47] - Using ASTQueryTranslatorFactory
+2011-09-25 22:35:35,499  INFO [SettingsFactory.java:buildSettings:261] - Query language substitutions: {}
+2011-09-25 22:35:35,499  INFO [SettingsFactory.java:buildSettings:266] - JPA-QL strict compliance: disabled
+2011-09-25 22:35:35,499  INFO [SettingsFactory.java:buildSettings:271] - Second-level cache: enabled
+2011-09-25 22:35:35,499  INFO [SettingsFactory.java:buildSettings:275] - Query cache: disabled
+2011-09-25 22:35:35,499  INFO [SettingsFactory.java:createRegionFactory:406] - Cache region factory : org.hibernate.cache.impl.NoCachingRegionFactory
+2011-09-25 22:35:35,500  INFO [SettingsFactory.java:buildSettings:285] - Optimize cache for minimal puts: disabled
+2011-09-25 22:35:35,501  INFO [SettingsFactory.java:buildSettings:294] - Structured second-level cache entries: disabled
+2011-09-25 22:35:35,504  INFO [SettingsFactory.java:buildSettings:314] - Echoing all SQL to stdout
+2011-09-25 22:35:35,505  INFO [SettingsFactory.java:buildSettings:323] - Statistics: disabled
+2011-09-25 22:35:35,505  INFO [SettingsFactory.java:buildSettings:327] - Deleted entity synthetic identifier rollback: disabled
+2011-09-25 22:35:35,505  INFO [SettingsFactory.java:buildSettings:343] - Default entity-mode: pojo
+2011-09-25 22:35:35,505  INFO [SettingsFactory.java:buildSettings:347] - Named query checking : enabled
+2011-09-25 22:35:35,506  INFO [SettingsFactory.java:buildSettings:351] - Check Nullability in Core (should be disabled when Bean Validation is on): enabled
+2011-09-25 22:35:35,520  INFO [SessionFactoryImpl.java:<init>:202] - building session factory
+2011-09-25 22:35:35,526  INFO [BasicTypeRegistry.java:register:150] - Type registration [materialized_blob] overrides previous : org.hibernate.type.MaterializedBlobType@27db0da1
+2011-09-25 22:35:35,726  INFO [SessionFactoryObjectFactory.java:addInstance:105] - Not binding factory to JNDI, no JNDI name configured
+2011-09-25 22:35:35,730  INFO [SchemaUpdate.java:execute:155] - Running hbm2ddl schema update
+2011-09-25 22:35:35,730  INFO [SchemaUpdate.java:execute:167] - fetching database metadata
+2011-09-25 22:35:35,740  INFO [SchemaUpdate.java:execute:179] - updating schema
+2011-09-25 22:35:35,788  INFO [TableMetadata.java:<init>:65] - table found: public.account
+2011-09-25 22:35:35,789  INFO [TableMetadata.java:<init>:66] - columns: [id]
+2011-09-25 22:35:35,789  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:35:35,789  INFO [TableMetadata.java:<init>:69] - indexes: [account_pkey]
+2011-09-25 22:35:35,828  INFO [TableMetadata.java:<init>:65] - table found: public.account_tx
+2011-09-25 22:35:35,829  INFO [TableMetadata.java:<init>:66] - columns: [id, balance, account_id, diff, description, version, parent_id]
+2011-09-25 22:35:35,829  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkd01e1dd6f1d916ae]
+2011-09-25 22:35:35,829  INFO [TableMetadata.java:<init>:69] - indexes: [account_tx_version_key, account_tx_pkey]
+2011-09-25 22:35:35,883  INFO [TableMetadata.java:<init>:65] - table found: public.action
+2011-09-25 22:35:35,883  INFO [TableMetadata.java:<init>:66] - columns: [id, offer_id, performer_id, reservation, done, creation_time, deleted]
+2011-09-25 22:35:35,883  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkab2f7e367952720e, fkab2f7e36e9e9694e, fkab2f7e3641babc71]
+2011-09-25 22:35:35,884  INFO [TableMetadata.java:<init>:69] - indexes: [action_performer_id_key, action_pkey]
+2011-09-25 22:35:35,925  INFO [TableMetadata.java:<init>:65] - table found: public.app
+2011-09-25 22:35:35,925  INFO [TableMetadata.java:<init>:66] - columns: [id, platform, secret, creation_time, user_id, deleted]
+2011-09-25 22:35:35,926  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk17a215b1a8246]
+2011-09-25 22:35:35,926  INFO [TableMetadata.java:<init>:69] - indexes: [app_pkey]
+2011-09-25 22:35:35,959  INFO [TableMetadata.java:<init>:65] - table found: public.offer
+2011-09-25 22:35:35,959  INFO [TableMetadata.java:<init>:66] - columns: [id, body, title, auto_approve, image, creation_time, type]
+2011-09-25 22:35:35,959  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:35:35,960  INFO [TableMetadata.java:<init>:69] - indexes: [offer_pkey]
+2011-09-25 22:35:35,996  INFO [TableMetadata.java:<init>:65] - table found: public.offer_order
+2011-09-25 22:35:35,996  INFO [TableMetadata.java:<init>:66] - columns: [id, approved, offer_id, account_id, cpa, creation_time, user_id, deleted]
+2011-09-25 22:35:35,996  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk2a7bcfabe9e9694e, fk2a7bcfab5b1a8246, fk2a7bcfabf1d916ae]
+2011-09-25 22:35:35,996  INFO [TableMetadata.java:<init>:69] - indexes: [offer_order_pkey]
+2011-09-25 22:35:36,031  INFO [TableMetadata.java:<init>:65] - table found: public.performer
+2011-09-25 22:35:36,031  INFO [TableMetadata.java:<init>:66] - columns: [id, inviter, creation_time, app_id, ext_id]
+2011-09-25 22:35:36,031  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk1cad9fce9d4d0d6b, fk1cad9fce7d90cc2e]
+2011-09-25 22:35:36,031  INFO [TableMetadata.java:<init>:69] - indexes: [performer_pkey, performer_ext_id_key]
+2011-09-25 22:35:36,068  INFO [TableMetadata.java:<init>:65] - table found: public.user_profile
+2011-09-25 22:35:36,068  INFO [TableMetadata.java:<init>:66] - columns: [id, nickname, email, customer_account_id, developer_account_id, passwordhash]
+2011-09-25 22:35:36,068  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk487e2135ad0df5af, fk487e2135b7eca243]
+2011-09-25 22:35:36,068  INFO [TableMetadata.java:<init>:69] - indexes: [user_profile_pkey, user_profile_email_key]
+2011-09-25 22:35:36,101  INFO [TableMetadata.java:<init>:65] - table found: public.user_role
+2011-09-25 22:35:36,102  INFO [TableMetadata.java:<init>:66] - columns: [role, user_id]
+2011-09-25 22:35:36,102  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk143bf46a5b1a8246]
+2011-09-25 22:35:36,102  INFO [TableMetadata.java:<init>:69] - indexes: []
+2011-09-25 22:35:36,103  INFO [SchemaUpdate.java:execute:217] - schema update complete
+Sep 25, 2011 10:35:36 PM com.sun.grizzly.Controller logVersion
+INFO: GRIZZLY0001: Starting Grizzly Framework 1.9.36 - 9/25/11 10:35 PM
+Sep 25, 2011 10:35:36 PM com.sun.grizzly.SelectorHandlerRunner handleSelectException
+SEVERE: doSelect IOException
+java.net.BindException: No free port within range: 5468=com.sun.grizzly.http.SelectorThreadHandler@94f1726
+	at com.sun.grizzly.TCPSelectorHandler.initSelector(TCPSelectorHandler.java:432)
+	at com.sun.grizzly.TCPSelectorHandler.preSelect(TCPSelectorHandler.java:378)
+	at com.sun.grizzly.SelectorHandlerRunner.doSelect(SelectorHandlerRunner.java:188)
+	at com.sun.grizzly.SelectorHandlerRunner.run(SelectorHandlerRunner.java:132)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+Sep 25, 2011 10:35:36 PM com.sun.grizzly.http.SelectorThread$3 onException
+SEVERE: Exception during starting the controller
+java.net.BindException: No free port within range: 5468=com.sun.grizzly.http.SelectorThreadHandler@94f1726
+	at com.sun.grizzly.TCPSelectorHandler.initSelector(TCPSelectorHandler.java:432)
+	at com.sun.grizzly.TCPSelectorHandler.preSelect(TCPSelectorHandler.java:378)
+	at com.sun.grizzly.SelectorHandlerRunner.doSelect(SelectorHandlerRunner.java:188)
+	at com.sun.grizzly.SelectorHandlerRunner.run(SelectorHandlerRunner.java:132)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+Exception in thread "main" java.net.BindException: No free port within range: 5468=com.sun.grizzly.http.SelectorThreadHandler@94f1726
+	at com.sun.grizzly.TCPSelectorHandler.initSelector(TCPSelectorHandler.java:432)
+	at com.sun.grizzly.TCPSelectorHandler.preSelect(TCPSelectorHandler.java:378)
+	at com.sun.grizzly.SelectorHandlerRunner.doSelect(SelectorHandlerRunner.java:188)
+	at com.sun.grizzly.SelectorHandlerRunner.run(SelectorHandlerRunner.java:132)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+2011-09-25 22:36:09,350  INFO [Version.java:<clinit>:37] - Hibernate Commons Annotations 3.2.0.Final
+2011-09-25 22:36:09,358  INFO [Environment.java:<clinit>:603] - Hibernate 3.6.7.Final
+2011-09-25 22:36:09,359  INFO [Environment.java:<clinit>:636] - hibernate.properties not found
+2011-09-25 22:36:09,362  INFO [Environment.java:buildBytecodeProvider:814] - Bytecode provider name : javassist
+2011-09-25 22:36:09,364  INFO [Environment.java:<clinit>:695] - using JDK 1.4 java.sql.Timestamp handling
+2011-09-25 22:36:09,449  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Account
+2011-09-25 22:36:09,473  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Account on table account
+2011-09-25 22:36:09,533  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.AccountTx
+2011-09-25 22:36:09,534  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.AccountTx on table account_tx
+2011-09-25 22:36:09,550  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Action
+2011-09-25 22:36:09,550  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Action on table action
+2011-09-25 22:36:09,561  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.App
+2011-09-25 22:36:09,561  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.App on table app
+2011-09-25 22:36:09,570  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Offer
+2011-09-25 22:36:09,570  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Offer on table offer
+2011-09-25 22:36:09,578  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Order
+2011-09-25 22:36:09,579  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Order on table offer_order
+2011-09-25 22:36:09,584  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Performer
+2011-09-25 22:36:09,585  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Performer on table performer
+2011-09-25 22:36:09,588  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.User
+2011-09-25 22:36:09,589  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.User on table user_profile
+2011-09-25 22:36:09,612  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.Account.transactions -> account_tx
+2011-09-25 22:36:09,614  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.apps -> app
+2011-09-25 22:36:09,614  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.orders -> offer_order
+2011-09-25 22:36:09,619  INFO [Configuration.java:applyHibernateValidatorLegacyConstraintsOnDDL:1676] - Hibernate Validator not found: ignoring
+2011-09-25 22:36:09,623  INFO [HibernateSearchEventListenerRegister.java:enableHibernateSearch:75] - Unable to find org.hibernate.search.event.FullTextIndexEventListener on the classpath. Hibernate Search is not enabled.
+2011-09-25 22:36:09,631  INFO [ConnectionProviderFactory.java:initializeConnectionProviderFromConfig:173] - Initializing connection provider: org.hibernate.connection.C3P0ConnectionProvider
+2011-09-25 22:36:09,632  INFO [C3P0ConnectionProvider.java:configure:103] - C3P0 using driver: org.postgresql.Driver at URL: jdbc:postgresql://localhost/heymoose
+2011-09-25 22:36:09,633  INFO [C3P0ConnectionProvider.java:configure:104] - Connection properties: {user=postgres, password=****}
+2011-09-25 22:36:09,633  INFO [C3P0ConnectionProvider.java:configure:107] - autocommit mode: false
+Sep 25, 2011 10:36:09 PM com.mchange.v2.log.MLog <clinit>
+INFO: MLog clients using java 1.4+ standard logging.
+Sep 25, 2011 10:36:09 PM com.mchange.v2.c3p0.C3P0Registry banner
+INFO: Initializing c3p0-0.9.1.2 [built 21-May-2007 15:04:56; debug? true; trace: 10]
+Sep 25, 2011 10:36:09 PM com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource getPoolManager
+INFO: Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@f13a1681 [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@92dccd37 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 00018i18wwj0r12le48r|5aa45a24, idleConnectionTestPeriod -> 0, initialPoolSize -> 16, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 300, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 16, maxStatements -> 256, maxStatementsPerConnection -> 32, minPoolSize -> 16, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@a2d6ff00 [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 00018i18wwj0r12le48r|18f2225f, jdbcUrl -> jdbc:postgresql://localhost/heymoose, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 00018i18wwj0r12le48r|4aee260b, numHelperThreads -> 3 ]
+2011-09-25 22:36:09,935  INFO [Dialect.java:<init>:135] - Using dialect: com.heymoose.hibernate.PostgreSQLDialect
+2011-09-25 22:36:09,943  INFO [JdbcSupportLoader.java:useContextualLobCreation:108] - Disabling contextual LOB creation as createClob() method threw error : java.lang.reflect.InvocationTargetException
+2011-09-25 22:36:09,944  INFO [SettingsFactory.java:buildSettings:126] - Database ->
+       name : PostgreSQL
+    version : 8.4.8
+      major : 8
+      minor : 4
+2011-09-25 22:36:09,944  INFO [SettingsFactory.java:buildSettings:132] - Driver ->
+       name : PostgreSQL Native Driver
+    version : PostgreSQL 9.0 JDBC4 (build 801)
+      major : 9
+      minor : 0
+2011-09-25 22:36:09,946  INFO [TransactionFactoryFactory.java:buildTransactionFactory:65] - Transaction strategy: org.hibernate.transaction.JDBCTransactionFactory
+2011-09-25 22:36:09,947  INFO [TransactionManagerLookupFactory.java:getTransactionManagerLookup:83] - No TransactionManagerLookup configured (in JTA environment, use of read-write or transactional second-level cache is not recommended)
+2011-09-25 22:36:09,948  INFO [SettingsFactory.java:buildSettings:179] - Automatic flush during beforeCompletion(): disabled
+2011-09-25 22:36:09,948  INFO [SettingsFactory.java:buildSettings:183] - Automatic session close at end of transaction: disabled
+2011-09-25 22:36:09,949  INFO [SettingsFactory.java:buildSettings:198] - Scrollable result sets: enabled
+2011-09-25 22:36:09,949  INFO [SettingsFactory.java:buildSettings:206] - JDBC3 getGeneratedKeys(): enabled
+2011-09-25 22:36:09,949  INFO [SettingsFactory.java:buildSettings:214] - Connection release mode: auto
+2011-09-25 22:36:09,950  INFO [SettingsFactory.java:buildSettings:241] - Default batch fetch size: 1
+2011-09-25 22:36:09,950  INFO [SettingsFactory.java:buildSettings:245] - Generate SQL with comments: disabled
+2011-09-25 22:36:09,950  INFO [SettingsFactory.java:buildSettings:249] - Order SQL updates by primary key: disabled
+2011-09-25 22:36:09,950  INFO [SettingsFactory.java:buildSettings:253] - Order SQL inserts for batching: disabled
+2011-09-25 22:36:09,950  INFO [SettingsFactory.java:createQueryTranslatorFactory:431] - Query translator: org.hibernate.hql.ast.ASTQueryTranslatorFactory
+2011-09-25 22:36:09,951  INFO [ASTQueryTranslatorFactory.java:<init>:47] - Using ASTQueryTranslatorFactory
+2011-09-25 22:36:09,952  INFO [SettingsFactory.java:buildSettings:261] - Query language substitutions: {}
+2011-09-25 22:36:09,952  INFO [SettingsFactory.java:buildSettings:266] - JPA-QL strict compliance: disabled
+2011-09-25 22:36:09,952  INFO [SettingsFactory.java:buildSettings:271] - Second-level cache: enabled
+2011-09-25 22:36:09,952  INFO [SettingsFactory.java:buildSettings:275] - Query cache: disabled
+2011-09-25 22:36:09,952  INFO [SettingsFactory.java:createRegionFactory:406] - Cache region factory : org.hibernate.cache.impl.NoCachingRegionFactory
+2011-09-25 22:36:09,954  INFO [SettingsFactory.java:buildSettings:285] - Optimize cache for minimal puts: disabled
+2011-09-25 22:36:09,954  INFO [SettingsFactory.java:buildSettings:294] - Structured second-level cache entries: disabled
+2011-09-25 22:36:09,957  INFO [SettingsFactory.java:buildSettings:314] - Echoing all SQL to stdout
+2011-09-25 22:36:09,958  INFO [SettingsFactory.java:buildSettings:323] - Statistics: disabled
+2011-09-25 22:36:09,958  INFO [SettingsFactory.java:buildSettings:327] - Deleted entity synthetic identifier rollback: disabled
+2011-09-25 22:36:09,959  INFO [SettingsFactory.java:buildSettings:343] - Default entity-mode: pojo
+2011-09-25 22:36:09,959  INFO [SettingsFactory.java:buildSettings:347] - Named query checking : enabled
+2011-09-25 22:36:09,959  INFO [SettingsFactory.java:buildSettings:351] - Check Nullability in Core (should be disabled when Bean Validation is on): enabled
+2011-09-25 22:36:09,973  INFO [SessionFactoryImpl.java:<init>:202] - building session factory
+2011-09-25 22:36:09,979  INFO [BasicTypeRegistry.java:register:150] - Type registration [materialized_blob] overrides previous : org.hibernate.type.MaterializedBlobType@6d21f653
+2011-09-25 22:36:10,188  INFO [SessionFactoryObjectFactory.java:addInstance:105] - Not binding factory to JNDI, no JNDI name configured
+2011-09-25 22:36:10,192  INFO [SchemaUpdate.java:execute:155] - Running hbm2ddl schema update
+2011-09-25 22:36:10,192  INFO [SchemaUpdate.java:execute:167] - fetching database metadata
+2011-09-25 22:36:10,202  INFO [SchemaUpdate.java:execute:179] - updating schema
+2011-09-25 22:36:10,252  INFO [TableMetadata.java:<init>:65] - table found: public.account
+2011-09-25 22:36:10,252  INFO [TableMetadata.java:<init>:66] - columns: [id]
+2011-09-25 22:36:10,252  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:36:10,253  INFO [TableMetadata.java:<init>:69] - indexes: [account_pkey]
+2011-09-25 22:36:10,292  INFO [TableMetadata.java:<init>:65] - table found: public.account_tx
+2011-09-25 22:36:10,293  INFO [TableMetadata.java:<init>:66] - columns: [id, balance, account_id, diff, description, version, parent_id]
+2011-09-25 22:36:10,293  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkd01e1dd6f1d916ae]
+2011-09-25 22:36:10,293  INFO [TableMetadata.java:<init>:69] - indexes: [account_tx_version_key, account_tx_pkey]
+2011-09-25 22:36:10,336  INFO [TableMetadata.java:<init>:65] - table found: public.action
+2011-09-25 22:36:10,337  INFO [TableMetadata.java:<init>:66] - columns: [id, offer_id, performer_id, reservation, done, creation_time, deleted]
+2011-09-25 22:36:10,337  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkab2f7e367952720e, fkab2f7e36e9e9694e, fkab2f7e3641babc71]
+2011-09-25 22:36:10,337  INFO [TableMetadata.java:<init>:69] - indexes: [action_performer_id_key, action_pkey]
+2011-09-25 22:36:10,373  INFO [TableMetadata.java:<init>:65] - table found: public.app
+2011-09-25 22:36:10,373  INFO [TableMetadata.java:<init>:66] - columns: [id, platform, secret, creation_time, user_id, deleted]
+2011-09-25 22:36:10,373  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk17a215b1a8246]
+2011-09-25 22:36:10,374  INFO [TableMetadata.java:<init>:69] - indexes: [app_pkey]
+2011-09-25 22:36:10,407  INFO [TableMetadata.java:<init>:65] - table found: public.offer
+2011-09-25 22:36:10,408  INFO [TableMetadata.java:<init>:66] - columns: [id, body, title, auto_approve, image, creation_time, type]
+2011-09-25 22:36:10,408  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:36:10,408  INFO [TableMetadata.java:<init>:69] - indexes: [offer_pkey]
+2011-09-25 22:36:10,444  INFO [TableMetadata.java:<init>:65] - table found: public.offer_order
+2011-09-25 22:36:10,444  INFO [TableMetadata.java:<init>:66] - columns: [id, approved, offer_id, account_id, cpa, creation_time, user_id, deleted]
+2011-09-25 22:36:10,445  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk2a7bcfabe9e9694e, fk2a7bcfab5b1a8246, fk2a7bcfabf1d916ae]
+2011-09-25 22:36:10,445  INFO [TableMetadata.java:<init>:69] - indexes: [offer_order_pkey]
+2011-09-25 22:36:10,479  INFO [TableMetadata.java:<init>:65] - table found: public.performer
+2011-09-25 22:36:10,480  INFO [TableMetadata.java:<init>:66] - columns: [id, inviter, creation_time, app_id, ext_id]
+2011-09-25 22:36:10,480  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk1cad9fce9d4d0d6b, fk1cad9fce7d90cc2e]
+2011-09-25 22:36:10,480  INFO [TableMetadata.java:<init>:69] - indexes: [performer_pkey, performer_ext_id_key]
+2011-09-25 22:36:10,516  INFO [TableMetadata.java:<init>:65] - table found: public.user_profile
+2011-09-25 22:36:10,516  INFO [TableMetadata.java:<init>:66] - columns: [id, nickname, email, customer_account_id, developer_account_id, passwordhash]
+2011-09-25 22:36:10,517  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk487e2135ad0df5af, fk487e2135b7eca243]
+2011-09-25 22:36:10,517  INFO [TableMetadata.java:<init>:69] - indexes: [user_profile_pkey, user_profile_email_key]
+2011-09-25 22:36:10,550  INFO [TableMetadata.java:<init>:65] - table found: public.user_role
+2011-09-25 22:36:10,550  INFO [TableMetadata.java:<init>:66] - columns: [role, user_id]
+2011-09-25 22:36:10,551  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk143bf46a5b1a8246]
+2011-09-25 22:36:10,551  INFO [TableMetadata.java:<init>:69] - indexes: []
+2011-09-25 22:36:10,552  INFO [SchemaUpdate.java:execute:217] - schema update complete
+Sep 25, 2011 10:36:10 PM com.sun.grizzly.Controller logVersion
+INFO: GRIZZLY0001: Starting Grizzly Framework 1.9.36 - 9/25/11 10:36 PM
+2011-09-25 22:44:35,249  INFO [Version.java:<clinit>:37] - Hibernate Commons Annotations 3.2.0.Final
+2011-09-25 22:44:35,258  INFO [Environment.java:<clinit>:603] - Hibernate 3.6.7.Final
+2011-09-25 22:44:35,259  INFO [Environment.java:<clinit>:636] - hibernate.properties not found
+2011-09-25 22:44:35,262  INFO [Environment.java:buildBytecodeProvider:814] - Bytecode provider name : javassist
+2011-09-25 22:44:35,264  INFO [Environment.java:<clinit>:695] - using JDK 1.4 java.sql.Timestamp handling
+2011-09-25 22:44:35,349  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Account
+2011-09-25 22:44:35,373  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Account on table account
+2011-09-25 22:44:35,431  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.AccountTx
+2011-09-25 22:44:35,432  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.AccountTx on table account_tx
+2011-09-25 22:44:35,447  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Action
+2011-09-25 22:44:35,448  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Action on table action
+2011-09-25 22:44:35,458  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.App
+2011-09-25 22:44:35,459  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.App on table app
+2011-09-25 22:44:35,467  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Offer
+2011-09-25 22:44:35,468  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Offer on table offer
+2011-09-25 22:44:35,476  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Order
+2011-09-25 22:44:35,477  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Order on table offer_order
+2011-09-25 22:44:35,481  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Performer
+2011-09-25 22:44:35,482  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Performer on table performer
+2011-09-25 22:44:35,486  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.User
+2011-09-25 22:44:35,486  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.User on table user_profile
+2011-09-25 22:44:35,510  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.Account.transactions -> account_tx
+2011-09-25 22:44:35,513  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.apps -> app
+2011-09-25 22:44:35,513  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.orders -> offer_order
+2011-09-25 22:44:35,518  INFO [Configuration.java:applyHibernateValidatorLegacyConstraintsOnDDL:1676] - Hibernate Validator not found: ignoring
+2011-09-25 22:44:35,522  INFO [HibernateSearchEventListenerRegister.java:enableHibernateSearch:75] - Unable to find org.hibernate.search.event.FullTextIndexEventListener on the classpath. Hibernate Search is not enabled.
+2011-09-25 22:44:35,530  INFO [ConnectionProviderFactory.java:initializeConnectionProviderFromConfig:173] - Initializing connection provider: org.hibernate.connection.C3P0ConnectionProvider
+2011-09-25 22:44:35,531  INFO [C3P0ConnectionProvider.java:configure:103] - C3P0 using driver: org.postgresql.Driver at URL: jdbc:postgresql://localhost/heymoose
+2011-09-25 22:44:35,532  INFO [C3P0ConnectionProvider.java:configure:104] - Connection properties: {user=postgres, password=****}
+2011-09-25 22:44:35,532  INFO [C3P0ConnectionProvider.java:configure:107] - autocommit mode: false
+Sep 25, 2011 10:44:35 PM com.mchange.v2.log.MLog <clinit>
+INFO: MLog clients using java 1.4+ standard logging.
+Sep 25, 2011 10:44:35 PM com.mchange.v2.c3p0.C3P0Registry banner
+INFO: Initializing c3p0-0.9.1.2 [built 21-May-2007 15:04:56; debug? true; trace: 10]
+Sep 25, 2011 10:44:35 PM com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource getPoolManager
+INFO: Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@95508a6f [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@e363b208 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 00018i18x7ddi1qjf0hp|5c1a1ff9, idleConnectionTestPeriod -> 0, initialPoolSize -> 16, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 300, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 16, maxStatements -> 256, maxStatementsPerConnection -> 32, minPoolSize -> 16, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@82febedf [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 00018i18x7ddi1qjf0hp|40ae97c4, jdbcUrl -> jdbc:postgresql://localhost/heymoose, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 00018i18x7ddi1qjf0hp|5903c29b, numHelperThreads -> 3 ]
+2011-09-25 22:44:35,835  INFO [Dialect.java:<init>:135] - Using dialect: com.heymoose.hibernate.PostgreSQLDialect
+2011-09-25 22:44:35,843  INFO [JdbcSupportLoader.java:useContextualLobCreation:108] - Disabling contextual LOB creation as createClob() method threw error : java.lang.reflect.InvocationTargetException
+2011-09-25 22:44:35,844  INFO [SettingsFactory.java:buildSettings:126] - Database ->
+       name : PostgreSQL
+    version : 8.4.8
+      major : 8
+      minor : 4
+2011-09-25 22:44:35,844  INFO [SettingsFactory.java:buildSettings:132] - Driver ->
+       name : PostgreSQL Native Driver
+    version : PostgreSQL 9.0 JDBC4 (build 801)
+      major : 9
+      minor : 0
+2011-09-25 22:44:35,846  INFO [TransactionFactoryFactory.java:buildTransactionFactory:65] - Transaction strategy: org.hibernate.transaction.JDBCTransactionFactory
+2011-09-25 22:44:35,848  INFO [TransactionManagerLookupFactory.java:getTransactionManagerLookup:83] - No TransactionManagerLookup configured (in JTA environment, use of read-write or transactional second-level cache is not recommended)
+2011-09-25 22:44:35,848  INFO [SettingsFactory.java:buildSettings:179] - Automatic flush during beforeCompletion(): disabled
+2011-09-25 22:44:35,848  INFO [SettingsFactory.java:buildSettings:183] - Automatic session close at end of transaction: disabled
+2011-09-25 22:44:35,849  INFO [SettingsFactory.java:buildSettings:198] - Scrollable result sets: enabled
+2011-09-25 22:44:35,849  INFO [SettingsFactory.java:buildSettings:206] - JDBC3 getGeneratedKeys(): enabled
+2011-09-25 22:44:35,849  INFO [SettingsFactory.java:buildSettings:214] - Connection release mode: auto
+2011-09-25 22:44:35,850  INFO [SettingsFactory.java:buildSettings:241] - Default batch fetch size: 1
+2011-09-25 22:44:35,850  INFO [SettingsFactory.java:buildSettings:245] - Generate SQL with comments: disabled
+2011-09-25 22:44:35,850  INFO [SettingsFactory.java:buildSettings:249] - Order SQL updates by primary key: disabled
+2011-09-25 22:44:35,850  INFO [SettingsFactory.java:buildSettings:253] - Order SQL inserts for batching: disabled
+2011-09-25 22:44:35,850  INFO [SettingsFactory.java:createQueryTranslatorFactory:431] - Query translator: org.hibernate.hql.ast.ASTQueryTranslatorFactory
+2011-09-25 22:44:35,852  INFO [ASTQueryTranslatorFactory.java:<init>:47] - Using ASTQueryTranslatorFactory
+2011-09-25 22:44:35,852  INFO [SettingsFactory.java:buildSettings:261] - Query language substitutions: {}
+2011-09-25 22:44:35,852  INFO [SettingsFactory.java:buildSettings:266] - JPA-QL strict compliance: disabled
+2011-09-25 22:44:35,852  INFO [SettingsFactory.java:buildSettings:271] - Second-level cache: enabled
+2011-09-25 22:44:35,852  INFO [SettingsFactory.java:buildSettings:275] - Query cache: disabled
+2011-09-25 22:44:35,852  INFO [SettingsFactory.java:createRegionFactory:406] - Cache region factory : org.hibernate.cache.impl.NoCachingRegionFactory
+2011-09-25 22:44:35,853  INFO [SettingsFactory.java:buildSettings:285] - Optimize cache for minimal puts: disabled
+2011-09-25 22:44:35,854  INFO [SettingsFactory.java:buildSettings:294] - Structured second-level cache entries: disabled
+2011-09-25 22:44:35,857  INFO [SettingsFactory.java:buildSettings:314] - Echoing all SQL to stdout
+2011-09-25 22:44:35,858  INFO [SettingsFactory.java:buildSettings:323] - Statistics: disabled
+2011-09-25 22:44:35,858  INFO [SettingsFactory.java:buildSettings:327] - Deleted entity synthetic identifier rollback: disabled
+2011-09-25 22:44:35,858  INFO [SettingsFactory.java:buildSettings:343] - Default entity-mode: pojo
+2011-09-25 22:44:35,858  INFO [SettingsFactory.java:buildSettings:347] - Named query checking : enabled
+2011-09-25 22:44:35,859  INFO [SettingsFactory.java:buildSettings:351] - Check Nullability in Core (should be disabled when Bean Validation is on): enabled
+2011-09-25 22:44:35,873  INFO [SessionFactoryImpl.java:<init>:202] - building session factory
+2011-09-25 22:44:35,879  INFO [BasicTypeRegistry.java:register:150] - Type registration [materialized_blob] overrides previous : org.hibernate.type.MaterializedBlobType@168497f6
+2011-09-25 22:44:36,078  INFO [SessionFactoryObjectFactory.java:addInstance:105] - Not binding factory to JNDI, no JNDI name configured
+2011-09-25 22:44:36,082  INFO [SchemaUpdate.java:execute:155] - Running hbm2ddl schema update
+2011-09-25 22:44:36,083  INFO [SchemaUpdate.java:execute:167] - fetching database metadata
+2011-09-25 22:44:36,093  INFO [SchemaUpdate.java:execute:179] - updating schema
+2011-09-25 22:44:36,142  INFO [TableMetadata.java:<init>:65] - table found: public.account
+2011-09-25 22:44:36,142  INFO [TableMetadata.java:<init>:66] - columns: [id]
+2011-09-25 22:44:36,142  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:44:36,143  INFO [TableMetadata.java:<init>:69] - indexes: [account_pkey]
+2011-09-25 22:44:36,182  INFO [TableMetadata.java:<init>:65] - table found: public.account_tx
+2011-09-25 22:44:36,183  INFO [TableMetadata.java:<init>:66] - columns: [id, balance, account_id, diff, description, version, parent_id]
+2011-09-25 22:44:36,183  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkd01e1dd6f1d916ae]
+2011-09-25 22:44:36,183  INFO [TableMetadata.java:<init>:69] - indexes: [account_tx_version_key, account_tx_pkey]
+2011-09-25 22:44:36,239  INFO [TableMetadata.java:<init>:65] - table found: public.action
+2011-09-25 22:44:36,240  INFO [TableMetadata.java:<init>:66] - columns: [id, offer_id, performer_id, reservation, done, creation_time, deleted]
+2011-09-25 22:44:36,240  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkab2f7e367952720e, fkab2f7e36e9e9694e, fkab2f7e3641babc71]
+2011-09-25 22:44:36,240  INFO [TableMetadata.java:<init>:69] - indexes: [action_performer_id_key, action_pkey]
+2011-09-25 22:44:36,275  INFO [TableMetadata.java:<init>:65] - table found: public.app
+2011-09-25 22:44:36,275  INFO [TableMetadata.java:<init>:66] - columns: [id, platform, secret, creation_time, user_id, deleted]
+2011-09-25 22:44:36,275  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk17a215b1a8246]
+2011-09-25 22:44:36,276  INFO [TableMetadata.java:<init>:69] - indexes: [app_pkey]
+2011-09-25 22:44:36,309  INFO [TableMetadata.java:<init>:65] - table found: public.offer
+2011-09-25 22:44:36,310  INFO [TableMetadata.java:<init>:66] - columns: [id, body, title, auto_approve, image, creation_time, type]
+2011-09-25 22:44:36,310  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:44:36,310  INFO [TableMetadata.java:<init>:69] - indexes: [offer_pkey]
+2011-09-25 22:44:36,347  INFO [TableMetadata.java:<init>:65] - table found: public.offer_order
+2011-09-25 22:44:36,369  INFO [TableMetadata.java:<init>:66] - columns: [id, approved, offer_id, account_id, cpa, creation_time, user_id, deleted]
+2011-09-25 22:44:36,369  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk2a7bcfabe9e9694e, fk2a7bcfab5b1a8246, fk2a7bcfabf1d916ae]
+2011-09-25 22:44:36,370  INFO [TableMetadata.java:<init>:69] - indexes: [offer_order_pkey]
+2011-09-25 22:44:36,404  INFO [TableMetadata.java:<init>:65] - table found: public.performer
+2011-09-25 22:44:36,405  INFO [TableMetadata.java:<init>:66] - columns: [id, inviter, creation_time, app_id, ext_id]
+2011-09-25 22:44:36,405  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk1cad9fce9d4d0d6b, fk1cad9fce7d90cc2e]
+2011-09-25 22:44:36,405  INFO [TableMetadata.java:<init>:69] - indexes: [performer_pkey, performer_ext_id_key]
+2011-09-25 22:44:36,440  INFO [TableMetadata.java:<init>:65] - table found: public.user_profile
+2011-09-25 22:44:36,440  INFO [TableMetadata.java:<init>:66] - columns: [id, nickname, email, customer_account_id, developer_account_id, passwordhash]
+2011-09-25 22:44:36,440  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk487e2135ad0df5af, fk487e2135b7eca243]
+2011-09-25 22:44:36,440  INFO [TableMetadata.java:<init>:69] - indexes: [user_profile_pkey, user_profile_email_key]
+2011-09-25 22:44:36,474  INFO [TableMetadata.java:<init>:65] - table found: public.user_role
+2011-09-25 22:44:36,474  INFO [TableMetadata.java:<init>:66] - columns: [role, user_id]
+2011-09-25 22:44:36,474  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk143bf46a5b1a8246]
+2011-09-25 22:44:36,475  INFO [TableMetadata.java:<init>:69] - indexes: []
+2011-09-25 22:44:36,476  INFO [SchemaUpdate.java:execute:217] - schema update complete
+Sep 25, 2011 10:44:36 PM com.sun.grizzly.Controller logVersion
+INFO: GRIZZLY0001: Starting Grizzly Framework 1.9.36 - 9/25/11 10:44 PM
+2011-09-25 22:46:25,452  INFO [Version.java:<clinit>:37] - Hibernate Commons Annotations 3.2.0.Final
+2011-09-25 22:46:25,460  INFO [Environment.java:<clinit>:603] - Hibernate 3.6.7.Final
+2011-09-25 22:46:25,461  INFO [Environment.java:<clinit>:636] - hibernate.properties not found
+2011-09-25 22:46:25,463  INFO [Environment.java:buildBytecodeProvider:814] - Bytecode provider name : javassist
+2011-09-25 22:46:25,466  INFO [Environment.java:<clinit>:695] - using JDK 1.4 java.sql.Timestamp handling
+2011-09-25 22:46:25,551  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Account
+2011-09-25 22:46:25,574  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Account on table account
+2011-09-25 22:46:25,631  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.AccountTx
+2011-09-25 22:46:25,632  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.AccountTx on table account_tx
+2011-09-25 22:46:25,648  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Action
+2011-09-25 22:46:25,648  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Action on table action
+2011-09-25 22:46:25,659  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.App
+2011-09-25 22:46:25,660  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.App on table app
+2011-09-25 22:46:25,668  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Offer
+2011-09-25 22:46:25,668  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Offer on table offer
+2011-09-25 22:46:25,676  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Order
+2011-09-25 22:46:25,677  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Order on table offer_order
+2011-09-25 22:46:25,682  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Performer
+2011-09-25 22:46:25,683  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Performer on table performer
+2011-09-25 22:46:25,686  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.User
+2011-09-25 22:46:25,687  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.User on table user_profile
+2011-09-25 22:46:25,710  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.Account.transactions -> account_tx
+2011-09-25 22:46:25,713  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.apps -> app
+2011-09-25 22:46:25,713  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.orders -> offer_order
+2011-09-25 22:46:25,720  INFO [Configuration.java:applyHibernateValidatorLegacyConstraintsOnDDL:1676] - Hibernate Validator not found: ignoring
+2011-09-25 22:46:25,733  INFO [HibernateSearchEventListenerRegister.java:enableHibernateSearch:75] - Unable to find org.hibernate.search.event.FullTextIndexEventListener on the classpath. Hibernate Search is not enabled.
+2011-09-25 22:46:25,740  INFO [ConnectionProviderFactory.java:initializeConnectionProviderFromConfig:173] - Initializing connection provider: org.hibernate.connection.C3P0ConnectionProvider
+2011-09-25 22:46:25,741  INFO [C3P0ConnectionProvider.java:configure:103] - C3P0 using driver: org.postgresql.Driver at URL: jdbc:postgresql://localhost/heymoose
+2011-09-25 22:46:25,741  INFO [C3P0ConnectionProvider.java:configure:104] - Connection properties: {user=postgres, password=****}
+2011-09-25 22:46:25,741  INFO [C3P0ConnectionProvider.java:configure:107] - autocommit mode: false
+Sep 25, 2011 10:46:25 PM com.mchange.v2.log.MLog <clinit>
+INFO: MLog clients using java 1.4+ standard logging.
+Sep 25, 2011 10:46:25 PM com.mchange.v2.c3p0.C3P0Registry banner
+INFO: Initializing c3p0-0.9.1.2 [built 21-May-2007 15:04:56; debug? true; trace: 10]
+Sep 25, 2011 10:46:25 PM com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource getPoolManager
+INFO: Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@a6fb6b5c [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@a9f87c04 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 00018i18x9qev1a5o1ao|372943ac, idleConnectionTestPeriod -> 0, initialPoolSize -> 16, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 300, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 16, maxStatements -> 256, maxStatementsPerConnection -> 32, minPoolSize -> 16, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@c07fdef0 [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 00018i18x9qev1a5o1ao|66de609, jdbcUrl -> jdbc:postgresql://localhost/heymoose, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 00018i18x9qev1a5o1ao|5dd7bc5, numHelperThreads -> 3 ]
+2011-09-25 22:46:26,038  INFO [Dialect.java:<init>:135] - Using dialect: com.heymoose.hibernate.PostgreSQLDialect
+2011-09-25 22:46:26,046  INFO [JdbcSupportLoader.java:useContextualLobCreation:108] - Disabling contextual LOB creation as createClob() method threw error : java.lang.reflect.InvocationTargetException
+2011-09-25 22:46:26,046  INFO [SettingsFactory.java:buildSettings:126] - Database ->
+       name : PostgreSQL
+    version : 8.4.8
+      major : 8
+      minor : 4
+2011-09-25 22:46:26,047  INFO [SettingsFactory.java:buildSettings:132] - Driver ->
+       name : PostgreSQL Native Driver
+    version : PostgreSQL 9.0 JDBC4 (build 801)
+      major : 9
+      minor : 0
+2011-09-25 22:46:26,048  INFO [TransactionFactoryFactory.java:buildTransactionFactory:65] - Transaction strategy: org.hibernate.transaction.JDBCTransactionFactory
+2011-09-25 22:46:26,050  INFO [TransactionManagerLookupFactory.java:getTransactionManagerLookup:83] - No TransactionManagerLookup configured (in JTA environment, use of read-write or transactional second-level cache is not recommended)
+2011-09-25 22:46:26,050  INFO [SettingsFactory.java:buildSettings:179] - Automatic flush during beforeCompletion(): disabled
+2011-09-25 22:46:26,050  INFO [SettingsFactory.java:buildSettings:183] - Automatic session close at end of transaction: disabled
+2011-09-25 22:46:26,051  INFO [SettingsFactory.java:buildSettings:198] - Scrollable result sets: enabled
+2011-09-25 22:46:26,051  INFO [SettingsFactory.java:buildSettings:206] - JDBC3 getGeneratedKeys(): enabled
+2011-09-25 22:46:26,052  INFO [SettingsFactory.java:buildSettings:214] - Connection release mode: auto
+2011-09-25 22:46:26,052  INFO [SettingsFactory.java:buildSettings:241] - Default batch fetch size: 1
+2011-09-25 22:46:26,052  INFO [SettingsFactory.java:buildSettings:245] - Generate SQL with comments: disabled
+2011-09-25 22:46:26,052  INFO [SettingsFactory.java:buildSettings:249] - Order SQL updates by primary key: disabled
+2011-09-25 22:46:26,053  INFO [SettingsFactory.java:buildSettings:253] - Order SQL inserts for batching: disabled
+2011-09-25 22:46:26,053  INFO [SettingsFactory.java:createQueryTranslatorFactory:431] - Query translator: org.hibernate.hql.ast.ASTQueryTranslatorFactory
+2011-09-25 22:46:26,054  INFO [ASTQueryTranslatorFactory.java:<init>:47] - Using ASTQueryTranslatorFactory
+2011-09-25 22:46:26,054  INFO [SettingsFactory.java:buildSettings:261] - Query language substitutions: {}
+2011-09-25 22:46:26,054  INFO [SettingsFactory.java:buildSettings:266] - JPA-QL strict compliance: disabled
+2011-09-25 22:46:26,055  INFO [SettingsFactory.java:buildSettings:271] - Second-level cache: enabled
+2011-09-25 22:46:26,055  INFO [SettingsFactory.java:buildSettings:275] - Query cache: disabled
+2011-09-25 22:46:26,055  INFO [SettingsFactory.java:createRegionFactory:406] - Cache region factory : org.hibernate.cache.impl.NoCachingRegionFactory
+2011-09-25 22:46:26,056  INFO [SettingsFactory.java:buildSettings:285] - Optimize cache for minimal puts: disabled
+2011-09-25 22:46:26,056  INFO [SettingsFactory.java:buildSettings:294] - Structured second-level cache entries: disabled
+2011-09-25 22:46:26,059  INFO [SettingsFactory.java:buildSettings:314] - Echoing all SQL to stdout
+2011-09-25 22:46:26,060  INFO [SettingsFactory.java:buildSettings:323] - Statistics: disabled
+2011-09-25 22:46:26,060  INFO [SettingsFactory.java:buildSettings:327] - Deleted entity synthetic identifier rollback: disabled
+2011-09-25 22:46:26,061  INFO [SettingsFactory.java:buildSettings:343] - Default entity-mode: pojo
+2011-09-25 22:46:26,061  INFO [SettingsFactory.java:buildSettings:347] - Named query checking : enabled
+2011-09-25 22:46:26,061  INFO [SettingsFactory.java:buildSettings:351] - Check Nullability in Core (should be disabled when Bean Validation is on): enabled
+2011-09-25 22:46:26,075  INFO [SessionFactoryImpl.java:<init>:202] - building session factory
+2011-09-25 22:46:26,081  INFO [BasicTypeRegistry.java:register:150] - Type registration [materialized_blob] overrides previous : org.hibernate.type.MaterializedBlobType@168497f6
+2011-09-25 22:46:26,281  INFO [SessionFactoryObjectFactory.java:addInstance:105] - Not binding factory to JNDI, no JNDI name configured
+2011-09-25 22:46:26,285  INFO [SchemaUpdate.java:execute:155] - Running hbm2ddl schema update
+2011-09-25 22:46:26,333  INFO [SchemaUpdate.java:execute:167] - fetching database metadata
+2011-09-25 22:46:26,345  INFO [SchemaUpdate.java:execute:179] - updating schema
+2011-09-25 22:46:26,394  INFO [TableMetadata.java:<init>:65] - table found: public.account
+2011-09-25 22:46:26,394  INFO [TableMetadata.java:<init>:66] - columns: [id]
+2011-09-25 22:46:26,395  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:46:26,395  INFO [TableMetadata.java:<init>:69] - indexes: [account_pkey]
+2011-09-25 22:46:26,435  INFO [TableMetadata.java:<init>:65] - table found: public.account_tx
+2011-09-25 22:46:26,435  INFO [TableMetadata.java:<init>:66] - columns: [id, balance, account_id, diff, description, version, parent_id]
+2011-09-25 22:46:26,435  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkd01e1dd6f1d916ae]
+2011-09-25 22:46:26,436  INFO [TableMetadata.java:<init>:69] - indexes: [account_tx_version_key, account_tx_pkey]
+2011-09-25 22:46:26,477  INFO [TableMetadata.java:<init>:65] - table found: public.action
+2011-09-25 22:46:26,477  INFO [TableMetadata.java:<init>:66] - columns: [id, offer_id, performer_id, reservation, done, creation_time, deleted]
+2011-09-25 22:46:26,478  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkab2f7e367952720e, fkab2f7e36e9e9694e, fkab2f7e3641babc71]
+2011-09-25 22:46:26,478  INFO [TableMetadata.java:<init>:69] - indexes: [action_performer_id_key, action_pkey]
+2011-09-25 22:46:26,513  INFO [TableMetadata.java:<init>:65] - table found: public.app
+2011-09-25 22:46:26,513  INFO [TableMetadata.java:<init>:66] - columns: [id, platform, secret, creation_time, user_id, deleted]
+2011-09-25 22:46:26,514  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk17a215b1a8246]
+2011-09-25 22:46:26,514  INFO [TableMetadata.java:<init>:69] - indexes: [app_pkey]
+2011-09-25 22:46:26,547  INFO [TableMetadata.java:<init>:65] - table found: public.offer
+2011-09-25 22:46:26,547  INFO [TableMetadata.java:<init>:66] - columns: [id, body, title, auto_approve, image, creation_time, type]
+2011-09-25 22:46:26,548  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:46:26,548  INFO [TableMetadata.java:<init>:69] - indexes: [offer_pkey]
+2011-09-25 22:46:26,588  INFO [TableMetadata.java:<init>:65] - table found: public.offer_order
+2011-09-25 22:46:26,588  INFO [TableMetadata.java:<init>:66] - columns: [id, approved, offer_id, account_id, cpa, creation_time, user_id, deleted]
+2011-09-25 22:46:26,589  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk2a7bcfabe9e9694e, fk2a7bcfab5b1a8246, fk2a7bcfabf1d916ae]
+2011-09-25 22:46:26,589  INFO [TableMetadata.java:<init>:69] - indexes: [offer_order_pkey]
+2011-09-25 22:46:26,623  INFO [TableMetadata.java:<init>:65] - table found: public.performer
+2011-09-25 22:46:26,624  INFO [TableMetadata.java:<init>:66] - columns: [id, inviter, creation_time, app_id, ext_id]
+2011-09-25 22:46:26,624  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk1cad9fce9d4d0d6b, fk1cad9fce7d90cc2e]
+2011-09-25 22:46:26,624  INFO [TableMetadata.java:<init>:69] - indexes: [performer_pkey, performer_ext_id_key]
+2011-09-25 22:46:26,660  INFO [TableMetadata.java:<init>:65] - table found: public.user_profile
+2011-09-25 22:46:26,660  INFO [TableMetadata.java:<init>:66] - columns: [id, nickname, email, customer_account_id, developer_account_id, passwordhash]
+2011-09-25 22:46:26,660  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk487e2135ad0df5af, fk487e2135b7eca243]
+2011-09-25 22:46:26,660  INFO [TableMetadata.java:<init>:69] - indexes: [user_profile_pkey, user_profile_email_key]
+2011-09-25 22:46:26,695  INFO [TableMetadata.java:<init>:65] - table found: public.user_role
+2011-09-25 22:46:26,695  INFO [TableMetadata.java:<init>:66] - columns: [role, user_id]
+2011-09-25 22:46:26,696  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk143bf46a5b1a8246]
+2011-09-25 22:46:26,696  INFO [TableMetadata.java:<init>:69] - indexes: []
+2011-09-25 22:46:26,697  INFO [SchemaUpdate.java:execute:217] - schema update complete
+Sep 25, 2011 10:46:26 PM com.sun.grizzly.Controller logVersion
+INFO: GRIZZLY0001: Starting Grizzly Framework 1.9.36 - 9/25/11 10:46 PM
+2011-09-25 22:46:50,201  INFO [Version.java:<clinit>:37] - Hibernate Commons Annotations 3.2.0.Final
+2011-09-25 22:46:50,209  INFO [Environment.java:<clinit>:603] - Hibernate 3.6.7.Final
+2011-09-25 22:46:50,210  INFO [Environment.java:<clinit>:636] - hibernate.properties not found
+2011-09-25 22:46:50,213  INFO [Environment.java:buildBytecodeProvider:814] - Bytecode provider name : javassist
+2011-09-25 22:46:50,215  INFO [Environment.java:<clinit>:695] - using JDK 1.4 java.sql.Timestamp handling
+2011-09-25 22:46:50,306  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Account
+2011-09-25 22:46:50,330  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Account on table account
+2011-09-25 22:46:50,387  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.AccountTx
+2011-09-25 22:46:50,389  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.AccountTx on table account_tx
+2011-09-25 22:46:50,421  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Action
+2011-09-25 22:46:50,422  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Action on table action
+2011-09-25 22:46:50,433  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.App
+2011-09-25 22:46:50,434  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.App on table app
+2011-09-25 22:46:50,439  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Offer
+2011-09-25 22:46:50,440  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Offer on table offer
+2011-09-25 22:46:50,446  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Order
+2011-09-25 22:46:50,447  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Order on table offer_order
+2011-09-25 22:46:50,450  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.Performer
+2011-09-25 22:46:50,451  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.Performer on table performer
+2011-09-25 22:46:50,453  INFO [AnnotationBinder.java:bindClass:532] - Binding entity from annotated class: com.heymoose.domain.User
+2011-09-25 22:46:50,454  INFO [EntityBinder.java:bindTable:530] - Bind entity com.heymoose.domain.User on table user_profile
+2011-09-25 22:46:50,474  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.Account.transactions -> account_tx
+2011-09-25 22:46:50,476  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.apps -> app
+2011-09-25 22:46:50,477  INFO [CollectionBinder.java:bindOneToManySecondPass:762] - Mapping collection: com.heymoose.domain.User.orders -> offer_order
+2011-09-25 22:46:50,481  INFO [Configuration.java:applyHibernateValidatorLegacyConstraintsOnDDL:1676] - Hibernate Validator not found: ignoring
+2011-09-25 22:46:50,488  INFO [HibernateSearchEventListenerRegister.java:enableHibernateSearch:75] - Unable to find org.hibernate.search.event.FullTextIndexEventListener on the classpath. Hibernate Search is not enabled.
+2011-09-25 22:46:50,495  INFO [ConnectionProviderFactory.java:initializeConnectionProviderFromConfig:173] - Initializing connection provider: org.hibernate.connection.C3P0ConnectionProvider
+2011-09-25 22:46:50,497  INFO [C3P0ConnectionProvider.java:configure:103] - C3P0 using driver: org.postgresql.Driver at URL: jdbc:postgresql://localhost/heymoose
+2011-09-25 22:46:50,497  INFO [C3P0ConnectionProvider.java:configure:104] - Connection properties: {user=postgres, password=****}
+2011-09-25 22:46:50,497  INFO [C3P0ConnectionProvider.java:configure:107] - autocommit mode: false
+Sep 25, 2011 10:46:50 PM com.mchange.v2.log.MLog <clinit>
+INFO: MLog clients using java 1.4+ standard logging.
+Sep 25, 2011 10:46:50 PM com.mchange.v2.c3p0.C3P0Registry banner
+INFO: Initializing c3p0-0.9.1.2 [built 21-May-2007 15:04:56; debug? true; trace: 10]
+Sep 25, 2011 10:46:50 PM com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource getPoolManager
+INFO: Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@56239169 [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@f2894a76 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 00018i18xa9ijx3ze7f|6c43da1b, idleConnectionTestPeriod -> 0, initialPoolSize -> 16, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 300, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 16, maxStatements -> 256, maxStatementsPerConnection -> 32, minPoolSize -> 16, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@53bba9e [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 00018i18xa9ijx3ze7f|387b1641, jdbcUrl -> jdbc:postgresql://localhost/heymoose, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 00018i18xa9ijx3ze7f|35f68272, numHelperThreads -> 3 ]
+2011-09-25 22:46:50,798  INFO [Dialect.java:<init>:135] - Using dialect: com.heymoose.hibernate.PostgreSQLDialect
+2011-09-25 22:46:50,806  INFO [JdbcSupportLoader.java:useContextualLobCreation:108] - Disabling contextual LOB creation as createClob() method threw error : java.lang.reflect.InvocationTargetException
+2011-09-25 22:46:50,807  INFO [SettingsFactory.java:buildSettings:126] - Database ->
+       name : PostgreSQL
+    version : 8.4.8
+      major : 8
+      minor : 4
+2011-09-25 22:46:50,807  INFO [SettingsFactory.java:buildSettings:132] - Driver ->
+       name : PostgreSQL Native Driver
+    version : PostgreSQL 9.0 JDBC4 (build 801)
+      major : 9
+      minor : 0
+2011-09-25 22:46:50,812  INFO [TransactionFactoryFactory.java:buildTransactionFactory:65] - Transaction strategy: org.hibernate.transaction.JDBCTransactionFactory
+2011-09-25 22:46:50,814  INFO [TransactionManagerLookupFactory.java:getTransactionManagerLookup:83] - No TransactionManagerLookup configured (in JTA environment, use of read-write or transactional second-level cache is not recommended)
+2011-09-25 22:46:50,814  INFO [SettingsFactory.java:buildSettings:179] - Automatic flush during beforeCompletion(): disabled
+2011-09-25 22:46:50,814  INFO [SettingsFactory.java:buildSettings:183] - Automatic session close at end of transaction: disabled
+2011-09-25 22:46:50,815  INFO [SettingsFactory.java:buildSettings:198] - Scrollable result sets: enabled
+2011-09-25 22:46:50,815  INFO [SettingsFactory.java:buildSettings:206] - JDBC3 getGeneratedKeys(): enabled
+2011-09-25 22:46:50,815  INFO [SettingsFactory.java:buildSettings:214] - Connection release mode: auto
+2011-09-25 22:46:50,816  INFO [SettingsFactory.java:buildSettings:241] - Default batch fetch size: 1
+2011-09-25 22:46:50,816  INFO [SettingsFactory.java:buildSettings:245] - Generate SQL with comments: disabled
+2011-09-25 22:46:50,816  INFO [SettingsFactory.java:buildSettings:249] - Order SQL updates by primary key: disabled
+2011-09-25 22:46:50,816  INFO [SettingsFactory.java:buildSettings:253] - Order SQL inserts for batching: disabled
+2011-09-25 22:46:50,817  INFO [SettingsFactory.java:createQueryTranslatorFactory:431] - Query translator: org.hibernate.hql.ast.ASTQueryTranslatorFactory
+2011-09-25 22:46:50,818  INFO [ASTQueryTranslatorFactory.java:<init>:47] - Using ASTQueryTranslatorFactory
+2011-09-25 22:46:50,818  INFO [SettingsFactory.java:buildSettings:261] - Query language substitutions: {}
+2011-09-25 22:46:50,818  INFO [SettingsFactory.java:buildSettings:266] - JPA-QL strict compliance: disabled
+2011-09-25 22:46:50,818  INFO [SettingsFactory.java:buildSettings:271] - Second-level cache: enabled
+2011-09-25 22:46:50,818  INFO [SettingsFactory.java:buildSettings:275] - Query cache: disabled
+2011-09-25 22:46:50,819  INFO [SettingsFactory.java:createRegionFactory:406] - Cache region factory : org.hibernate.cache.impl.NoCachingRegionFactory
+2011-09-25 22:46:50,820  INFO [SettingsFactory.java:buildSettings:285] - Optimize cache for minimal puts: disabled
+2011-09-25 22:46:50,820  INFO [SettingsFactory.java:buildSettings:294] - Structured second-level cache entries: disabled
+2011-09-25 22:46:50,823  INFO [SettingsFactory.java:buildSettings:314] - Echoing all SQL to stdout
+2011-09-25 22:46:50,824  INFO [SettingsFactory.java:buildSettings:323] - Statistics: disabled
+2011-09-25 22:46:50,824  INFO [SettingsFactory.java:buildSettings:327] - Deleted entity synthetic identifier rollback: disabled
+2011-09-25 22:46:50,824  INFO [SettingsFactory.java:buildSettings:343] - Default entity-mode: pojo
+2011-09-25 22:46:50,825  INFO [SettingsFactory.java:buildSettings:347] - Named query checking : enabled
+2011-09-25 22:46:50,825  INFO [SettingsFactory.java:buildSettings:351] - Check Nullability in Core (should be disabled when Bean Validation is on): enabled
+2011-09-25 22:46:50,839  INFO [SessionFactoryImpl.java:<init>:202] - building session factory
+2011-09-25 22:46:50,844  INFO [BasicTypeRegistry.java:register:150] - Type registration [materialized_blob] overrides previous : org.hibernate.type.MaterializedBlobType@6d21f653
+2011-09-25 22:46:51,048  INFO [SessionFactoryObjectFactory.java:addInstance:105] - Not binding factory to JNDI, no JNDI name configured
+2011-09-25 22:46:51,052  INFO [SchemaUpdate.java:execute:155] - Running hbm2ddl schema update
+2011-09-25 22:46:51,053  INFO [SchemaUpdate.java:execute:167] - fetching database metadata
+2011-09-25 22:46:51,063  INFO [SchemaUpdate.java:execute:179] - updating schema
+2011-09-25 22:46:51,112  INFO [TableMetadata.java:<init>:65] - table found: public.account
+2011-09-25 22:46:51,112  INFO [TableMetadata.java:<init>:66] - columns: [id]
+2011-09-25 22:46:51,112  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:46:51,113  INFO [TableMetadata.java:<init>:69] - indexes: [account_pkey]
+2011-09-25 22:46:51,156  INFO [TableMetadata.java:<init>:65] - table found: public.account_tx
+2011-09-25 22:46:51,156  INFO [TableMetadata.java:<init>:66] - columns: [id, balance, account_id, diff, description, version, parent_id]
+2011-09-25 22:46:51,156  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkd01e1dd6f1d916ae]
+2011-09-25 22:46:51,157  INFO [TableMetadata.java:<init>:69] - indexes: [account_tx_version_key, account_tx_pkey]
+2011-09-25 22:46:51,197  INFO [TableMetadata.java:<init>:65] - table found: public.action
+2011-09-25 22:46:51,198  INFO [TableMetadata.java:<init>:66] - columns: [id, offer_id, performer_id, reservation, done, creation_time, deleted]
+2011-09-25 22:46:51,198  INFO [TableMetadata.java:<init>:68] - foreign keys: [fkab2f7e367952720e, fkab2f7e36e9e9694e, fkab2f7e3641babc71]
+2011-09-25 22:46:51,198  INFO [TableMetadata.java:<init>:69] - indexes: [action_performer_id_key, action_pkey]
+2011-09-25 22:46:51,233  INFO [TableMetadata.java:<init>:65] - table found: public.app
+2011-09-25 22:46:51,234  INFO [TableMetadata.java:<init>:66] - columns: [id, platform, secret, creation_time, user_id, deleted]
+2011-09-25 22:46:51,234  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk17a215b1a8246]
+2011-09-25 22:46:51,234  INFO [TableMetadata.java:<init>:69] - indexes: [app_pkey]
+2011-09-25 22:46:51,268  INFO [TableMetadata.java:<init>:65] - table found: public.offer
+2011-09-25 22:46:51,268  INFO [TableMetadata.java:<init>:66] - columns: [id, body, title, auto_approve, image, creation_time, type]
+2011-09-25 22:46:51,268  INFO [TableMetadata.java:<init>:68] - foreign keys: []
+2011-09-25 22:46:51,269  INFO [TableMetadata.java:<init>:69] - indexes: [offer_pkey]
+2011-09-25 22:46:51,305  INFO [TableMetadata.java:<init>:65] - table found: public.offer_order
+2011-09-25 22:46:51,305  INFO [TableMetadata.java:<init>:66] - columns: [id, approved, offer_id, account_id, cpa, creation_time, user_id, deleted]
+2011-09-25 22:46:51,306  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk2a7bcfabe9e9694e, fk2a7bcfab5b1a8246, fk2a7bcfabf1d916ae]
+2011-09-25 22:46:51,306  INFO [TableMetadata.java:<init>:69] - indexes: [offer_order_pkey]
+2011-09-25 22:46:51,340  INFO [TableMetadata.java:<init>:65] - table found: public.performer
+2011-09-25 22:46:51,341  INFO [TableMetadata.java:<init>:66] - columns: [id, inviter, creation_time, app_id, ext_id]
+2011-09-25 22:46:51,341  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk1cad9fce9d4d0d6b, fk1cad9fce7d90cc2e]
+2011-09-25 22:46:51,341  INFO [TableMetadata.java:<init>:69] - indexes: [performer_pkey, performer_ext_id_key]
+2011-09-25 22:46:51,376  INFO [TableMetadata.java:<init>:65] - table found: public.user_profile
+2011-09-25 22:46:51,377  INFO [TableMetadata.java:<init>:66] - columns: [id, nickname, email, customer_account_id, developer_account_id, passwordhash]
+2011-09-25 22:46:51,377  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk487e2135ad0df5af, fk487e2135b7eca243]
+2011-09-25 22:46:51,377  INFO [TableMetadata.java:<init>:69] - indexes: [user_profile_pkey, user_profile_email_key]
+2011-09-25 22:46:51,414  INFO [TableMetadata.java:<init>:65] - table found: public.user_role
+2011-09-25 22:46:51,414  INFO [TableMetadata.java:<init>:66] - columns: [role, user_id]
+2011-09-25 22:46:51,415  INFO [TableMetadata.java:<init>:68] - foreign keys: [fk143bf46a5b1a8246]
+2011-09-25 22:46:51,415  INFO [TableMetadata.java:<init>:69] - indexes: []
+2011-09-25 22:46:51,416  INFO [SchemaUpdate.java:execute:217] - schema update complete
+Sep 25, 2011 10:46:51 PM com.sun.grizzly.Controller logVersion
+INFO: GRIZZLY0001: Starting Grizzly Framework 1.9.36 - 9/25/11 10:46 PM

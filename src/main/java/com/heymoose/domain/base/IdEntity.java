@@ -15,7 +15,15 @@ public abstract class IdEntity {
 
   @Id
   @GeneratedValue
-  public Long id;
+  protected Long id;
+
+  public Long id() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
 
   @Override
   public boolean equals(Object o) {

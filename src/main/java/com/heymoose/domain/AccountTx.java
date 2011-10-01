@@ -42,7 +42,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   @Basic
   private String description;
 
-  private AccountTx() {}
+  protected AccountTx() {}
 
   public AccountTx(Account account, BigDecimal balance) {
     this.account = account;

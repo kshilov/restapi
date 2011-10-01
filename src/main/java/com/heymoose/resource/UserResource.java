@@ -45,12 +45,9 @@ public class UserResource {
     User existing = users.byEmail(email);
     if (existing != null)
       return Response.status(400).build();
-    User newUser = new User();
-    newUser.email = email;
-    newUser.nickname = nickname;
-    newUser.passwordHash = passwordHash;
+    User newUser = new User(email, nickname, passwordHash);
     users.put(newUser);
-    return Response.created(URI.create(Long.toString(newUser.id))).build();
+    return Response.created(URI.create(Long.toString(newUser.id()))).build();
   }
 
   @GET
@@ -80,13 +77,7 @@ public class UserResource {
   public Response addRole(@PathParam("id") Long id, @FormParam("role") Role role) {
     checkNotNull(id, role);
     User user = existing(id);
-    if (user.roles == null)
-      user.roles = Sets.newHashSet();
-    user.roles.add(role);
-    if (role.equals(Role.CUSTOMER) && user.customerAccount == null)
-      user.customerAccount = new Account();
-    if (role.equals(Role.DEVELOPER) && user.developerAccount == null)
-      user.developerAccount = new Account();
+    user.addRole(role);
     return Response.ok().build();
   }
 
@@ -96,9 +87,9 @@ public class UserResource {
   public Response addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
     checkNotNull(id, amount);
     User user = existing(id);
-    if (user.roles == null || !user.roles.contains(Role.CUSTOMER))
+    if (!user.isCustomer())
       return Response.status(Response.Status.CONFLICT).build();
-    user.customerAccount.addToBalance(new BigDecimal(amount), "Adding to balance");
+    user.customerAccount().addToBalance(new BigDecimal(amount), "Adding to balance");
     return Response.ok().build();
   }
 
