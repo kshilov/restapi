@@ -71,6 +71,7 @@ public class Mappers {
     xmlApp.id = app.id();
     xmlApp.secret = app.secret();
     xmlApp.deleted = app.deleted();
+    xmlApp.callback = app.callback().toString();
     if (full)
       xmlApp.userId = app.owner().id();
     return xmlApp;

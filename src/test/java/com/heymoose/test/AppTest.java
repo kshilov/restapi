@@ -18,11 +18,13 @@ public class AppTest extends RestTest {
   String EMAIL = "test@heymoose.com";
   String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
+  
+  String CALLBACK = "http://example.org/callback";
 
   long create() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId);
+    heymoose().createApp(userId, CALLBACK);
     XmlUser user = heymoose().getUser(userId);
     return user.app.id;
   }
@@ -30,16 +32,17 @@ public class AppTest extends RestTest {
   @Test public void createApp() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId);
+    heymoose().createApp(userId, CALLBACK);
     XmlUser user = heymoose().getUser(userId);
     assertNotNull(user.app.id);
     assertNotNull(user.app.secret);
+    assertEquals(CALLBACK, user.app.callback);
   }
 
   @Test public void createAppWithoutDeveloperRole() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     try {
-      heymoose().createApp(userId);
+      heymoose().createApp(userId, CALLBACK);
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
     }

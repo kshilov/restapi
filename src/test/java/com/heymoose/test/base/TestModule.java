@@ -4,9 +4,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.heymoose.events.Event;
+import com.heymoose.events.EventBus;
 import org.hibernate.cfg.Configuration;
 import org.junit.Ignore;
 
+import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
@@ -15,7 +18,12 @@ public class TestModule extends AbstractModule {
   
   @Override
   protected void configure() {
-    
+    bind(EventBus.class).toInstance(new EventBus() {
+      @Override
+      public void publish(Event event) {
+        // do nothing
+      }
+    });
   }
 
   @Provides
@@ -28,16 +36,6 @@ public class TestModule extends AbstractModule {
 
     config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
     config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
-//    config.setProperty("hibernate.connection.username", "sa");
-//    config.setProperty("hibernate.connection.password", "");
-//    config.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
-
-    /*config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
-    config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/heymoose");
-    config.setProperty("hibernate.connection.username", "postgres");
-    config.setProperty("hibernate.connection.password", "");
-    config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");*/
-
     config.setProperty("hibernate.hbm2ddl.auto", "create");
     config.setProperty("hibernate.show_sql", "true");
     config.setProperty("hibernate.format_sql", "false");
@@ -52,8 +50,8 @@ public class TestModule extends AbstractModule {
   @Named("settings")
   protected Properties settings() {
     Properties settings = new Properties();
-    settings.setProperty("answer-cost", "15.0");
-    settings.setProperty("max-shows", "1000");
+    settings.setProperty("compensation", "0.5");
+    settings.setProperty("tax", "0.1");
     return settings;
   }
 }

@@ -51,7 +51,6 @@ public class Mlm {
     return Double.parseDouble(settings.getProperty("tax"));
   }
 
-
   @XmlRootElement(name = "report")
   public static class XmlReport {
     @XmlElement(name = "performer")

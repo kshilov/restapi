@@ -42,7 +42,7 @@ public class Performer extends IdEntity {
     checkNotNull(extId, app);
     this.extId = extId;
     this.app = app;
-    if (inviter.equals(this))
+    if (inviter != null && inviter.equals(this))
       throw new IllegalArgumentException();
     this.inviter = inviter;
     this.creationTime = DateTime.now();

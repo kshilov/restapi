@@ -18,6 +18,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import java.net.URI;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("apps")
@@ -35,8 +37,8 @@ public class AppResource {
 
   @POST
   @Transactional
-  public Response create(@FormParam("userId") Long userId) {
-    checkNotNull(userId);
+  public Response create(@FormParam("userId") Long userId, @FormParam("callback") String callback) {
+    checkNotNull(userId, callback);
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -47,7 +49,7 @@ public class AppResource {
     if (!user.apps().isEmpty())
       return Response.ok().build();
 
-    App app = new App(user);
+    App app = new App(user, URI.create(callback));
     apps.put(app);
     return Response.ok().build();
   }

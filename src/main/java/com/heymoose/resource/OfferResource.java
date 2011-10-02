@@ -154,8 +154,10 @@ public class OfferResource {
     App app = apps.byId(appId());
     app.assignPlatform(platform);
     Performer performer = performers.byAppAndExtId(appId(), extId);
-    if (performer == null)
+    if (performer == null) {
       performer = new Performer(extId, app, null);
+      performers.put(performer);
+    }
     Offer offer = offers.byId(offerId);
     if (offer == null)
       return Response.status(404).build();

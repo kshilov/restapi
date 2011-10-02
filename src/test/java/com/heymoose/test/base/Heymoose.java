@@ -47,9 +47,10 @@ public class Heymoose {
     client.path("users").path(Long.toString(userId)).path("customer-account").put(form);
   }
 
-  public void createApp(long userId) {
+  public void createApp(long userId, String callback) {
     Form form = new Form();
     form.add("userId", userId);
+    form.add("callback", callback);
     client.path("apps").post(form);
   }
 

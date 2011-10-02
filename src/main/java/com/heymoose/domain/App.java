@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.ws.rs.WebApplicationException;
+import java.net.URI;
 import java.util.UUID;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -32,6 +33,9 @@ public class App extends IdEntity {
   @Basic(optional = false)
   private String secret;
 
+  @Column(name = "callback", nullable = false)
+  private String callbackUrl;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -41,10 +45,11 @@ public class App extends IdEntity {
 
   protected App() {}
 
-  public App(User user) {
+  public App(User user, URI callback) {
     this.user = user;
     this.secret =  UUID.randomUUID().toString();
     this.creationTime = DateTime.now();
+    this.callbackUrl = callback.toString();
   }
 
   public User owner() {
@@ -73,5 +78,9 @@ public class App extends IdEntity {
       this.platform = platform;
     else if (!platform.equals(this.platform))
       throw new WebApplicationException(400);
+  }
+
+  public URI callback() {
+    return URI.create(callbackUrl);
   }
 }

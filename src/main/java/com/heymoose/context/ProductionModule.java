@@ -4,15 +4,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.heymoose.domain.Mlm;
+import com.heymoose.events.EventBus;
+import com.heymoose.events.rabbitmq.RabbitBus;
 import com.heymoose.job.Job;
 import com.heymoose.job.Scheduler;
 import com.heymoose.util.PropertiesUtil;
+import com.rabbitmq.client.ConnectionFactory;
 import org.hibernate.cfg.Configuration;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.math.BigDecimal;
 import java.util.Properties;
 import java.util.Set;
 
@@ -24,6 +28,7 @@ public class ProductionModule extends AbstractModule {
   protected void configure() {
     bind(Mlm.class);
     bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
+    bind(EventBus.class).to(RabbitBus.class);
   }
 
   @Provides
@@ -65,5 +70,16 @@ public class ProductionModule extends AbstractModule {
         return scheduler;
       }
     };
+  }
+
+  @Provides @Named("event-bus") @Singleton
+  protected String eventExchange(@Named("settings") Properties settings) {
+    return settings.getProperty("event-bus");
+  }
+
+  @Provides @Singleton
+  protected ConnectionFactory rabbitConnectionFactory() {
+    ConnectionFactory connectionFactory = new ConnectionFactory();
+    return connectionFactory;
   }
 }

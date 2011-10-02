@@ -12,6 +12,9 @@ public class XmlApp {
   @XmlElement(name = "secret")
   public String secret;
 
+  @XmlElement(name = "callback")
+  public String callback;
+
   @XmlElement(name = "user-id")
   public Long userId;
 
