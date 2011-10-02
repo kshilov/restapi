@@ -1,14 +1,11 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.Sets;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
-import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,8 +17,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import java.util.Date;
-import java.util.UUID;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 

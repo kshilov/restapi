@@ -1,4 +1,4 @@
-package com.heymoose.rest.test.base;
+package com.heymoose.test.base;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -12,6 +12,7 @@ import java.util.Set;
 
 @Ignore
 public class TestModule extends AbstractModule {
+  
   @Override
   protected void configure() {
     
@@ -27,9 +28,9 @@ public class TestModule extends AbstractModule {
 
     config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
     config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
-    config.setProperty("hibernate.connection.username", "sa");
-    config.setProperty("hibernate.connection.password", "");
-    config.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+//    config.setProperty("hibernate.connection.username", "sa");
+//    config.setProperty("hibernate.connection.password", "");
+//    config.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
 
     /*config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
     config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/heymoose");
@@ -37,7 +38,7 @@ public class TestModule extends AbstractModule {
     config.setProperty("hibernate.connection.password", "");
     config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");*/
 
-    config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+    config.setProperty("hibernate.hbm2ddl.auto", "create");
     config.setProperty("hibernate.show_sql", "true");
     config.setProperty("hibernate.format_sql", "false");
     config.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");

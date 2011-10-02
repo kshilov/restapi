@@ -1,17 +1,13 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.Sets;
-import com.heymoose.domain.Account;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
-import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
-import com.sun.grizzly.util.http.mapper.Mapper;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -27,7 +23,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.util.Date;
 
 @Path("orders")
 @Singleton
@@ -56,17 +51,17 @@ public class OrderResource {
   public Response create(@FormParam("userId") int userId,
                          @FormParam("title") String title,
                          @FormParam("body") String body,
-                         @FormParam("balance") String balance,
-                         @FormParam("cpa") String cpa,
+                         @FormParam("balance") String _balance,
+                         @FormParam("cpa") String _cpa,
                          @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove) {
     
-    BigDecimal decCpa = new BigDecimal(cpa);
-    BigDecimal decBalance = new BigDecimal(balance);
+    BigDecimal cpa = new BigDecimal(_cpa);
+    BigDecimal balance = new BigDecimal(_balance);
 
-    if (decCpa.signum() != 1 || decBalance.signum() != 1)
+    if (cpa.signum() != 1 || balance.signum() != 1)
       return Response.status(400).build();
 
-    if (decCpa.compareTo(decBalance) == 1)
+    if (cpa.compareTo(balance) == 1)
       return Response.status(400).build();
 
     User user = users.byId(userId);
@@ -78,10 +73,14 @@ public class OrderResource {
 
     DateTime now = DateTime.now();
     Offer offer = new Offer(title, body, autoApprove, now);
-    Order order = new Order(offer, decCpa, user, now);
+    Order order = new Order(offer, cpa, user, now);
     
-    BigDecimal amount = new BigDecimal(balance);
-    String desc = String.format("Transfering %s from %s to %s", balance, user.customerAccount(), order.account());
+    BigDecimal amount = balance;
+
+    if (user.customerAccount().currentState().balance().compareTo(amount) == -1)
+      return Response.status(409).build();
+
+    String desc = String.format("Transfering %s from %s to %s", _balance, user.customerAccount(), order.account());
     user.customerAccount().subtractFromBalance(amount, desc);
     order.account().addToBalance(amount, desc);
 

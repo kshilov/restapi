@@ -1,7 +1,5 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.Sets;
-import com.heymoose.domain.Account;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;

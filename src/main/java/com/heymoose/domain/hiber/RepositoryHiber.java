@@ -3,7 +3,6 @@ package com.heymoose.domain.hiber;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repository;
-import com.heymoose.hibernate.Transactional;
 import org.hibernate.Session;
 
 import javax.inject.Inject;

@@ -5,7 +5,6 @@ import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.hibernate.Transactional;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,7 +12,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.util.Date;
 
 @Singleton
 @Path("performer")

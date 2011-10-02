@@ -1,4 +1,4 @@
-package com.heymoose.rest.test.base;
+package com.heymoose.test.base;
 
 import com.google.inject.Injector;
 import com.heymoose.server.Launcher;
@@ -39,6 +39,10 @@ public class RestTest {
     return client.resource(baseUrl());
   }
 
+  protected Heymoose heymoose() {
+    return new Heymoose(client());
+  }
+
   protected Injector injector() {
     return TestContextListener.injector();
   }
@@ -48,7 +52,12 @@ public class RestTest {
     Session session =  sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
-     // session.createQuery("delete from Vote").executeUpdate();
+      session.createQuery("delete from Action").executeUpdate();
+      session.createQuery("delete from Performer").executeUpdate();
+      session.createQuery("delete from Order").executeUpdate();
+      session.createQuery("delete from App").executeUpdate();
+      session.createSQLQuery("delete from user_role").executeUpdate();
+      session.createQuery("delete from User").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       log.error("Error while cleaning db, rollback", e);

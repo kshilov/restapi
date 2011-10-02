@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
@@ -15,7 +14,6 @@ import com.heymoose.security.Secured;
 import com.heymoose.security.Signer;
 import com.heymoose.util.jtpl.Template;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -34,7 +32,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Collections;
-import java.util.Date;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static org.apache.commons.lang.StringUtils.isBlank;

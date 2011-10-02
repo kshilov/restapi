@@ -2,7 +2,6 @@ package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
-import org.hibernate.annotations.CollectionOfElements;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -11,13 +10,10 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.util.Set;
