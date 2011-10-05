@@ -2,13 +2,19 @@ package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.SortedSet;
@@ -16,6 +22,15 @@ import java.util.SortedSet;
 @Entity
 @Table(name = "account")
 public class Account extends IdEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account-seq")
+  @SequenceGenerator(name = "account-seq", sequenceName = "account_seq", allocationSize = 1)
+  private Long id;
+
+  public Long id() {
+    return id;
+  }
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "account", fetch = FetchType.LAZY)
   @Sort(type = SortType.NATURAL)

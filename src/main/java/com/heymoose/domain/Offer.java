@@ -9,7 +9,11 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -17,6 +21,15 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 @Entity
 @Table(name = "offer")
 public class Offer extends IdEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "offer-seq")
+  @SequenceGenerator(name = "offer-seq", sequenceName = "offer_seq", allocationSize = 1)
+  private Long id;
+
+  public Long id() {
+    return id;
+  }
 
   @Basic(optional = false)
   private String title;

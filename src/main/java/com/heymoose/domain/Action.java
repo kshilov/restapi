@@ -9,9 +9,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -23,6 +27,15 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
     uniqueConstraints = @UniqueConstraint(columnNames = {"performer_id", "offer_id"})
 )
 public class Action extends IdEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "action-seq")
+  @SequenceGenerator(name = "action-seq", sequenceName = "action_seq", allocationSize = 1)
+  private Long id;
+
+  public Long id() {
+    return id;
+  }
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "performer_id", nullable = false)

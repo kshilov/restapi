@@ -1,23 +1,11 @@
 package com.heymoose.domain.base;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class IdEntity {
 
-  @Id
-  @GeneratedValue
-  protected Long id;
-
-  public Long id() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
-  }
+  public abstract Long id();
 
   @Override
   public boolean equals(Object o) {
@@ -26,13 +14,13 @@ public abstract class IdEntity {
 
     IdEntity idEntity = (IdEntity) o;
 
-    if (id != null ? !id.equals(idEntity.id) : idEntity.id != null) return false;
+    if (id() != null ? !id().equals(idEntity.id()) : idEntity.id() != null) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
-    return id != null ? id.hashCode() : 0;
+    return id() != null ? id().hashCode() : 0;
   }
 }

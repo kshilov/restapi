@@ -126,7 +126,13 @@ public class OfferResource {
     return Response.ok(html.toString()).build();
   }
 
-  private Iterable<Offer> getAvailableOffers(String extId) {
+//  @GET
+//  public Response availableOffers() {
+//    Mappers.toXmlOrder()
+//  }
+
+  @Transactional
+  public Iterable<Offer> getAvailableOffers(String extId) {
     if (apps.byId(appId()).deleted())
       return Collections.emptySet();
     Performer performer = performers.byAppAndExtId(appId(), extId);

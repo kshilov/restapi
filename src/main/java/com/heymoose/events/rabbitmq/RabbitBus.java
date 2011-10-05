@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.ws.rs.WebApplicationException;
 
 @Singleton
 public class RabbitBus implements EventBus {
@@ -30,18 +31,24 @@ public class RabbitBus implements EventBus {
 
   @Override
   public void publish(Event event) {
+    Connection connection = null;
+    Channel channel = null;
     try {
-      Connection connection = connectionFactory.newConnection();
-      Channel channel = connection.createChannel();
+      connection= connectionFactory.newConnection();
+      channel = connection.createChannel();
       ObjectNode json = event.toJson();
       ObjectMapper mapper = new ObjectMapper();
       byte[] body = mapper.writeValueAsString(json).getBytes("UTF-8");
       channel.exchangeDeclare(exchange, "fanout", true, false, null);
       channel.basicPublish(exchange, "", false, false, null, body);
-      channel.close();
-      connection.close();
     } catch (Exception e) {
       log.error("Failed to publish event", e);
+      throw new WebApplicationException(503);
+    } finally {
+      if (channel != null && channel.isOpen())
+        try {channel.close(); } catch (Exception ignored) {}
+      if (connection != null && connection.isOpen())
+        try { connection.close(); } catch (Exception ignored) {}
     }
   }
 }

@@ -9,8 +9,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.ws.rs.WebApplicationException;
 import java.net.URI;
@@ -21,6 +25,15 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 @Entity
 @Table(name = "app")
 public class App extends IdEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "app-seq")
+  @SequenceGenerator(name = "app-seq", sequenceName = "app_seq", allocationSize = 1)
+  private Long id;
+
+  public Long id() {
+    return id;
+  }
 
   @Enumerated
   @JoinColumn(name = "platform", nullable = true)

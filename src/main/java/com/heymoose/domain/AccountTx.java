@@ -7,8 +7,12 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
@@ -19,6 +23,15 @@ import java.math.BigDecimal;
     uniqueConstraints = @UniqueConstraint(columnNames = {"version", "account_id"})
 )
 public class AccountTx extends IdEntity implements Comparable<AccountTx> {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account-tx-seq")
+  @SequenceGenerator(name = "account-tx-seq", sequenceName = "account_tx_seq", allocationSize = 1)
+  private Long id;
+
+  public Long id() {
+    return id;
+  }
 
   @Basic
   private Integer version;
