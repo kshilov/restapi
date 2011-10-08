@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
 
@@ -48,18 +49,21 @@ public class OfferResource {
   private final String offerTpl;
   private final PerformerRepository performers;
   private final ActionRepository actions;
+  private final BigDecimal compensation;
 
   @Inject
   public OfferResource(OfferRepository offers,
                        @Named("app") Provider<Long> appIdProvider,
                        AppRepository apps,
                        PerformerRepository performers,
-                       ActionRepository actions) throws IOException {
+                       ActionRepository actions,
+                       @Named("compensation") BigDecimal compensation) throws IOException {
     this.offers = offers;
     this.appIdProvider = appIdProvider;
     this.apps = apps;
     this.performers = performers;
     this.actions = actions;
+    this.compensation = compensation;
 
     StringWriter sw = new StringWriter();
     InputStream is = getClass().getResourceAsStream("/offer.jtpl");
@@ -76,20 +80,20 @@ public class OfferResource {
     return apps.byId(appId()).secret();
   }
 
-  private String applyTemplate(String extId, Offer offer) {
-    Template offerTpl = new Template(this.offerTpl);
+  private void applyTemplate(Template offerTpl, String extId, Offer offer) {
     offerTpl.assign("TITLE", offer.title());
+    offerTpl.assign("DESCRIPTION", offer.description());
     offerTpl.assign("BODY", offer.body());
-     offerTpl.assign("TIME", offer.creationTime().toString());
+    offerTpl.assign("IMG", offer.imageBase64());
     offerTpl.assign("APP", Long.toString(appId()));
     offerTpl.assign("SIG", Signer.sign(appId(), secret()));
     offerTpl.assign("OFFER", Long.toString(offer.id()));
+    offerTpl.assign("COST", offer.order().cpa().multiply(compensation).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
     if (!isBlank(extId))
       offerTpl.assign("EXT", extId);
     else
       offerTpl.assign("EXT", "");
-    offerTpl.parse("main");
-    return offerTpl.out();
+    offerTpl.parse("main.offer");
   }
 
   @GET
@@ -97,10 +101,11 @@ public class OfferResource {
   @Produces("text/html; charset=utf-8")
   @Transactional
   public Response all() {
-    StringBuilder html = new StringBuilder();
+    Template out = new Template(offerTpl);
     for (Offer offer : offers.approved())
-      html.append(applyTemplate("", offer));
-    return Response.ok(html.toString()).build();
+      applyTemplate(out, "", offer);
+    out.parse("main");
+    return Response.ok(out.out()).build();
   }
 
 
@@ -109,10 +114,11 @@ public class OfferResource {
   @Transactional
   public Response get(@QueryParam("extId") String extId) {
     checkNotNull(extId);
-    StringBuilder html = new StringBuilder();
+    Template out = new Template(offerTpl);
     for (Offer offer : getAvailableOffers(extId))
-      html.append(applyTemplate(extId, offer));
-    return Response.ok(html.toString()).build();
+      applyTemplate(out, extId, offer);
+    out.parse("main");
+    return Response.ok(out.out()).build();
   }
 
   @GET
@@ -121,10 +127,11 @@ public class OfferResource {
   @Transactional
   public Response getDone(@QueryParam("extId") String extId) {
     checkNotNull(extId);
-    StringBuilder html = new StringBuilder();
+    Template out = new Template(offerTpl);
     for (Offer offer : getDoneOffers(extId))
-      html.append(applyTemplate(extId, offer));
-    return Response.ok(html.toString()).build();
+      applyTemplate(out, extId, offer);
+    out.parse("main");
+    return Response.ok(out.out()).build();
   }
 
   @GET

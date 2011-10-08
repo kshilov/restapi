@@ -73,13 +73,17 @@ public class Heymoose {
 
   public long createOrder(long userId,
                           String title,
+                          String description,
                           String body,
+                          String image,
                           double balance,
                           double cpa) {
     Form form = new Form();
     form.add("userId", userId);
     form.add("title", title);
+    form.add("description", description);
     form.add("body", body);
+    form.add("image", image);
     form.add("balance", balance);
     form.add("cpa", cpa);
     return Long.valueOf(client.path("orders").post(String.class, form));

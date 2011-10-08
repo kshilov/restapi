@@ -1,26 +1,25 @@
 <!-- BEGIN: main -->
-<div style="width: 607px; height: 136px; margin: auto; border: 1px solid black; color: black; background-color: white; font-family: Arial; margin-bottom: 4px;">
-    <div style="width: 128px; height: 128px; float: left; border: 1px solid black; margin: 3px;">
+<link rel="stylesheet" href="/static/facebook_app/css/offers.css"/>
+<!-- BEGIN: offer -->
+<div class="b-offer i-block">
+    <div class="b-offer__info i-cornersSmall">
+        <p class="b-offer__info__tile">{TITLE}</p>
+        <label class="b-offer__info__label">Очков: <span class="b-offer__info__score">{COST}</span></label>
     </div>
-    <div style="width: 461px; float: left; margin: 4px;">
-        <div style="width: 100%; height: 32px; font: bold 18px/32px Arial; margin: 0;">
-            {TITLE}
-        </div>
-        <!--<div style="height: 60px; width: 100%; font: normal 14px/20px Arial; text-align: justify; margin: 0;">-->
-            <!--{BODY}-->
-        <!--</div>-->
-        <div style="margin: 0;">
-            <div style="float: left; border: 1px solid black; color: black; height:20px; background-color: #F5F5DC; padding: 4px; margin-top: 7px;">
-                {TIME}
-            </div>
-            <div style="float: right; color: orange; height:20px; padding: 4px; margin-top: 7px;">
-                <form id="offerform" action="/offers/{OFFER}?app={APP}&sig={SIG}" method="post" target="_blank">
-                    <input type="hidden" name="platform" value="FACEBOOK">
-                    <input type="hidden" name="extId" value="{EXT}">
-                    <input type="submit" class="send" value="Пройти оффер"/>
-                </form>
-            </div>
-        </div>
+    <img class="b-offer__logo" width="203" height="134" src="data:image;base64,{IMG}"/>
+
+    <p class="b-offer__desc">{DESCRIPTION}</p>
+    <div>
+        <form class="b-offer__form" action="/offers/{OFFER}?app={APP}&sig={SIG}" method="post" target="_blank">
+            <input type="hidden" name="platform" value="FACEBOOK">
+            <input type="hidden" name="extId" value="{EXT}">
+            <input class="b-offer__submit i-button" type="submit" value="Пройти оффер"/>
+        </form>
     </div>
 </div>
+<!-- END: offer -->
+<div class="hidden">
+      <script type="text/javascript" src="/static/facebook_app/js/offers.js"></script>
+</div>
 <!-- END: main -->
+

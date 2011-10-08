@@ -16,6 +16,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import java.io.UnsupportedEncodingException;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
@@ -35,13 +37,16 @@ public class Offer extends IdEntity {
   private String title;
 
   @Basic(optional = false)
+  private String description;
+
+  @Basic(optional = false)
   private String body;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "type", nullable = false)
   private Type type;
 
-  @Basic
+  @Basic(optional = false)
   private byte[] image;
 
   @org.hibernate.annotations.Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
@@ -60,13 +65,19 @@ public class Offer extends IdEntity {
 
   protected Offer() {}
 
-  public Offer(String title, String body, boolean autoApprove, DateTime creationTime) {
-    checkNotNull(title, body);
+  public Offer(String title, String description, String body, String imageBase64, boolean autoApprove, DateTime creationTime) {
+    checkNotNull(title, description, body, creationTime);
     this.title = title;
+    this.description = description;
     this.body = body;
     this.autoApprove = autoApprove;
     this.type = Type.URL;
     this.creationTime = creationTime;
+    try {
+      this.image = imageBase64.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public Order order() {
@@ -75,6 +86,10 @@ public class Offer extends IdEntity {
 
   public String title() {
     return title;
+  }
+
+  public String description() {
+    return description;
   }
 
   public String body() {
@@ -87,5 +102,13 @@ public class Offer extends IdEntity {
 
   public boolean autoApprove() {
     return autoApprove;
+  }
+  
+  public String imageBase64() {
+    try {
+      return new String(image, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

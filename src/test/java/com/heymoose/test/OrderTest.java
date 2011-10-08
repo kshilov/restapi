@@ -21,7 +21,9 @@ public class OrderTest extends RestTest {
   double CUSTOMER_BALANCE = 30.0;
 
   String TITLE = "body";
+  String DESCRIPTION = "description";
   String BODY = "http://ya.ru";
+  String IMAGE = "sdfasdfnaslf";
   double BALANCE = 20.0;
   double CPA = 2.0;
 
@@ -29,7 +31,7 @@ public class OrderTest extends RestTest {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
-    heymoose().createOrder(userId, TITLE, BODY, BALANCE, CPA);
+    heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
     return userId;
   }
 
@@ -52,7 +54,7 @@ public class OrderTest extends RestTest {
   @Test public void createOrderWithoutCustomerRole() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     try {
-      heymoose().createOrder(userId, TITLE, BODY, BALANCE, CPA);
+      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
@@ -64,7 +66,7 @@ public class OrderTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, 10.0);
     try {
-      heymoose().createOrder(userId, TITLE, BODY, BALANCE, CPA);
+      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());

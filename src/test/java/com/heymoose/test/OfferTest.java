@@ -30,7 +30,9 @@ public class OfferTest extends RestTest {
   double CUSTOMER_BALANCE = 30.0;
 
   String TITLE = "body";
+  String DESCRIPTION = "description";
   String BODY = "http://ya.ru";
+  String IMAGE = "sdfasdfnaslf";
   double BALANCE = 20.0;
   double CPA = 2.0;
 
@@ -51,7 +53,7 @@ public class OfferTest extends RestTest {
   long createOrder() {
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
-    return heymoose().createOrder(userId, TITLE, BODY, BALANCE, CPA);
+    return heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
   }
 
   @Test public void getAvailableOffersForUnknownPerformer() {

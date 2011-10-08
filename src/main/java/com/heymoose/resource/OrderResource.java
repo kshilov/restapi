@@ -24,6 +24,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+
 @Path("orders")
 @Singleton
 public class OrderResource {
@@ -50,11 +52,14 @@ public class OrderResource {
   @Transactional
   public Response create(@FormParam("userId") int userId,
                          @FormParam("title") String title,
+                         @FormParam("description") String description,
                          @FormParam("body") String body,
+                         @FormParam("image") String image,
                          @FormParam("balance") String _balance,
                          @FormParam("cpa") String _cpa,
                          @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove) {
-    
+    checkNotNull(title, description, body, image, _balance, _balance);
+
     BigDecimal cpa = new BigDecimal(_cpa);
     BigDecimal balance = new BigDecimal(_balance);
 
@@ -72,7 +77,7 @@ public class OrderResource {
       return Response.status(Response.Status.CONFLICT).build();
 
     DateTime now = DateTime.now();
-    Offer offer = new Offer(title, body, autoApprove, now);
+    Offer offer = new Offer(title, description, body, image, autoApprove, now);
     Order order = new Order(offer, cpa, user, now);
     
     BigDecimal amount = balance;
