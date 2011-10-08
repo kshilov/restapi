@@ -17,8 +17,18 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC=backend             # Introduce a short description here
 NAME=backend             # Introduce the short server's name here
+USERNAME=backend
 DAEMON=/usr/bin/java
-DAEMON_ARGS="-DsettingsFile=/etc/backend/settings.properties -jar /usr/share/backend/backend.jar" # Arguments to run the daemon with
+
+SYMLINK=log
+LOGDIR=/var/log/backend
+HOMEDIR=/home/backend
+
+#Workaround to fix start-stop-daemon parameter opts
+DAEMON_ARGS_DOPT="-DsettingsFile=/etc/backend/settings.properties"
+DAEMON_ARGS_JOPT="-jar"
+DAEMON_ARGS_JAR="/usr/share/backend/backend.jar"
+
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
@@ -44,10 +54,18 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null \
-		|| return 1
-	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- \
-		$DAEMON_ARGS \
+	mkdir -p $LOGDIR || true
+	cd $HOMEDIR
+	if [ ! -L $SYMLINK ]; then
+		ln -s $LOGDIR $SYMLINK
+	fi
+
+	sudo chown -R $USERNAME $LOGDIR
+
+	start-stop-daemon -b --start --quiet --chuid $USERNAME -m --pidfile $PIDFILE --exec $DAEMON -- \
+		$DAEMON_ARGS_JOPT \
+		$DAEMON_ARGS_DOPT \
+		$DAEMON_ARGS_JAR \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
@@ -64,7 +82,7 @@ do_stop()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
-	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME
+	start-stop-daemon --stop --quiet --pidfile $PIDFILE --name $NAME
 	RETVAL="$?"
 	[ "$RETVAL" = 2 ] && return 2
 	# Wait for children to finish too if this is a daemon that forks
@@ -73,7 +91,7 @@ do_stop()
 	# that waits for the process to drop all resources that could be
 	# needed by services started subsequently.  A last resort is to
 	# sleep for some time.
-	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
+	start-stop-daemon --stop --quiet --oknodo --exec $DAEMON
 	[ "$?" = 2 ] && return 2
 	# Many daemons don't delete their pidfiles when they exit.
 	rm -f $PIDFILE
