@@ -1,22 +1,21 @@
 package com.heymoose.domain;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.rabbitmq.RabbitMqSender;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.ObjectNode;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.StringWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
@@ -30,13 +29,19 @@ import static com.google.common.collect.Lists.newArrayList;
 @Singleton
 public class Mlm {
 
+  private final static Logger log = LoggerFactory.getLogger(Mlm.class);
+
   private final Provider<Session> sessionProvider;
   private final Properties settings;
+  private final RabbitMqSender mqSender;
 
   @Inject
-  public Mlm(Provider<Session> sessionProvider, @Named("settings") Properties settings) {
+  public Mlm(Provider<Session> sessionProvider,
+             @Named("settings") Properties settings,
+             RabbitMqSender mqSender) {
     this.sessionProvider = sessionProvider;
     this.settings = settings;
+    this.mqSender = mqSender;
   }
 
   private Session hiber() {
@@ -51,42 +56,50 @@ public class Mlm {
     return Double.parseDouble(settings.getProperty("tax"));
   }
 
-  @XmlRootElement(name = "report")
-  public static class XmlReport {
-    @XmlElement(name = "performer")
-    public List<XmlReportItem> items = newArrayList();
+  public static class Report {
+    public DateTime fromTime;
+    public DateTime toTime;
+    public Long appId;
+    public String callback;
+    public List<ReportItem> items = newArrayList();
   }
 
-  @XmlRootElement(name = "performer")
-  public static class XmlReportItem {
-    @XmlElement(name = "id")
-    public Long id;
-
-    @XmlElement(name = "parent-id")
-    public Long pid;
-
-    @XmlElement(name = "revenue")
-    public String revenue;
+  public static class ReportItem {
+    public String extId;
+    public String passiveRevenue;
   }
 
-  public String toXml(Iterable<Node> nodes) {
-    try {
-      XmlReport xmlReport = new XmlReport();
-      for (Node node : nodes) {
-        XmlReportItem item = new XmlReportItem();
-        item.id = node.id;
-        item.pid = node.pid;
-        item.revenue = node.revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
-        xmlReport.items.add(item);
+  public Iterable<Report> generateReports(Iterable<Node> nodes, DateTime fromTime, DateTime toTime) {
+    List<Report> reports = newArrayList();
+    Report report = new Report();
+    Long prevAppId = null;
+    for (Node node : nodes) {
+      if (prevAppId != null && !Long.valueOf(node.appId).equals(prevAppId)) {
+        report.appId = prevAppId;
+        report.callback = callbackFor(prevAppId);
+        report.fromTime = fromTime;
+        report.toTime = toTime;
+        if (!report.items.isEmpty())
+          reports.add(report);
+        report = new Report();
       }
-      JAXBContext context = JAXBContext.newInstance(XmlReport.class, XmlReportItem.class);
-      Marshaller marshaller = context.createMarshaller();
-      StringWriter sw = new StringWriter();
-      marshaller.marshal(xmlReport, sw);
-      return sw.toString();
-    } catch (JAXBException e) {
-      throw new RuntimeException(e);
+      if (node.revenue.compareTo(new BigDecimal(0.0)) != 0) {
+        ReportItem item = new ReportItem();
+        item.extId = node.extId;
+        item.passiveRevenue = node.revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
+        report.items.add(item);
+        prevAppId = node.appId;
+      }
     }
+    if (prevAppId != null) {
+      report.appId = prevAppId;
+      report.callback = callbackFor(prevAppId);
+      report.fromTime = fromTime;
+      report.toTime = toTime;
+      if (!report.items.isEmpty())
+        reports.add(report);
+    }
+    return reports;
   }
 
   @Transactional
@@ -94,12 +107,19 @@ public class Mlm {
     DateTime toTime = startTime;
     DateTime fromTime = toTime.minusDays(1);
 
-    String sql = "with _tmp as ( " +
-        "select p.id id, p.inviter pid, " +
-        "(select balance from account_tx t  where t.id = a.reservation order by version desc limit 1) amount  " +
-        "from action a inner join performer p on a.performer_id = p.id  " +
-        "where a.approve_time between :fromTime and :toTime and a.done) " +
-        "select _tmp.id, _tmp.pid, sum(_tmp.amount) from _tmp group by _tmp.id, _tmp.pid";
+    log.info("fromTime: {}", fromTime);
+    log.info("toTime: {}", toTime);
+
+    String sql = "with recursive _tmp as ( " +
+        "select p.id id, p.inviter pid, p.ext_id ext_id, p.app_id app_id, " +
+        "(select -diff from account_tx t  where t.id = a.reservation order by version desc limit 1) amount " +
+        "from action a inner join performer p on a.performer_id = p.id " +
+        "where a.approve_time between :fromTime and :toTime and a.done = true " +
+        "union all " +
+        "select __tmp.id id, __tmp.inviter pid, __tmp.ext_id ext_id, __tmp.app_id app_id, cast(0 as numeric(19,2)) amount " +
+        "from performer __tmp, _tmp where __tmp.id = _tmp.pid) " +
+        "select _tmp.id, _tmp.pid, _tmp.ext_id, _tmp.app_id, sum(_tmp.amount) " +
+        "from _tmp group by _tmp.id, _tmp.pid, _tmp.ext_id, _tmp.app_id order by _tmp.app_id";
 
     List<Object[]> records = hiber().createSQLQuery(sql)
         .setTimestamp("fromTime", fromTime.toDate())
@@ -111,39 +131,76 @@ public class Mlm {
       nodes.add(toNode(record));
 
     calcPassiveRevenue(nodes, tax());
-    System.out.println(toXml(nodes));
+
+    for (Report report : generateReports(nodes, fromTime, toTime))
+      trySendReport(report);
+  }
+
+  private void trySendReport(Report report) {
+    try {
+      mqSender.send(toJson(report).getBytes("UTF-8"), "reports", "notify");
+    } catch (Exception e) {
+      log.error("Failed to publish report", e);
+    }
+  }
+
+  @Transactional
+  private String callbackFor(long appId) {
+    App app = (App) hiber().get(App.class, appId);
+    return app.callback().toString();
+  }
+
+  private static String toJson(Report report) {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode json = mapper.createObjectNode();
+    json.put("appId", report.appId);
+    json.put("callback", report.callback);
+    json.put("fromTime", report.fromTime.toString());
+    json.put("toTime", report.toTime.toString());
+    ArrayNode jsonItems = mapper.createArrayNode();
+    for (Mlm.ReportItem item : report.items) {
+      ObjectNode jsonItem = mapper.createObjectNode();
+      jsonItem.put("extId", item.extId);
+      jsonItem.put("passiveRevenue", item.passiveRevenue);
+      jsonItems.add(jsonItem);
+    }
+    json.put("items", jsonItems);
+    try {
+      return mapper.writeValueAsString(json);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to create JSON from report", e);
+    }
   }
 
   private Node toNode(Object[] record) {
-    long id =  ((BigInteger) record[0]).longValue();
-    Long pid = record[1] == null ? null : ((BigInteger) record[0]).longValue();
-    BigDecimal amount = ((BigDecimal) record[2]);
+    //         0           1             2                 3                          4
+    // _tmp.id, _tmp.pid, _tmp.ext_id, _tmp.app_id, sum(_tmp.amount)
+    long id =  bigIntegerAsLong(record[0]);
+    Long pid = (record[1] == null) ? null : bigIntegerAsLong(record[1]);
+    String extId = (String) record[2];
+    long appId = bigIntegerAsLong(record[3]);
+    BigDecimal amount = ((BigDecimal) record[4]);
     amount = amount.subtract(amount.multiply(new BigDecimal(compensation())));
-    return node(id, pid, amount);
+    return node(id, pid, extId, appId, amount);
   }
 
-  private static class Node {
+  private long bigIntegerAsLong(Object bigInteger) {
+    return ((BigInteger) bigInteger).longValue();
+  }
+
+  public static class Node {
 
     public long id;
     public Long pid;
+    public String extId;
+    public long appId;
 
     public BigDecimal amount;
     public BigDecimal revenue = new BigDecimal("0.0");
     public int count;
-
-    @Override
-    public String toString() {
-      return Objects.toStringHelper(this)
-          .add("id", id)
-          .add("pid", pid)
-          .add("count", count)
-          .add("amount", amount.setScale(2, BigDecimal.ROUND_HALF_EVEN))
-          .add("revenue", revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN))
-          .toString();
-    }
   }
 
-  private static void calcPassiveRevenue(Iterable<Node> nodes, double tax) {
+  public static void calcPassiveRevenue(Iterable<Node> nodes, double tax) {
     // build map
     Map<Long, Node> map = Maps.newHashMap();
     for (Node node : nodes)
@@ -182,36 +239,17 @@ public class Mlm {
     parent.revenue = parent.revenue.add(revenue);
   }
 
-  private static Node node(long id, Long pid, BigDecimal amount) {
+  public static Node node(long id, Long pid, String extId, long appId, BigDecimal amount) {
     Node node = new Node();
     node.id = id;
     node.pid = pid;
+    node.extId = extId;
+    node.appId = appId;
     node.amount = amount;
     return node;
   }
 
-  private static BigDecimal amount(double amount) {
+  public static BigDecimal amount(double amount) {
     return new BigDecimal(amount);
-  }
-
-  public static void main(String[] args) {
-//     Iterable<Node> nodes = asList(
-//        node(1, null, amount(1.0)),
-//        node(2, 1L, amount(1.0)),
-//        node(3, 1L, amount(1.0)),
-//        node(4, 1L, amount(1.0)),
-//        node(5, 4L, amount(1.0)),
-//        node(6, 4L, amount(1.0))
-//    );
-
-    List<Node> nodes = Lists.newArrayList();
-//    for (long i = 1; i < 10000; i++)
-//      nodes.add(node(i, i - 1, amount(1.0)));
-
-    calcPassiveRevenue(nodes, 0.1);
-
-//    for (Node node : nodes)
-//      System.out.println(node);
-
   }
 }

@@ -7,3 +7,4 @@ debian/files
 debian/stamp-makefile-build
 debian/stamp-makefile-install
 run
+logs

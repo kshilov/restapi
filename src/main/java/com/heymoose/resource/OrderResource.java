@@ -85,7 +85,7 @@ public class OrderResource {
     order.account().addToBalance(amount, desc);
 
     orders.put(order);
-    return Response.ok().build();
+    return Response.ok(Long.toString(order.id())).build();
   }
 
   @GET

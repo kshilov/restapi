@@ -36,7 +36,7 @@ public class ActionResource {
     this.eventBus = eventBus;
     this.compensation = compensation;
   }
-
+  
   @PUT
   @Path("{id}")
   @Transactional
@@ -48,7 +48,7 @@ public class ActionResource {
       return Response.ok().build();
     if (action.deleted())
       return Response.status(409).build();
-    action.approve();
+    action.approve(compensation);
     eventBus.publish(new ActionApproved(action, compensation));
     return Response.ok().build();
   }

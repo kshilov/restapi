@@ -14,7 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 @Singleton
-@Path("performer")
+@Path("performers")
 public class PerformerResource {
 
   private final AppRepository apps;

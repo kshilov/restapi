@@ -5,10 +5,18 @@
             <pattern>%d %5p [%F:%M:%L] - %m%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/backend.log</file>
+        <bufferedIo>true</bufferedIo>
+        <encoder>
+            <pattern>%d %5p [%F:%M:%L] - %m%n</pattern>
+        </encoder>
+    </appender>
     
     <logger name="org.hibernate" level="INFO"/>
     
     <root level="DEBUG">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>

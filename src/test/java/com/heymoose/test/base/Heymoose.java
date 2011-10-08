@@ -1,12 +1,17 @@
 package com.heymoose.test.base;
 
+import com.heymoose.domain.Platform;
 import com.heymoose.domain.Role;
+import com.heymoose.resource.xml.XmlAction;
+import com.heymoose.resource.xml.XmlActions;
 import com.heymoose.resource.xml.XmlApp;
+import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlOrder;
 import com.heymoose.resource.xml.XmlUser;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Ignore;
 
 @Ignore
@@ -66,7 +71,7 @@ public class Heymoose {
     client.path("apps").path(Long.toString(appId)).delete();
   }
 
-  public void createOrder(long userId,
+  public long createOrder(long userId,
                           String title,
                           String body,
                           double balance,
@@ -77,7 +82,7 @@ public class Heymoose {
     form.add("body", body);
     form.add("balance", balance);
     form.add("cpa", cpa);
-    client.path("orders").post(form);
+    return Long.valueOf(client.path("orders").post(String.class, form));
   }
 
   public XmlOrder getOrder(long orderId) {
@@ -90,5 +95,36 @@ public class Heymoose {
 
   public void deleteOrder(long orderId) {
     client.path("orders").path(Long.toString(orderId)).delete();
+  }
+
+  public XmlOffers getAvailableOffers(XmlApp app, String extId) {
+    String sig = DigestUtils.md5Hex(app.id + app.secret);
+    return client
+        .path("offers/internal/available")
+        .queryParam("app", Long.toString(app.id))
+        .queryParam("sig", sig)
+        .queryParam("extId", extId)
+        .get(XmlOffers.class);
+  }
+
+  public void doOffer(XmlApp app, long offerId, String extId, Platform platform) {
+    String sig = DigestUtils.md5Hex(app.id + app.secret);
+    Form form = new Form();
+    form.add("extId", extId);
+    form.add("platform", platform);
+    client
+        .path("offers")
+        .path(Long.toString(offerId))
+        .queryParam("app", Long.toString(app.id))
+        .queryParam("sig", sig)
+        .post(form);
+  }
+
+  public XmlActions getActions(int offset, int limit) {
+    return client.path("actions").queryParam("offset", Integer.toString(offset)).queryParam("limit", Integer.toString(limit)).get(XmlActions.class);
+  }
+
+  public void approveAction(long actionId) {
+    client.path("actions").path(Long.toString(actionId)).put();
   }
 }

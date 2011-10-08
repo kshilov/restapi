@@ -1,4 +1,4 @@
-package com.heymoose.events.rabbitmq;
+package com.heymoose.rabbitmq;
 
 import com.heymoose.events.Event;
 import com.heymoose.events.EventBus;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.ws.rs.WebApplicationException;
 
 @Singleton
 public class RabbitBus implements EventBus {
@@ -42,8 +41,7 @@ public class RabbitBus implements EventBus {
       channel.exchangeDeclare(exchange, "fanout", true, false, null);
       channel.basicPublish(exchange, "", false, false, null, body);
     } catch (Exception e) {
-      log.error("Failed to publish event", e);
-      throw new WebApplicationException(503);
+      throw new RuntimeException("Failed to publish event", e);
     } finally {
       if (channel != null && channel.isOpen())
         try {channel.close(); } catch (Exception ignored) {}

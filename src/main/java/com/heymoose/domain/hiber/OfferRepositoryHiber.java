@@ -29,10 +29,10 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "from offer " +
         "inner join offer_order on offer_order.offer_id = offer.id " +
         "where " +
-        "offer.id not in (select action.offer_id from action where performer_id = :performerId and not action.deleted) " +
+        "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.deleted = false) " +
         "and (select offer_order.cpa <= balance from account_tx where account_tx.account_id = offer_order.account_id order by version desc limit 1) " +
-        "and not offer_order.deleted  " +
-        "and offer_order.approved";
+        "and offer_order.deleted = false  " +
+        "and offer_order.approved = true";
     List<BigInteger> ids = (List<BigInteger>) hiber()
         .createSQLQuery(sql)
         .setParameter("performerId", performerId)
@@ -60,7 +60,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     String sql = "select " +
         "offer.id " +
         "from offer inner join offer_order on offer.id = offer_order.offer_id " +
-        "where not offer_order.deleted and offer_order.approved";
+        "where offer_order.deleted = false and offer_order.approved = true";
     List<BigInteger> ids = (List<BigInteger>) hiber()
             .createSQLQuery(sql)
             .list();

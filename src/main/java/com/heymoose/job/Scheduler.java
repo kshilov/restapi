@@ -30,18 +30,19 @@ public class Scheduler {
   private static class TaskWrapper implements Runnable {
 
     private final Job target;
-    private final DateTime startTime;
+    private volatile DateTime nextStartTime;
 
-    public TaskWrapper(Job target, DateTime startTime) {
+    public TaskWrapper(Job target, DateTime nextStartTime) {
       this.target = target;
-      this.startTime = startTime;
+      this.nextStartTime = nextStartTime;
     }
 
     @Override
     public void run() {
       log.info("Starting job");
       try {
-        target.run(startTime);
+        target.run(nextStartTime);
+        nextStartTime = nextStartTime.plusDays(1);
         log.info("Task finished");
       } catch (Throwable e) {
         log.info("Error while executing job!", e);

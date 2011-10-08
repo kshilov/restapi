@@ -2,6 +2,7 @@ package com.heymoose.resource.xml;
 
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
+import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
@@ -92,6 +93,23 @@ public class Mappers {
     xmlAction.done = action.done();
     xmlAction.deleted = action.deleted();
     xmlAction.creationTime = action.creationTime().toString();
+    if (action.approveTime() != null)
+      xmlAction.approveTime = action.approveTime().toString();
     return xmlAction;
+  }
+
+  public static XmlOffers toXmlOffers(Iterable<Offer> offers) {
+    XmlOffers xmlOffers = new XmlOffers();
+    for (Offer offer : offers)
+      xmlOffers.offers.add(toXmlOffer(offer));
+    return xmlOffers;
+  }
+
+  public static XmlOffer toXmlOffer(Offer offer) {
+    XmlOffer xmlOffer = new XmlOffer();
+    xmlOffer.id = offer.id();
+    xmlOffer.title = offer.title();
+    xmlOffer.body = offer.body();
+    return xmlOffer;
   }
 }

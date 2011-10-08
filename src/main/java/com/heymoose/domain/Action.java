@@ -19,6 +19,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import java.math.BigDecimal;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
@@ -99,14 +101,14 @@ public class Action extends IdEntity {
     return offer;
   }
 
-  public void approve() {
+  public void approve(BigDecimal compensation) {
     if (deleted)
       throw new IllegalStateException("Action was deleted");
     if (done)
       throw new IllegalStateException("Already done");
     done = true;
     approveTime = DateTime.now();
-    performer.app().owner().developerAccount().addToBalance(reservation.diff().negate(), "Action approved");
+    performer.app().owner().developerAccount().addToBalance(reservation.diff().negate().multiply(compensation), "Action approved");
   }
 
   public void delete() {
@@ -117,5 +119,9 @@ public class Action extends IdEntity {
 
   public DateTime creationTime() {
     return creationTime;
+  }
+
+  public DateTime approveTime() {
+    return approveTime;
   }
 }

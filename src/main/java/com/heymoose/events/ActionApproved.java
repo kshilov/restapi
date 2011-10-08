@@ -27,8 +27,7 @@ public class ActionApproved implements Event {
     ObjectNode json = mapper.createObjectNode();
     String callback = action.performer().app().callback().toString();
     String extId = action.performer().extId();
-    BigDecimal cpa = action.offer().order().cpa();
-    BigDecimal amount = cpa.subtract(cpa.multiply(compensation));
+    BigDecimal amount = action.reservation().diff().negate().multiply(compensation);
     json.put("callback", callback);
     json.put("extId", extId);
     json.put("amount", amount.setScale(2, BigDecimal.ROUND_HALF_EVEN));

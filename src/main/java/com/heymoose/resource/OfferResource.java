@@ -10,6 +10,7 @@ import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.resource.xml.Mappers;
 import com.heymoose.security.Secured;
 import com.heymoose.security.Signer;
 import com.heymoose.util.jtpl.Template;
@@ -126,10 +127,12 @@ public class OfferResource {
     return Response.ok(html.toString()).build();
   }
 
-//  @GET
-//  public Response availableOffers() {
-//    Mappers.toXmlOrder()
-//  }
+  @GET
+  @Path("internal/available")
+  @Transactional
+  public Response availableOffers(@QueryParam("extId") String extId) {
+    return Response.ok(Mappers.toXmlOffers(getAvailableOffers(extId))).build();
+  }
 
   @Transactional
   public Iterable<Offer> getAvailableOffers(String extId) {

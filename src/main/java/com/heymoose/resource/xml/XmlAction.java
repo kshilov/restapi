@@ -23,4 +23,7 @@ public class XmlAction {
 
   @XmlElement(name = "creation-time")
   public String creationTime;
+
+  @XmlElement(name = "approve-time")
+  public String approveTime;
 }
