@@ -70,7 +70,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   @Override
   public Offer byId(long id) {
     return (Offer) hiber()
-        .createQuery("from Offer where order.deleted = false and id = :id")
+        .createQuery("select offer from Offer as offer inner join offer.order as order where order.deleted = false and offer.id = :id")
         .setParameter("id", id)
         .uniqueResult();
   }
@@ -98,7 +98,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (ids.isEmpty())
       return Collections.emptySet();
     List<Offer> offers = hiber()
-        .createQuery("from Offer where id in :ids")
+        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids")
         .setParameterList("ids", ids)
         .list();
     return Sets.newHashSet(offers);

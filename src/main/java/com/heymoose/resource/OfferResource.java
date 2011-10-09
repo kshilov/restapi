@@ -82,17 +82,17 @@ public class OfferResource {
     return appIdProvider.get();
   }
 
-  private String secret() {
-    return apps.byId(appId()).secret();
+  private App app() {
+    return apps.byId(appId());
   }
 
-  private void applyTemplate(Template offerTpl, String extId, Offer offer) {
+  private void applyTemplate(Template offerTpl, String extId, Offer offer, App app) {
     offerTpl.assign("TITLE", offer.title());
     offerTpl.assign("DESCRIPTION", offer.description());
     offerTpl.assign("BODY", offer.body());
     offerTpl.assign("IMG", offer.imageBase64());
-    offerTpl.assign("APP", Long.toString(appId()));
-    offerTpl.assign("SIG", Signer.sign(appId(), secret()));
+    offerTpl.assign("APP", Long.toString(app.id()));
+    offerTpl.assign("SIG", Signer.sign(app.id(), app.secret()));
     offerTpl.assign("OFFER", Long.toString(offer.id()));
     offerTpl.assign("COST", offer.order().cpa().multiply(compensation).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
     if (!isBlank(extId))
@@ -108,12 +108,12 @@ public class OfferResource {
   @Transactional
   public Response all() {
     Template out = new Template(offerTpl);
+    App app = app();
     for (Offer offer : offers.approved())
-      applyTemplate(out, "", offer);
+      applyTemplate(out, "", offer, app);
     out.parse("main");
     return Response.ok(out.out()).build();
   }
-
 
   @GET
   @Produces("text/html; charset=utf-8")
@@ -121,8 +121,9 @@ public class OfferResource {
   public Response get(@QueryParam("extId") String extId) {
     checkNotNull(extId);
     Template out = new Template(offerTpl);
+    App app = app();
     for (Offer offer : getAvailableOffers(extId))
-      applyTemplate(out, extId, offer);
+      applyTemplate(out, extId, offer, app);
     out.parse("main");
     return Response.ok(out.out()).build();
   }
@@ -134,8 +135,9 @@ public class OfferResource {
   public Response getDone(@QueryParam("extId") String extId) {
     checkNotNull(extId);
     Template out = new Template(offerTpl);
+    App app = app();
     for (Offer offer : getDoneOffers(extId))
-      applyTemplate(out, extId, offer);
+      applyTemplate(out, extId, offer, app);
     out.parse("main");
     return Response.ok(out.out()).build();
   }
@@ -149,8 +151,6 @@ public class OfferResource {
 
   @Transactional
   public Iterable<Offer> getAvailableOffers(String extId) {
-    if (apps.byId(appId()).deleted())
-      return Collections.emptySet();
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
       return offers.approved();

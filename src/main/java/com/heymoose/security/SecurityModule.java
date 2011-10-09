@@ -12,6 +12,8 @@ import com.heymoose.domain.AppRepository;
 import com.heymoose.hibernate.Transactional;
 import com.sun.jersey.api.core.HttpRequestContext;
 
+import javax.inject.Singleton;
+
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class SecurityModule extends AbstractModule {
