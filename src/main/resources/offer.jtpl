@@ -4,16 +4,16 @@
 <div class="b-offer i-block">
     <div class="b-offer__info i-cornersSmall">
         <p class="b-offer__info__tile">{TITLE}</p>
-        <label class="b-offer__info__label">Очков: <span class="b-offer__info__score">{COST}</span></label>
+        <label class="b-offer__info__label">Points:<span class="b-offer__info__score">{COST}</span></label>
     </div>
     <img class="b-offer__logo" width="203" height="134" src="data:image;base64,{IMG}"/>
 
     <p class="b-offer__desc">{DESCRIPTION}</p>
     <div>
-        <form class="b-offer__form" action="/offers/{OFFER}?app={APP}&sig={SIG}" method="post" target="_blank">
+        <form class="b-offer__form" action="/rest_api/offers/{OFFER}?app={APP}&sig={SIG}" method="post" target="_blank">
             <input type="hidden" name="platform" value="FACEBOOK">
             <input type="hidden" name="extId" value="{EXT}">
-            <input class="b-offer__submit i-button" type="submit" value="Пройти оффер"/>
+            <input class="b-offer__submit i-button" type="submit" value="start"/>
         </form>
     </div>
 </div>
