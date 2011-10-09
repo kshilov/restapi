@@ -20,7 +20,7 @@ NAME=backend             # Introduce the short server's name here
 USERNAME=backend
 DAEMON=/usr/bin/java
 
-SYMLINK=log
+SYMLINK=logs
 LOGDIR=/var/log/backend
 HOMEDIR=/home/backend
 
