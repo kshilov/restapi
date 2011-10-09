@@ -24,7 +24,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   @Override
   public Set<Offer> availableFor(long performerId) {
-    // TODO: add ordering
     String sql = "select offer.id " +
         "from offer " +
         "inner join offer_order on offer_order.offer_id = offer.id " +
@@ -32,7 +31,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.deleted = false) " +
         "and (select offer_order.cpa <= balance from account_tx where account_tx.account_id = offer_order.account_id order by version desc limit 1) " +
         "and offer_order.deleted = false  " +
-        "and offer_order.approved = true";
+        "and offer_order.approved = true " +
+        "order by offer.creation_time desc limit 10";
     List<BigInteger> ids = (List<BigInteger>) hiber()
         .createSQLQuery(sql)
         .setParameter("performerId", performerId)
@@ -60,7 +60,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     String sql = "select " +
         "offer.id " +
         "from offer inner join offer_order on offer.id = offer_order.offer_id " +
-        "where offer_order.deleted = false and offer_order.approved = true";
+        "where offer_order.deleted = false and offer_order.approved = true " +
+        "order by offer.creation_time desc limit 10";
     List<BigInteger> ids = (List<BigInteger>) hiber()
             .createSQLQuery(sql)
             .list();
@@ -98,7 +99,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (ids.isEmpty())
       return Collections.emptySet();
     List<Offer> offers = hiber()
-        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids")
+        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by offer.creationTime desc")
         .setParameterList("ids", ids)
         .list();
     return Sets.newHashSet(offers);
