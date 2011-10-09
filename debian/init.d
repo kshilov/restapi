@@ -56,14 +56,13 @@ do_start()
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
 	mkdir -p $LOGDIR || true
-	cd $HOMEDIR
-	if [ ! -L $SYMLINK ]; then
-		ln -s $LOGDIR $SYMLINK
+	if [ ! -L $HOMEDIR/$SYMLINK ]; then
+		ln -s $LOGDIR $HOMEDIR/$SYMLINK
 	fi
 
 	sudo chown -R $USERNAME $LOGDIR
 
-	start-stop-daemon -b --start --quiet --chuid $USERNAME -m --pidfile $PIDFILE --exec $DAEMON -- \
+	start-stop-daemon -b -d $HOMEDIR --start --quiet --chuid $USERNAME -m --pidfile $PIDFILE --exec $DAEMON -- \
 		$DAEMON_ARGS_JOPT \
 		$DAEMON_ARGS_DOPT \
 		$DAEMON_ARGS_DOPT2 \
