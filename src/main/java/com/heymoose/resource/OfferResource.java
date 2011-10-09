@@ -9,6 +9,8 @@ import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
+import com.heymoose.events.ActionApproved;
+import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.security.Secured;
@@ -27,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +53,7 @@ public class OfferResource {
   private final PerformerRepository performers;
   private final ActionRepository actions;
   private final BigDecimal compensation;
+  private final EventBus eventBus;
 
   @Inject
   public OfferResource(OfferRepository offers,
@@ -57,13 +61,15 @@ public class OfferResource {
                        AppRepository apps,
                        PerformerRepository performers,
                        ActionRepository actions,
-                       @Named("compensation") BigDecimal compensation) throws IOException {
+                       @Named("compensation") BigDecimal compensation,
+                       EventBus eventBus) throws IOException {
     this.offers = offers;
     this.appIdProvider = appIdProvider;
     this.apps = apps;
     this.performers = performers;
     this.actions = actions;
     this.compensation = compensation;
+    this.eventBus = eventBus;
 
     StringWriter sw = new StringWriter();
     InputStream is = getClass().getResourceAsStream("/offer.jtpl");
@@ -160,13 +166,20 @@ public class OfferResource {
 
   @POST
   @Path("{id}")
-  @Transactional
   public Response doOffer(@PathParam("id") Long offerId,
                           @FormParam("extId") String extId,
                           @FormParam("platform") Platform platform) {
+    Action action = createAction(offerId, extId, platform);
+    if (action.offer().autoApprove())
+      eventBus.publish(new ActionApproved(action, compensation));
+    return Response.status(302).location(URI.create(action.offer().body())).build();
+  }
+
+  @Transactional
+  public Action createAction(Long offerId, String extId, Platform platform) {
     checkNotNull(offerId, platform);
     if (isBlank(extId))
-      return Response.status(400).build();
+      throw new WebApplicationException(409);
     App app = apps.byId(appId());
     app.assignPlatform(platform);
     Performer performer = performers.byAppAndExtId(appId(), extId);
@@ -176,14 +189,14 @@ public class OfferResource {
     }
     Offer offer = offers.byId(offerId);
     if (offer == null)
-      return Response.status(404).build();
+      throw new WebApplicationException(404);
     if (!offer.order().approved())
-      return Response.status(409).build();
+      throw new WebApplicationException(409);
     Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
     if (action != null)
-      return Response.status(Response.Status.CONFLICT).build();
+      throw new WebApplicationException(409);
     action = new Action(offer, performer);
     actions.put(action);
-    return Response.status(302).location(URI.create(offer.body())).build();
+    return action;
   }
 }

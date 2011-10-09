@@ -3,6 +3,7 @@ package com.heymoose.domain.hiber;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.hibernate.Transactional;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
 
   @Override
+  @Transactional
   public App byId(long id) {
     return (App) hiber().createQuery("from App where id = :id and deleted = false")
         .setParameter("id", id)

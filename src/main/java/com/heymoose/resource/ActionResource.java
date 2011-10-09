@@ -17,6 +17,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 
@@ -39,18 +40,23 @@ public class ActionResource {
   
   @PUT
   @Path("{id}")
-  @Transactional
-  public Response approve(@PathParam("id") Long actionId) {
-    Action action = actions.byId(actionId);
-    if (action == null)
-      return Response.status(404).build();
-    if (action.done())
-      return Response.ok().build();
-    if (action.deleted())
-      return Response.status(409).build();
-    action.approve(compensation);
+  public Response approve(@PathParam("id") long actionId) {
+    Action action = doApprove(actionId);
     eventBus.publish(new ActionApproved(action, compensation));
     return Response.ok().build();
+  }
+
+  @Transactional
+  public Action doApprove(long actionId) {
+    Action action = actions.byId(actionId);
+    if (action == null)
+      throw new WebApplicationException(404);
+    if (action.done())
+      return action;
+    if (action.deleted())
+      throw new WebApplicationException(409);
+    action.approve(compensation);
+    return action;
   }
 
   @DELETE
