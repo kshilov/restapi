@@ -169,14 +169,33 @@ public class OfferResource {
   public Response doOffer(@PathParam("id") Long offerId,
                           @FormParam("extId") String extId,
                           @FormParam("platform") Platform platform) {
-    Action action = createAction(offerId, extId, platform);
-    if (action.offer().autoApprove())
-      eventBus.publish(new ActionApproved(action, compensation));
-    return Response.status(302).location(URI.create(action.offer().body())).build();
+    OfferResult result = doOfferInternal(offerId, extId, platform);
+    if (result.approved != null)
+      eventBus.publish(result.approved);
+    return Response.status(302).location(URI.create(result.url)).build();
+  }
+
+  private static class OfferResult {
+    
+    public final String url;
+    public final ActionApproved approved;
+
+    public OfferResult(String url, ActionApproved approved) {
+      this.url = url;
+      this.approved = approved;
+    }
+
+    public static OfferResult of(String url) {
+      return new OfferResult(url, null);
+    }
+
+    public static OfferResult of(String url, ActionApproved approved) {
+      return new OfferResult(url, approved);
+    }
   }
 
   @Transactional
-  public Action createAction(Long offerId, String extId, Platform platform) {
+  public OfferResult doOfferInternal(Long offerId, String extId, Platform platform) {
     checkNotNull(offerId, platform);
     if (isBlank(extId))
       throw new WebApplicationException(409);
@@ -197,6 +216,9 @@ public class OfferResource {
       throw new WebApplicationException(409);
     action = new Action(offer, performer);
     actions.put(action);
-    return action;
+    if (offer.autoApprove())
+      return OfferResult.of(offer.body(), new ActionApproved(action, compensation));
+    else
+      return OfferResult.of(offer.body());
   }
 }

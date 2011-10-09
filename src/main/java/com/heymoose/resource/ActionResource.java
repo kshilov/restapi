@@ -41,22 +41,21 @@ public class ActionResource {
   @PUT
   @Path("{id}")
   public Response approve(@PathParam("id") long actionId) {
-    Action action = doApprove(actionId);
-    eventBus.publish(new ActionApproved(action, compensation));
+    eventBus.publish(doApprove(actionId));
     return Response.ok().build();
   }
 
   @Transactional
-  public Action doApprove(long actionId) {
+  public ActionApproved doApprove(long actionId) {
     Action action = actions.byId(actionId);
     if (action == null)
       throw new WebApplicationException(404);
     if (action.done())
-      return action;
+      return new ActionApproved(action, compensation);
     if (action.deleted())
       throw new WebApplicationException(409);
     action.approve(compensation);
-    return action;
+    return new ActionApproved(action, compensation);
   }
 
   @DELETE

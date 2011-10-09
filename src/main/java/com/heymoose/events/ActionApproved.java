@@ -10,25 +10,25 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class ActionApproved implements Event {
 
-  private final Action action;
-  private final BigDecimal compensation;
+  private final String callback;
+  private final String extId;
+  private final Long offerId;
+  private final BigDecimal amount;
 
   public ActionApproved(Action action, BigDecimal compensation) {
     checkArgument(action.done());
     checkArgument(compensation.signum() == 1);
     checkArgument(compensation.compareTo(new BigDecimal("1.0")) == -1);
-    this.compensation = compensation;
-    this.action = action;
+    callback = action.performer().app().callback().toString();
+    extId = action.performer().extId();
+    offerId = action.offer().id();
+    amount = action.reservation().diff().negate().multiply(compensation);
   }
 
   @Override
   public ObjectNode toJson() {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode json = mapper.createObjectNode();
-    String callback = action.performer().app().callback().toString();
-    String extId = action.performer().extId();
-    Long offerId = action.offer().id();
-    BigDecimal amount = action.reservation().diff().negate().multiply(compensation);
     json.put("callback", callback);
     json.put("offerId", offerId);
     json.put("extId", extId);

@@ -36,6 +36,7 @@ public class RestTest {
 
   protected WebResource client() {
     Client client = Client.create();
+    client.setFollowRedirects(false);
     return client.resource(baseUrl());
   }
 

@@ -8,11 +8,15 @@ import com.heymoose.resource.xml.XmlApp;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlOrder;
 import com.heymoose.resource.xml.XmlUser;
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Ignore;
+
+import java.net.URI;
 
 @Ignore
 public class Heymoose {
@@ -111,17 +115,20 @@ public class Heymoose {
         .get(XmlOffers.class);
   }
 
-  public void doOffer(XmlApp app, long offerId, String extId, Platform platform) {
+  public URI doOffer(XmlApp app, long offerId, String extId, Platform platform) {
     String sig = DigestUtils.md5Hex(app.id + app.secret);
     Form form = new Form();
     form.add("extId", extId);
     form.add("platform", platform);
-    client
+    ClientResponse response = client
         .path("offers")
         .path(Long.toString(offerId))
         .queryParam("app", Long.toString(app.id))
         .queryParam("sig", sig)
-        .post(form);
+        .post(ClientResponse.class, form);
+    if (response.getStatus() != 302)
+      throw new UniformInterfaceException(response);
+    return response.getLocation();
   }
 
   public XmlActions getActions(int offset, int limit) {

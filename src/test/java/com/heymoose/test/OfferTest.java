@@ -12,6 +12,8 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -73,7 +75,8 @@ public class OfferTest extends RestTest {
     XmlOffers offers = heymoose().getAvailableOffers(app, EXT_ID);
     assertEquals(1, offers.offers.size());
     long offerId = offers.offers.iterator().next().id;
-    heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
+    URI redirect = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
+    assertEquals(BODY, redirect.toString());
 
     XmlActions actions = heymoose().getActions(0, Integer.MAX_VALUE);
     assertEquals(1, actions.actions.size());
@@ -103,7 +106,7 @@ public class OfferTest extends RestTest {
     long offerId = offers.offers.iterator().next().id;
     heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
     try {
-      heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
+      heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK).toString();
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
