@@ -138,4 +138,8 @@ public class Heymoose {
   public void approveAction(long actionId) {
     client.path("actions").path(Long.toString(actionId)).put();
   }
+
+  public void deleteAction(long actionId) {
+    client.path("actions").path(Long.toString(actionId)).delete();
+  }
 }

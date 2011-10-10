@@ -115,6 +115,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
 
   @Override
   public int compareTo(AccountTx o) {
-    return version.compareTo(o.version);
+    //TODO: WTF???
+    return version.compareTo((o.version == null) ? 0 : o.version);
   }
 }

@@ -98,6 +98,35 @@ public class OfferTest extends RestTest {
     assertNotNull(action.approveTime);
   }
 
+  @Test public void deleteAction() {
+    long orderId = createOrder();
+    heymoose().approveOrder(orderId);
+    XmlOffers offers = heymoose().getAvailableOffers(app, EXT_ID);
+    assertEquals(1, offers.offers.size());
+    long offerId = offers.offers.iterator().next().id;
+    URI redirect = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
+    assertEquals(BODY, redirect.toString());
+
+    XmlActions actions = heymoose().getActions(0, Integer.MAX_VALUE);
+    assertEquals(1, actions.actions.size());
+    XmlAction action = actions.actions.iterator().next();
+    assertEquals(Long.valueOf(offerId), Long.valueOf(action.offerId));
+    assertFalse(action.done);
+    assertFalse(action.deleted);
+    assertNull(action.approveTime);
+
+    offers = heymoose().getAvailableOffers(app, EXT_ID);
+    assertEquals(0, offers.offers.size());
+
+    heymoose().deleteAction(action.id);
+    actions = heymoose().getActions(0, Integer.MAX_VALUE);
+    action = actions.actions.iterator().next();
+
+    assertFalse(action.done);
+    assertTrue(action.deleted);
+    assertNull(action.approveTime);
+  }
+
   @Test public void failIfOfferAcceptedAlready() {
     long orderId = createOrder();
     heymoose().approveOrder(orderId);
