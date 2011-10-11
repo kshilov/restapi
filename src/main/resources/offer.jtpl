@@ -13,6 +13,7 @@
         <form class="b-offer__form" action="/rest_api/offers/{OFFER}?app={APP}&sig={SIG}" method="post" target="_blank">
             <input type="hidden" name="platform" value="FACEBOOK">
             <input type="hidden" name="extId" value="{EXT}">
+			<input type="hidden" name="submitted" value="">
             <input class="b-offer__submit i-button" type="submit" value="start"/>
         </form>
     </div>
