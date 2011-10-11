@@ -25,8 +25,7 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(
-    name = "action",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"performer_id", "offer_id"})
+    name = "action"
 )
 public class Action extends IdEntity {
 
