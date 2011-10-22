@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.Queue;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.heymoose.domain.Compensation.subtractCompensation;
 
 @Singleton
 public class Mlm {
@@ -48,8 +49,8 @@ public class Mlm {
     return sessionProvider.get();
   }
 
-  private double compensation() {
-    return Double.parseDouble(settings.getProperty("compensation"));
+  private BigDecimal compensation() {
+    return new BigDecimal(Double.parseDouble(settings.getProperty("compensation")));
   }
 
   private double tax() {
@@ -180,7 +181,7 @@ public class Mlm {
     String extId = (String) record[2];
     long appId = bigIntegerAsLong(record[3]);
     BigDecimal amount = ((BigDecimal) record[4]);
-    amount = amount.subtract(amount.multiply(new BigDecimal(compensation())));
+    amount = subtractCompensation(amount, compensation());
     return node(id, pid, extId, appId, amount);
   }
 

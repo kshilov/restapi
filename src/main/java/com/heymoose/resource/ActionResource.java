@@ -1,7 +1,9 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
+import com.heymoose.domain.Order;
 import com.heymoose.events.ActionApproved;
 import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
@@ -28,14 +30,17 @@ public class ActionResource {
   private final ActionRepository actions;
   private final EventBus eventBus;
   private final BigDecimal compensation;
+  private final Accounts accounts;
 
   @Inject
   public ActionResource(ActionRepository actions,
                         EventBus eventBus,
-                        @Named("compensation") BigDecimal compensation) {
+                        @Named("compensation") BigDecimal compensation,
+                        Accounts accounts) {
     this.actions = actions;
     this.eventBus = eventBus;
     this.compensation = compensation;
+    this.accounts = accounts;
   }
   
   @PUT
@@ -54,6 +59,7 @@ public class ActionResource {
       return new ActionApproved(action, compensation);
     if (action.deleted())
       throw new WebApplicationException(409);
+    accounts.lock(action.performer().app().owner().developerAccount());
     action.approve(compensation);
     return new ActionApproved(action, compensation);
   }
@@ -67,10 +73,14 @@ public class ActionResource {
       return Response.status(404).build();
     if (action.deleted())
       return Response.ok().build();
-    if (action.offer().order().deleted())
-      action.offer().order().customer().customerAccount().addToBalance(action.reservation().diff().negate(), "Action deleted");
-    else
-      action.offer().order().account().addToBalance(action.reservation().diff().negate(), "Action deleted");
+    Order order = action.offer().order();
+    if (order.deleted()) {
+      accounts.lock(order.customer().customerAccount());
+      order.customer().customerAccount().addToBalance(action.reservedAmount(), "Action deleted");
+    } else {
+      accounts.lock(order.account());
+      order.account().addToBalance(action.reservedAmount(), "Action deleted");
+    }
     action.delete();
     return Response.ok().build();
   }

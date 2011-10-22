@@ -18,9 +18,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import java.math.BigDecimal;
 
+import static com.heymoose.domain.Compensation.subtractCompensation;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
@@ -92,8 +92,8 @@ public class Action extends IdEntity {
     return performer;
   }
 
-  public AccountTx reservation() {
-    return reservation;
+  public BigDecimal reservedAmount() {
+    return reservation.diff().negate();
   }
 
   public Offer offer() {
@@ -107,7 +107,7 @@ public class Action extends IdEntity {
       throw new IllegalStateException("Already done");
     done = true;
     approveTime = DateTime.now();
-    performer.app().owner().developerAccount().addToBalance(reservation.diff().negate().multiply(compensation), "Action approved");
+    performer.app().owner().developerAccount().addToBalance(subtractCompensation(reservedAmount(), compensation), "Action approved");
   }
 
   public void delete() {

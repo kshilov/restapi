@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -28,10 +29,12 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 public class UserResource {
 
   private final UserRepository users;
+  private final Accounts accounts;
 
   @Inject
-  public UserResource(UserRepository users) {
+  public UserResource(UserRepository users, Accounts accounts) {
     this.users = users;
+    this.accounts = accounts;
   }
 
   @POST
@@ -87,6 +90,7 @@ public class UserResource {
     User user = existing(id);
     if (!user.isCustomer())
       return Response.status(Response.Status.CONFLICT).build();
+    accounts.lock(user.customerAccount());
     user.customerAccount().addToBalance(new BigDecimal(amount), "Adding to balance");
     return Response.ok().build();
   }

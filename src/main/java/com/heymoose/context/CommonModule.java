@@ -6,6 +6,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.heymoose.domain.Account;
 import com.heymoose.domain.AccountTx;
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
@@ -48,6 +49,7 @@ public class CommonModule extends AbstractModule {
     bind(OfferResource.class);
     bind(ActionResource.class);
     bind(PerformerResource.class);
+    bind(Accounts.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);

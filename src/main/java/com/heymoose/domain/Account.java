@@ -2,12 +2,11 @@ package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.AccessType;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,7 +25,7 @@ public class Account extends IdEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account-seq")
   @SequenceGenerator(name = "account-seq", sequenceName = "account_seq", allocationSize = 1)
-  private Long id;
+  protected Long id;
 
   public Long id() {
     return id;

@@ -1,7 +1,7 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Offer;
-import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
 import com.heymoose.domain.User;
@@ -32,13 +32,13 @@ public class OrderResource {
 
   private final UserRepository users;
   private final OrderRepository orders;
-  private final OfferRepository offers;
+  private final Accounts accounts;
 
   @Inject
-  public OrderResource(UserRepository users, OrderRepository orders, OfferRepository offers) {
+  public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts) {
     this.users = users;
     this.orders = orders;
-    this.offers = offers;
+    this.accounts = accounts;
   }
 
   @GET
@@ -86,6 +86,7 @@ public class OrderResource {
       return Response.status(409).build();
 
     String desc = String.format("Transfering %s from %s to %s", _balance, user.customerAccount(), order.account());
+    accounts.lock(user.customerAccount());
     user.customerAccount().subtractFromBalance(amount, desc);
     order.account().addToBalance(amount, desc);
 

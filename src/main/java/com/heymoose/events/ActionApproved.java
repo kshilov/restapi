@@ -7,6 +7,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import java.math.BigDecimal;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.heymoose.domain.Compensation.subtractCompensation;
 
 public class ActionApproved implements Event {
 
@@ -22,7 +23,7 @@ public class ActionApproved implements Event {
     callback = action.performer().app().callback().toString();
     extId = action.performer().extId();
     offerId = action.offer().id();
-    amount = action.reservation().diff().negate().multiply(compensation);
+    amount = subtractCompensation(action.reservedAmount(), compensation);
   }
 
   @Override

@@ -9,10 +9,7 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.RequestScoped;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
-import com.heymoose.hibernate.Transactional;
 import com.sun.jersey.api.core.HttpRequestContext;
-
-import javax.inject.Singleton;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 

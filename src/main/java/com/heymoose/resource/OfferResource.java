@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
@@ -38,6 +39,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
 
+import static com.heymoose.domain.Compensation.subtractCompensation;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -54,6 +56,7 @@ public class OfferResource {
   private final ActionRepository actions;
   private final BigDecimal compensation;
   private final EventBus eventBus;
+  private final Accounts accounts;
 
   @Inject
   public OfferResource(OfferRepository offers,
@@ -62,7 +65,8 @@ public class OfferResource {
                        PerformerRepository performers,
                        ActionRepository actions,
                        @Named("compensation") BigDecimal compensation,
-                       EventBus eventBus) throws IOException {
+                       EventBus eventBus,
+                       Accounts accounts) throws IOException {
     this.offers = offers;
     this.appIdProvider = appIdProvider;
     this.apps = apps;
@@ -70,6 +74,7 @@ public class OfferResource {
     this.actions = actions;
     this.compensation = compensation;
     this.eventBus = eventBus;
+    this.accounts = accounts;
 
     StringWriter sw = new StringWriter();
     InputStream is = getClass().getResourceAsStream("/offer.jtpl");
@@ -94,7 +99,7 @@ public class OfferResource {
     offerTpl.assign("APP", Long.toString(app.id()));
     offerTpl.assign("SIG", Signer.sign(app.id(), app.secret()));
     offerTpl.assign("OFFER", Long.toString(offer.id()));
-    offerTpl.assign("COST", offer.order().cpa().multiply(compensation).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
+    offerTpl.assign("COST", subtractCompensation(offer.order().cpa(), compensation).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
     if (!isBlank(extId))
       offerTpl.assign("EXT", extId);
     else
@@ -214,6 +219,7 @@ public class OfferResource {
     Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
     if (action != null)
       throw new WebApplicationException(409);
+    accounts.lock(offer.order().account());
     action = new Action(offer, performer);
     actions.put(action);
     if (offer.autoApprove())
