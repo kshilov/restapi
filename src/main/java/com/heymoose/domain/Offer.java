@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import java.io.UnsupportedEncodingException;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;

@@ -17,10 +17,11 @@ import com.heymoose.hibernate.Transactional;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.ws.rs.WebApplicationException;
 import java.math.BigDecimal;
 import java.net.URI;
 
+import static com.heymoose.resource.Exceptions.conflict;
+import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -90,7 +91,7 @@ public class Api {
   public OfferResult doOfferInternal(long offerId, long appId, String extId, Platform platform) {
     checkNotNull(offerId, platform);
     if (isBlank(extId))
-      throw new WebApplicationException(409);
+      throw conflict();
     App app = apps.byId(appId);
     app.assignPlatform(platform);
     Performer performer = performers.byAppAndExtId(appId, extId);
@@ -100,12 +101,12 @@ public class Api {
     }
     Offer offer = offers.byId(offerId);
     if (offer == null)
-      throw new WebApplicationException(404);
+      throw notFound();
     if (!offer.order().approved())
-      throw new WebApplicationException(409);
+      throw conflict();
     Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
     if (action != null)
-      throw new WebApplicationException(409);
+      throw conflict();
     accounts.lock(offer.order().account());
     action = new Action(offer, performer);
     actions.put(action);

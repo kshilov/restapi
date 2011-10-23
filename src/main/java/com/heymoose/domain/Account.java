@@ -2,7 +2,6 @@ package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
-import org.hibernate.annotations.AccessType;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 

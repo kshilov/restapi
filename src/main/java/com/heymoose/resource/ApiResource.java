@@ -14,13 +14,14 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static com.heymoose.resource.Exceptions.badRequest;
+import static com.heymoose.resource.Exceptions.unauthorized;
 import static com.heymoose.security.Signer.sign;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static java.util.Arrays.asList;
@@ -52,35 +53,42 @@ public class ApiResource {
                              @QueryParam("format") @DefaultValue("HTML") String format) {
     checkNotNull(method, appId, sig);
     if (!asList("HTML", "JSON").contains(format))
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw badRequest();
     validateSig();
     Map<String, String> params = queryParams();
-    if (method.equals("getOffers")) {
-      String extId = notNull(params.get("uid"));
-      Iterable<Offer> offers = api.getOffers(appId, extId);
-      OfferTemplate template;
-      String contentType;
-      if (format.equals("JSON")) {
-        template = jsonTemplate;
-        contentType = "application/json; charset=utf-8";
-      } else if (format.equals("HTML")) {
-        template = htmlTemplate;
-        contentType = "text/html; charset=utf-8";
-      } else {
-        throw new IllegalStateException();
-      }
-      return Response
-          .ok(template.render(offers, apps.byId(appId), extId, compensation))
-          .type(contentType)
-          .build();
-    } else if (method.equals("doOffer")) {
-      long offerId = longFrom(params.get("offer_id"));
-      String extId = notNull(params.get("uid"));
-      Platform platform = platform(params.get("platform"));
-      return Response.status(302).location(api.doOffer(offerId, appId, extId, platform)).build();
+    if (method.equals("getOffers"))
+      return getOffers(appId, format, params);
+    else if (method.equals("doOffer"))
+      return doOffer(appId, params);
+    else
+      throw new IllegalStateException();
+  }
+
+  private Response getOffers(long appId, String format, Map<String, String> params) {
+    String extId = notNull(params.get("uid"));
+    Iterable<Offer> offers = api.getOffers(appId, extId);
+    OfferTemplate template;
+    String contentType;
+    if (format.equals("JSON")) {
+      template = jsonTemplate;
+      contentType = "application/json; charset=utf-8";
+    } else if (format.equals("HTML")) {
+      template = htmlTemplate;
+      contentType = "text/html; charset=utf-8";
     } else {
       throw new IllegalStateException();
     }
+    return Response
+        .ok(template.render(offers, apps.byId(appId), extId, compensation))
+        .type(contentType)
+        .build();
+  }
+
+  private Response doOffer(long appId, Map<String, String> params) {
+    long offerId = longFrom(params.get("offer_id"));
+    String extId = notNull(params.get("uid"));
+    Platform platform = platform(params.get("platform"));
+    return Response.status(302).location(api.doOffer(offerId, appId, extId, platform)).build();
   }
 
   private void validateSig() {
@@ -102,13 +110,9 @@ public class ApiResource {
     return params;
   }
 
-  private static WebApplicationException unauthorized() {
-    return new WebApplicationException(Response.Status.UNAUTHORIZED);
-  }
-
   private static <T> T notNull(T arg) {
     if (arg == null)
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw badRequest();
     return arg;
   }
 
@@ -117,7 +121,7 @@ public class ApiResource {
     try {
       return Long.valueOf(from);
     } catch (NumberFormatException e) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw badRequest();
     }
   }
 
@@ -126,7 +130,7 @@ public class ApiResource {
     try {
       return Platform.valueOf(platform);
     } catch (IllegalArgumentException e) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      throw badRequest();
     }
   }
 }
