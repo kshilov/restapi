@@ -23,6 +23,7 @@ public class Mappers {
       else
         xmlUser.customerAccount = user.customerAccount().currentState().balance().toString();
     }
+    xmlUser.customerSecret = user.customerSecret();
     if (user.developerAccount() != null) {
       if (user.developerAccount().currentState() == null)
         xmlUser.developerAccount = "0.0";

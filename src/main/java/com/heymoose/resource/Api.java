@@ -10,6 +10,8 @@ import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
+import com.heymoose.domain.User;
+import com.heymoose.domain.UserRepository;
 import com.heymoose.events.ActionApproved;
 import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
@@ -28,6 +30,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.heymoose.resource.Exceptions.conflict;
 import static com.heymoose.resource.Exceptions.notFound;
+import static com.heymoose.resource.Exceptions.unauthorized;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -41,6 +44,7 @@ public class Api {
   private final Accounts accounts;
   private final BigDecimal compensation;
   private final EventBus eventBus;
+  private final UserRepository users;
 
   @Inject
   public Api(OfferRepository offers,
@@ -49,7 +53,7 @@ public class Api {
              ActionRepository actions,
              Accounts accounts,
              @Named("compensation") BigDecimal compensation,
-             EventBus eventBus) {
+             EventBus eventBus, UserRepository users) {
     this.offers = offers;
     this.performers = performers;
     this.apps = apps;
@@ -57,6 +61,7 @@ public class Api {
     this.accounts = accounts;
     this.compensation = compensation;
     this.eventBus = eventBus;
+    this.users = users;
   }
 
   @Transactional
@@ -116,24 +121,47 @@ public class Api {
     accounts.lock(offer.order().account());
     action = new Action(offer, performer);
     actions.put(action);
+    URI redirectUrl = appendQueryParam(URI.create(offer.body()), "action_id", action.id());
     if (offer.autoApprove())
-      return OfferResult.of(createRedirectUrl(offer.body(), performer.id()), new ActionApproved(action, compensation));
+      return OfferResult.of(redirectUrl, new ActionApproved(action, compensation));
     else
-      return OfferResult.of(createRedirectUrl(offer.body(), performer.id()));
+      return OfferResult.of(redirectUrl);
+  }
+   
+  public void approveAction(long customerId, long actionId) {
+    eventBus.publish(doApprove(customerId, actionId));
   }
 
-  private static URI createRedirectUrl(String url, long performerId) {
-    URI redirectUrl = URI.create(url);
-    List<NameValuePair> params = newArrayList(URLEncodedUtils.parse(redirectUrl, "UTF-8"));
-    params.add(new NameValuePair("performer_id", Long.toString(performerId)));
+  @Transactional
+  public ActionApproved doApprove(long customerId, long actionId) {
+    User customer = users.byId(customerId);
+    if (customer == null)
+      throw notFound();
+    Action action = actions.byId(actionId);
+    if (action == null)
+      throw notFound();
+    if (!customer.id().equals(action.offer().order().customer().id()))
+      throw unauthorized();
+    if (action.done())
+      return new ActionApproved(action, compensation);
+    if (action.deleted())
+      throw conflict();
+    accounts.lock(action.performer().app().owner().developerAccount());
+    action.approve(compensation);
+    return new ActionApproved(action, compensation);
+  }
+
+  private static URI appendQueryParam(URI uri, String name, Object value) {
+    List<NameValuePair> params = newArrayList(URLEncodedUtils.parse(uri, "UTF-8"));
+    params.add(new NameValuePair(name, value.toString()));
     try {
       return URIUtils.createURI(
-          redirectUrl.getScheme(),
-          redirectUrl.getHost(),
-          redirectUrl.getPort(),
-          redirectUrl.getPath(),
+          uri.getScheme(),
+          uri.getHost(),
+          uri.getPort(),
+          uri.getPath(),
           URLEncodedUtils.format(params, "UTF-8"),
-          redirectUrl.getFragment()
+          uri.getFragment()
       );
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);

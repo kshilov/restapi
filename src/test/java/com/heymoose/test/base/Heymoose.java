@@ -173,8 +173,20 @@ public class Heymoose {
     return client.path("actions").queryParam("offset", Integer.toString(offset)).queryParam("limit", Integer.toString(limit)).get(XmlActions.class);
   }
 
-  public void approveAction(long actionId) {
-    client.path("actions").path(Long.toString(actionId)).put();
+  public void approveAction(XmlUser user, long actionId) {
+    Map<String, String> params = newHashMap();
+    params.put("method", "approveAction");
+    params.put("customer_id", Long.toString(user.id));
+    params.put("action_id", Long.toString(actionId));
+    String sig = Signer.sign(params, user.customerSecret);
+    ClientResponse response = client.path("api")
+        .queryParam("method", "approveAction")
+        .queryParam("customer_id", Long.toString(user.id))
+        .queryParam("action_id", Long.toString(actionId))
+        .queryParam("sig", sig)
+        .get(ClientResponse.class);
+    if (response.getStatus() != 200)
+      throw new UniformInterfaceException(response);
   }
 
   public void deleteAction(long actionId) {

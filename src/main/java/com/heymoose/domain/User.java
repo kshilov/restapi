@@ -21,6 +21,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static java.util.Collections.emptySet;
@@ -55,6 +56,9 @@ public class User extends IdEntity {
   @JoinColumn(name = "customer_account_id")
   private Account customerAccount;
 
+  @Column(name = "customer_secret", nullable = true)
+  private String customerSecret;
+
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "developer_account_id")
   private Account developerAccount;
@@ -85,6 +89,10 @@ public class User extends IdEntity {
     return customerAccount;
   }
 
+  public String customerSecret() {
+    return customerSecret;
+  }
+
   public String email() {
     return email;
   }
@@ -99,8 +107,10 @@ public class User extends IdEntity {
     if (roles == null)
       roles = Sets.newHashSet();
     roles.add(role);
-    if (role.equals(Role.CUSTOMER) && customerAccount == null)
+    if (role.equals(Role.CUSTOMER) && customerAccount == null) {
       customerAccount = new Account();
+      customerSecret = UUID.randomUUID().toString();
+    }
     if (role.equals(Role.DEVELOPER) && developerAccount == null)
       developerAccount = new Account();
   }

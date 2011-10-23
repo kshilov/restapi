@@ -25,6 +25,9 @@ public class XmlUser {
   @XmlElement(name = "customer-account")
   public String customerAccount;
 
+  @XmlElement(name = "customer-secret")
+  public String customerSecret;
+
   @XmlElement(name = "developer-account")
   public String developerAccount;
 

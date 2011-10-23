@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -47,6 +48,7 @@ public class OrderTest extends RestTest {
     XmlUser user = heymoose().getUser(userId);
     assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
     assertEquals(1, user.orders.size());
+    assertNotNull(user.customerSecret);
     XmlOrder order = user.orders.iterator().next();
     validateNewOrder(order);
   }

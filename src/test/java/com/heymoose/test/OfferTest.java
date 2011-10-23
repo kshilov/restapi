@@ -41,21 +41,23 @@ public class OfferTest extends RestTest {
   String CALLBACK = "http://example.org/callback";
 
   XmlApp app;
-  long userId;
+  XmlUser user;
 
   @Before
   public void createApp() {
-    userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(userId, CALLBACK);
     XmlUser user = heymoose().getUser(userId);
     app = user.app;
+    this.user = user;
   }
 
   long createOrder() {
-    heymoose().addRoleToUser(userId, Role.CUSTOMER);
-    heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
-    return heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
+    heymoose().addRoleToUser(user.id, Role.CUSTOMER);
+    user = heymoose().getUser(user.id);
+    heymoose().addToCustomerAccount(user.id, CUSTOMER_BALANCE);
+    return heymoose().createOrder(user.id, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
   }
 
   @Test public void getAvailableOffersForUnknownPerformer() {
@@ -89,7 +91,7 @@ public class OfferTest extends RestTest {
     offers = heymoose().getAvailableOffers(app, EXT_ID);
     assertEquals(0, offers.offers.size());
 
-    heymoose().approveAction(action.id);
+    heymoose().approveAction(user, action.id);
     actions = heymoose().getActions(0, Integer.MAX_VALUE);
     action = actions.actions.iterator().next();
 

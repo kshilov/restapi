@@ -4,6 +4,10 @@ import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Platform;
+import com.heymoose.domain.Role;
+import com.heymoose.domain.User;
+import com.heymoose.domain.UserRepository;
+import com.heymoose.hibernate.Transactional;
 import com.sun.jersey.api.core.HttpRequestContext;
 
 import javax.inject.Inject;
@@ -21,6 +25,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.heymoose.resource.Exceptions.badRequest;
+import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.resource.Exceptions.unauthorized;
 import static com.heymoose.security.Signer.sign;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -32,6 +37,7 @@ public class ApiResource {
 
   private final Provider<HttpRequestContext> requestContextProvider;
   private final AppRepository apps;
+  private final UserRepository users;
   private final OfferTemplate htmlTemplate = new HtmlOfferTemplate();
   private final OfferTemplate jsonTemplate = new JsonOfferTemplate();
   private final Api api;
@@ -39,32 +45,35 @@ public class ApiResource {
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, AppRepository apps, Api api,
-                     @Named("compensation") BigDecimal compensation) {
+                     @Named("compensation") BigDecimal compensation, UserRepository users) {
     this.requestContextProvider = requestContextProvider;
     this.apps = apps;
     this.api = api;
     this.compensation = compensation;
+    this.users = users;
   }
 
   @GET
   public Response callMethod(@QueryParam("method") String method,
-                             @QueryParam("app_id") Long appId,
                              @QueryParam("sig") String sig,
                              @QueryParam("format") @DefaultValue("HTML") String format) {
-    checkNotNull(method, appId, sig);
+    checkNotNull(method, sig);
     if (!asList("HTML", "JSON").contains(format))
       throw badRequest();
-    validateSig();
     Map<String, String> params = queryParams();
     if (method.equals("getOffers"))
-      return getOffers(appId, format, params);
+      return getOffers(format, params);
     else if (method.equals("doOffer"))
-      return doOffer(appId, params);
+      return doOffer(params);
+    else if (method.equals("approveAction"))
+      return approveAction(params);
     else
-      throw new IllegalStateException();
+      throw badRequest();
   }
 
-  private Response getOffers(long appId, String format, Map<String, String> params) {
+  private Response getOffers(String format, Map<String, String> params) {
+    long appId = longFrom(params.get("app_id"));
+    validateAppSig(appId, params);
     String extId = notNull(params.get("uid"));
     Iterable<Offer> offers = api.getOffers(appId, extId);
     OfferTemplate template;
@@ -76,7 +85,7 @@ public class ApiResource {
       template = htmlTemplate;
       contentType = "text/html; charset=utf-8";
     } else {
-      throw new IllegalStateException();
+      throw badRequest();
     }
     return Response
         .ok(template.render(offers, apps.byId(appId), extId, compensation))
@@ -84,21 +93,44 @@ public class ApiResource {
         .build();
   }
 
-  private Response doOffer(long appId, Map<String, String> params) {
+  private Response doOffer(Map<String, String> params) {
+    long appId = longFrom(params.get("app_id"));
+    validateAppSig(appId, params);
     long offerId = longFrom(params.get("offer_id"));
     String extId = notNull(params.get("uid"));
     Platform platform = platform(params.get("platform"));
     return Response.status(302).location(api.doOffer(offerId, appId, extId, platform)).build();
   }
 
-  private void validateSig() {
-    Map<String, String> params = queryParams();
-    long appId = longFrom(params.get("app_id"));
+  private Response approveAction(Map<String, String> params) {
+    long customer_id = longFrom(params.get("customer_id"));
+    validateCustomerSig(customer_id, params);
+    long actionId = longFrom(params.get("action_id"));
+    api.approveAction(customer_id, actionId);
+    return Response.ok().build();
+  }
+
+  @Transactional
+  public void validateAppSig(long appId, Map<String, String> params) {
     App app = apps.byId(appId);
     if (app == null)
       throw unauthorized();
+    validateSig(app.secret(), params);
+  }
+
+  @Transactional
+  public void validateCustomerSig(long customerId, Map<String, String> params) {
+    User user = users.byId(customerId);
+    if (user == null)
+      throw unauthorized();
+    if (!user.roles().contains(Role.CUSTOMER))
+      throw unauthorized();
+    validateSig(user.customerSecret(), params);
+  }
+
+  private static void validateSig(String secret, Map<String, String> params) {
     String sig = params.remove("sig");
-    if (!sign(params, app.secret()).equals(sig))
+    if (!sign(params, secret).equals(sig))
       throw unauthorized();
   }
 
