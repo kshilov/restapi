@@ -89,7 +89,7 @@ public class OfferTest extends RestTest {
     assertNull(action.approveTime);
 
     offers = heymoose().getAvailableOffers(app, EXT_ID);
-    assertEquals(0, offers.offers.size());
+    assertEquals(1, offers.offers.size());
 
     heymoose().approveAction(user, action.id);
     actions = heymoose().getActions(0, Integer.MAX_VALUE);
@@ -118,7 +118,7 @@ public class OfferTest extends RestTest {
     assertNull(action.approveTime);
 
     offers = heymoose().getAvailableOffers(app, EXT_ID);
-    assertEquals(0, offers.offers.size());
+    assertEquals(1, offers.offers.size());
 
     heymoose().deleteAction(action.id);
     actions = heymoose().getActions(0, Integer.MAX_VALUE);
@@ -129,19 +129,16 @@ public class OfferTest extends RestTest {
     assertNull(action.approveTime);
   }
 
-  @Test public void failIfOfferAcceptedAlready() {
+  @Test public void redirectIfOfferAcceptedAlready() {
     long orderId = createOrder();
     heymoose().approveOrder(orderId);
     XmlOffers offers = heymoose().getAvailableOffers(app, EXT_ID);
     assertEquals(1, offers.offers.size());
     long offerId = offers.offers.iterator().next().id;
-    heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
-    try {
-      heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK).toString();
-      fail();
-    } catch (UniformInterfaceException e) {
-      assertEquals(409, e.getResponse().getStatus());
-    }
+    URI redirect1 = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
+    URI redirect2 = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
+    assertEquals(redirect1.getHost(), redirect2.getHost());
+    assertEquals(URI.create(BODY).getHost(), redirect2.getHost());
   }
 
   @Test public void redoOfferAfterActionDeleting() {
@@ -162,7 +159,7 @@ public class OfferTest extends RestTest {
     assertNull(action.approveTime);
 
     offers = heymoose().getAvailableOffers(app, EXT_ID);
-    assertEquals(0, offers.offers.size());
+    assertEquals(1, offers.offers.size());
 
     heymoose().deleteAction(action.id);
     actions = heymoose().getActions(0, Integer.MAX_VALUE);

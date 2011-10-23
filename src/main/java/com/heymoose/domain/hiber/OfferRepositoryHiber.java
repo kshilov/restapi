@@ -28,7 +28,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "from offer " +
         "inner join offer_order on offer_order.offer_id = offer.id " +
         "where " +
-        "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.deleted = false) " +
+        "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) " +
         "and (select offer_order.cpa <= balance from account_tx where account_tx.account_id = offer_order.account_id order by version desc limit 1) " +
         "and offer_order.deleted = false  " +
         "and offer_order.approved = true " +
