@@ -38,6 +38,7 @@ public class OfferTest extends RestTest {
   double BALANCE = 20.0;
   double CPA = 2.0;
 
+  String APP_URL = "http://example.org";
   String CALLBACK = "http://example.org/callback";
 
   XmlApp app;
@@ -47,7 +48,7 @@ public class OfferTest extends RestTest {
   public void createApp() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, CALLBACK);
+    heymoose().createApp(userId, APP_URL, CALLBACK);
     XmlUser user = heymoose().getUser(userId);
     app = user.app;
     this.user = user;

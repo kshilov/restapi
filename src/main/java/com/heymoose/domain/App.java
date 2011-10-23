@@ -49,6 +49,9 @@ public class App extends IdEntity {
   @Column(name = "callback", nullable = false)
   private String callbackUrl;
 
+  @Basic(optional = false)
+  private String url;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -58,10 +61,11 @@ public class App extends IdEntity {
 
   protected App() {}
 
-  public App(User user, URI callback) {
+  public App(User user, URI url, URI callback) {
     this.user = user;
     this.secret =  UUID.randomUUID().toString();
     this.creationTime = DateTime.now();
+    this.url = url.toString();
     this.callbackUrl = callback.toString();
   }
 
@@ -91,6 +95,10 @@ public class App extends IdEntity {
       this.platform = platform;
     else if (!platform.equals(this.platform))
       throw new WebApplicationException(400);
+  }
+
+  public URI url() {
+    return URI.create(url);
   }
 
   public URI callback() {

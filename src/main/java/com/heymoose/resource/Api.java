@@ -122,6 +122,7 @@ public class Api {
     action = new Action(offer, performer);
     actions.put(action);
     URI redirectUrl = appendQueryParam(URI.create(offer.body()), "action_id", action.id());
+    redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
     if (offer.autoApprove())
       return OfferResult.of(redirectUrl, new ActionApproved(action, compensation));
     else

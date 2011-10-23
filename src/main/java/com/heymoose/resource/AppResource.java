@@ -36,8 +36,8 @@ public class AppResource {
 
   @POST
   @Transactional
-  public Response create(@FormParam("userId") Long userId, @FormParam("callback") String callback) {
-    checkNotNull(userId, callback);
+  public Response create(@FormParam("userId") Long userId, @FormParam("url") String url, @FormParam("callback") String callback) {
+    checkNotNull(userId, url, callback);
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -48,7 +48,7 @@ public class AppResource {
     if (!user.apps().isEmpty())
       return Response.ok().build();
 
-    App app = new App(user, URI.create(callback));
+    App app = new App(user, URI.create(url), URI.create(callback));
     apps.put(app);
     return Response.ok().build();
   }

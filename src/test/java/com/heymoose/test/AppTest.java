@@ -1,5 +1,6 @@
 package com.heymoose.test;
 
+import com.heymoose.domain.App;
 import com.heymoose.domain.Role;
 import com.heymoose.resource.xml.XmlApp;
 import com.heymoose.resource.xml.XmlUser;
@@ -18,13 +19,14 @@ public class AppTest extends RestTest {
   String EMAIL = "test@heymoose.com";
   String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
-  
+
+  String APP_URL = "http://example.org";
   String CALLBACK = "http://example.org/callback";
 
   long create() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, CALLBACK);
+    heymoose().createApp(userId, APP_URL, CALLBACK);
     XmlUser user = heymoose().getUser(userId);
     return user.app.id;
   }
@@ -32,17 +34,18 @@ public class AppTest extends RestTest {
   @Test public void createApp() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, CALLBACK);
+    heymoose().createApp(userId, APP_URL, CALLBACK);
     XmlUser user = heymoose().getUser(userId);
     assertNotNull(user.app.id);
     assertNotNull(user.app.secret);
     assertEquals(CALLBACK, user.app.callback);
+    assertEquals(APP_URL, user.app.url);
   }
 
   @Test public void createAppWithoutDeveloperRole() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     try {
-      heymoose().createApp(userId, CALLBACK);
+      heymoose().createApp(userId, APP_URL, CALLBACK);
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
     }
