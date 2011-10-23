@@ -27,7 +27,7 @@ public class SecurityModule extends AbstractModule {
   @RequestScoped
   @Named("app")
   protected Long app(HttpRequestContext requestContext, AppRepository apps) throws Throwable {
-    String appId = requestContext.getQueryParameters().getFirst("app");
+    String appId = requestContext.getQueryParameters().getFirst("app_id");
     String sign = requestContext.getQueryParameters().getFirst("sig");
     if (isNullOrEmpty(appId) || isNullOrEmpty(sign))
       return null;

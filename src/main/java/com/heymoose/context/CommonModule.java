@@ -27,6 +27,8 @@ import com.heymoose.domain.hiber.OrderRepositoryHiber;
 import com.heymoose.domain.hiber.PerformerRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
 import com.heymoose.resource.ActionResource;
+import com.heymoose.resource.Api;
+import com.heymoose.resource.ApiResource;
 import com.heymoose.resource.AppResource;
 import com.heymoose.resource.OfferResource;
 import com.heymoose.resource.OrderResource;
@@ -50,6 +52,8 @@ public class CommonModule extends AbstractModule {
     bind(ActionResource.class);
     bind(PerformerResource.class);
     bind(Accounts.class);
+    bind(ApiResource.class);
+    bind(Api.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);

@@ -44,7 +44,7 @@ public class OfferTest extends RestTest {
   long userId;
 
   @Before
-  public void createApiClient() {
+  public void createApp() {
     userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(userId, CALLBACK);

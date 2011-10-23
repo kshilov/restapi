@@ -99,7 +99,7 @@ public class OfferResource {
     offerTpl.assign("APP", Long.toString(app.id()));
     offerTpl.assign("SIG", Signer.sign(app.id(), app.secret()));
     offerTpl.assign("OFFER", Long.toString(offer.id()));
-    offerTpl.assign("COST", subtractCompensation(offer.order().cpa(), compensation).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
+    offerTpl.assign("PAYMENT", subtractCompensation(offer.order().cpa(), compensation).setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
     if (!isBlank(extId))
       offerTpl.assign("EXT", extId);
     else
@@ -123,7 +123,7 @@ public class OfferResource {
   @GET
   @Produces("text/html; charset=utf-8")
   @Transactional
-  public Response get(@QueryParam("extId") String extId) {
+  public Response get(@QueryParam("uid") String extId) {
     checkNotNull(extId);
     Template out = new Template(offerTpl);
     App app = app();

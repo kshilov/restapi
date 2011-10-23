@@ -4,7 +4,7 @@
 <div class="b-offer i-block">
     <div class="b-offer__info i-cornersSmall">
         <p class="b-offer__info__tile">{TITLE}</p>
-        <label class="b-offer__info__label">Points:<span class="b-offer__info__score">{COST}</span></label>
+        <label class="b-offer__info__label">Points:<span class="b-offer__info__score">{PAYMENT}</span></label>
     </div>
     <img class="b-offer__logo" width="203" height="134" src="data:image;base64,{IMG}"/>
 
