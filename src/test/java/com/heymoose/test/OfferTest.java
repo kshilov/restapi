@@ -76,7 +76,7 @@ public class OfferTest extends RestTest {
     assertEquals(1, offers.offers.size());
     long offerId = offers.offers.iterator().next().id;
     URI redirect = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
-    assertEquals(BODY, redirect.toString());
+    assertEquals(URI.create(BODY).getHost(), redirect.getHost());
 
     XmlActions actions = heymoose().getActions(0, Integer.MAX_VALUE);
     assertEquals(1, actions.actions.size());
@@ -105,7 +105,7 @@ public class OfferTest extends RestTest {
     assertEquals(1, offers.offers.size());
     long offerId = offers.offers.iterator().next().id;
     URI redirect = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
-    assertEquals(BODY, redirect.toString());
+    assertEquals(URI.create(BODY).getHost(), redirect.getHost());
 
     XmlActions actions = heymoose().getActions(0, Integer.MAX_VALUE);
     assertEquals(1, actions.actions.size());
@@ -149,7 +149,7 @@ public class OfferTest extends RestTest {
     assertEquals(1, offers.offers.size());
     long offerId = offers.offers.iterator().next().id;
     URI redirect = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
-    assertEquals(BODY, redirect.toString());
+    assertEquals(URI.create(BODY).getHost(), redirect.getHost());
 
     XmlActions actions = heymoose().getActions(0, Integer.MAX_VALUE);
     assertEquals(1, actions.actions.size());
@@ -174,6 +174,6 @@ public class OfferTest extends RestTest {
     assertEquals(1, offers.offers.size());
     offerId = offers.offers.iterator().next().id;
     redirect = heymoose().doOffer(app, offerId, EXT_ID, Platform.FACEBOOK);
-    assertEquals(BODY, redirect.toString());
+    assertEquals(URI.create(BODY).getHost(), redirect.getHost());
   }
 }

@@ -13,13 +13,19 @@ import com.heymoose.domain.Platform;
 import com.heymoose.events.ActionApproved;
 import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
+import com.heymoose.util.NameValuePair;
+import com.heymoose.util.URIUtils;
+import com.heymoose.util.URLEncodedUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.heymoose.resource.Exceptions.conflict;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -65,24 +71,24 @@ public class Api {
     OfferResult result = doOfferInternal(offerId, appId, extId, platform);
     if (result.approved != null)
       eventBus.publish(result.approved);
-    return URI.create(result.url);
+    return result.url;
   }
 
   private static class OfferResult {
 
-    public final String url;
+    public final URI url;
     public final ActionApproved approved;
 
-    public OfferResult(String url, ActionApproved approved) {
+    public OfferResult(URI url, ActionApproved approved) {
       this.url = url;
       this.approved = approved;
     }
 
-    public static OfferResult of(String url) {
+    public static OfferResult of(URI url) {
       return new OfferResult(url, null);
     }
 
-    public static OfferResult of(String url, ActionApproved approved) {
+    public static OfferResult of(URI url, ActionApproved approved) {
       return new OfferResult(url, approved);
     }
   }
@@ -111,8 +117,26 @@ public class Api {
     action = new Action(offer, performer);
     actions.put(action);
     if (offer.autoApprove())
-      return OfferResult.of(offer.body(), new ActionApproved(action, compensation));
+      return OfferResult.of(createRedirectUrl(offer.body(), performer.id()), new ActionApproved(action, compensation));
     else
-      return OfferResult.of(offer.body());
+      return OfferResult.of(createRedirectUrl(offer.body(), performer.id()));
+  }
+
+  private static URI createRedirectUrl(String url, long performerId) {
+    URI redirectUrl = URI.create(url);
+    List<NameValuePair> params = newArrayList(URLEncodedUtils.parse(redirectUrl, "UTF-8"));
+    params.add(new NameValuePair("performer_id", Long.toString(performerId)));
+    try {
+      return URIUtils.createURI(
+          redirectUrl.getScheme(),
+          redirectUrl.getHost(),
+          redirectUrl.getPort(),
+          redirectUrl.getPath(),
+          URLEncodedUtils.format(params, "UTF-8"),
+          redirectUrl.getFragment()
+      );
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
