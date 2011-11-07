@@ -6,4 +6,6 @@ public interface Repository<T extends IdEntity> {
   T byId(long id);
   void put(T entity);
   Set<T> all();
+  
+  public enum Direction { ASC, DESC }
 }

@@ -44,7 +44,7 @@ public class Mappers {
   public static XmlOrders toXmlOrders(Iterable<Order> orders) {
     XmlOrders xmlOrders = new XmlOrders();
     for (Order order : orders)
-      xmlOrders.orders.add(toXmlOrder(order));
+      xmlOrders.orders.add(toXmlOrder(order, true));
     return xmlOrders;
   }
 
@@ -59,6 +59,8 @@ public class Mappers {
     xmlOrder.title = order.offer().title();
     xmlOrder.approved = order.approved();
     xmlOrder.deleted = order.deleted();
+    xmlOrder.cpa = order.cpa();
+    xmlOrder.creationTime = order.creationTime().toString();
     if (full)
       xmlOrder.userId = order.customer().id();
     return xmlOrder;

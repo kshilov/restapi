@@ -6,8 +6,10 @@ import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.base.Repository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.util.WebAppUtil;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -43,9 +45,14 @@ public class OrderResource {
 
   @GET
   @Transactional
-  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
+  public Response list(@QueryParam("ord") @DefaultValue("creation-time") String ord,
+                       @QueryParam("dir") @DefaultValue("desc") String dir,
+                       @QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit) {
-    return Response.ok(Mappers.toXmlOrders(orders.list(offset, limit))).build();
+    return Response.ok(Mappers.toXmlOrders(orders.list(
+        WebAppUtil.queryParamToEnum(ord, OrderRepository.Ordering.CREATION_TIME),
+        WebAppUtil.queryParamToEnum(dir, Repository.Direction.DESC),
+        offset, limit, 0))).build();
   }
 
   @POST

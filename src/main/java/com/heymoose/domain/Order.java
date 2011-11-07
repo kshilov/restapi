@@ -105,4 +105,8 @@ public class Order extends IdEntity {
   public Offer offer() {
     return offer;
   }
+  
+  public DateTime creationTime() {
+    return creationTime;
+  }
 }

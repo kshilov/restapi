@@ -1,5 +1,7 @@
 package com.heymoose.resource.xml;
 
+import java.math.BigDecimal;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,4 +25,10 @@ public class XmlOrder {
 
   @XmlElement(name = "deleted")
   public Boolean deleted;
+  
+  @XmlElement(name = "cpa")
+  public BigDecimal cpa;
+  
+  @XmlElement(name = "creation-time")
+  public String creationTime;
 }
