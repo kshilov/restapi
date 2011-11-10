@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="lib" path="debian/backend/usr/share/backend/backend.jar"/>
+	<classpathentry kind="lib" path="target/rest-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="target/rest.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="target/test-classes"/>
+</classpath>

@@ -1,5 +1,6 @@
 package com.heymoose.resource.xml;
 
+import com.google.common.collect.Sets;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
 import com.heymoose.domain.Offer;
@@ -10,75 +11,153 @@ import com.heymoose.domain.User;
 public class Mappers {
   
   private Mappers() {}
-
-  public static XmlUser toXmlUser(User user, boolean full) {
-    XmlUser xmlUser = new XmlUser();
-    xmlUser.id = user.id();
-    xmlUser.email = user.email();
-    xmlUser.nickname = user.nickname();
-    xmlUser.passwordHash = user.passwordHash();
-    if (user.customerAccount() != null) {
-      if (user.customerAccount().currentState() == null)
-        xmlUser.customerAccount = "0.0";
-      else
-        xmlUser.customerAccount = user.customerAccount().currentState().balance().toString();
-    }
-    xmlUser.customerSecret = user.customerSecret();
-    if (user.developerAccount() != null) {
-      if (user.developerAccount().currentState() == null)
-        xmlUser.developerAccount = "0.0";
-      else
-        xmlUser.developerAccount = user.developerAccount().currentState().balance().toString();
-    }
-    for (Role role : user.roles())
-      xmlUser.roles.add(role.toString());
-    if (!full)
-      return xmlUser;
-    for (Order order : user.orders())
-      xmlUser.orders.add(toXmlOrder(order));
-    if (!user.apps().isEmpty())
-      xmlUser.app = toXmlApp(user.apps().iterator().next());
-    return xmlUser;
+  
+  public enum Details {
+    ONLY_ID,
+    ONLY_ENTITY,
+    WITH_RELATED_IDS,
+    WITH_RELATED_ENTITIES,
+    WITH_RELATED_LISTS
+  }
+  
+  private static boolean needFields(Details d) {
+    return (d == Details.ONLY_ENTITY
+         || d == Details.WITH_RELATED_IDS
+         || d == Details.WITH_RELATED_ENTITIES
+         || d == Details.WITH_RELATED_LISTS);
+  }
+  
+  private static boolean needRelated(Details d) {
+    return (d == Details.WITH_RELATED_IDS
+         || d == Details.WITH_RELATED_ENTITIES
+         || d == Details.WITH_RELATED_LISTS);
+  }
+  
+  private static boolean needRelatedLists(Details d) {
+    return d == Details.WITH_RELATED_LISTS;
+  }
+  
+  private static Details relatedDetails(Details d) {
+    if (d == Details.WITH_RELATED_ENTITIES ||
+        d == Details.WITH_RELATED_LISTS)
+      return Details.ONLY_ENTITY;
+    return Details.ONLY_ID;
+  }
+  
+  private static Details relatedListDetails(Details d) {
+    return Details.ONLY_ENTITY;
+  }
+  
+  public static XmlUser toXmlUser(User user) {
+    return toXmlUser(user, Details.WITH_RELATED_LISTS);
   }
 
+  public static XmlUser toXmlUser(User user, Details d) {
+    XmlUser xmlUser = new XmlUser();
+    xmlUser.id = user.id();
+    
+    if (needFields(d)) {
+      xmlUser.email = user.email();
+      xmlUser.nickname = user.nickname();
+      xmlUser.passwordHash = user.passwordHash();
+      
+      if (user.customerAccount() != null) {
+        if (user.customerAccount().currentState() == null)
+          xmlUser.customerAccount = "0.0";
+        else
+          xmlUser.customerAccount = user.customerAccount().currentState().balance().toString();
+      }
+      xmlUser.customerSecret = user.customerSecret();
+      if (user.developerAccount() != null) {
+        if (user.developerAccount().currentState() == null)
+          xmlUser.developerAccount = "0.0";
+        else
+          xmlUser.developerAccount = user.developerAccount().currentState().balance().toString();
+      }
+      xmlUser.roles = Sets.newHashSet();
+      for (Role role : user.roles())
+        xmlUser.roles.add(role.toString());
+      
+      if (needRelated(d)) {
+        if (!user.apps().isEmpty())
+          xmlUser.app = toXmlApp(user.apps().iterator().next(), relatedDetails(d));
+        
+        if (needRelatedLists(d))
+          xmlUser.orders = Sets.newHashSet();
+          for (Order order : user.orders())
+            xmlUser.orders.add(toXmlOrder(order, relatedListDetails(d)));
+      }
+    }
+    return xmlUser;
+  }
+  
   public static XmlOrders toXmlOrders(Iterable<Order> orders) {
+    return toXmlOrders(orders, Details.WITH_RELATED_IDS);
+  }
+
+  public static XmlOrders toXmlOrders(Iterable<Order> orders, Details d) {
     XmlOrders xmlOrders = new XmlOrders();
     for (Order order : orders)
-      xmlOrders.orders.add(toXmlOrder(order, true));
+      xmlOrders.orders.add(toXmlOrder(order, d));
     return xmlOrders;
   }
 
   public static XmlOrder toXmlOrder(Order order) {
-    return toXmlOrder(order, false);
+    return toXmlOrder(order, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlOrder toXmlOrder(Order order, boolean full) {
+  public static XmlOrder toXmlOrder(Order order, Details d) {
     XmlOrder xmlOrder = new XmlOrder();
     xmlOrder.id = order.id();
-    xmlOrder.balance = order.account().currentState().balance().toString();
-    xmlOrder.title = order.offer().title();
-    xmlOrder.approved = order.approved();
-    xmlOrder.deleted = order.deleted();
-    xmlOrder.cpa = order.cpa();
-    xmlOrder.creationTime = order.creationTime().toString();
-    if (full)
+    
+    if (needFields(d)) {
+      xmlOrder.balance = order.account().currentState().balance().toString();
+      xmlOrder.approved = order.approved();
+      xmlOrder.deleted = order.deleted();
+      xmlOrder.cpa = order.cpa();
+      xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();
+      
+      // Offer fields
+      xmlOrder.title = order.offer().title();
+      xmlOrder.description = order.offer().description();
+      xmlOrder.body = order.offer().body();
+      
+      if (needRelated(d))
+        xmlOrder.user = toXmlUser(order.customer(), relatedDetails(d));
+    }
     return xmlOrder;
+  }
+  
+  public static XmlApps toXmlApps(Iterable<App> apps) {
+    return toXmlApps(apps, Details.WITH_RELATED_IDS);
+  }
+  
+  public static XmlApps toXmlApps(Iterable<App> apps, Details d) {
+    XmlApps xmlApps = new XmlApps();
+    for (App app : apps)
+      xmlApps.apps.add(toXmlApp(app, d));
+    return xmlApps;
   }
 
   public static XmlApp toXmlApp(App app) {
-    return toXmlApp(app, false);
+    return toXmlApp(app, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlApp toXmlApp(App app, boolean full) {
+  public static XmlApp toXmlApp(App app, Details d) {
     XmlApp xmlApp = new XmlApp();
     xmlApp.id = app.id();
-    xmlApp.secret = app.secret();
-    xmlApp.deleted = app.deleted();
-    xmlApp.url = app.url().toString();
-    xmlApp.callback = app.callback().toString();
-    if (full)
+    
+    if (needFields(d)) {
+      xmlApp.secret = app.secret();
+      xmlApp.deleted = app.deleted();
+      xmlApp.url = app.url().toString();
+      xmlApp.callback = app.callback().toString();
       xmlApp.userId = app.owner().id();
+      
+      if (needRelated(d))
+        xmlApp.user = toXmlUser(app.owner(), relatedDetails(d));
+    }
     return xmlApp;
   }
 

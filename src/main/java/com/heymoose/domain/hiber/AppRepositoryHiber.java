@@ -36,4 +36,13 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   protected Class<App> getEntityClass() {
     return App.class;
   }
+  
+  @Override
+  public Iterable<App> list(int offset, int limit) {
+    return hiber()
+        .createQuery("from App")
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
 }

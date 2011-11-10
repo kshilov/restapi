@@ -6,16 +6,19 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.Mappers.Details;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
@@ -32,6 +35,15 @@ public class AppResource {
   public AppResource(UserRepository users, AppRepository apps) {
     this.users = users;
     this.apps = apps;
+  }
+  
+  @GET
+  @Transactional
+  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
+                       @QueryParam("limit") @DefaultValue("20") int limit,
+                       @QueryParam("full") @DefaultValue("false") boolean full) {
+    Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
+    return Response.ok(Mappers.toXmlApps(apps.list(offset, limit), d)).build();
   }
 
   @POST
@@ -60,7 +72,7 @@ public class AppResource {
     App app = apps.byId(appId);
     if (app == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlApp(app, true)).build();
+    return Response.ok(Mappers.toXmlApp(app, Details.WITH_RELATED_ENTITIES)).build();
   }
 
   @PUT

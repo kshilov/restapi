@@ -6,6 +6,7 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.Mappers.Details;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -58,7 +59,8 @@ public class UserResource {
                       @QueryParam("full") @DefaultValue("true") boolean full) {
     checkNotNull(id);
     User user = existing(id);
-    return Response.ok(Mappers.toXmlUser(user, full)).build();
+    Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
+    return Response.ok(Mappers.toXmlUser(user, d)).build();
   }
 
   @GET
@@ -69,7 +71,8 @@ public class UserResource {
     User user = users.byEmail(email);
     if (user == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlUser(user, full)).build();
+    Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
+    return Response.ok(Mappers.toXmlUser(user, d)).build();
   }
 
   @PUT

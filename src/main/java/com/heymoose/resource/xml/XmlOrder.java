@@ -11,14 +11,14 @@ public class XmlOrder {
   @XmlAttribute
   public Long id;
 
-  @XmlElement(name = "title")
-  public String title;
-
   @XmlElement(name = "balance")
   public String balance;
 
   @XmlElement(name = "user-id")
   public Long userId;
+  
+  @XmlElement(name = "user")
+  public XmlUser user;
 
   @XmlElement(name = "approved")
   public Boolean approved;
@@ -31,4 +31,15 @@ public class XmlOrder {
   
   @XmlElement(name = "creation-time")
   public String creationTime;
+  
+  // Offer fields
+  
+  @XmlElement(name = "title")
+  public String title;
+  
+  @XmlElement(name = "description")
+  public String description;
+  
+  @XmlElement(name = "body")
+  public String body;
 }

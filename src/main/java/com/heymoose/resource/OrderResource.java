@@ -9,6 +9,7 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.base.Repository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.util.WebAppUtil;
 import org.joda.time.DateTime;
 
@@ -48,11 +49,13 @@ public class OrderResource {
   public Response list(@QueryParam("ord") @DefaultValue("creation-time") String ord,
                        @QueryParam("dir") @DefaultValue("desc") String dir,
                        @QueryParam("offset") @DefaultValue("0") int offset,
-                       @QueryParam("limit") @DefaultValue("20") int limit) {
+                       @QueryParam("limit") @DefaultValue("20") int limit,
+                       @QueryParam("full") @DefaultValue("false") boolean full) {
+    Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
     return Response.ok(Mappers.toXmlOrders(orders.list(
         WebAppUtil.queryParamToEnum(ord, OrderRepository.Ordering.CREATION_TIME),
         WebAppUtil.queryParamToEnum(dir, Repository.Direction.DESC),
-        offset, limit, 0))).build();
+        offset, limit, 0), d)).build();
   }
 
   @POST
@@ -108,7 +111,7 @@ public class OrderResource {
     Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlOrder(order, true)).build();
+    return Response.ok(Mappers.toXmlOrder(order, Details.WITH_RELATED_ENTITIES)).build();
   }
 
   @PUT
