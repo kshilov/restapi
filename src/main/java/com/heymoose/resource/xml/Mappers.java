@@ -43,7 +43,7 @@ public class Mappers {
       return Details.ONLY_ENTITY;
     return Details.ONLY_ID;
   }
-  
+
   private static Details relatedListDetails(Details d) {
     return Details.ONLY_ENTITY;
   }
@@ -82,10 +82,11 @@ public class Mappers {
         if (!user.apps().isEmpty())
           xmlUser.app = toXmlApp(user.apps().iterator().next(), relatedDetails(d));
         
-        if (needRelatedLists(d))
+        if (needRelatedLists(d)) {
           xmlUser.orders = Sets.newHashSet();
           for (Order order : user.orders())
             xmlUser.orders.add(toXmlOrder(order, relatedListDetails(d)));
+        }
       }
     }
     return xmlUser;
