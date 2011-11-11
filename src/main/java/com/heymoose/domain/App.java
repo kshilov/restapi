@@ -104,4 +104,8 @@ public class App extends IdEntity {
   public URI callback() {
     return URI.create(callbackUrl);
   }
+  
+  public DateTime creationTime() {
+    return creationTime;
+  }
 }

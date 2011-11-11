@@ -26,4 +26,7 @@ public class XmlApp {
 
   @XmlElement(name = "deleted")
   public Boolean deleted;
+  
+  @XmlElement(name = "creation-time")
+  public String creationTime;
 }

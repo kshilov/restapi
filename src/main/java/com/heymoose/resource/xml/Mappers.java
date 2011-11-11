@@ -154,6 +154,7 @@ public class Mappers {
       xmlApp.deleted = app.deleted();
       xmlApp.url = app.url().toString();
       xmlApp.callback = app.callback().toString();
+      xmlApp.creationTime = app.creationTime().toString();
       xmlApp.userId = app.owner().id();
       
       if (needRelated(d))
