@@ -11,9 +11,6 @@ public class XmlOrder {
   @XmlAttribute
   public Long id;
 
-  @XmlElement(name = "balance")
-  public String balance;
-
   @XmlElement(name = "user-id")
   public Long userId;
   
@@ -29,6 +26,14 @@ public class XmlOrder {
   @XmlElement(name = "creation-time")
   public String creationTime;
   
+  // Account fields
+  
+  @XmlElement(name = "balance")
+  public String balance;
+  
+  @XmlElement(name = "allow-negative-balance")
+  public Boolean allowNegativeBalance;
+  
   // Offer fields
   
   @XmlElement(name = "title")
@@ -39,4 +44,18 @@ public class XmlOrder {
   
   @XmlElement(name = "body")
   public String body;
+  
+  @XmlElement(name = "auto-approve")
+  public Boolean autoApprove;
+  
+  // Targeting fields
+  
+  @XmlElement(name = "male")
+  public Boolean male;
+  
+  @XmlElement(name = "min-age")
+  public Integer minAge;
+  
+  @XmlElement(name = "max-age")
+  public Integer maxAge;
 }

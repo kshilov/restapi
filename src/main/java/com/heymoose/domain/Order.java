@@ -102,6 +102,10 @@ public class Order extends IdEntity {
     return offer;
   }
   
+  public Targeting targeting() {
+    return targeting;
+  }
+  
   public DateTime creationTime() {
     return creationTime;
   }

@@ -78,4 +78,8 @@ public class Account extends IdEntity {
     transactions.add(tx);
     return  tx;
   }
+  
+  public boolean allowNegativeBalance() {
+    return allowNegativeBalance;
+  }
 }

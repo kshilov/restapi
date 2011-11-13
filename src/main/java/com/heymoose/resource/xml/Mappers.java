@@ -112,16 +112,25 @@ public class Mappers {
     xmlOrder.id = order.id();
     
     if (needFields(d)) {
-      xmlOrder.balance = order.account().currentState().balance().toString();
       xmlOrder.disabled = order.disabled();
       xmlOrder.cpa = order.cpa();
       xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();
       
+      // Account fields
+      xmlOrder.balance = order.account().currentState().balance().toString();
+      xmlOrder.allowNegativeBalance = order.account().allowNegativeBalance();
+      
       // Offer fields
       xmlOrder.title = order.offer().title();
       xmlOrder.description = order.offer().description();
       xmlOrder.body = order.offer().body();
+      xmlOrder.autoApprove = order.offer().autoApprove();
+      
+      // Targeting fields
+      xmlOrder.male = order.targeting().male();
+      xmlOrder.minAge = order.targeting().minAge();
+      xmlOrder.maxAge = order.targeting().maxAge();
       
       if (needRelated(d))
         xmlOrder.user = toXmlUser(order.customer(), relatedDetails(d));
