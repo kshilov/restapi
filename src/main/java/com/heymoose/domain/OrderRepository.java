@@ -6,6 +6,7 @@ public interface OrderRepository extends Repository<Order> {
   Iterable<Order> list(int offset, int limit);
   Iterable<Order> list(Ordering ordering, Direction direction, 
       int offset, int limit, int userId);
+  long count();
   
   public enum Ordering
   {

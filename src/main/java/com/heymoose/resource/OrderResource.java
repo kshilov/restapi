@@ -57,6 +57,13 @@ public class OrderResource {
         WebAppUtil.queryParamToEnum(dir, Repository.Direction.DESC),
         offset, limit, 0), d)).build();
   }
+  
+  @GET
+  @Path("count")
+  @Transactional
+  public Response count() {
+    return Response.ok(Mappers.toXmlCount(orders.count())).build();
+  }
 
   @POST
   @Transactional

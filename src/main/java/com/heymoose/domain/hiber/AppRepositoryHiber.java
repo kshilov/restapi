@@ -45,4 +45,12 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
         .setMaxResults(limit)
         .list();
   }
+  
+  @Override
+  public long count() {
+    return Long.parseLong(hiber()
+        .createQuery("select count(*) from App")
+        .uniqueResult()
+        .toString());
+  }
 }

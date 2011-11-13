@@ -197,4 +197,10 @@ public class Mappers {
     xmlOffer.body = offer.body();
     return xmlOffer;
   }
+  
+  public static XmlCount toXmlCount(Long count) {
+    XmlCount xmlCount = new XmlCount();
+    xmlCount.count = count;
+    return xmlCount;
+  }
 }

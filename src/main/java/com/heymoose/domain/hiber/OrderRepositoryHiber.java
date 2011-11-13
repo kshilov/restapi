@@ -68,6 +68,14 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
     
     return criteria.list();
   }
+  
+  @Override
+  public long count() {
+    return Long.parseLong(hiber()
+        .createQuery("select count(*) from Order")
+        .uniqueResult()
+        .toString());
+  }
 
   @Override
   public Order byId(long id) {

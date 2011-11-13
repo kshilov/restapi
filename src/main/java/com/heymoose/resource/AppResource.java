@@ -45,6 +45,13 @@ public class AppResource {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
     return Response.ok(Mappers.toXmlApps(apps.list(offset, limit), d)).build();
   }
+  
+  @GET
+  @Path("count")
+  @Transactional
+  public Response count() {
+    return Response.ok(Mappers.toXmlCount(apps.count())).build();
+  }
 
   @POST
   @Transactional
