@@ -27,20 +27,20 @@ public class OrderTest extends RestTest {
   String IMAGE = "sdfasdfnaslf";
   double BALANCE = 20.0;
   double CPA = 2.0;
+  boolean ALLOW_NEGATIVE_BALANCE = false;
 
   long createAndReturnUserId() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
-    heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
+    heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
     return userId;
   }
 
   void validateNewOrder(XmlOrder order) {
     assertEquals(TITLE, order.title);
     assertEquals(Double.valueOf(BALANCE), Double.valueOf(order.balance));
-    assertFalse(order.approved);
-    assertFalse(order.deleted);
+    assertTrue(order.disabled);
   }
 
   @Test public void createOrder() {
@@ -56,7 +56,7 @@ public class OrderTest extends RestTest {
   @Test public void createOrderWithoutCustomerRole() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     try {
-      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
+      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
@@ -68,7 +68,7 @@ public class OrderTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, 10.0);
     try {
-      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
+      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
@@ -92,25 +92,21 @@ public class OrderTest extends RestTest {
     }
   }
 
-  @Test public void approveOrder() {
+  @Test public void enableOrder() {
     long userId = createAndReturnUserId();
     XmlUser user = heymoose().getUser(userId);
     long orderId = user.orders.iterator().next().id;
     heymoose().approveOrder(orderId);
     XmlOrder order = heymoose().getOrder(orderId);
-    assertTrue(order.approved);
+    assertFalse(order.disabled);
   }
 
-  @Test public void deleteOrder() {
+  @Test public void disableOrder() {
     long userId = createAndReturnUserId();
     XmlUser user = heymoose().getUser(userId);
     long orderId = user.orders.iterator().next().id;
-    heymoose().deleteOrder(orderId);
-    try {
-      heymoose().getOrder(orderId);
-      fail();
-    } catch (UniformInterfaceException e) {
-      assertEquals(404, e.getResponse().getStatus());
-    }
+    heymoose().disableOrder(orderId);
+    XmlOrder order = heymoose().getOrder(orderId);
+    assertTrue(order.disabled);
   }
 }

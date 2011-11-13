@@ -74,7 +74,7 @@ public class ActionResource {
     if (action.deleted())
       return Response.ok().build();
     Order order = action.offer().order();
-    if (order.deleted()) {
+    if (order.disabled()) {
       accounts.lock(order.customer().customerAccount());
       order.customer().customerAccount().addToBalance(action.reservedAmount(), "Action deleted");
     } else {

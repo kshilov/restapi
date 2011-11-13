@@ -92,7 +92,8 @@ public class Heymoose {
                           String body,
                           String image,
                           double balance,
-                          double cpa) {
+                          double cpa,
+                          boolean allowNegativeBalance) {
     Form form = new Form();
     form.add("userId", userId);
     form.add("title", title);
@@ -101,6 +102,7 @@ public class Heymoose {
     form.add("image", image);
     form.add("balance", balance);
     form.add("cpa", cpa);
+    form.add("allowNegativeBalance", allowNegativeBalance);
     return Long.valueOf(client.path("orders").post(String.class, form));
   }
 
@@ -112,7 +114,7 @@ public class Heymoose {
     client.path("orders").path(Long.toString(orderId)).put();
   }
 
-  public void deleteOrder(long orderId) {
+  public void disableOrder(long orderId) {
     client.path("orders").path(Long.toString(orderId)).delete();
   }
 

@@ -74,8 +74,9 @@ public class OrderResource {
                          @FormParam("image") String image,
                          @FormParam("balance") String _balance,
                          @FormParam("cpa") String _cpa,
-                         @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove) {
-    checkNotNull(title, description, body, image, _balance, _balance);
+                         @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove,
+                         @FormParam("allowNegativeBalance") Boolean allowNegativeBalance) {
+    checkNotNull(title, description, body, image, _balance, _balance, allowNegativeBalance);
 
     BigDecimal cpa = new BigDecimal(_cpa);
     BigDecimal balance = new BigDecimal(_balance);
@@ -95,7 +96,7 @@ public class OrderResource {
 
     DateTime now = DateTime.now();
     Offer offer = new Offer(title, description, body, image, autoApprove, now);
-    Order order = new Order(offer, cpa, user, now);
+    Order order = new Order(offer, cpa, user, now, allowNegativeBalance);
     
     BigDecimal amount = balance;
 
@@ -124,22 +125,22 @@ public class OrderResource {
   @PUT
   @Path("{id}")
   @Transactional
-  public Response approve(@PathParam("id") long orderId) {
+  public Response enable(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
-    order.approve();
+    order.enable();
     return Response.ok().build();
   }
 
   @DELETE
   @Path("{id}")
   @Transactional
-  public Response delete(@PathParam("id") long orderId) {
+  public Response disable(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
-    order.delete();
+    order.disable();
     return Response.ok().build();
   }
 }

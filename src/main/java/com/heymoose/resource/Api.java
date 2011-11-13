@@ -68,7 +68,7 @@ public class Api {
   public Iterable<Offer> getOffers(long appId, String extId) {
     Performer performer = performers.byAppAndExtId(appId, extId);
     if (performer == null)
-      return offers.approved();
+      return offers.enabled();
     return offers.availableFor(performer.id());
   }
 
@@ -116,7 +116,7 @@ public class Api {
     Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
     if (action != null)
       return OfferResult.of(URI.create(offer.body()));
-    if (!offer.order().approved())
+    if (offer.order().disabled())
       throw conflict();
     accounts.lock(offer.order().account());
     action = new Action(offer, performer);

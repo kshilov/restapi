@@ -30,8 +30,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "where " +
         "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) " +
         "and (select offer_order.cpa <= balance from account_tx where account_tx.account_id = offer_order.account_id order by version desc limit 1) " +
-        "and offer_order.deleted = false  " +
-        "and offer_order.approved = true " +
+        "and offer_order.disabled = false  " +
         "order by offer.creation_time desc limit 10";
     List<BigInteger> ids = (List<BigInteger>) hiber()
         .createSQLQuery(sql)
@@ -56,11 +55,11 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<Offer> approved() {
+  public Set<Offer> enabled() {
     String sql = "select " +
         "offer.id " +
         "from offer inner join offer_order on offer.id = offer_order.offer_id " +
-        "where offer_order.deleted = false and offer_order.approved = true " +
+        "where offer_order.disabled = false " +
         "order by offer.creation_time desc limit 10";
     List<BigInteger> ids = (List<BigInteger>) hiber()
             .createSQLQuery(sql)
@@ -71,7 +70,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   @Override
   public Offer byId(long id) {
     return (Offer) hiber()
-        .createQuery("select offer from Offer as offer inner join offer.order as order where order.deleted = false and offer.id = :id")
+        .createQuery("select offer from Offer as offer inner join offer.order as order where order.disabled = false and offer.id = :id")
         .setParameter("id", id)
         .uniqueResult();
   }
@@ -79,7 +78,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   @Override
   public Set<Offer> all() {
     return Sets.newHashSet(hiber()
-        .createQuery("from Offer where order.deleted = false")
+        .createQuery("from Offer where order.disabled = false")
         .list());
   }
 

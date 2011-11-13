@@ -6,6 +6,7 @@ import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,6 +27,9 @@ public class Account extends IdEntity {
   @SequenceGenerator(name = "account-seq", sequenceName = "account_seq", allocationSize = 1)
   protected Long id;
 
+  @Column(name = "allow_negative_balance")
+  private boolean allowNegativeBalance;
+
   public Long id() {
     return id;
   }
@@ -34,9 +38,14 @@ public class Account extends IdEntity {
   @Sort(type = SortType.NATURAL)
   private SortedSet<AccountTx> transactions;
 
-  public Account() {}
+  protected Account() {}
 
-  public Account(BigDecimal balance) {
+  public Account(boolean allowNegativeBalance) {
+    this.allowNegativeBalance = allowNegativeBalance;
+  }
+
+  public Account(BigDecimal balance, boolean allowNegativeBalance) {
+    this(allowNegativeBalance);
     assertTransactions();
     transactions.add(new AccountTx(this, balance));
   }
@@ -64,7 +73,7 @@ public class Account extends IdEntity {
   public AccountTx subtractFromBalance(BigDecimal amount, String description) {
     if (currentState() == null)
       throw new IllegalStateException("No enough money");
-    AccountTx tx = currentState().subtract(amount, description);
+    AccountTx tx = currentState().subtract(amount, description, allowNegativeBalance);
     assertTransactions();
     transactions.add(tx);
     return  tx;

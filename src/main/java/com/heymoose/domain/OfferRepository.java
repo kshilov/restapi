@@ -7,5 +7,5 @@ import java.util.Set;
 public interface OfferRepository extends Repository<Offer> {
   Set<Offer> availableFor(long performerId);
   Set<Offer> doneFor(long performerId);
-  Set<Offer> approved();
+  Set<Offer> enabled();
 }

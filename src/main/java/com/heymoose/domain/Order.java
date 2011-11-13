@@ -54,14 +54,11 @@ public class Order extends IdEntity {
   private User user;
 
   @Basic(optional = false)
-  private boolean approved;
-
-  @Basic(optional = false)
-  private boolean deleted;
+  private boolean disabled = true;
 
   protected Order() {}
 
-  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime) {
+  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime, boolean allowNegativeBalance) {
     checkNotNull(offer, cpa, creationTime);
     if (cpa.signum() != 1)
       throw new IllegalArgumentException("Cpa must be positive");
@@ -69,11 +66,11 @@ public class Order extends IdEntity {
     this.cpa = cpa;
     this.user = user;
     this.creationTime = creationTime;
-    this.account = new Account();
+    this.account = new Account(allowNegativeBalance);
   }
 
-  public boolean deleted() {
-    return deleted;
+  public boolean disabled() {
+    return disabled;
   }
 
   public User customer() {
@@ -84,18 +81,12 @@ public class Order extends IdEntity {
     return account;
   }
 
-  public void approve() {
-    if (deleted)
-      throw new IllegalStateException("Order was deleted");
-    approved = true;
+  public void disable() {
+    disabled = true;
   }
 
-  public boolean approved() {
-    return approved;
-  }
-
-  public void delete() {
-    deleted = true;
+  public void enable() {
+    disabled = false;
   }
 
   public BigDecimal cpa() {

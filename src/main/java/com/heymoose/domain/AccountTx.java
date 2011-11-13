@@ -98,10 +98,10 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     return newAccount;
   }
 
-  public AccountTx subtract(BigDecimal amount, String description) {
+  public AccountTx subtract(BigDecimal amount, String description, boolean allowNegativeBalance) {
     if (amount.signum() != 1)
       throw new IllegalArgumentException("Amount must be positive");
-    if (balance.compareTo(amount) == -1)
+    if (!allowNegativeBalance && balance.compareTo(amount) == -1)
       throw new IllegalStateException("No enough money");
     AccountTx newAccount = new AccountTx();
     newAccount.account = this.account;
