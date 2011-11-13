@@ -56,9 +56,13 @@ public class Order extends IdEntity {
   @Basic(optional = false)
   private boolean disabled = true;
 
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "targeting_id")
+  private Targeting targeting;
+
   protected Order() {}
 
-  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime, boolean allowNegativeBalance) {
+  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime, boolean allowNegativeBalance, Targeting targeting) {
     checkNotNull(offer, cpa, creationTime);
     if (cpa.signum() != 1)
       throw new IllegalArgumentException("Cpa must be positive");
@@ -67,6 +71,7 @@ public class Order extends IdEntity {
     this.user = user;
     this.creationTime = creationTime;
     this.account = new Account(allowNegativeBalance);
+    this.targeting = targeting;
   }
 
   public boolean disabled() {

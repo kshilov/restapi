@@ -114,8 +114,10 @@ public class Api {
     if (offer == null)
       throw notFound();
     Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
-    if (action != null)
+    if (action != null) {
+      action.incAttempts();
       return OfferResult.of(URI.create(offer.body()));
+    }
     if (offer.order().disabled())
       throw conflict();
     accounts.lock(offer.order().account());

@@ -26,4 +26,7 @@ public class XmlAction {
 
   @XmlElement(name = "approve-time")
   public String approveTime;
+
+  @XmlElement(name = "attempts")
+  public Integer attempts;
 }

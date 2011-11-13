@@ -4,6 +4,7 @@ import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
+import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.base.Repository;
@@ -68,7 +69,11 @@ public class OrderResource {
                          @FormParam("balance") String _balance,
                          @FormParam("cpa") String _cpa,
                          @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove,
-                         @FormParam("allowNegativeBalance") Boolean allowNegativeBalance) {
+                         @FormParam("allowNegativeBalance") Boolean allowNegativeBalance,
+                         @FormParam("male") Boolean male,
+                         @FormParam("minAge") Integer minAge,
+                         @FormParam("maxAge") Integer maxAge) {
+
     checkNotNull(title, description, body, image, _balance, _balance, allowNegativeBalance);
 
     BigDecimal cpa = new BigDecimal(_cpa);
@@ -80,6 +85,12 @@ public class OrderResource {
     if (cpa.compareTo(balance) == 1)
       return Response.status(400).build();
 
+    if (minAge != null && minAge < 0)
+      return Response.status(400).build();
+
+    if (maxAge != null && maxAge < 0)
+      return Response.status(400).build();
+
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -89,7 +100,8 @@ public class OrderResource {
 
     DateTime now = DateTime.now();
     Offer offer = new Offer(title, description, body, image, autoApprove, now);
-    Order order = new Order(offer, cpa, user, now, allowNegativeBalance);
+    Targeting targeting = new Targeting(male, minAge, maxAge);
+    Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     
     BigDecimal amount = balance;
 

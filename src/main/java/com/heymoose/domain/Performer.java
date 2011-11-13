@@ -49,6 +49,8 @@ public class Performer extends IdEntity {
   @JoinColumn(name = "inviter", nullable = true)
   private Performer inviter;
 
+  
+
   protected Performer() {}
 
   public Performer(String extId, App app, Performer inviter) {
