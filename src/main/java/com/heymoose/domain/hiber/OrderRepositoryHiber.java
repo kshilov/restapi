@@ -70,21 +70,6 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
   }
 
   @Override
-  public Order byId(long id) {
-    return (Order) hiber()
-        .createQuery("from Order where deleted = false and id = :id")
-        .setParameter("id", id)
-        .uniqueResult();
-  }
-
-  @Override
-  public Set<Order> all() {
-    return Sets.newHashSet(hiber()
-        .createQuery("from Order where deleted = false")
-        .list());
-  }
-
-  @Override
   protected Class<Order> getEntityClass() {
     return Order.class;
   }

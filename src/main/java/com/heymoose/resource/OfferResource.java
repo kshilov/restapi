@@ -114,7 +114,7 @@ public class OfferResource {
   public Response all() {
     Template out = new Template(offerTpl);
     App app = app();
-    for (Offer offer : offers.approved())
+    for (Offer offer : offers.enabled())
       applyTemplate(out, "", offer, app);
     out.parse("main");
     return Response.ok(out.out()).build();
@@ -158,7 +158,7 @@ public class OfferResource {
   public Iterable<Offer> getAvailableOffers(String extId) {
     Performer performer = performers.byAppAndExtId(appId(), extId);
     if (performer == null)
-      return offers.approved();
+      return offers.enabled();
     return offers.availableFor(performer.id());
   }
 
@@ -214,7 +214,7 @@ public class OfferResource {
     Offer offer = offers.byId(offerId);
     if (offer == null)
       throw new WebApplicationException(404);
-    if (!offer.order().approved())
+    if (offer.order().disabled())
       throw new WebApplicationException(409);
     Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
     if (action != null)

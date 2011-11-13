@@ -113,8 +113,7 @@ public class Mappers {
     
     if (needFields(d)) {
       xmlOrder.balance = order.account().currentState().balance().toString();
-      xmlOrder.approved = order.approved();
-      xmlOrder.deleted = order.deleted();
+      xmlOrder.disabled = order.disabled();
       xmlOrder.cpa = order.cpa();
       xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();

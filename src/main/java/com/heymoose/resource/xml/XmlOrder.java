@@ -20,11 +20,8 @@ public class XmlOrder {
   @XmlElement(name = "user")
   public XmlUser user;
 
-  @XmlElement(name = "approved")
-  public Boolean approved;
-
-  @XmlElement(name = "deleted")
-  public Boolean deleted;
+  @XmlElement(name = "disabled")
+  public Boolean disabled;
   
   @XmlElement(name = "cpa")
   public BigDecimal cpa;

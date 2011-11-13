@@ -37,6 +37,7 @@ public class OfferTest extends RestTest {
   String IMAGE = "sdfasdfnaslf";
   double BALANCE = 20.0;
   double CPA = 2.0;
+  boolean ALLOW_NEGATIVE_BALANCE = false;
 
   String APP_URL = "http://example.org";
   String CALLBACK = "http://example.org/callback";
@@ -58,7 +59,7 @@ public class OfferTest extends RestTest {
     heymoose().addRoleToUser(user.id, Role.CUSTOMER);
     user = heymoose().getUser(user.id);
     heymoose().addToCustomerAccount(user.id, CUSTOMER_BALANCE);
-    return heymoose().createOrder(user.id, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA);
+    return heymoose().createOrder(user.id, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
   }
 
   @Test public void getAvailableOffersForUnknownPerformer() {

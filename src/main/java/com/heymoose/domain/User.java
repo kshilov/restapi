@@ -108,11 +108,11 @@ public class User extends IdEntity {
       roles = Sets.newHashSet();
     roles.add(role);
     if (role.equals(Role.CUSTOMER) && customerAccount == null) {
-      customerAccount = new Account();
+      customerAccount = new Account(false);
       customerSecret = UUID.randomUUID().toString();
     }
     if (role.equals(Role.DEVELOPER) && developerAccount == null)
-      developerAccount = new Account();
+      developerAccount = new Account(false);
   }
 
   public Set<Role> roles() {
