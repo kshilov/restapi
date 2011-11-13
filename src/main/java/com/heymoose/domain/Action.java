@@ -63,6 +63,9 @@ public class Action extends IdEntity {
   @Basic(optional = false)
   private boolean deleted;
 
+  @Basic
+  private int attempts = 1;
+
   protected Action() {}
 
   public Action(Offer offer, Performer performer) {
@@ -121,5 +124,13 @@ public class Action extends IdEntity {
 
   public DateTime approveTime() {
     return approveTime;
+  }
+
+  public int attempts() {
+    return attempts;
+  }
+
+  public void incAttempts() {
+    attempts++;
   }
 }

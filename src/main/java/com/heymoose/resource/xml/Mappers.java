@@ -179,6 +179,7 @@ public class Mappers {
     xmlAction.creationTime = action.creationTime().toString();
     if (action.approveTime() != null)
       xmlAction.approveTime = action.approveTime().toString();
+    xmlAction.attempts = action.attempts();
     return xmlAction;
   }
 
