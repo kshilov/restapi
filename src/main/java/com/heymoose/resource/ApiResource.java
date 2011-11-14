@@ -67,8 +67,23 @@ public class ApiResource {
       return doOffer(params);
     else if (method.equals("approveAction"))
       return approveAction(params);
+    else if (method.equals("introducePerformer"))
+      return introducePerformer(params);
     else
       throw badRequest();
+  }
+
+  private Response introducePerformer(Map<String, String> params) {
+    long appId = longFrom(params.get("app_id"));
+    validateAppSig(appId, params);
+    String extId = notNull(params.get("uid"));
+    String _sex = notNull(params.get("sex"));
+    if (!asList("MALE", "FEMALE").contains(_sex))
+      throw badRequest();
+    boolean male = "MALE".equals(_sex);
+    Integer age = intFrom(params.get("age"));
+    api.introducePerformer(appId, extId, male, age);
+    return Response.ok().build();
   }
 
   private Response getOffers(String format, Map<String, String> params) {
@@ -152,6 +167,15 @@ public class ApiResource {
     from = notNull(from);
     try {
       return Long.valueOf(from);
+    } catch (NumberFormatException e) {
+      throw badRequest();
+    }
+  }
+
+  private static int intFrom(String from) {
+    from = notNull(from);
+    try {
+      return Integer.valueOf(from);
     } catch (NumberFormatException e) {
       throw badRequest();
     }

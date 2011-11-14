@@ -39,7 +39,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return loadByIds(longs(ids));
   }
 
-  @Override
+ @Override
   public Set<Offer> doneFor(long performerId) {
     String sql = "select " +
         "offer.id " +

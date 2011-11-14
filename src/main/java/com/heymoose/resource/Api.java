@@ -170,4 +170,13 @@ public class Api {
       throw new RuntimeException(e);
     }
   }
+
+  @Transactional
+  public void introducePerformer(long appId, String extId, boolean male, int age) {
+    Performer performer = performers.byAppAndExtId(appId, extId);
+    if (performer == null)
+      performer = new Performer(extId, apps.byId(appId), null);
+    performer.setInfo(male, age);
+    performers.put(performer);
+  }
 }

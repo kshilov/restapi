@@ -4,6 +4,7 @@ import com.heymoose.domain.base.IdEntity;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,6 +17,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
@@ -49,7 +51,11 @@ public class Performer extends IdEntity {
   @JoinColumn(name = "inviter", nullable = true)
   private Performer inviter;
 
-  
+  @Basic
+  private Boolean male;
+
+  @Basic
+  private Integer age;
 
   protected Performer() {}
 
@@ -69,5 +75,19 @@ public class Performer extends IdEntity {
 
   public String extId() {
     return extId;
+  }
+
+  public Boolean male() {
+    return male;
+  }
+
+  public Integer age() {
+    return age;
+  }
+
+  public void setInfo(boolean male, int age) {
+    checkArgument(age > 0);
+    this.male = male;
+    this.age = age;
   }
 }
