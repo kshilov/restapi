@@ -14,6 +14,9 @@ public class XmlAction {
 
   @XmlElement(name = "offer-id")
   public Long offerId;
+  
+  @XmlElement(name = "order")
+  public XmlOrder order;
 
   @XmlElement(name = "done")
   public Boolean done;

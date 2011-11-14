@@ -170,25 +170,40 @@ public class Mappers {
     }
     return xmlApp;
   }
-
+  
   public static XmlActions toXmlActions(Iterable<Action> actions) {
-    XmlActions xmlActions = new XmlActions();
-    for (Action action : actions)
-      xmlActions.actions.add(toXmlAction(action));
-    return xmlActions;
+    return toXmlActions(actions, Details.WITH_RELATED_IDS);
   }
 
-  private static XmlAction toXmlAction(Action action) {
+  public static XmlActions toXmlActions(Iterable<Action> actions, Details d) {
+    XmlActions xmlActions = new XmlActions();
+    for (Action action : actions)
+      xmlActions.actions.add(toXmlAction(action, d));
+    return xmlActions;
+  }
+  
+  public static XmlAction toXmlAction(Action action) {
+    return toXmlAction(action, Details.WITH_RELATED_IDS);
+  }
+
+  public static XmlAction toXmlAction(Action action, Details d) {
     XmlAction xmlAction = new XmlAction();
     xmlAction.id = action.id();
-    xmlAction.offerId = action.offer().id();
-    xmlAction.performerId = action.performer().id();
-    xmlAction.done = action.done();
-    xmlAction.deleted = action.deleted();
-    xmlAction.creationTime = action.creationTime().toString();
-    if (action.approveTime() != null)
-      xmlAction.approveTime = action.approveTime().toString();
-    xmlAction.attempts = action.attempts();
+    
+    if (needFields(d)) {
+      xmlAction.offerId = action.offer().id();
+      xmlAction.performerId = action.performer().id();
+      xmlAction.done = action.done();
+      xmlAction.deleted = action.deleted();
+      xmlAction.creationTime = action.creationTime().toString();
+      if (action.approveTime() != null)
+        xmlAction.approveTime = action.approveTime().toString();
+      xmlAction.attempts = action.attempts();
+      
+      if (needRelated(d)) {
+        xmlAction.order = toXmlOrder(action.offer().order(), relatedDetails(d));
+      }
+    }
     return xmlAction;
   }
 

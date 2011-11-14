@@ -8,6 +8,7 @@ import com.heymoose.events.ActionApproved;
 import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.Mappers.Details;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -88,8 +89,27 @@ public class ActionResource {
   @GET
   @Transactional
   public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
-                         @QueryParam("limit") @DefaultValue("50") int limit) {
+                       @QueryParam("limit") @DefaultValue("50") int limit,
+                       @QueryParam("full") @DefaultValue("false") boolean full) {
+    Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
     Iterable<Action> page = actions.list(ActionRepository.Ordering.BY_CREATION_TIME_DESC, offset, limit);
-    return Response.ok(Mappers.toXmlActions(page)).build();
+    return Response.ok(Mappers.toXmlActions(page, d)).build();
+  }
+  
+  @GET
+  @Path("count")
+  @Transactional
+  public Response count() {
+    return Response.ok(Mappers.toXmlCount(actions.count())).build();
+  }
+  
+  @GET
+  @Path("{id}")
+  @Transactional
+  public Response get(@PathParam("id") long actionId) {
+    Action action = actions.byId(actionId);
+    if (action == null)
+      return Response.status(404).build();
+    return Response.ok(Mappers.toXmlAction(action, Details.WITH_RELATED_ENTITIES)).build();
   }
 }

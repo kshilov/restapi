@@ -38,6 +38,14 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
     criteria.setMaxResults(limit);
     return criteria.list();
   }
+  
+  @Override
+  public long count() {
+    return Long.parseLong(hiber()
+        .createQuery("select count(*) from Action")
+        .uniqueResult()
+        .toString());
+  }
 
   @Override
   protected Class<Action> getEntityClass() {
