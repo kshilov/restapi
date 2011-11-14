@@ -69,7 +69,7 @@ public class AppResource {
 
     App app = new App(user, URI.create(url), URI.create(callback));
     apps.put(app);
-    return Response.ok().build();
+    return Response.ok(Long.toString(app.id())).build();
   }
 
   @GET
