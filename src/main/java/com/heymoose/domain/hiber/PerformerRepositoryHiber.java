@@ -2,6 +2,7 @@ package com.heymoose.domain.hiber;
 
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
+import com.heymoose.domain.Platform;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
@@ -17,12 +18,12 @@ public class PerformerRepositoryHiber extends RepositoryHiber<Performer> impleme
   }
 
   @Override
-  public Performer byAppAndExtId(long appId, String extId) {
+  public Performer byPlatformAndExtId(Platform platform, String extId) {
     return (Performer) hiber()
-        .createQuery("from Performer where app.id = :appId and extId = :extId")
-        .setParameter("appId", appId)
-        .setParameter("extId", extId)
-        .uniqueResult();
+         .createQuery("from Performer where platform = :platform and extId = :extId")
+         .setParameter("platform", platform)
+         .setParameter("extId", extId)
+         .uniqueResult();
   }
 
   @Override

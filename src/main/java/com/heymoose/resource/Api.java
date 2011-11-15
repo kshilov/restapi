@@ -66,7 +66,8 @@ public class Api {
 
   @Transactional
   public Iterable<Offer> getOffers(long appId, String extId) {
-    Performer performer = performers.byAppAndExtId(appId, extId);
+    App app = apps.byId(appId);
+    Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null)
       return offers.enabled();
     return offers.availableFor(performer.id());
@@ -105,15 +106,15 @@ public class Api {
       throw conflict();
     App app = apps.byId(appId);
     app.assignPlatform(platform);
-    Performer performer = performers.byAppAndExtId(appId, extId);
+    Performer performer = performers.byPlatformAndExtId(platform, extId);
     if (performer == null) {
-      performer = new Performer(extId, app, null);
+      performer = new Performer(extId, platform, null);
       performers.put(performer);
     }
     Offer offer = offers.byId(offerId);
     if (offer == null)
       throw notFound();
-    Action action = actions.byPerformerAndOffer(performer.id(), offer.id());
+    Action action = actions.byPerformerAndOfferAndApp(performer.id(), offer.id(), app.id());
     if (action != null) {
       action.incAttempts();
       return OfferResult.of(URI.create(offer.body()));
@@ -121,7 +122,7 @@ public class Api {
     if (offer.order().disabled())
       throw conflict();
     accounts.lock(offer.order().account());
-    action = new Action(offer, performer);
+    action = new Action(offer, performer, app);
     actions.put(action);
     URI redirectUrl = appendQueryParam(URI.create(offer.body()), "action_id", action.id());
     redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
@@ -149,7 +150,7 @@ public class Api {
       return new ActionApproved(action, compensation);
     if (action.deleted())
       throw conflict();
-    accounts.lock(action.performer().app().owner().developerAccount());
+    accounts.lock(action.app().owner().developerAccount());
     action.approve(compensation);
     return new ActionApproved(action, compensation);
   }
@@ -173,9 +174,11 @@ public class Api {
 
   @Transactional
   public void introducePerformer(long appId, String extId, boolean male, int age) {
-    Performer performer = performers.byAppAndExtId(appId, extId);
-    if (performer == null)
-      performer = new Performer(extId, apps.byId(appId), null);
+    App app = apps.byId(appId);
+    Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
+    if (performer == null) {
+      performer = new Performer(extId, app.platform(), null);
+    }
     performer.setInfo(male, age);
     performers.put(performer);
   }

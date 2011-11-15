@@ -60,7 +60,7 @@ public class ActionResource {
       return new ActionApproved(action, compensation);
     if (action.deleted())
       throw new WebApplicationException(409);
-    accounts.lock(action.performer().app().owner().developerAccount());
+    accounts.lock(action.app().owner().developerAccount());
     action.approve(compensation);
     return new ActionApproved(action, compensation);
   }

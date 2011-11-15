@@ -108,4 +108,8 @@ public class App extends IdEntity {
   public DateTime creationTime() {
     return creationTime;
   }
+
+  public Platform platform() {
+    return platform;
+  }
 }

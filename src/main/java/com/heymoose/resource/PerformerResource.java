@@ -34,13 +34,13 @@ public class PerformerResource {
     App app = apps.byId(appId);
     if (app == null)
       return Response.status(404).build();
-    Performer inviter = performers.byAppAndExtId(appId, inviterExtId);
+    Performer inviter = performers.byPlatformAndExtId(app.platform(), inviterExtId);
     if (inviter == null)
       return Response.status(404).build();
-    Performer performer = performers.byAppAndExtId(appId, extId);
+    Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer != null)
       return Response.status(409).build();
-    performer = new Performer(extId, app, inviter);
+    performer = new Performer(extId, app.platform(), inviter);
     performers.put(performer);
     return Response.ok().build();
   }

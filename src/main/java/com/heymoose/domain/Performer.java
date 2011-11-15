@@ -4,18 +4,7 @@ import com.heymoose.domain.base.IdEntity;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -23,7 +12,7 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 @Entity
 @Table(
     name = "performer",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"ext_id", "app_id"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"ext_id", "platform"})
 )
 public class Performer extends IdEntity {
 
@@ -39,9 +28,9 @@ public class Performer extends IdEntity {
   @Column(name = "ext_id")
   private String extId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "app_id", nullable = false)
-  private App app;
+  @Enumerated
+  @JoinColumn(name = "platform", nullable = true)
+  private Platform platform;
 
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
@@ -59,18 +48,18 @@ public class Performer extends IdEntity {
 
   protected Performer() {}
 
-  public Performer(String extId, App app, Performer inviter) {
-    checkNotNull(extId, app);
+  public Performer(String extId, Platform platform, Performer inviter) {
+    checkNotNull(extId, platform);
     this.extId = extId;
-    this.app = app;
+    this.platform = platform;
     if (inviter != null && inviter.equals(this))
       throw new IllegalArgumentException();
     this.inviter = inviter;
     this.creationTime = DateTime.now();
   }
 
-  public App app() {
-    return app;
+  public Platform platform() {
+    return platform;
   }
 
   public String extId() {

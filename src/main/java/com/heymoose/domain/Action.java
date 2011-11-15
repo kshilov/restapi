@@ -45,6 +45,10 @@ public class Action extends IdEntity {
   @JoinColumn(name = "offer_id", nullable = false)
   private Offer offer;
 
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "app_id", nullable = false)
+  private App app;
+
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
   private DateTime creationTime;
@@ -68,10 +72,11 @@ public class Action extends IdEntity {
 
   protected Action() {}
 
-  public Action(Offer offer, Performer performer) {
+  public Action(Offer offer, Performer performer, App app) {
     checkNotNull(offer, performer);
     this.offer = offer;
     this.performer = performer;
+    this.app = app;
     DateTime now = DateTime.now();
     this.creationTime = now;
     if (offer.autoApprove()) {
@@ -94,6 +99,10 @@ public class Action extends IdEntity {
     return performer;
   }
 
+  public App app() {
+    return app;
+  }
+
   public BigDecimal reservedAmount() {
     return reservation.diff().negate();
   }
@@ -109,7 +118,7 @@ public class Action extends IdEntity {
       throw new IllegalStateException("Already done");
     done = true;
     approveTime = DateTime.now();
-    performer.app().owner().developerAccount().addToBalance(subtractCompensation(reservedAmount(), compensation), "Action approved");
+    app.owner().developerAccount().addToBalance(subtractCompensation(reservedAmount(), compensation), "Action approved");
   }
 
   public void delete() {

@@ -20,7 +20,7 @@ public class ActionApproved implements Event {
     checkArgument(action.done());
     checkArgument(compensation.signum() == 1);
     checkArgument(compensation.compareTo(new BigDecimal("1.0")) == -1);
-    callback = action.performer().app().callback().toString();
+    callback = action.app().callback().toString();
     extId = action.performer().extId();
     offerId = action.offer().id();
     amount = subtractCompensation(action.reservedAmount(), compensation);

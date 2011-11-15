@@ -19,7 +19,7 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   }
 
   @Override
-  public Action byPerformerAndOffer(long performerId, long offerId) {
+  public Action byPerformerAndOfferAndApp(long performerId, long offerId, long appId) {
     return (Action) hiber()
         .createQuery("from Action a where a.performer.id = :performerId and a.offer.id = :offerId and a.deleted = false")
         .setParameter("performerId", performerId)
