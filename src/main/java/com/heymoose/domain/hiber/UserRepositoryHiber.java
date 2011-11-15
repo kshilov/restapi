@@ -4,10 +4,8 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.Role;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.Query;
-import org.hibernate.criterion.Restrictions;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
