@@ -37,6 +37,28 @@ public class UserResource {
     this.users = users;
     this.accounts = accounts;
   }
+  
+  @GET
+  @Path("list")
+  @Transactional
+  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
+                       @QueryParam("limit") @DefaultValue("20") int limit,
+                       @QueryParam("full") @DefaultValue("false") boolean full,
+                       @QueryParam("role") String role) {
+    Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
+    Role r = null;
+    try { r = Role.valueOf(role.toUpperCase()); } catch (Exception e) { }
+    return Response.ok(Mappers.toXmlUsers(users.list(offset, limit, r), d)).build();
+  }
+  
+  @GET
+  @Path("list/count")
+  @Transactional
+  public Response count(@QueryParam("role") String role) {
+    Role r = null;
+    try { r = Role.valueOf(role.toUpperCase()); } catch (Exception e) { }
+    return Response.ok(Mappers.toXmlCount(users.count(r))).build();
+  }
 
   @POST
   @Transactional

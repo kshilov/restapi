@@ -23,5 +23,8 @@ public class WebAppUtil {
     catch (IllegalArgumentException e) {
       return deflt;
     }
+    catch (NullPointerException e) {
+      return deflt;
+    }
   }
 }

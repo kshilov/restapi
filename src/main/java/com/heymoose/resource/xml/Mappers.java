@@ -48,6 +48,17 @@ public class Mappers {
     return Details.ONLY_ENTITY;
   }
   
+  public static XmlUsers toXmlUsers(Iterable<User> users) {
+    return toXmlUsers(users, Details.WITH_RELATED_IDS);
+  }
+  
+  public static XmlUsers toXmlUsers(Iterable<User> users, Details d) {
+    XmlUsers xmlUsers = new XmlUsers();
+    for (User user : users)
+      xmlUsers.users.add(toXmlUser(user, d));
+    return xmlUsers;
+  }
+  
   public static XmlUser toXmlUser(User user) {
     return toXmlUser(user, Details.WITH_RELATED_LISTS);
   }
