@@ -17,6 +17,9 @@ public class XmlAction {
   
   @XmlElement(name = "order")
   public XmlOrder order;
+  
+  @XmlElement(name = "app")
+  public XmlApp app;
 
   @XmlElement(name = "done")
   public Boolean done;

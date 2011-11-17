@@ -11,9 +11,6 @@ public class XmlPerformer {
   @XmlAttribute(name = "ext-id")
   public String extId;
   
-  @XmlAttribute(name = "app")
-  public XmlApp app;
-  
   @XmlAttribute(name = "creation-time")
   public String creationTime;
   

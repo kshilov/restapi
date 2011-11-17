@@ -216,6 +216,7 @@ public class Mappers {
       
       if (needRelated(d)) {
         xmlAction.order = toXmlOrder(action.offer().order(), relatedDetails(d));
+        xmlAction.app = toXmlApp(action.app(), relatedDetails(d));
       }
     }
     return xmlAction;
