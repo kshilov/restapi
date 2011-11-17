@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
+
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 
@@ -35,17 +37,21 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) " +
         "and (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
         "and ord.disabled = false " +
-        "and (trg.male is null or trg.male = :performerMale) " +
-        "and (trg.min_age is null or trg.min_age <= :performerAge) " +
-        "and (trg.max_age is null or trg.max_age >= :performerAge) " +
+        "and (trg.male is null or trg.male = " + (performer.male() != null ? ":performerMale" : "null") + ") " +
+        "and (trg.min_age is null or trg.min_age <= " + (performer.year() != null ? ":performerAge" : "null") + ") " +
+        "and (trg.max_age is null or trg.max_age >= " + (performer.year() != null ? ":performerAge" : "null") + ") " +
         "order by offer.creation_time desc limit 10";
     
-    List<BigInteger> ids = (List<BigInteger>) hiber()
+    Query query = hiber()
         .createSQLQuery(sql)
-        .setParameter("performerId", performer.id())
-        .setParameter("performerMale", performer.male())
-        .setParameter("performerAge", performer.year() != null ? DateTime.now().getYear() - performer.year() : null)
-        .list();
+        .setParameter("performerId", performer.id());
+    
+    if (performer.male() != null)
+      query.setParameter("performerMale", performer.male());
+    if (performer.year() != null)
+      query.setParameter("performerAge", performer.year() != null ? DateTime.now().getYear() - performer.year() : null);
+    
+    List<BigInteger> ids = (List<BigInteger>)query.list();
     return loadByIds(longs(ids));
   }
 
