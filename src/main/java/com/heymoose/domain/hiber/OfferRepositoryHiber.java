@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
+import com.heymoose.domain.Performer;
 import org.hibernate.Session;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -23,23 +25,31 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<Offer> availableFor(long performerId) {
-    String sql = "select offer.id " +
+  public Set<Offer> availableFor(Performer performer) {
+    String sql = 
+        "select offer_id " +
         "from offer " +
-        "inner join offer_order on offer_order.offer_id = offer.id " +
+        "join offer_order ord on ord.offer_id = offer.id " +
+        "join targeting trg on trg.id = ord.targeting_id " +
         "where " +
         "offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) " +
-        "and (select offer_order.cpa <= balance from account_tx where account_tx.account_id = offer_order.account_id order by version desc limit 1) " +
-        "and offer_order.disabled = false  " +
+        "and (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
+        "and ord.disabled = false " +
+        "and (trg.male is null or trg.male = :performerMale) " +
+        "and (trg.min_age is null or trg.min_age <= :performerAge) " +
+        "and (trg.max_age is null or trg.max_age >= :performerAge) " +
         "order by offer.creation_time desc limit 10";
+    
     List<BigInteger> ids = (List<BigInteger>) hiber()
         .createSQLQuery(sql)
-        .setParameter("performerId", performerId)
+        .setParameter("performerId", performer.id())
+        .setParameter("performerMale", performer.male())
+        .setParameter("performerAge", performer.year() != null ? DateTime.now().getYear() - performer.year() : null)
         .list();
     return loadByIds(longs(ids));
   }
 
- @Override
+  @Override
   public Set<Offer> doneFor(long performerId) {
     String sql = "select " +
         "offer.id " +

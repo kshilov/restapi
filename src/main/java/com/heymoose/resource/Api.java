@@ -70,7 +70,7 @@ public class Api {
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null)
       return offers.enabled();
-    return offers.availableFor(performer.id());
+    return offers.availableFor(performer);
   }
 
   public URI doOffer(long offerId, long appId, String extId, Platform platform) {
