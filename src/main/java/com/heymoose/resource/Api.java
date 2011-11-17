@@ -173,13 +173,13 @@ public class Api {
   }
 
   @Transactional
-  public void introducePerformer(long appId, String extId, boolean male, int age) {
+  public void introducePerformer(long appId, String extId, boolean male, int year) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
     }
-    performer.setInfo(male, age);
+    performer.setInfo(male, year);
     performers.put(performer);
   }
 }

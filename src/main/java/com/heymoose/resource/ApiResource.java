@@ -81,8 +81,8 @@ public class ApiResource {
     if (!asList("MALE", "FEMALE").contains(_sex))
       throw badRequest();
     boolean male = "MALE".equals(_sex);
-    Integer age = intFrom(params.get("age"));
-    api.introducePerformer(appId, extId, male, age);
+    Integer year = intFrom(params.get("year"));
+    api.introducePerformer(appId, extId, male, year);
     return Response.ok().build();
   }
 

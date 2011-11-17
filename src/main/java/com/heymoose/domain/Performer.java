@@ -44,7 +44,7 @@ public class Performer extends IdEntity {
   private Boolean male;
 
   @Basic
-  private Integer age;
+  private Integer year;
 
   protected Performer() {}
 
@@ -65,18 +65,26 @@ public class Performer extends IdEntity {
   public String extId() {
     return extId;
   }
+  
+  public DateTime creationTime() {
+    return creationTime;
+  }
+  
+  public Performer inviter() {
+    return inviter;
+  }
 
   public Boolean male() {
     return male;
   }
 
-  public Integer age() {
-    return age;
+  public Integer year() {
+    return year;
   }
 
-  public void setInfo(boolean male, int age) {
-    checkArgument(age > 0);
+  public void setInfo(boolean male, int year) {
+    checkArgument(year > 0);
     this.male = male;
-    this.age = age;
+    this.year = year;
   }
 }
