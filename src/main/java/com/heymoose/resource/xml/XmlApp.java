@@ -23,6 +23,9 @@ public class XmlApp {
   
   @XmlElement(name = "user")
   public XmlUser user;
+  
+  @XmlElement(name = "platform")
+  public String platform;
 
   @XmlElement(name = "deleted")
   public Boolean deleted;

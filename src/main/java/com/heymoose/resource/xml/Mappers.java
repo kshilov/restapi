@@ -176,6 +176,9 @@ public class Mappers {
       xmlApp.creationTime = app.creationTime().toString();
       xmlApp.userId = app.owner().id();
       
+      if (app.platform() != null)
+        xmlApp.platform = app.platform().toString();
+      
       if (needRelated(d))
         xmlApp.user = toXmlUser(app.owner(), relatedDetails(d));
     }
