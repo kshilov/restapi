@@ -116,7 +116,10 @@ public class Api {
       throw notFound();
     Action action = actions.byPerformerAndOfferAndApp(performer.id(), offer.id(), app.id());
     if (action != null) {
-      action.incAttempts();
+      if (action.done() && !offer.order().reentrant())
+        throw conflict();
+      if (!action.done())
+        action.incAttempts();
       return OfferResult.of(URI.create(offer.body()));
     }
     if (offer.order().disabled())

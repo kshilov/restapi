@@ -12,6 +12,7 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.util.WebAppUtil;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -79,7 +80,8 @@ public class OrderResource {
                          @FormParam("allowNegativeBalance") Boolean allowNegativeBalance,
                          @FormParam("male") Boolean male,
                          @FormParam("minAge") Integer minAge,
-                         @FormParam("maxAge") Integer maxAge) {
+                         @FormParam("maxAge") Integer maxAge,
+                         @FormParam("reentrant") @DefaultValue("false") boolean reentrant) {
 
     checkNotNull(title, description, body, image, _balance, _balance, allowNegativeBalance);
 
@@ -108,7 +110,7 @@ public class OrderResource {
     DateTime now = DateTime.now();
     Offer offer = new Offer(title, description, body, image, autoApprove, now);
     Targeting targeting = new Targeting(male, minAge, maxAge);
-    Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
+    Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting, reentrant);
     
     BigDecimal amount = balance;
 
