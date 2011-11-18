@@ -108,9 +108,9 @@ public class OrderResource {
       return Response.status(Response.Status.CONFLICT).build();
 
     DateTime now = DateTime.now();
-    Offer offer = new Offer(title, description, body, image, autoApprove, now);
+    Offer offer = new Offer(title, description, body, image, autoApprove, now, reentrant);
     Targeting targeting = new Targeting(male, minAge, maxAge);
-    Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting, reentrant);
+    Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     
     BigDecimal amount = balance;
 

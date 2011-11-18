@@ -60,12 +60,9 @@ public class Order extends IdEntity {
   @JoinColumn(name = "targeting_id")
   private Targeting targeting;
 
-  @Basic
-  private boolean reentrant;
-
   protected Order() {}
 
-  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime, boolean allowNegativeBalance, Targeting targeting, boolean reentrant) {
+  public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime, boolean allowNegativeBalance, Targeting targeting) {
     checkNotNull(offer, cpa, creationTime);
     if (cpa.signum() != 1)
       throw new IllegalArgumentException("Cpa must be positive");
@@ -75,7 +72,6 @@ public class Order extends IdEntity {
     this.creationTime = creationTime;
     this.account = new Account(allowNegativeBalance);
     this.targeting = targeting;
-    this.reentrant = reentrant;
   }
 
   public boolean disabled() {
@@ -112,9 +108,5 @@ public class Order extends IdEntity {
   
   public DateTime creationTime() {
     return creationTime;
-  }
-
-  public boolean reentrant() {
-    return reentrant;
   }
 }

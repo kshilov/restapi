@@ -67,7 +67,7 @@ public class Action extends IdEntity {
   @Basic(optional = false)
   private boolean deleted;
 
-  @Basic
+  @Basic(optional = false)
   private int attempts = 1;
 
   protected Action() {}

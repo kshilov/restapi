@@ -34,7 +34,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "join offer_order ord on ord.offer_id = offer.id " +
         "join targeting trg on trg.id = ord.targeting_id " +
         "where " +
-        "(offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) or ord.reentrant = true) " +
+        "(offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) or  offer.reentrant = true) " +
         "and (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
         "and ord.disabled = false " +
         "and (trg.male is null or trg.male = " + (performer.male() != null ? ":performerMale" : "null") + ") " +

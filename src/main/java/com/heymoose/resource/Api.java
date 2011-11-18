@@ -116,7 +116,7 @@ public class Api {
       throw notFound();
     Action action = actions.byPerformerAndOfferAndApp(performer.id(), offer.id(), app.id());
     if (action != null) {
-      if (action.done() && !offer.order().reentrant())
+      if (action.done() && !offer.reentrant())
         throw conflict();
       if (!action.done())
         action.incAttempts();

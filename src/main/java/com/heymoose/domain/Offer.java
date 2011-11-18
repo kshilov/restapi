@@ -58,13 +58,16 @@ public class Offer extends IdEntity {
   @Column(name = "auto_approve", nullable = false)
   private boolean autoApprove;
 
+  @Basic(optional = false)
+  private boolean reentrant;
+
   public static enum Type {
     URL
   }
 
   protected Offer() {}
 
-  public Offer(String title, String description, String body, String imageBase64, boolean autoApprove, DateTime creationTime) {
+  public Offer(String title, String description, String body, String imageBase64, boolean autoApprove, DateTime creationTime, boolean reentrant) {
     checkNotNull(title, description, body, creationTime);
     this.title = title;
     this.description = description;
@@ -77,6 +80,7 @@ public class Offer extends IdEntity {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
+    this.reentrant = reentrant;
   }
 
   public Order order() {
@@ -109,5 +113,9 @@ public class Offer extends IdEntity {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public boolean reentrant() {
+    return reentrant;
   }
 }
