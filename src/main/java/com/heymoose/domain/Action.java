@@ -79,10 +79,6 @@ public class Action extends IdEntity {
     this.app = app;
     DateTime now = DateTime.now();
     this.creationTime = now;
-    if (offer.autoApprove()) {
-      done = true;
-      approveTime = now;
-    }
     Order order = offer.order();
     this.reservation = order.account().subtractFromBalance(order.cpa(), "Reservation");
   }

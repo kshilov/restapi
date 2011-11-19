@@ -114,18 +114,23 @@ public class Api {
     Offer offer = offers.byId(offerId);
     if (offer == null)
       throw notFound();
-    Action action = actions.byPerformerAndOfferAndApp(performer.id(), offer.id(), app.id());
-    if (action != null) {
-      if (action.done() && !offer.reentrant())
-        throw conflict();
-      if (!action.done())
+
+    if (!offer.reentrant()) {
+      Action action = actions.byPerformerAndOfferAndApp(performer.id(), offer.id(), app.id());
+      if (action != null) {
+        if (action.done())
+          throw conflict();
         action.incAttempts();
-      return OfferResult.of(URI.create(offer.body()));
+        return OfferResult.of(URI.create(offer.body()));
+      }
     }
+
     if (offer.order().disabled())
       throw conflict();
     accounts.lock(offer.order().account());
-    action = new Action(offer, performer, app);
+    Action action = new Action(offer, performer, app);
+    if (offer.autoApprove())
+      action.approve(compensation);
     actions.put(action);
     URI redirectUrl = appendQueryParam(URI.create(offer.body()), "action_id", action.id());
     redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
