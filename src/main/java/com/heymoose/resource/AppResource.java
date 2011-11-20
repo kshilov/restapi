@@ -67,10 +67,6 @@ public class AppResource {
     if (!user.isDeveloper())
       return Response.status(Response.Status.CONFLICT).build();
 
-    // only one app now
-    if (!user.apps().isEmpty())
-      return Response.ok().build();
-
     App app = new App(user, URI.create(url), URI.create(callback), platform);
     apps.put(app);
     return Response.ok(Long.toString(app.id())).build();

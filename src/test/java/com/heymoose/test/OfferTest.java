@@ -52,7 +52,7 @@ public class OfferTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
-    app = user.app;
+    app = user.apps.iterator().next();
     this.user = user;
   }
 

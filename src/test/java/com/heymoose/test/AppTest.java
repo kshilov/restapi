@@ -30,7 +30,7 @@ public class AppTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
-    return user.app.id;
+    return user.apps.iterator().next().id;
   }
 
   @Test public void createApp() {
@@ -38,10 +38,10 @@ public class AppTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
-    assertNotNull(user.app.id);
-    assertNotNull(user.app.secret);
-    assertEquals(CALLBACK, user.app.callback);
-    assertEquals(APP_URL, user.app.url);
+    assertNotNull(user.apps.iterator().next().id);
+    assertNotNull(user.apps.iterator().next().secret);
+    assertEquals(CALLBACK, user.apps.iterator().next().callback);
+    assertEquals(APP_URL, user.apps.iterator().next().url);
   }
 
   @Test public void createAppWithoutDeveloperRole() {

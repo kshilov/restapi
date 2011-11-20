@@ -91,8 +91,11 @@ public class Mappers {
         xmlUser.roles.add(role.toString());
       
       if (needRelated(d)) {
-        if (!user.apps().isEmpty())
-          xmlUser.app = toXmlApp(user.apps().iterator().next(), relatedDetails(d));
+        if (!user.apps().isEmpty()) {
+          xmlUser.apps = Sets.newHashSet();
+          for (App app : user.apps())
+            xmlUser.apps.add(toXmlApp(app, relatedDetails(d)));
+        }
         
         if (needRelatedLists(d)) {
           xmlUser.orders = Sets.newHashSet();

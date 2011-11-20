@@ -1,10 +1,10 @@
 package com.heymoose.resource.xml;
 
+import java.util.Set;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Set;
 
 @XmlRootElement(name = "user")
 public class XmlUser {
@@ -29,8 +29,9 @@ public class XmlUser {
   @XmlElement(name = "developer-account")
   public String developerAccount;
 
+  @XmlElementWrapper(name = "apps")
   @XmlElement(name = "app")
-  public XmlApp app;
+  public Set<XmlApp> apps;
   
   @XmlElementWrapper(name = "orders")
   @XmlElement(name = "order")
