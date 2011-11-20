@@ -71,19 +71,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<Offer> enabled() {
-    String sql = "select " +
-        "offer.id " +
-        "from offer inner join offer_order on offer.id = offer_order.offer_id " +
-        "where offer_order.disabled = false " +
-        "order by offer.creation_time desc limit 10";
-    List<BigInteger> ids = (List<BigInteger>) hiber()
-            .createSQLQuery(sql)
-            .list();
-    return loadByIds(longs(ids));
-  }
-
-  @Override
   public Offer byId(long id) {
     return (Offer) hiber()
         .createQuery("select offer from Offer as offer inner join offer.order as order where order.disabled = false and offer.id = :id")

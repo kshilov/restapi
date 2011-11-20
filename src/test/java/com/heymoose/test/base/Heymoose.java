@@ -66,11 +66,12 @@ public class Heymoose {
     client.path("users").path(Long.toString(userId)).path("customer-account").put(form);
   }
 
-  public void createApp(long userId, String url, String callback) {
+  public void createApp(long userId, String url, String callback, Platform platform) {
     Form form = new Form();
     form.add("userId", userId);
     form.add("url", url);
     form.add("callback", callback);
+    form.add("platform", platform.name());
     client.path("apps").post(form);
   }
 

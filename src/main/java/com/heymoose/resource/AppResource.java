@@ -2,6 +2,7 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.Platform;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
@@ -55,8 +56,11 @@ public class AppResource {
 
   @POST
   @Transactional
-  public Response create(@FormParam("userId") Long userId, @FormParam("url") String url, @FormParam("callback") String callback) {
-    checkNotNull(userId, url, callback);
+  public Response create(@FormParam("userId") Long userId,
+                         @FormParam("url") String url,
+                         @FormParam("callback") String callback,
+                         @FormParam("platform")Platform platform) {
+    checkNotNull(userId, url, callback, platform);
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -67,7 +71,7 @@ public class AppResource {
     if (!user.apps().isEmpty())
       return Response.ok().build();
 
-    App app = new App(user, URI.create(url), URI.create(callback));
+    App app = new App(user, URI.create(url), URI.create(callback), platform);
     apps.put(app);
     return Response.ok(Long.toString(app.id())).build();
   }

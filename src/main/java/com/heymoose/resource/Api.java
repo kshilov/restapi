@@ -68,8 +68,10 @@ public class Api {
   public Iterable<Offer> getOffers(long appId, String extId) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
-    if (performer == null)
-      return offers.enabled();
+    if (performer == null) {
+      performer = new Performer(extId, app.platform(), null);
+      performers.put(performer);
+    }
     return offers.availableFor(performer);
   }
 
@@ -105,7 +107,6 @@ public class Api {
     if (isBlank(extId))
       throw conflict();
     App app = apps.byId(appId);
-    app.assignPlatform(platform);
     Performer performer = performers.byPlatformAndExtId(platform, extId);
     if (performer == null) {
       performer = new Performer(extId, platform, null);

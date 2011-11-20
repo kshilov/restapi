@@ -41,6 +41,7 @@ public class OfferTest extends RestTest {
 
   String APP_URL = "http://example.org";
   String CALLBACK = "http://example.org/callback";
+  Platform PLATFORM = Platform.FACEBOOK;
 
   XmlApp app;
   XmlUser user;
@@ -49,7 +50,7 @@ public class OfferTest extends RestTest {
   public void createApp() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, APP_URL, CALLBACK);
+    heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
     app = user.app;
     this.user = user;

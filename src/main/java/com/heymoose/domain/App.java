@@ -61,12 +61,13 @@ public class App extends IdEntity {
 
   protected App() {}
 
-  public App(User user, URI url, URI callback) {
+  public App(User user, URI url, URI callback, Platform platform) {
     this.user = user;
     this.secret =  UUID.randomUUID().toString();
     this.creationTime = DateTime.now();
     this.url = url.toString();
     this.callbackUrl = callback.toString();
+    this.platform = platform;
   }
 
   public User owner() {
@@ -87,14 +88,6 @@ public class App extends IdEntity {
 
   public void delete() {
     this.deleted = true;
-  }
-
-  public void assignPlatform(Platform platform) {
-    checkNotNull(platform);
-    if (this.platform == null)
-      this.platform = platform;
-    else if (!platform.equals(this.platform))
-      throw new WebApplicationException(400);
   }
 
   public URI url() {
