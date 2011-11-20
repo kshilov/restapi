@@ -30,4 +30,21 @@ public class PerformerRepositoryHiber extends RepositoryHiber<Performer> impleme
   protected Class<Performer> getEntityClass() {
     return Performer.class;
   }
+  
+  @Override
+  public Iterable<Performer> list(int offset, int limit) {
+    return hiber()
+        .createQuery("from Performer")
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
+  
+  @Override
+  public long count() {
+    return Long.parseLong(hiber()
+        .createQuery("select count(*) from Performer")
+        .uniqueResult()
+        .toString());
+  }
 }

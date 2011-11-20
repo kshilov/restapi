@@ -5,6 +5,7 @@ import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
+import com.heymoose.domain.Performer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 
@@ -236,6 +237,44 @@ public class Mappers {
     xmlOffer.title = offer.title();
     xmlOffer.body = offer.body();
     return xmlOffer;
+  }
+  
+  public static XmlPerformers toXmlPerformers(Iterable<Performer> performers) {
+    return toXmlPerformers(performers, Details.WITH_RELATED_IDS);
+  }
+  
+  public static XmlPerformers toXmlPerformers(Iterable<Performer> performers, Details d) {
+    XmlPerformers xmlPerformers = new XmlPerformers();
+    for (Performer performer : performers)
+      xmlPerformers.performers.add(toXmlPerformer(performer, d));
+    return xmlPerformers;
+  }
+  
+  public static XmlPerformer toXmlPerformer(Performer performer) {
+    return toXmlPerformer(performer, Details.WITH_RELATED_IDS);
+  }
+  
+  public static XmlPerformer toXmlPerformer(Performer performer, Details d) {
+    XmlPerformer xmlPerformer = new XmlPerformer();
+    xmlPerformer.id = performer.id();
+    
+    if (needFields(d)) {
+      xmlPerformer.extId = performer.extId();
+      xmlPerformer.creationTime = performer.creationTime().toString();
+      
+      if (performer.platform() != null)
+        xmlPerformer.platform = performer.platform().toString();
+      if (performer.male() != null)
+        xmlPerformer.male = performer.male();
+      if (performer.year() != null)
+        xmlPerformer.year = performer.year();
+      
+      if (needRelated(d)) {
+        if (performer.inviter() != null)
+          xmlPerformer.inviter = toXmlPerformer(performer.inviter(), relatedDetails(d));
+      }
+    }
+    return xmlPerformer;
   }
   
   public static XmlCount toXmlCount(Long count) {
