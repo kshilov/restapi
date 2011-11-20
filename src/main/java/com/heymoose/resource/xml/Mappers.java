@@ -217,6 +217,7 @@ public class Mappers {
       xmlAction.attempts = action.attempts();
       
       if (needRelated(d)) {
+        xmlAction.performer = toXmlPerformer(action.performer(), relatedDetails(d));
         xmlAction.order = toXmlOrder(action.offer().order(), relatedDetails(d));
         xmlAction.app = toXmlApp(action.app(), relatedDetails(d));
       }

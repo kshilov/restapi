@@ -11,6 +11,9 @@ public class XmlAction {
 
   @XmlElement(name = "performer-id")
   public Long performerId;
+  
+  @XmlElement(name = "performer")
+  public XmlPerformer performer;
 
   @XmlElement(name = "offer-id")
   public Long offerId;
