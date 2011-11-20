@@ -113,15 +113,14 @@ public class ApiResource {
     validateAppSig(appId, params);
     long offerId = longFrom(params.get("offer_id"));
     String extId = notNull(params.get("uid"));
-    Platform platform = platform(params.get("platform"));
-    return Response.status(302).location(api.doOffer(offerId, appId, extId, platform)).build();
+    return Response.status(302).location(api.doOffer(offerId, appId, extId)).build();
   }
 
   private Response approveAction(Map<String, String> params) {
-    long customer_id = longFrom(params.get("customer_id"));
-    validateCustomerSig(customer_id, params);
+    long customerId = longFrom(params.get("customer_id"));
+    validateCustomerSig(customerId, params);
     long actionId = longFrom(params.get("action_id"));
-    api.approveAction(customer_id, actionId);
+    api.approveAction(customerId, actionId);
     return Response.ok().build();
   }
 

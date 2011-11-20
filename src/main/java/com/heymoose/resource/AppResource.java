@@ -59,7 +59,7 @@ public class AppResource {
   public Response create(@FormParam("userId") Long userId,
                          @FormParam("url") String url,
                          @FormParam("callback") String callback,
-                         @FormParam("platform")Platform platform) {
+                         @FormParam("platform") Platform platform) {
     checkNotNull(userId, url, callback, platform);
     User user = users.byId(userId);
     if (user == null)

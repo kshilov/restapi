@@ -7,6 +7,8 @@ import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
+import com.heymoose.domain.OfferShow;
+import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
@@ -19,6 +21,8 @@ import com.heymoose.util.NameValuePair;
 import com.heymoose.util.URIUtils;
 import com.heymoose.util.URLEncodedUtils;
 
+import java.rmi.server.UID;
+import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -45,6 +49,7 @@ public class Api {
   private final BigDecimal compensation;
   private final EventBus eventBus;
   private final UserRepository users;
+  private final OfferShowRepository offerShows;
 
   @Inject
   public Api(OfferRepository offers,
@@ -53,7 +58,9 @@ public class Api {
              ActionRepository actions,
              Accounts accounts,
              @Named("compensation") BigDecimal compensation,
-             EventBus eventBus, UserRepository users) {
+             EventBus eventBus,
+             UserRepository users,
+             OfferShowRepository offerShows) {
     this.offers = offers;
     this.performers = performers;
     this.apps = apps;
@@ -62,6 +69,7 @@ public class Api {
     this.compensation = compensation;
     this.eventBus = eventBus;
     this.users = users;
+    this.offerShows = offerShows;
   }
 
   @Transactional
@@ -73,10 +81,19 @@ public class Api {
       performers.put(performer);
     }
     return offers.availableFor(performer);
+    // return logShows(offers.availableFor(performer), app, performer);
   }
 
-  public URI doOffer(long offerId, long appId, String extId, Platform platform) {
-    OfferResult result = doOfferInternal(offerId, appId, extId, platform);
+  @Transactional
+  public Iterable<Offer> logShows(Iterable<Offer> offers, App app, Performer performer) {
+    for (Offer offer : offers)
+//      System.out.println(offer);
+      offerShows.put(new OfferShow(offer, app, performer));
+    return offers;
+  }
+
+  public URI doOffer(long offerId, long appId, String extId) {
+    OfferResult result = doOfferInternal(offerId, appId, extId);
     if (result.approved != null)
       eventBus.publish(result.approved);
     return result.url;
@@ -102,14 +119,14 @@ public class Api {
   }
 
   @Transactional
-  public OfferResult doOfferInternal(long offerId, long appId, String extId, Platform platform) {
-    checkNotNull(offerId, platform);
+  public OfferResult doOfferInternal(long offerId, long appId, String extId) {
+    checkNotNull(offerId);
     if (isBlank(extId))
       throw conflict();
     App app = apps.byId(appId);
-    Performer performer = performers.byPlatformAndExtId(platform, extId);
+    Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
-      performer = new Performer(extId, platform, null);
+      performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
     Offer offer = offers.byId(offerId);

@@ -43,6 +43,9 @@ public class Heymoose {
     form.add("nickname", nickname);
     form.add("passwordHash", passwordHash);
     ClientResponse response = client.path("users").post(ClientResponse.class, form);
+    System.out.println(response);
+    System.out.println(response.getLocation());
+    System.out.println(response.getLocation().getPath());
     return Long.valueOf(response.getLocation().getPath().replaceFirst("/users/", ""));
   }
 

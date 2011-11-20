@@ -13,6 +13,8 @@ import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
+import com.heymoose.domain.OfferShow;
+import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
 import com.heymoose.domain.Performer;
@@ -24,6 +26,7 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
 import com.heymoose.domain.hiber.OfferRepositoryHiber;
+import com.heymoose.domain.hiber.OfferShowRepositoryHiber;
 import com.heymoose.domain.hiber.OrderRepositoryHiber;
 import com.heymoose.domain.hiber.PerformerRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
@@ -60,9 +63,10 @@ public class CommonModule extends AbstractModule {
     bind(OfferRepository.class).to(OfferRepositoryHiber.class);
     bind(PerformerRepository.class).to(PerformerRepositoryHiber.class);
     bind(ActionRepository.class).to(ActionRepositoryHiber.class);
+    bind(OfferShowRepository.class).to(OfferShowRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
-        Offer.class, Order.class, Performer.class, Platform.class, User.class);
+        Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class);
   }
 
   protected void bindEntities(Class... classes) {
