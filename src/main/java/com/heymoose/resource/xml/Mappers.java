@@ -137,6 +137,7 @@ public class Mappers {
       xmlOrder.description = order.offer().description();
       xmlOrder.body = order.offer().body();
       xmlOrder.autoApprove = order.offer().autoApprove();
+      xmlOrder.reentrant = order.offer().reentrant();
       
       // Targeting fields
       xmlOrder.male = order.targeting().male();

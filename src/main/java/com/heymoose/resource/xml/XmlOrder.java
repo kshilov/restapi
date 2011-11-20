@@ -48,6 +48,9 @@ public class XmlOrder {
   @XmlElement(name = "auto-approve")
   public Boolean autoApprove;
   
+  @XmlElement(name = "reentrant")
+  public Boolean reentrant;
+  
   // Targeting fields
   
   @XmlElement(name = "male")
