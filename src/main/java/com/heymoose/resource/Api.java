@@ -80,14 +80,13 @@ public class Api {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
-    return offers.availableFor(performer);
-    // return logShows(offers.availableFor(performer), app, performer);
+    // return offers.availableFor(performer);
+    return logShows(offers.availableFor(performer), app, performer);
   }
 
   @Transactional
   public Iterable<Offer> logShows(Iterable<Offer> offers, App app, Performer performer) {
     for (Offer offer : offers)
-//      System.out.println(offer);
       offerShows.put(new OfferShow(offer, app, performer));
     return offers;
   }
