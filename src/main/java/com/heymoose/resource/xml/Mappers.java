@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.Role;
@@ -279,6 +280,20 @@ public class Mappers {
       }
     }
     return xmlPerformer;
+  }
+  
+  public static XmlOfferShows toXmlOfferShows(Iterable<OfferShow> shows) {
+    XmlOfferShows xmlOfferShows = new XmlOfferShows();
+    for (OfferShow show : shows)
+      xmlOfferShows.shows.add(toXmlOfferShow(show));
+    return xmlOfferShows;
+  }
+  
+  public static XmlOfferShow toXmlOfferShow(OfferShow show) {
+    XmlOfferShow xmlOfferShow = new XmlOfferShow();
+    xmlOfferShow.id = show.id();
+    xmlOfferShow.showTime = show.showTime().toString();
+    return xmlOfferShow;
   }
   
   public static XmlCount toXmlCount(Long count) {

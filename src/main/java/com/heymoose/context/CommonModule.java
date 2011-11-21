@@ -34,6 +34,7 @@ import com.heymoose.resource.ActionResource;
 import com.heymoose.resource.Api;
 import com.heymoose.resource.ApiResource;
 import com.heymoose.resource.AppResource;
+import com.heymoose.resource.OfferShowResource;
 import com.heymoose.resource.OrderResource;
 import com.heymoose.resource.PerformerResource;
 import com.heymoose.resource.UserResource;
@@ -54,6 +55,7 @@ public class CommonModule extends AbstractModule {
     bind(ActionResource.class);
     bind(PerformerResource.class);
     bind(Accounts.class);
+    bind(OfferShowResource.class);
     bind(ApiResource.class);
     bind(Api.class);
 
