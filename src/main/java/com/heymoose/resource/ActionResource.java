@@ -1,5 +1,7 @@
 package com.heymoose.resource;
 
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
@@ -22,6 +24,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+
+import org.joda.time.DateTime;
+
 import java.math.BigDecimal;
 
 @Path("actions")
@@ -84,6 +89,22 @@ public class ActionResource {
     }
     action.delete();
     return Response.ok().build();
+  }
+  
+  @GET
+  @Path("range")
+  @Transactional
+  public Response list(@QueryParam("from") Long from,
+                       @QueryParam("to") Long to,
+                       @QueryParam("offerId") Long offerId,
+                       @QueryParam("appId") Long appId,
+                       @QueryParam("performerId") Long performerId) {
+    checkNotNull(from, to);
+    DateTime dtFrom = new DateTime(from * 1000);
+    DateTime dtTo = new DateTime(to * 1000);
+    return Response.ok(Mappers.toXmlActions(
+        actions.list(dtFrom, dtTo, offerId, appId, performerId), Details.ONLY_ENTITY)
+    ).build();
   }
 
   @GET

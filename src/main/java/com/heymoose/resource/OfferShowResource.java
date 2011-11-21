@@ -36,8 +36,6 @@ public class OfferShowResource {
     checkNotNull(from, to);
     DateTime dtFrom = new DateTime(from * 1000);
     DateTime dtTo = new DateTime(to * 1000);
-    System.out.println(dtFrom.toString());
-    System.out.println(dtTo.toString());
     return Response.ok(Mappers.toXmlOfferShows(
         shows.list(dtFrom, dtTo, offerId, appId, performerId))
     ).build();

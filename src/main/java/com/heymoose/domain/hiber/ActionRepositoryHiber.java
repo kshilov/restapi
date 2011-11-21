@@ -2,9 +2,12 @@ package com.heymoose.domain.hiber;
 
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -25,6 +28,23 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
         .setParameter("performerId", performerId)
         .setParameter("offerId", offerId)
         .uniqueResult();
+  }
+  
+  @Override
+  public Iterable<Action> list(DateTime from, DateTime to,
+      Long offerId, Long appId, Long performerId) {
+    Criteria criteria = hiber()
+        .createCriteria(getEntityClass())
+        .add(Restrictions.between("creationTime", from, to));
+    
+    if (offerId != null)
+      criteria.add(Restrictions.eq("offer.id", offerId));
+    if (appId != null)
+      criteria.add(Restrictions.eq("app.id", appId));
+    if (performerId != null)
+      criteria.add(Restrictions.eq("performer.id", performerId));
+        
+    return criteria.list();
   }
 
   @Override
