@@ -36,6 +36,9 @@ public class XmlOrder {
   
   // Offer fields
   
+  @XmlElement(name = "offer-id")
+  public Long offerId;
+  
   @XmlElement(name = "title")
   public String title;
   

@@ -138,6 +138,7 @@ public class Mappers {
       xmlOrder.allowNegativeBalance = order.account().allowNegativeBalance();
       
       // Offer fields
+      xmlOrder.offerId = order.offer().id();
       xmlOrder.title = order.offer().title();
       xmlOrder.description = order.offer().description();
       xmlOrder.body = order.offer().body();
