@@ -12,7 +12,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
@@ -35,8 +34,8 @@ public class OfferShowResource {
                        @QueryParam("appId") Long appId,
                        @QueryParam("performerId") Long performerId) {
     checkNotNull(from, to);
-    DateTime dtFrom = new DateTime(from * 1000).withZone(DateTimeZone.UTC);
-    DateTime dtTo = new DateTime(to * 1000).withZone(DateTimeZone.UTC);
+    DateTime dtFrom = new DateTime(from * 1000);
+    DateTime dtTo = new DateTime(to * 1000);
     System.out.println(dtFrom.toString());
     System.out.println(dtTo.toString());
     return Response.ok(Mappers.toXmlOfferShows(
