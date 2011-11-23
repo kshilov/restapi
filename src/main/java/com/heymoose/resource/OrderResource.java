@@ -4,6 +4,7 @@ import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
+import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -12,7 +13,6 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.util.WebAppUtil;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -71,9 +71,7 @@ public class OrderResource {
   @Transactional
   public Response create(@FormParam("userId") int userId,
                          @FormParam("title") String title,
-                         @FormParam("description") String description,
-                         @FormParam("body") String body,
-                         @FormParam("image") String image,
+                         @FormParam("url") String url,
                          @FormParam("balance") String _balance,
                          @FormParam("cpa") String _cpa,
                          @FormParam("autoApprove") @DefaultValue("false") boolean autoApprove,
@@ -81,9 +79,12 @@ public class OrderResource {
                          @FormParam("male") Boolean male,
                          @FormParam("minAge") Integer minAge,
                          @FormParam("maxAge") Integer maxAge,
-                         @FormParam("reentrant") @DefaultValue("false") boolean reentrant) {
+                         @FormParam("reentrant") @DefaultValue("false") boolean reentrant,
+                         @FormParam("type") Offer.Type type,
+                         @FormParam("image") String image,
+                         @FormParam("description") String description) {
 
-    checkNotNull(title, description, body, image, _balance, _balance, allowNegativeBalance);
+    checkNotNull(title, url, _balance, _balance, allowNegativeBalance, type);
 
     BigDecimal cpa = new BigDecimal(_cpa);
     BigDecimal balance = new BigDecimal(_balance);
@@ -108,7 +109,14 @@ public class OrderResource {
       return Response.status(Response.Status.CONFLICT).build();
 
     DateTime now = DateTime.now();
-    Offer offer = new Offer(title, description, body, image, autoApprove, now, reentrant);
+
+    Offer offer = null;
+    if (type.equals(Offer.Type.REGULAR)) {
+      checkNotNull(description, image);
+      offer = new RegularOffer(title, url, autoApprove, now, reentrant, description, image);
+    } else
+      throw new IllegalArgumentException("Unknown type: " + type.name());
+    
     Targeting targeting = new Targeting(male, minAge, maxAge);
     Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     

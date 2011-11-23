@@ -42,18 +42,18 @@ public class XmlOrder {
   @XmlElement(name = "title")
   public String title;
   
-  @XmlElement(name = "description")
-  public String description;
-  
-  @XmlElement(name = "body")
-  public String body;
+  @XmlElement(name = "url")
+  public String url;
   
   @XmlElement(name = "auto-approve")
   public Boolean autoApprove;
   
   @XmlElement(name = "reentrant")
   public Boolean reentrant;
-  
+
+  @XmlElement(name = "description")
+  public String description;
+
   // Targeting fields
   
   @XmlElement(name = "male")

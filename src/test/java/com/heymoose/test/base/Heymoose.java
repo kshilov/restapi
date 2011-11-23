@@ -90,23 +90,24 @@ public class Heymoose {
     client.path("apps").path(Long.toString(appId)).delete();
   }
 
-  public long createOrder(long userId,
-                          String title,
-                          String description,
-                          String body,
-                          String image,
-                          double balance,
-                          double cpa,
-                          boolean allowNegativeBalance) {
+  public long createRegularOrder(long userId,
+                                 String title,
+                                 String description,
+                                 String url,
+                                 String image,
+                                 double balance,
+                                 double cpa,
+                                 boolean allowNegativeBalance) {
     Form form = new Form();
     form.add("userId", userId);
     form.add("title", title);
     form.add("description", description);
-    form.add("body", body);
+    form.add("url", url);
     form.add("image", image);
     form.add("balance", balance);
     form.add("cpa", cpa);
     form.add("allowNegativeBalance", allowNegativeBalance);
+    form.add("type", "REGULAR");
     return Long.valueOf(client.path("orders").post(String.class, form));
   }
 

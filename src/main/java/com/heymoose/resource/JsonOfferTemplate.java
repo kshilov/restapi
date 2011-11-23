@@ -2,6 +2,7 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.App;
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.RegularOffer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
@@ -23,10 +24,14 @@ public class JsonOfferTemplate implements OfferTemplate {
         ObjectNode jsOffer = mapper.createObjectNode();
         jsOffer.put("id", offer.id());
         jsOffer.put("title", offer.title());
-        jsOffer.put("description", offer.description());
         BigDecimal payment = subtractCompensation(offer.order().cpa(), compensation);
         jsOffer.put("payment", payment.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
-        jsOffer.put("image", offer.imageBase64());
+        jsOffer.put("type", offer.type().ordinal());
+        if (offer instanceof RegularOffer) {
+          RegularOffer regularOffer = (RegularOffer) offer;
+          jsOffer.put("description", regularOffer.description());
+          jsOffer.put("image", regularOffer.imageBase64());
+        }
         jsOffers.add(jsOffer);
       }
       jsResult.put("success", true);

@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
@@ -8,8 +9,15 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
+import static com.heymoose.resource.Exceptions.badRequest;
+import static com.heymoose.resource.Exceptions.unauthorized;
+import static com.heymoose.security.Signer.sign;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpRequestContext;
-
+import java.math.BigDecimal;
+import static java.util.Arrays.asList;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -19,17 +27,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
-import static com.heymoose.resource.Exceptions.badRequest;
-import static com.heymoose.resource.Exceptions.notFound;
-import static com.heymoose.resource.Exceptions.unauthorized;
-import static com.heymoose.security.Signer.sign;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
-import static java.util.Arrays.asList;
 
 @Path("api")
 @Singleton
@@ -38,7 +35,6 @@ public class ApiResource {
   private final Provider<HttpRequestContext> requestContextProvider;
   private final AppRepository apps;
   private final UserRepository users;
-  private final OfferTemplate htmlTemplate = new HtmlOfferTemplate();
   private final OfferTemplate jsonTemplate = new JsonOfferTemplate();
   private final Api api;
   private final BigDecimal compensation;
@@ -96,9 +92,6 @@ public class ApiResource {
     if (format.equals("JSON")) {
       template = jsonTemplate;
       contentType = "application/json; charset=utf-8";
-    } else if (format.equals("HTML")) {
-      template = htmlTemplate;
-      contentType = "text/html; charset=utf-8";
     } else {
       throw badRequest();
     }

@@ -20,6 +20,7 @@ import com.heymoose.domain.OrderRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
+import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -68,7 +69,8 @@ public class CommonModule extends AbstractModule {
     bind(OfferShowRepository.class).to(OfferShowRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
-        Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class);
+        Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
+        RegularOffer.class);
   }
 
   protected void bindEntities(Class... classes) {

@@ -7,6 +7,7 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.Performer;
+import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 
@@ -137,13 +138,19 @@ public class Mappers {
       xmlOrder.balance = order.account().currentState().balance().toString();
       xmlOrder.allowNegativeBalance = order.account().allowNegativeBalance();
       
-      // Offer fields
+      // Common offer fields
       xmlOrder.offerId = order.offer().id();
       xmlOrder.title = order.offer().title();
-      xmlOrder.description = order.offer().description();
-      xmlOrder.body = order.offer().body();
+//      xmlOrder.description = order.offer().description();
+      xmlOrder.url = order.offer().url();
       xmlOrder.autoApprove = order.offer().autoApprove();
       xmlOrder.reentrant = order.offer().reentrant();
+
+      // Regular offer fields
+      if (order.offer() instanceof RegularOffer) {
+        RegularOffer regularOffer = (RegularOffer) order.offer();
+        xmlOrder.description = regularOffer.description();
+      }
       
       // Targeting fields
       xmlOrder.male = order.targeting().male();
@@ -241,7 +248,7 @@ public class Mappers {
     XmlOffer xmlOffer = new XmlOffer();
     xmlOffer.id = offer.id();
     xmlOffer.title = offer.title();
-    xmlOffer.body = offer.body();
+    xmlOffer.body = offer.url();
     return xmlOffer;
   }
   

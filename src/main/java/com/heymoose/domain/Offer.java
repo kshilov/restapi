@@ -1,6 +1,11 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import org.joda.time.DateTime;
 
 import javax.persistence.Basic;
@@ -21,7 +26,9 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(name = "offer")
-public class Offer extends IdEntity {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.INTEGER)
+public abstract class Offer extends IdEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "offer-seq")
@@ -36,17 +43,11 @@ public class Offer extends IdEntity {
   private String title;
 
   @Basic(optional = false)
-  private String description;
+  private String url;
 
-  @Basic(optional = false)
-  private String body;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "type", nullable = false)
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "type", nullable = false, insertable = false, updatable = false)
   private Type type;
-
-  @Basic(optional = false)
-  private byte[] image;
 
   @org.hibernate.annotations.Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
@@ -62,24 +63,20 @@ public class Offer extends IdEntity {
   private boolean reentrant;
 
   public static enum Type {
-    URL
+    REGULAR, // 0
+    BANNER, // 1
+    VIDEO // 2
   }
 
   protected Offer() {}
 
-  public Offer(String title, String description, String body, String imageBase64, boolean autoApprove, DateTime creationTime, boolean reentrant) {
-    checkNotNull(title, description, body, creationTime);
+  public Offer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant) {
+    checkNotNull(title, url, creationTime);
     this.title = title;
-    this.description = description;
-    this.body = body;
+    this.url = url;
     this.autoApprove = autoApprove;
-    this.type = Type.URL;
+    this.type = Type.REGULAR;
     this.creationTime = creationTime;
-    try {
-      this.image = imageBase64.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
     this.reentrant = reentrant;
   }
 
@@ -91,12 +88,8 @@ public class Offer extends IdEntity {
     return title;
   }
 
-  public String description() {
-    return description;
-  }
-
-  public String body() {
-    return body;
+  public String url() {
+    return url;
   }
 
   public DateTime creationTime() {
@@ -106,16 +99,12 @@ public class Offer extends IdEntity {
   public boolean autoApprove() {
     return autoApprove;
   }
-  
-  public String imageBase64() {
-    try {
-      return new String(image, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   public boolean reentrant() {
     return reentrant;
+  }
+
+  public Type type() {
+    return type;
   }
 }

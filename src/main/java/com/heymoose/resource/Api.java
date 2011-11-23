@@ -11,7 +11,6 @@ import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
-import com.heymoose.domain.Platform;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.events.ActionApproved;
@@ -21,8 +20,6 @@ import com.heymoose.util.NameValuePair;
 import com.heymoose.util.URIUtils;
 import com.heymoose.util.URLEncodedUtils;
 
-import java.rmi.server.UID;
-import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -138,7 +135,7 @@ public class Api {
         if (action.done())
           throw conflict();
         action.incAttempts();
-        return OfferResult.of(URI.create(offer.body()));
+        return OfferResult.of(URI.create(offer.url()));
       }
     }
 
@@ -149,7 +146,7 @@ public class Api {
     if (offer.autoApprove())
       action.approve(compensation);
     actions.put(action);
-    URI redirectUrl = appendQueryParam(URI.create(offer.body()), "action_id", action.id());
+    URI redirectUrl = appendQueryParam(URI.create(offer.url()), "action_id", action.id());
     redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
     if (offer.autoApprove())
       return OfferResult.of(redirectUrl, new ActionApproved(action, compensation));

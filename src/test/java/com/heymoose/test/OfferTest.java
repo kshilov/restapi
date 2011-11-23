@@ -8,7 +8,6 @@ import com.heymoose.resource.xml.XmlApp;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,7 +59,7 @@ public class OfferTest extends RestTest {
     heymoose().addRoleToUser(user.id, Role.CUSTOMER);
     user = heymoose().getUser(user.id);
     heymoose().addToCustomerAccount(user.id, CUSTOMER_BALANCE);
-    return heymoose().createOrder(user.id, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+    return heymoose().createRegularOrder(user.id, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
   }
 
   @Test public void getAvailableOffersForUnknownPerformer() {

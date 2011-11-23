@@ -33,7 +33,7 @@ public class OrderTest extends RestTest {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
-    heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+    heymoose().createRegularOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
     return userId;
   }
 
@@ -56,7 +56,7 @@ public class OrderTest extends RestTest {
   @Test public void createOrderWithoutCustomerRole() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     try {
-      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+      heymoose().createRegularOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
@@ -68,7 +68,7 @@ public class OrderTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, 10.0);
     try {
-      heymoose().createOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+      heymoose().createRegularOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
       fail();
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
