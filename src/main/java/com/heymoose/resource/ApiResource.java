@@ -4,7 +4,6 @@ import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
-import com.heymoose.domain.Platform;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -14,6 +13,7 @@ import static com.heymoose.resource.Exceptions.unauthorized;
 import static com.heymoose.security.Signer.sign;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpRequestContext;
+import java.io.IOException;
 import java.math.BigDecimal;
 import static java.util.Arrays.asList;
 import java.util.List;
@@ -26,7 +26,10 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 
 @Path("api")
 @Singleton
@@ -53,6 +56,19 @@ public class ApiResource {
   public Response callMethod(@QueryParam("method") String method,
                              @QueryParam("sig") String sig,
                              @QueryParam("format") @DefaultValue("HTML") String format) {
+    try {
+      return callMethodInternal(method, sig, format);
+    } catch (WebApplicationException e) {
+      int status = e.getResponse().getStatus();
+      throw webAppExWithJson(e, status, e.getMessage());
+    } catch (Exception e) {
+      throw webAppExWithJson(e, 500, e.getMessage());
+    }
+  }
+
+  private Response callMethodInternal(@QueryParam("method") String method,
+                             @QueryParam("sig") String sig,
+                             @QueryParam("format") @DefaultValue("HTML") String format) {
     checkNotNull(method, sig);
     if (!asList("HTML", "JSON").contains(format))
       throw badRequest();
@@ -69,6 +85,21 @@ public class ApiResource {
       throw badRequest();
   }
 
+  private WebApplicationException webAppExWithJson(Throwable cause, int status, String message) {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode jsError = mapper.createObjectNode();
+    jsError.put("success", false);
+    jsError.put("status", status);
+    jsError.put("error", message);
+    String json;
+    try {
+       json = mapper.writeValueAsString(jsError);
+    } catch (IOException e) {
+      throw new RuntimeException(e.getMessage(), e);
+    }
+    return new WebApplicationException(cause, Response.status(status).entity(json).build());
+  }
+
   private Response introducePerformer(Map<String, String> params) {
     long appId = longFrom(params.get("app_id"));
     validateAppSig(appId, params);
@@ -79,7 +110,7 @@ public class ApiResource {
     boolean male = "MALE".equals(_sex);
     Integer year = intFrom(params.get("year"));
     api.introducePerformer(appId, extId, male, year);
-    return Response.ok().build();
+    return successResponse();
   }
 
   private Response getOffers(String format, Map<String, String> params) {
@@ -114,7 +145,7 @@ public class ApiResource {
     validateCustomerSig(customerId, params);
     long actionId = longFrom(params.get("action_id"));
     api.approveAction(customerId, actionId);
-    return Response.ok().build();
+    return successResponse();
   }
 
   @Transactional
@@ -173,12 +204,16 @@ public class ApiResource {
     }
   }
 
-  private static Platform platform(String platform) {
-    platform = notNull(platform);
+  private static Response successResponse() {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode jsSuccess = mapper.createObjectNode();
+    jsSuccess.put("success", true);
+    String json;
     try {
-      return Platform.valueOf(platform);
-    } catch (IllegalArgumentException e) {
-      throw badRequest();
+      json = mapper.writeValueAsString(jsSuccess);
+    } catch (Exception e) {
+      throw new RuntimeException(e.getMessage(), e);
     }
+    return Response.ok(json).build();
   }
 }

@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.heymoose.BannerOffer;
 import com.heymoose.domain.Account;
 import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
@@ -24,6 +25,7 @@ import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
 import com.heymoose.domain.hiber.OfferRepositoryHiber;
@@ -70,7 +72,7 @@ public class CommonModule extends AbstractModule {
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
-        RegularOffer.class);
+        RegularOffer.class, VideoOffer.class, BannerOffer.class);
   }
 
   protected void bindEntities(Class... classes) {

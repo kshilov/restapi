@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.BannerOffer;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
@@ -8,6 +9,7 @@ import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.base.Repository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
@@ -82,12 +84,25 @@ public class OrderResource {
                          @FormParam("reentrant") @DefaultValue("false") boolean reentrant,
                          @FormParam("type") Offer.Type type,
                          @FormParam("image") String image,
-                         @FormParam("description") String description) {
+                         @FormParam("description") String description,
+                         @FormParam("videoUrl") String videoUrl) {
 
-    checkNotNull(title, url, _balance, _balance, allowNegativeBalance, type);
+    checkNotNull(_balance, _cpa);
 
-    BigDecimal cpa = new BigDecimal(_cpa);
-    BigDecimal balance = new BigDecimal(_balance);
+    BigDecimal cpa;
+    BigDecimal balance;
+
+    try {
+      cpa = new BigDecimal(_cpa);
+    } catch (Exception e) {
+      return Response.status(400).build();
+    }
+
+    try {
+      balance = new BigDecimal(_balance);
+    } catch (Exception e) {
+      return Response.status(400).build();
+    }
 
     if (cpa.signum() != 1 || balance.signum() != 1)
       return Response.status(400).build();
@@ -110,11 +125,14 @@ public class OrderResource {
 
     DateTime now = DateTime.now();
 
-    Offer offer = null;
-    if (type.equals(Offer.Type.REGULAR)) {
-      checkNotNull(description, image);
+    Offer offer;
+    if (type.equals(Offer.Type.REGULAR))
       offer = new RegularOffer(title, url, autoApprove, now, reentrant, description, image);
-    } else
+    else if (type.equals(Offer.Type.VIDEO))
+      offer = new VideoOffer(title, url, autoApprove, now, reentrant, videoUrl);
+    else if (type.equals(Offer.Type.BANNER))
+      offer = new BannerOffer(title, url, autoApprove, now, reentrant, image);
+    else
       throw new IllegalArgumentException("Unknown type: " + type.name());
     
     Targeting targeting = new Targeting(male, minAge, maxAge);
@@ -125,7 +143,7 @@ public class OrderResource {
     if (user.customerAccount().currentState().balance().compareTo(amount) == -1)
       return Response.status(409).build();
 
-    String desc = String.format("Transfering %s from %s to %s", _balance, user.customerAccount(), order.account());
+    String desc = String.format("Transfering %s from %s to %s", _balance, user.customerAccount().id(), order.account().id());
     accounts.lock(user.customerAccount());
     user.customerAccount().subtractFromBalance(amount, desc);
     order.account().addToBalance(amount, desc);

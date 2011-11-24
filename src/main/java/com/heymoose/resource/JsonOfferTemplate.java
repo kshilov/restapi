@@ -1,8 +1,10 @@
 package com.heymoose.resource;
 
+import com.heymoose.BannerOffer;
 import com.heymoose.domain.App;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.RegularOffer;
+import com.heymoose.domain.VideoOffer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
@@ -31,6 +33,12 @@ public class JsonOfferTemplate implements OfferTemplate {
           RegularOffer regularOffer = (RegularOffer) offer;
           jsOffer.put("description", regularOffer.description());
           jsOffer.put("image", regularOffer.imageBase64());
+        } else if (offer instanceof VideoOffer) {
+          VideoOffer videoOffer = (VideoOffer) offer;
+          jsOffer.put("videoUrl", videoOffer.videoUrl());
+        } else if (offer instanceof BannerOffer) {
+          BannerOffer bannerOffer = (BannerOffer) offer;
+          jsOffer.put("image", bannerOffer.imageBase64());
         }
         jsOffers.add(jsOffer);
       }

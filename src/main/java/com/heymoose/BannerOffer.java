@@ -1,5 +1,6 @@
-package com.heymoose.domain;
+package com.heymoose;
 
+import com.heymoose.domain.Offer;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.io.UnsupportedEncodingException;
 import javax.persistence.Basic;
@@ -8,29 +9,22 @@ import javax.persistence.Entity;
 import org.joda.time.DateTime;
 
 @Entity
-@DiscriminatorValue("0")
-public class RegularOffer extends Offer {
-  
-  @Basic
-  private String description;
-  
+@DiscriminatorValue("1")
+public class BannerOffer extends Offer {
+
   @Basic
   private byte[] image;
 
-  protected RegularOffer() {}
-  public RegularOffer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, String description, String imageBase64) {
+  protected BannerOffer() {}
+
+  public BannerOffer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, String imageBase64) {
     super(title, url, autoApprove, creationTime, reentrant);
-    checkNotNull(description, imageBase64);
-    this.description = description;
+    checkNotNull(imageBase64);
     try {
       this.image = imageBase64.getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public String description() {
-    return description;
   }
 
   public String imageBase64() {
