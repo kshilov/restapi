@@ -1,15 +1,9 @@
 package com.heymoose.domain;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.base.Repository;
-
 import static com.heymoose.resource.Exceptions.badRequest;
-import java.util.EnumMap;
-import java.util.List;
 import java.util.Set;
-import sun.net.idn.StringPrep;
 
 public interface OfferRepository extends Repository<Offer> {
 
