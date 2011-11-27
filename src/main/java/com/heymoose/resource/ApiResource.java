@@ -4,6 +4,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -117,7 +118,8 @@ public class ApiResource {
     long appId = longFrom(params.get("app_id"));
     validateAppSig(appId, params);
     String extId = notNull(params.get("uid"));
-    Iterable<Offer> offers = api.getOffers(appId, extId);
+    OfferRepository.Filter filter = new OfferRepository.Filter(notNull(params.get("filter")));
+    Iterable<Offer> offers = api.getOffers(appId, extId, filter);
     OfferTemplate template;
     String contentType;
     if (format.equals("JSON")) {

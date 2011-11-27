@@ -1,11 +1,14 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import static com.heymoose.resource.Exceptions.badRequest;
+import java.util.NoSuchElementException;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.ws.rs.WebApplicationException;
 import org.joda.time.DateTime;
 
 import javax.persistence.Basic;
@@ -65,7 +68,14 @@ public abstract class Offer extends IdEntity {
   public static enum Type {
     REGULAR, // 0
     BANNER, // 1
-    VIDEO // 2
+    VIDEO; // 2
+
+    public static Type fromOrdinal(int ordinal) {
+      for (Type type : values())
+        if (type.ordinal() == ordinal)
+          return type;
+      throw badRequest();
+    }
   }
 
   protected Offer() {}

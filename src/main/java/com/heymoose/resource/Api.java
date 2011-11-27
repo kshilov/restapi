@@ -70,15 +70,14 @@ public class Api {
   }
 
   @Transactional
-  public Iterable<Offer> getOffers(long appId, String extId) {
+  public Iterable<Offer> getOffers(long appId, String extId, OfferRepository.Filter filter) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
-    // return offers.availableFor(performer);
-    return logShows(offers.availableFor(performer), app, performer);
+    return logShows(offers.availableFor(performer, filter), app, performer);
   }
 
   @Transactional

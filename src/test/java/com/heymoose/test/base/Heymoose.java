@@ -129,12 +129,14 @@ public class Heymoose {
     params.put("app_id", Long.toString(app.id));
     params.put("uid", extId);
     params.put("format", "JSON");
+    params.put("filter", "0:10");
     String sig = Signer.sign(params, app.secret);
     String response = client.path("api")
         .queryParam("method", "getOffers")
         .queryParam("app_id", Long.toString(app.id))
         .queryParam("uid", extId)
         .queryParam("format", "JSON")
+        .queryParam("filter", "0:10")
         .queryParam("sig", sig)
         .get(String.class);
     ObjectMapper mapper = new ObjectMapper();
