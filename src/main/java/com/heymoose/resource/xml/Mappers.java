@@ -152,17 +152,17 @@ public class Mappers {
       xmlOrder.reentrant = offer.reentrant();
       xmlOrder.type = offer.type().toString();
 
+      offer = unproxy(offer);
+
       // Regular offer fields
-      if (Hibernate.getClass(offer).equals(RegularOffer.class)) {
-        RegularOffer regularOffer = (RegularOffer)((HibernateProxy)offer)
-            .getHibernateLazyInitializer().getImplementation();
+      if (offer instanceof RegularOffer) {
+        RegularOffer regularOffer = (RegularOffer) offer;
         xmlOrder.description = regularOffer.description();
       }
       
       // Video offer fields
-      if (Hibernate.getClass(offer).equals(VideoOffer.class)) {
-        VideoOffer videoOffer = (VideoOffer)((HibernateProxy)offer)
-            .getHibernateLazyInitializer().getImplementation();
+      if (offer instanceof VideoOffer) {
+        VideoOffer videoOffer = (VideoOffer) offer;
         xmlOrder.videoUrl = videoOffer.videoUrl();
       }
       
@@ -322,5 +322,11 @@ public class Mappers {
     XmlCount xmlCount = new XmlCount();
     xmlCount.count = count;
     return xmlCount;
+  }
+
+  private static <T> T unproxy(T entity) {
+    if (entity instanceof HibernateProxy)
+      return (T) ((HibernateProxy) entity).getHibernateLazyInitializer().getImplementation();
+    return entity;
   }
 }

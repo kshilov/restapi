@@ -25,6 +25,7 @@ public class OrderTest extends RestTest {
   String DESCRIPTION = "description";
   String BODY = "http://ya.ru";
   String IMAGE = "sdfasdfnaslf";
+  String VIDEO_URL = "http://video.com/video1";
   double BALANCE = 20.0;
   double CPA = 2.0;
   boolean ALLOW_NEGATIVE_BALANCE = false;
@@ -34,6 +35,14 @@ public class OrderTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
     heymoose().createRegularOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+    return userId;
+  }
+
+  long createVideoAndReturnUserId() {
+    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    heymoose().addRoleToUser(userId, Role.CUSTOMER);
+    heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
+    heymoose().createVideoOrder(userId, TITLE, VIDEO_URL, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
     return userId;
   }
 
@@ -51,6 +60,17 @@ public class OrderTest extends RestTest {
     assertNotNull(user.customerSecret);
     XmlOrder order = user.orders.iterator().next();
     validateNewOrder(order);
+  }
+
+ @Test public void createOrderWithVideoOffer() {
+    long userId = createVideoAndReturnUserId();
+    XmlUser user = heymoose().getUser(userId);
+    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
+    assertEquals(1, user.orders.size());
+    assertNotNull(user.customerSecret);
+    XmlOrder order = user.orders.iterator().next();
+    validateNewOrder(order);
+    assertEquals(VIDEO_URL, order.videoUrl);
   }
 
   @Test public void createOrderWithoutCustomerRole() {

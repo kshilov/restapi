@@ -111,6 +111,27 @@ public class Heymoose {
     return Long.valueOf(client.path("orders").post(String.class, form));
   }
 
+  public long createVideoOrder(long userId,
+                                 String title,
+                                 String videoUrl,
+                                 String url,
+                                 String image,
+                                 double balance,
+                                 double cpa,
+                                 boolean allowNegativeBalance) {
+    Form form = new Form();
+    form.add("userId", userId);
+    form.add("title", title);
+    form.add("videoUrl", videoUrl);
+    form.add("url", url);
+    form.add("image", image);
+    form.add("balance", balance);
+    form.add("cpa", cpa);
+    form.add("allowNegativeBalance", allowNegativeBalance);
+    form.add("type", "VIDEO");
+    return Long.valueOf(client.path("orders").post(String.class, form));
+  }
+
   public XmlOrder getOrder(long orderId) {
     return client.path("orders").path(Long.toString(orderId)).get(XmlOrder.class);
   }
