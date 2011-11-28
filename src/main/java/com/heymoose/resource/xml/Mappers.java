@@ -1,5 +1,8 @@
 package com.heymoose.resource.xml;
 
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
+
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
@@ -140,22 +143,26 @@ public class Mappers {
       xmlOrder.allowNegativeBalance = order.account().allowNegativeBalance();
       
       // Common offer fields
-      xmlOrder.offerId = order.offer().id();
-      xmlOrder.title = order.offer().title();
-      xmlOrder.url = order.offer().url();
-      xmlOrder.autoApprove = order.offer().autoApprove();
-      xmlOrder.reentrant = order.offer().reentrant();
-      xmlOrder.type = order.offer().type().toString();
+      Offer offer = order.offer();
+      System.out.println(offer.getClass());
+      xmlOrder.offerId = offer.id();
+      xmlOrder.title = offer.title();
+      xmlOrder.url = offer.url();
+      xmlOrder.autoApprove = offer.autoApprove();
+      xmlOrder.reentrant = offer.reentrant();
+      xmlOrder.type = offer.type().toString();
 
       // Regular offer fields
-      if (order.offer() instanceof RegularOffer) {
-        RegularOffer regularOffer = (RegularOffer) order.offer();
+      if (Hibernate.getClass(offer).equals(RegularOffer.class)) {
+        RegularOffer regularOffer = (RegularOffer)((HibernateProxy)offer)
+            .getHibernateLazyInitializer().getImplementation();
         xmlOrder.description = regularOffer.description();
       }
       
       // Video offer fields
-      if (order.offer() instanceof VideoOffer) {
-        VideoOffer videoOffer = (VideoOffer) order.offer();
+      if (Hibernate.getClass(offer).equals(VideoOffer.class)) {
+        VideoOffer videoOffer = (VideoOffer)((HibernateProxy)offer)
+            .getHibernateLazyInitializer().getImplementation();
         xmlOrder.videoUrl = videoOffer.videoUrl();
       }
       
