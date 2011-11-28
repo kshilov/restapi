@@ -34,7 +34,7 @@ public class XmlOrder {
   @XmlElement(name = "allow-negative-balance")
   public Boolean allowNegativeBalance;
   
-  // Offer fields
+  // Common offer fields
   
   @XmlElement(name = "offer-id")
   public Long offerId;
@@ -50,9 +50,19 @@ public class XmlOrder {
   
   @XmlElement(name = "reentrant")
   public Boolean reentrant;
+  
+  @XmlElement(name = "type")
+  public String type;
+  
+  // Regular offer fields
 
   @XmlElement(name = "description")
   public String description;
+  
+  // Video offer fields
+  
+  @XmlElement(name = "video-url")
+  public String videoUrl;
 
   // Targeting fields
   

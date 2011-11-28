@@ -1,7 +1,7 @@
 package com.heymoose.resource;
 
-import com.heymoose.BannerOffer;
 import com.heymoose.domain.App;
+import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.VideoOffer;

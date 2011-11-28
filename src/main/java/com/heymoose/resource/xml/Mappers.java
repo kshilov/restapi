@@ -10,6 +10,7 @@ import com.heymoose.domain.Performer;
 import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
+import com.heymoose.domain.VideoOffer;
 
 public class Mappers {
   
@@ -141,15 +142,21 @@ public class Mappers {
       // Common offer fields
       xmlOrder.offerId = order.offer().id();
       xmlOrder.title = order.offer().title();
-//      xmlOrder.description = order.offer().description();
       xmlOrder.url = order.offer().url();
       xmlOrder.autoApprove = order.offer().autoApprove();
       xmlOrder.reentrant = order.offer().reentrant();
+      xmlOrder.type = order.offer().type().toString();
 
       // Regular offer fields
       if (order.offer() instanceof RegularOffer) {
         RegularOffer regularOffer = (RegularOffer) order.offer();
         xmlOrder.description = regularOffer.description();
+      }
+      
+      // Video offer fields
+      if (order.offer() instanceof VideoOffer) {
+        VideoOffer videoOffer = (VideoOffer) order.offer();
+        xmlOrder.videoUrl = videoOffer.videoUrl();
       }
       
       // Targeting fields

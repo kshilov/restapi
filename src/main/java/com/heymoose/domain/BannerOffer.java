@@ -1,6 +1,5 @@
-package com.heymoose;
+package com.heymoose.domain;
 
-import com.heymoose.domain.Offer;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.io.UnsupportedEncodingException;
 import javax.persistence.Basic;
