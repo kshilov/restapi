@@ -62,11 +62,14 @@ do_start()
 
 	sudo chown -R $USERNAME $LOGDIR
 
-	start-stop-daemon -b -d $HOMEDIR --start --quiet --chuid $USERNAME -m --pidfile $PIDFILE --exec $DAEMON -- \
+	start-stop-daemon -b -d $HOMEDIR --start --quiet --chuid $USERNAME -m --pidfile $PIDFILE --exec $DAEMON --startas /bin/sh -- \
+		-c "exec $DAEMON \
 		$DAEMON_ARGS_JOPT \
 		$DAEMON_ARGS_DOPT \
 		$DAEMON_ARGS_DOPT2 \
 		$DAEMON_ARGS_JAR \
+		1>>$LOGDIR/stdout.log \
+		2>>$LOGDIR/stderr.log" \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
