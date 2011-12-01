@@ -9,6 +9,9 @@ public class XmlApp {
   @XmlAttribute(name = "id")
   public Long id;
 
+  @XmlElement(name = "title")
+  public String title;
+
   @XmlElement(name = "secret")
   public String secret;
 

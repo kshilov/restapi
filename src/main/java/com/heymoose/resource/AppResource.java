@@ -56,18 +56,19 @@ public class AppResource {
 
   @POST
   @Transactional
-  public Response create(@FormParam("userId") Long userId,
+  public Response create(@FormParam("title") String title,
+                         @FormParam("userId") Long userId,
                          @FormParam("url") String url,
                          @FormParam("callback") String callback,
                          @FormParam("platform") Platform platform) {
-    checkNotNull(userId, url, callback, platform);
+    checkNotNull(title, userId, url, callback, platform);
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
     if (!user.isDeveloper())
       return Response.status(Response.Status.CONFLICT).build();
 
-    App app = new App(user, URI.create(url), URI.create(callback), platform);
+    App app = new App(title, user, URI.create(url), URI.create(callback), platform);
     apps.put(app);
     return Response.ok(Long.toString(app.id())).build();
   }

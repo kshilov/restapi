@@ -35,6 +35,9 @@ public class App extends IdEntity {
     return id;
   }
 
+  @Basic(optional = false)
+  private String title;
+
   @Enumerated
   @JoinColumn(name = "platform", nullable = true)
   private Platform platform;
@@ -61,13 +64,19 @@ public class App extends IdEntity {
 
   protected App() {}
 
-  public App(User user, URI url, URI callback, Platform platform) {
+  public App(String title, User user, URI url, URI callback, Platform platform) {
+    checkNotNull(title, user, url, callback, platform);
+    this.title = title;
     this.user = user;
     this.secret =  UUID.randomUUID().toString();
     this.creationTime = DateTime.now();
     this.url = url.toString();
     this.callbackUrl = callback.toString();
     this.platform = platform;
+  }
+
+  public String title() {
+    return title;
   }
 
   public User owner() {

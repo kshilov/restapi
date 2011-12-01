@@ -21,6 +21,7 @@ public class AppTest extends RestTest {
   String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
 
+  String APP_TITLE = "The App";
   String APP_URL = "http://example.org";
   String CALLBACK = "http://example.org/callback";
   Platform PLATFORM = Platform.FACEBOOK;
@@ -28,7 +29,7 @@ public class AppTest extends RestTest {
   long create() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
+    heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
     return user.apps.iterator().next().id;
   }
@@ -36,10 +37,11 @@ public class AppTest extends RestTest {
   @Test public void createApp() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
+    heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
     assertNotNull(user.apps.iterator().next().id);
     assertNotNull(user.apps.iterator().next().secret);
+    assertEquals(APP_TITLE, user.apps.iterator().next().title);
     assertEquals(CALLBACK, user.apps.iterator().next().callback);
     assertEquals(APP_URL, user.apps.iterator().next().url);
   }
@@ -47,7 +49,7 @@ public class AppTest extends RestTest {
   @Test public void createAppWithoutDeveloperRole() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     try {
-      heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
+      heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     } catch (UniformInterfaceException e) {
       assertEquals(409, e.getResponse().getStatus());
     }

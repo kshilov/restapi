@@ -197,6 +197,7 @@ public class Mappers {
     xmlApp.id = app.id();
     
     if (needFields(d)) {
+      xmlApp.title = app.title();
       xmlApp.secret = app.secret();
       xmlApp.deleted = app.deleted();
       xmlApp.url = app.url().toString();

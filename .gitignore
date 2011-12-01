@@ -10,3 +10,4 @@ run
 logs
 .classpath
 .project
+nohup.out

@@ -38,6 +38,7 @@ public class OfferTest extends RestTest {
   double CPA = 2.0;
   boolean ALLOW_NEGATIVE_BALANCE = false;
 
+  String APP_TITLE = "The App";
   String APP_URL = "http://example.org";
   String CALLBACK = "http://example.org/callback";
   Platform PLATFORM = Platform.FACEBOOK;
@@ -49,7 +50,7 @@ public class OfferTest extends RestTest {
   public void createApp() {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
-    heymoose().createApp(userId, APP_URL, CALLBACK, PLATFORM);
+    heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
     app = user.apps.iterator().next();
     this.user = user;
