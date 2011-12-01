@@ -84,7 +84,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>3.6.7.Final</version>
+      <version>3.6.8.Final</version>
     </dependency>
 
     <dependency>
@@ -146,7 +146,7 @@
     <dependency>
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>9.0-801.jdbc4</version>
+      <version>9.1-901.jdbc4</version>
     </dependency>
 
     <dependency>
