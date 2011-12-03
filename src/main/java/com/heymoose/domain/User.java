@@ -142,4 +142,9 @@ public class User extends IdEntity {
   public String passwordHash() {
     return passwordHash;
   }
+
+  public void changePasswordHash(String passwordHash) {
+    checkNotNull(passwordHash);
+    this.passwordHash = passwordHash;
+  }
 }

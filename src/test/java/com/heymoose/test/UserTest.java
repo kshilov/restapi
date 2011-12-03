@@ -27,6 +27,16 @@ public class UserTest extends RestTest {
     baseValidateUser(user);
   }
 
+  @Test public void changePassword() {
+    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    XmlUser user = heymoose().getUser(userId);
+    assertEquals(PASSWORD_HASH, user.passwordHash);
+    String newHash = "sfnslflwe";
+    heymoose().updateUser(userId, newHash);
+    user = heymoose().getUser(userId);
+    assertEquals(newHash, user.passwordHash);
+  }
+
   @Test public void getNonExistent() {
     try {
       heymoose().getUser(1L);

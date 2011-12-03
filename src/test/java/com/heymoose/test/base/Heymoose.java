@@ -43,10 +43,13 @@ public class Heymoose {
     form.add("nickname", nickname);
     form.add("passwordHash", passwordHash);
     ClientResponse response = client.path("users").post(ClientResponse.class, form);
-    System.out.println(response);
-    System.out.println(response.getLocation());
-    System.out.println(response.getLocation().getPath());
     return Long.valueOf(response.getLocation().getPath().replaceFirst("/users/", ""));
+  }
+
+  public void updateUser(long userId, String passwordHash) {
+    Form form = new Form();
+    form.add("passwordHash", passwordHash);
+    client.path("users").path(Long.toString(userId)).put(form);
   }
 
   public XmlUser getUser(long userId) {
@@ -60,7 +63,7 @@ public class Heymoose {
   public void addRoleToUser(long userId, Role role) {
     Form form = new Form();
     form.add("role", role.toString());
-    client.path("users").path(Long.toString(userId)).put(form);
+    client.path("users").path(Long.toString(userId)).path("roles").post(form);
   }
 
   public void addToCustomerAccount(long userId, double amount) {

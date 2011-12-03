@@ -5,6 +5,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
+import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 
@@ -97,27 +98,35 @@ public class UserResource {
     return Response.ok(Mappers.toXmlUser(user, d)).build();
   }
 
-  @PUT
-  @Path("{id}")
+  @POST
+  @Path("{id}/roles")
   @Transactional
-  public Response addRole(@PathParam("id") Long id, @FormParam("role") Role role) {
+  public void addRole(@PathParam("id") Long id, @FormParam("role") Role role) {
     checkNotNull(id, role);
     User user = existing(id);
     user.addRole(role);
-    return Response.ok().build();
   }
 
   @PUT
   @Path("{id}/customer-account")
   @Transactional
-  public Response addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
+  public void addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
     checkNotNull(id, amount);
     User user = existing(id);
     if (!user.isCustomer())
-      return Response.status(Response.Status.CONFLICT).build();
+      throw conflict();
     accounts.lock(user.customerAccount());
     user.customerAccount().addToBalance(new BigDecimal(amount), "Adding to balance");
-    return Response.ok().build();
+  }
+
+  @PUT
+  @Path("{id}")
+  @Transactional
+  public void update(@PathParam("id") long id,
+                     @FormParam("passwordHash") String passwordHash) {
+    User user = existing(id);
+    if (passwordHash != null)
+      user.changePasswordHash(passwordHash);
   }
 
   private User existing(long id) {
