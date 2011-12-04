@@ -144,7 +144,6 @@ public class Mappers {
       
       // Common offer fields
       Offer offer = order.offer();
-      System.out.println(offer.getClass());
       xmlOrder.offerId = offer.id();
       xmlOrder.title = offer.title();
       xmlOrder.url = offer.url();
