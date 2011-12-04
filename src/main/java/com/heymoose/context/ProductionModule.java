@@ -42,7 +42,10 @@ public class ProductionModule extends AbstractModule {
 
     Properties hibernateProperties = subTree(settings, "hibernate", "hibernate");
     config.setProperties(hibernateProperties);
-    
+
+    Properties bonecpProperties = subTree(settings, "bonecp", "bonecp");
+    config.addProperties(bonecpProperties);
+
     return config;
   }
 
