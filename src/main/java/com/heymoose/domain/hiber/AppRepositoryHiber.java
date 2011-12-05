@@ -36,7 +36,12 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   protected Class<App> getEntityClass() {
     return App.class;
   }
-  
+
+  @Override
+  public App anyById(long appId) {
+    return super.byId(appId);
+  }
+
   @Override
   public Iterable<App> list(int offset, int limit) {
     return hiber()

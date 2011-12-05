@@ -77,7 +77,7 @@ public class AppResource {
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") long appId) {
-    App app = apps.byId(appId);
+    App app = apps.anyById(appId);
     if (app == null)
       return Response.status(404).build();
     return Response.ok(Mappers.toXmlApp(app, Details.WITH_RELATED_ENTITIES)).build();

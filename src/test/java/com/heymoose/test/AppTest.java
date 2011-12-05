@@ -7,6 +7,7 @@ import com.heymoose.resource.xml.XmlApp;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
 import com.sun.jersey.api.client.UniformInterfaceException;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -75,11 +76,7 @@ public class AppTest extends RestTest {
   @Test public void deleteApp() {
     long appId = create();
     heymoose().deleteApp(appId);
-    try {
-      heymoose().getApp(appId);
-      fail();
-    } catch (UniformInterfaceException e) {
-      assertEquals(404, e.getResponse().getStatus());
-    }
+    XmlApp app = heymoose().getApp(appId);
+    assertTrue(app.deleted);
   }
 }
