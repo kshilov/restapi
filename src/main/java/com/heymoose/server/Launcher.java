@@ -35,7 +35,7 @@ public class Launcher {
     if (server != null)
       return;
     server = new GrizzlyWebServer(port);
-    int nThreads = Runtime.getRuntime().availableProcessors() * 8;
+    int nThreads = Runtime.getRuntime().availableProcessors() * 64;
     server.setCoreThreads(nThreads);
     server.setMaxThreads(nThreads);
 		ServletAdapter adapter = new ServletAdapter(new StubServlet());
