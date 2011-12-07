@@ -64,6 +64,12 @@ public class XmlOrder {
   @XmlElement(name = "video-url")
   public String videoUrl;
 
+  @XmlElement(name = "image")
+  public String imageBase64;
+
+  @XmlElement(name = "banner-size")
+  public Long bannerSize;
+
   // Targeting fields
   
   @XmlElement(name = "male")

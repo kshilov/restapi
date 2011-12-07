@@ -2,6 +2,8 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.BannerOffer;
+import com.heymoose.domain.BannerSize;
+import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
@@ -40,12 +42,14 @@ public class OrderResource {
   private final UserRepository users;
   private final OrderRepository orders;
   private final Accounts accounts;
+  private final BannerSizeRepository bannerSizes;
 
   @Inject
-  public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts) {
+  public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts, BannerSizeRepository bannerSizes) {
     this.users = users;
     this.orders = orders;
     this.accounts = accounts;
+    this.bannerSizes = bannerSizes;
   }
 
   @GET
@@ -85,7 +89,8 @@ public class OrderResource {
                          @FormParam("type") Offer.Type type,
                          @FormParam("image") String image,
                          @FormParam("description") String description,
-                         @FormParam("videoUrl") String videoUrl) {
+                         @FormParam("videoUrl") String videoUrl,
+                         @FormParam("bannerSize") Integer bannerSizeId) {
 
     checkNotNull(_balance, _cpa);
 
@@ -126,14 +131,19 @@ public class OrderResource {
     DateTime now = DateTime.now();
 
     Offer offer;
-    if (type.equals(Offer.Type.REGULAR))
+    if (type.equals(Offer.Type.REGULAR)) {
       offer = new RegularOffer(title, url, autoApprove, now, reentrant, description, image);
-    else if (type.equals(Offer.Type.VIDEO))
+    } else if (type.equals(Offer.Type.VIDEO)) {
       offer = new VideoOffer(title, url, autoApprove, now, reentrant, videoUrl);
-    else if (type.equals(Offer.Type.BANNER))
-      offer = new BannerOffer(title, url, autoApprove, now, reentrant, image);
-    else
+    } else if (type.equals(Offer.Type.BANNER)) {
+      checkNotNull(bannerSizeId);
+      BannerSize size = bannerSizes.byId(bannerSizeId);
+      if (size == null)
+        return Response.status(404).build();
+      offer = new BannerOffer(title, url, autoApprove, now, reentrant, image, size);
+    } else {
       throw new IllegalArgumentException("Unknown type: " + type.name());
+    }
     
     Targeting targeting = new Targeting(male, minAge, maxAge);
     Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);

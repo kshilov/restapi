@@ -1,6 +1,7 @@
 package com.heymoose.test;
 
 import com.heymoose.domain.Role;
+import com.heymoose.resource.xml.XmlBannerSize;
 import com.heymoose.resource.xml.XmlOrder;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
@@ -42,7 +43,16 @@ public class OrderTest extends RestTest {
     long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
-    heymoose().createVideoOrder(userId, TITLE, VIDEO_URL, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+    heymoose().createVideoOrder(userId, TITLE, VIDEO_URL, BODY, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+    return userId;
+  }
+
+  long createBannerAndReturnUserId() {
+    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    heymoose().addRoleToUser(userId, Role.CUSTOMER);
+    heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
+    long size = heymoose().bannerSize(468, 60);
+    heymoose().createBannerOrder(userId, TITLE, BODY, IMAGE, size, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
     return userId;
   }
 
@@ -62,7 +72,7 @@ public class OrderTest extends RestTest {
     validateNewOrder(order);
   }
 
- @Test public void createOrderWithVideoOffer() {
+  @Test public void createOrderWithVideoOffer() {
     long userId = createVideoAndReturnUserId();
     XmlUser user = heymoose().getUser(userId);
     assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
@@ -71,6 +81,19 @@ public class OrderTest extends RestTest {
     XmlOrder order = user.orders.iterator().next();
     validateNewOrder(order);
     assertEquals(VIDEO_URL, order.videoUrl);
+  }
+
+  @Test public void createOrderWithBannerOffer() {
+    long userId = createBannerAndReturnUserId();
+    XmlUser user = heymoose().getUser(userId);
+    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
+    assertEquals(1, user.orders.size());
+    assertNotNull(user.customerSecret);
+    XmlOrder order = user.orders.iterator().next();
+    validateNewOrder(order);
+    assertEquals(IMAGE, order.imageBase64);
+    Long size = heymoose().bannerSize(468, 60);
+    assertEquals(size, order.bannerSize);
   }
 
   @Test public void createOrderWithoutCustomerRole() {
@@ -128,5 +151,18 @@ public class OrderTest extends RestTest {
     heymoose().disableOrder(orderId);
     XmlOrder order = heymoose().getOrder(orderId);
     assertTrue(order.disabled);
+  }
+
+  @Test public void bannerSizes() {
+    assertEquals(0, heymoose().bannerSizes().bannerSizes.size());
+    heymoose().bannerSize(468, 60);
+    assertEquals(1, heymoose().bannerSizes().bannerSizes.size());
+    heymoose().bannerSize(468, 60);
+    assertEquals(1, heymoose().bannerSizes().bannerSizes.size());
+    XmlBannerSize size = heymoose().bannerSizes().bannerSizes.get(0);
+    assertEquals(Integer.valueOf(468), size.width);
+    assertEquals(Integer.valueOf(60), size.height);
+    heymoose().bannerSize(468, 120);
+    assertEquals(2, heymoose().bannerSizes().bannerSizes.size());
   }
 }

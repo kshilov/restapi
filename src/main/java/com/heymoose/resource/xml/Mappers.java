@@ -1,5 +1,7 @@
 package com.heymoose.resource.xml;
 
+import com.heymoose.domain.BannerOffer;
+import com.heymoose.domain.BannerSize;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -156,6 +158,7 @@ public class Mappers {
       // Regular offer fields
       if (offer instanceof RegularOffer) {
         RegularOffer regularOffer = (RegularOffer) offer;
+        xmlOrder.imageBase64 = regularOffer.imageBase64();
         xmlOrder.description = regularOffer.description();
       }
       
@@ -163,6 +166,12 @@ public class Mappers {
       if (offer instanceof VideoOffer) {
         VideoOffer videoOffer = (VideoOffer) offer;
         xmlOrder.videoUrl = videoOffer.videoUrl();
+      }
+
+      if (offer instanceof BannerOffer) {
+        BannerOffer bannerOffer = (BannerOffer) offer;
+        xmlOrder.imageBase64 = bannerOffer.imageBase64();
+        xmlOrder.bannerSize = bannerOffer.size().id();
       }
       
       // Targeting fields
@@ -322,6 +331,21 @@ public class Mappers {
     XmlCount xmlCount = new XmlCount();
     xmlCount.count = count;
     return xmlCount;
+  }
+
+  public static XmlBannerSizes toXmlBannerSizes(Iterable<BannerSize> bannerSizes) {
+    XmlBannerSizes xmlBannerSizes = new XmlBannerSizes();
+    for (BannerSize bannerSize : bannerSizes)
+      xmlBannerSizes.bannerSizes.add(toXmlBannerSize(bannerSize));
+    return xmlBannerSizes;
+  }
+
+  public static XmlBannerSize toXmlBannerSize(BannerSize bannerSize) {
+    XmlBannerSize xmlBannerSize = new XmlBannerSize();
+    xmlBannerSize.id = bannerSize.id();
+    xmlBannerSize.width = bannerSize.width();
+    xmlBannerSize.height = bannerSize.height();
+    return xmlBannerSize;
   }
 
   private static <T> T unproxy(T entity) {

@@ -69,7 +69,7 @@ public class UserResource {
     checkNotNull(email, passwordHash, nickname);
     User existing = users.byEmail(email);
     if (existing != null)
-      return Response.status(400).build();
+      return Response.status(409).build();
     User newUser = new User(email, nickname, passwordHash);
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id()))).build();

@@ -5,6 +5,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.resource.xml.XmlAction;
 import com.heymoose.resource.xml.XmlActions;
 import com.heymoose.resource.xml.XmlApp;
+import com.heymoose.resource.xml.XmlBannerSizes;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlOrder;
@@ -43,6 +44,8 @@ public class Heymoose {
     form.add("nickname", nickname);
     form.add("passwordHash", passwordHash);
     ClientResponse response = client.path("users").post(ClientResponse.class, form);
+    if (response.getStatus() >= 300)
+      throw new UniformInterfaceException(response);
     return Long.valueOf(response.getLocation().getPath().replaceFirst("/users/", ""));
   }
 
@@ -119,7 +122,6 @@ public class Heymoose {
                                  String title,
                                  String videoUrl,
                                  String url,
-                                 String image,
                                  double balance,
                                  double cpa,
                                  boolean allowNegativeBalance) {
@@ -128,12 +130,43 @@ public class Heymoose {
     form.add("title", title);
     form.add("videoUrl", videoUrl);
     form.add("url", url);
-    form.add("image", image);
     form.add("balance", balance);
     form.add("cpa", cpa);
     form.add("allowNegativeBalance", allowNegativeBalance);
     form.add("type", "VIDEO");
     return Long.valueOf(client.path("orders").post(String.class, form));
+  }
+
+  public long createBannerOrder(long userId,
+                                 String title,
+                                 String url,
+                                 String image,
+                                 long bannerSize,
+                                 double balance,
+                                 double cpa,
+                                 boolean allowNegativeBalance) {
+    Form form = new Form();
+    form.add("userId", userId);
+    form.add("title", title);
+    form.add("bannerSize", bannerSize);
+    form.add("url", url);
+    form.add("image", image);
+    form.add("balance", balance);
+    form.add("cpa", cpa);
+    form.add("allowNegativeBalance", allowNegativeBalance);
+    form.add("type", "BANNER");
+    return Long.valueOf(client.path("orders").post(String.class, form));
+  }
+
+  public long bannerSize(int width, int height) {
+    Form form = new Form();
+    form.add("width", width);
+    form.add("height", height);
+    return Long.valueOf(client.path("banner-sizes").post(String.class, form));
+  }
+
+  public XmlBannerSizes bannerSizes() {
+    return client.path("banner-sizes").get(XmlBannerSizes.class);
   }
 
   public XmlOrder getOrder(long orderId) {
