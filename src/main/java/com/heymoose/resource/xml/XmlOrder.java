@@ -66,9 +66,11 @@ public class XmlOrder {
 
   @XmlElement(name = "image")
   public String imageBase64;
+  
+  // Banner offer fields
 
   @XmlElement(name = "banner-size")
-  public Long bannerSize;
+  public XmlBannerSize bannerSize;
 
   // Targeting fields
   

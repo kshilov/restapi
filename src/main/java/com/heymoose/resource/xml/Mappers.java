@@ -168,10 +168,13 @@ public class Mappers {
         xmlOrder.videoUrl = videoOffer.videoUrl();
       }
 
+      // Banner offer fields
       if (offer instanceof BannerOffer) {
         BannerOffer bannerOffer = (BannerOffer) offer;
         xmlOrder.imageBase64 = bannerOffer.imageBase64();
-        xmlOrder.bannerSize = bannerOffer.size().id();
+        
+        if (needRelated(d))
+          xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.size(), relatedDetails(d));
       }
       
       // Targeting fields
@@ -332,19 +335,30 @@ public class Mappers {
     xmlCount.count = count;
     return xmlCount;
   }
-
+  
   public static XmlBannerSizes toXmlBannerSizes(Iterable<BannerSize> bannerSizes) {
-    XmlBannerSizes xmlBannerSizes = new XmlBannerSizes();
-    for (BannerSize bannerSize : bannerSizes)
-      xmlBannerSizes.bannerSizes.add(toXmlBannerSize(bannerSize));
-    return xmlBannerSizes;
+    return toXmlBannerSizes(bannerSizes, Details.WITH_RELATED_IDS);
   }
 
+  public static XmlBannerSizes toXmlBannerSizes(Iterable<BannerSize> bannerSizes, Details d) {
+    XmlBannerSizes xmlBannerSizes = new XmlBannerSizes();
+    for (BannerSize bannerSize : bannerSizes)
+      xmlBannerSizes.bannerSizes.add(toXmlBannerSize(bannerSize, d));
+    return xmlBannerSizes;
+  }
+  
   public static XmlBannerSize toXmlBannerSize(BannerSize bannerSize) {
+    return toXmlBannerSize(bannerSize, Details.WITH_RELATED_IDS);
+  }
+
+  public static XmlBannerSize toXmlBannerSize(BannerSize bannerSize, Details d) {
     XmlBannerSize xmlBannerSize = new XmlBannerSize();
     xmlBannerSize.id = bannerSize.id();
-    xmlBannerSize.width = bannerSize.width();
-    xmlBannerSize.height = bannerSize.height();
+    
+    if (needFields(d)) {
+      xmlBannerSize.width = bannerSize.width();
+      xmlBannerSize.height = bannerSize.height();
+    }
     return xmlBannerSize;
   }
 
