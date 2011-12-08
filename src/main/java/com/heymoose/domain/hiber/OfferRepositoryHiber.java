@@ -3,40 +3,44 @@ package com.heymoose.domain.hiber;
 import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.Sets;
+import com.heymoose.domain.BannerSize;
+import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
-
+import java.math.BigInteger;
+import java.util.Collections;
+import static java.util.Collections.emptyList;
+import java.util.List;
+import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
 
+  private final BannerSizeRepository bannerSizes;
+
   @Inject
-  public OfferRepositoryHiber(Provider<Session> sessionProvider) {
+  public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes) {
     super(sessionProvider);
+    this.bannerSizes = bannerSizes;
   }
 
   @Override
   public Set<Offer> availableFor(Performer performer, Filter filter) {
     List<Long> ids = newArrayList();
     for (Filter.Entry entry : filter.entries)
-      ids.addAll(availableIdsFor(performer, entry.type, entry.count));
+      ids.addAll(availableIdsFor(performer, entry));
     return loadByIds(ids);
   }
 
-  private List<Long> availableIdsFor(Performer performer, Offer.Type type, int count) {
-    String sql = 
+  private List<Long> availableIdsFor(Performer performer, Filter.Entry condition) {
+    String sql =
         "select offer_id " +
         "from offer " +
         "join offer_order ord on ord.offer_id = offer.id " +
@@ -49,13 +53,20 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "and (trg.male is null or trg.male = " + (performer.male() != null ? ":performerMale" : "null") + ") " +
         "and (trg.min_age is null or trg.min_age <= " + (performer.year() != null ? ":performerAge" : "null") + ") " +
         "and (trg.max_age is null or trg.max_age >= " + (performer.year() != null ? ":performerAge" : "null") + ") " +
-        "and offer.type = :type " +
-        "order by offer.creation_time desc limit " + count;
-    
+        "and offer.type = :type ";
+    if (condition.type == Offer.Type.BANNER) {
+      Filter.BannerEntry bannerCondition = (Filter.BannerEntry) condition;
+      BannerSize bannerSize = bannerSizes.byWidthAndHeight(bannerCondition.width, bannerCondition.height);
+      if (bannerCondition == null)
+        return emptyList();
+      sql += String.format("and offer.size = %d ", bannerSize.id());
+    }
+    sql += "order by offer.creation_time desc limit " + condition.count;
+
     Query query = hiber()
         .createSQLQuery(sql)
         .setParameter("performerId", performer.id())
-        .setParameter("type", type.ordinal());
+        .setParameter("type", condition.type.ordinal());
     
     if (performer.male() != null)
       query.setParameter("performerMale", performer.male());
