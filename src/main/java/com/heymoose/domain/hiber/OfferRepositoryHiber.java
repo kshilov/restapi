@@ -57,7 +57,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (condition.type == Offer.Type.BANNER) {
       Filter.BannerEntry bannerCondition = (Filter.BannerEntry) condition;
       BannerSize bannerSize = bannerSizes.byWidthAndHeight(bannerCondition.width, bannerCondition.height);
-      if (bannerCondition == null)
+      if (bannerSize == null)
         return emptyList();
       sql += String.format("and offer.size = %d ", bannerSize.id());
     }
