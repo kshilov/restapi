@@ -4,12 +4,15 @@ import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.Mappers.Details;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 @Path("banner-sizes")
@@ -38,5 +41,15 @@ public class BannerSizeResource {
     bannerSize = new BannerSize(width, height);
     bannerSizes.put(bannerSize);
     return Response.ok(Long.toString(bannerSize.id())).build();
+  }
+  
+  @GET
+  @Path("{id}")
+  @Transactional
+  public Response get(@PathParam("id") long sizeId) {
+    BannerSize size = bannerSizes.byId(sizeId);
+    if (size == null)
+      return Response.status(404).build();
+    return Response.ok(Mappers.toXmlBannerSize(size, Details.WITH_RELATED_ENTITIES)).build();
   }
 }
