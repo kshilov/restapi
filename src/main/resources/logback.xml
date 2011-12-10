@@ -13,8 +13,20 @@
             <pattern>%d %5p [%F:%M:%L] - %m%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="API" class="ch.qos.logback.core.FileAppender">
+        <file>logs/api.log</file>
+        <bufferedIo>true</bufferedIo>
+        <encoder>
+            <pattern>%d %5p [%F:%M:%L] ﻿rid:%X{request-id} - %m%n</pattern>
+        </encoder>
+    </appender>
     
-    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.hibernate" level="INFO" additivity="false"/>
+
+    <logger name="com.heymoose.resource.ApiResource" additivity="false">
+      <appender-ref ref="API"/>
+    </logger>
     
     <root level="DEBUG">
         <appender-ref ref="FILE"/>
