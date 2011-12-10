@@ -93,7 +93,7 @@ public class OrderTest extends RestTest {
     validateNewOrder(order);
     assertEquals(IMAGE, order.imageBase64);
     Long size = heymoose().bannerSize(468, 60);
-    assertEquals(size, order.bannerSize);
+    assertEquals(size, order.bannerSize.id);
   }
 
   @Test public void createOrderWithoutCustomerRole() {

@@ -173,8 +173,7 @@ public class Mappers {
         BannerOffer bannerOffer = (BannerOffer) offer;
         xmlOrder.imageBase64 = bannerOffer.imageBase64();
         
-        if (needRelated(d))
-          xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.size(), relatedDetails(d));
+        xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.size(), relatedDetails(d));
       }
       
       // Targeting fields
