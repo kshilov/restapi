@@ -26,8 +26,6 @@ HOMEDIR=/home/backend
 
 #Workaround to fix start-stop-daemon parameter opts
 DAEMON_ARGS_DOPT="-DsettingsFile=/etc/backend/settings.properties"
-DAEMON_ARGS_DOPT2="-Djava.net.preferIPv4Stack=true"
-DAEMON_ARGS_JOPT="-jar"
 DAEMON_ARGS_JAR="/usr/share/backend/backend.jar"
 
 PIDFILE=/var/run/$NAME.pid
@@ -64,9 +62,11 @@ do_start()
 
 	start-stop-daemon -b -d $HOMEDIR --start --quiet --chuid $USERNAME -m --pidfile $PIDFILE --exec $DAEMON --startas /bin/sh -- \
 		-c "exec $DAEMON \
-		$DAEMON_ARGS_JOPT \
+		-jar \
 		$DAEMON_ARGS_DOPT \
-		$DAEMON_ARGS_DOPT2 \
+		-Djava.net.preferIPv4Stack=true \
+		-server \
+		-Xms64m -Xmx64m -XX:MaxPermSize=48M \
 		$DAEMON_ARGS_JAR \
 		1>>$LOGDIR/stdout.log \
 		2>>$LOGDIR/stderr.log" \
