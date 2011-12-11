@@ -16,8 +16,6 @@ import static com.heymoose.resource.ApiExceptions.customerNotFound;
 import static com.heymoose.resource.ApiExceptions.notInRole;
 import static com.heymoose.resource.ApiExceptions.nullParam;
 import static com.heymoose.security.Signer.sign;
-import com.heymoose.util.URIUtils;
-import com.heymoose.util.URLEncodedUtils;
 import com.sun.jersey.api.core.HttpRequestContext;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,10 +23,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.net.URISyntaxException;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -126,11 +124,16 @@ public class ApiResource {
     return successResponse();
   }
 
+  private final static Pattern RE_FILTER = Pattern.compile("^\\d+:\\d+(:\\d+x\\d+)?(,\\d+:\\d+(:\\d+x\\d+)?)*$");
+
   private Response getOffers(String format, Map<String, String> params) throws ApiRequestException {
     long appId = safeGetLongParam(params, "app_id");
     validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
-    OfferRepository.Filter filter = new OfferRepository.Filter(safeGetParam(params, "filter"));
+    String filterParam = safeGetParam(params, "filter");
+    if (!RE_FILTER.matcher(filterParam).matches())
+      throw badValue("filter", filterParam);
+    OfferRepository.Filter filter = new OfferRepository.Filter(filterParam);
     Iterable<Offer> offers = api.getOffers(appId, extId, filter);
     OfferTemplate template;
     String contentType;
