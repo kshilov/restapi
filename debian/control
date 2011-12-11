@@ -8,6 +8,6 @@ Homepage: https://github.com/kshilov/restapi
 
 Package: backend
 Architecture: all
-Depends: daemon, sun-java6-jre, postgresql
+Depends: daemon, sun-java6-jre
 Description: Backend
  Both backend for site and rest-api
