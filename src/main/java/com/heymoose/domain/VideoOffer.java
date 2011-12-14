@@ -31,4 +31,8 @@ public class VideoOffer extends Offer {
   public String videoUrl() {
     return videoUrl;
   }
+  
+  public void setVideoUrl(String videoUrl) {
+    this.videoUrl = videoUrl;
+  }
 }

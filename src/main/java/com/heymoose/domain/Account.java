@@ -82,4 +82,8 @@ public class Account extends IdEntity {
   public boolean allowNegativeBalance() {
     return allowNegativeBalance;
   }
+  
+  public void setAllowNegativeBalance(boolean allow) {
+    this.allowNegativeBalance = allow;
+  }
 }

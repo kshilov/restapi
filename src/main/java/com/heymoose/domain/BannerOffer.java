@@ -41,8 +41,20 @@ public class BannerOffer extends Offer {
       throw new RuntimeException(e);
     }
   }
+  
+  public void setImageBase64(String imageBase64) {
+    try {
+      this.image = imageBase64.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   public BannerSize size() {
     return size;
+  }
+  
+  public void setSize(BannerSize size) {
+    this.size = size;
   }
 }

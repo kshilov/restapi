@@ -16,7 +16,11 @@ import com.heymoose.domain.base.Repository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
+import com.heymoose.util.HibernateUtil;
 import com.heymoose.util.WebAppUtil;
+import com.sun.jersey.api.core.HttpContext;
+import com.sun.jersey.api.representation.Form;
+
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -30,7 +34,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+
 import java.math.BigDecimal;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -171,9 +178,77 @@ public class OrderResource {
       return Response.status(404).build();
     return Response.ok(Mappers.toXmlOrder(order, Details.WITH_RELATED_ENTITIES)).build();
   }
-
+  
   @PUT
   @Path("{id}")
+  @Transactional
+  public Response update(@Context HttpContext context, @PathParam("id") long id) {
+    Order order = existing(id);
+    Form params = context.getRequest().getEntity(Form.class);
+    
+    if (params.containsKey("cpa")) {
+      BigDecimal cpa;
+      try {
+        cpa = new BigDecimal(params.getFirst("cpa"));
+      }
+      catch (Exception e) {
+        throw new WebApplicationException(400);
+      }
+      if (cpa.signum() != 1 || cpa.compareTo(order.account().currentState().balance()) == 1)
+        throw new WebApplicationException(400);
+      order.setCpa(cpa);
+    }
+    
+    if (params.containsKey("allowNegativeBalance"))
+      order.account().setAllowNegativeBalance(Boolean.valueOf(params.getFirst("allowNegativeBalance")));
+    if (params.containsKey("title"))
+      order.offer().setTitle(params.getFirst("title"));
+    if (params.containsKey("url"))
+      order.offer().setUrl(params.getFirst("url"));
+    if (params.containsKey("autoApprove"))
+      order.offer().setAutoApprove(Boolean.valueOf(params.getFirst("autoApprove")));
+    if (params.containsKey("reentrant"))
+      order.offer().setReentrant(Boolean.valueOf(params.getFirst("reentrant")));
+    if (params.containsKey("male"))
+      order.targeting().setMale(toBoolean(params.getFirst("male")));
+    if (params.containsKey("minAge"))
+      order.targeting().setMinAge(toInteger(params.getFirst("minAge")));
+    if (params.containsKey("maxAge"))
+      order.targeting().setMaxAge(toInteger(params.getFirst("maxAge")));
+    
+    Offer offer = HibernateUtil.unproxy(order.offer());
+    
+    if (offer instanceof RegularOffer) {
+      RegularOffer regularOffer = (RegularOffer)offer;
+      if (params.containsKey("image"))
+        regularOffer.setImageBase64(params.getFirst("image"));
+      if (params.containsKey("description"))
+        regularOffer.setDescription(params.getFirst("description"));
+    }
+    
+    if (offer instanceof BannerOffer) {
+      BannerOffer bannerOffer = (BannerOffer)offer;
+      if (params.containsKey("image"))
+        bannerOffer.setImageBase64(params.getFirst("image"));
+      if (params.containsKey("bannerSize")) {
+        BannerSize size = bannerSizes.byId(Long.valueOf(params.getFirst("bannerSize")));
+        if (size == null)
+          throw new WebApplicationException(404);
+        bannerOffer.setSize(size);
+      }
+    }
+    
+    if (offer instanceof VideoOffer) {
+      VideoOffer videoOffer = (VideoOffer)offer;
+      if (params.containsKey("videoUrl"))
+        videoOffer.setVideoUrl(params.getFirst("videoUrl"));
+    }
+    
+    return Response.ok().build();
+  }
+
+  @PUT
+  @Path("{id}/enabled")
   @Transactional
   public Response enable(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
@@ -184,7 +259,7 @@ public class OrderResource {
   }
 
   @DELETE
-  @Path("{id}")
+  @Path("{id}/enabled")
   @Transactional
   public Response disable(@PathParam("id") long orderId) {
     Order order = orders.byId(orderId);
@@ -192,5 +267,27 @@ public class OrderResource {
       return Response.status(404).build();
     order.disable();
     return Response.ok().build();
+  }
+  
+  private Order existing(long id) {
+    Order order = orders.byId(id);
+    if (order == null)
+      throw new WebApplicationException(404);
+    return order;
+  }
+  
+  private Boolean toBoolean(String param) {
+    if (isNull(param)) return null;
+    return Boolean.valueOf(param);
+  }
+  
+  private Integer toInteger(String param) {
+    if (isNull(param)) return null;
+    return Integer.valueOf(param);
+  }
+  
+  private boolean isNull(String param) {
+    String paramLower = param.toLowerCase();
+    return paramLower.isEmpty() || paramLower.equals("null") || paramLower.equals("none");
   }
 }

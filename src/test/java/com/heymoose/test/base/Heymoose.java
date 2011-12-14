@@ -2,7 +2,6 @@ package com.heymoose.test.base;
 
 import com.heymoose.domain.Platform;
 import com.heymoose.domain.Role;
-import com.heymoose.resource.xml.XmlAction;
 import com.heymoose.resource.xml.XmlActions;
 import com.heymoose.resource.xml.XmlApp;
 import com.heymoose.resource.xml.XmlBannerSizes;
@@ -11,12 +10,10 @@ import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlOrder;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.security.Signer;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -174,11 +171,11 @@ public class Heymoose {
   }
 
   public void approveOrder(long orderId) {
-    client.path("orders").path(Long.toString(orderId)).put();
+    client.path("orders").path(Long.toString(orderId)).path("enabled").put();
   }
 
   public void disableOrder(long orderId) {
-    client.path("orders").path(Long.toString(orderId)).delete();
+    client.path("orders").path(Long.toString(orderId)).path("enabled").delete();
   }
 
   public XmlOffers getAvailableOffers(XmlApp app, String extId) {

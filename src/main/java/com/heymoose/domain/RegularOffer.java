@@ -32,10 +32,22 @@ public class RegularOffer extends Offer {
   public String description() {
     return description;
   }
+  
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
   public String imageBase64() {
     try {
       return new String(image, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  public void setImageBase64(String imageBase64) {
+    try {
+      this.image = imageBase64.getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }

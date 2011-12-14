@@ -16,6 +16,7 @@ import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.VideoOffer;
+import com.heymoose.util.HibernateUtil;
 
 public class Mappers {
   
@@ -153,7 +154,7 @@ public class Mappers {
       xmlOrder.reentrant = offer.reentrant();
       xmlOrder.type = offer.type().toString();
 
-      offer = unproxy(offer);
+      offer = HibernateUtil.unproxy(offer);
 
       // Regular offer fields
       if (offer instanceof RegularOffer) {
@@ -359,11 +360,5 @@ public class Mappers {
       xmlBannerSize.height = bannerSize.height();
     }
     return xmlBannerSize;
-  }
-
-  private static <T> T unproxy(T entity) {
-    if (entity instanceof HibernateProxy)
-      return (T) ((HibernateProxy) entity).getHibernateLazyInitializer().getImplementation();
-    return entity;
   }
 }

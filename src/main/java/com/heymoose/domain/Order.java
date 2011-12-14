@@ -97,6 +97,10 @@ public class Order extends IdEntity {
   public BigDecimal cpa() {
     return cpa;
   }
+  
+  public void setCpa(BigDecimal cpa) {
+    this.cpa = cpa;
+  }
 
   public Offer offer() {
     return offer;

@@ -97,9 +97,17 @@ public abstract class Offer extends IdEntity {
   public String title() {
     return title;
   }
+  
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
   public String url() {
     return url;
+  }
+  
+  public void setUrl(String url) {
+    this.url = url;
   }
 
   public DateTime creationTime() {
@@ -109,9 +117,17 @@ public abstract class Offer extends IdEntity {
   public boolean autoApprove() {
     return autoApprove;
   }
+  
+  public void setAutoApprove(boolean autoApprove) {
+    this.autoApprove = autoApprove;
+  }
 
   public boolean reentrant() {
     return reentrant;
+  }
+  
+  public void setReentrant(boolean reentrant) {
+    this.reentrant = reentrant;
   }
 
   public Type type() {

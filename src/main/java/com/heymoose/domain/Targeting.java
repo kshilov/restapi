@@ -49,12 +49,24 @@ public class Targeting extends IdEntity {
   public Boolean male() {
     return male;
   }
+  
+  public void setMale(Boolean male) {
+    this.male = male;
+  }
 
   public Integer minAge() {
     return minAge;
   }
+  
+  public void setMinAge(Integer minAge) {
+    this.minAge = minAge;
+  }
 
   public Integer maxAge() {
     return maxAge;
+  }
+  
+  public void setMaxAge(Integer maxAge) {
+    this.maxAge = maxAge;
   }
 }
