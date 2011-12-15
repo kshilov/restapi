@@ -45,7 +45,7 @@ public class Api {
   private final ActionRepository actions;
   private final Accounts accounts;
   private final BigDecimal compensation;
-  private final EventBus eventBus;
+//  private final EventBus eventBus;
   private final UserRepository users;
   private final OfferShowRepository offerShows;
 
@@ -56,7 +56,7 @@ public class Api {
              ActionRepository actions,
              Accounts accounts,
              @Named("compensation") BigDecimal compensation,
-             EventBus eventBus,
+//             EventBus eventBus,
              UserRepository users,
              OfferShowRepository offerShows) {
     this.offers = offers;
@@ -65,7 +65,7 @@ public class Api {
     this.actions = actions;
     this.accounts = accounts;
     this.compensation = compensation;
-    this.eventBus = eventBus;
+//    this.eventBus = eventBus;
     this.users = users;
     this.offerShows = offerShows;
   }
@@ -91,8 +91,8 @@ public class Api {
 
   public URI doOffer(long offerId, long appId, String extId) {
     OfferResult result = doOfferInternal(offerId, appId, extId);
-    if (result.approved != null)
-      eventBus.publish(result.approved);
+//    if (result.approved != null)
+//      eventBus.publish(result.approved);
     return result.url;
   }
 
@@ -156,7 +156,8 @@ public class Api {
   }
    
   public void approveAction(long customerId, long actionId) {
-    eventBus.publish(doApprove(customerId, actionId));
+//    eventBus.publish(doApprove(customerId, actionId));
+    doApprove(customerId, actionId);
   }
 
   @Transactional
