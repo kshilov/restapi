@@ -46,7 +46,7 @@ public class Targeting extends IdEntity {
 
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "cities_filter_type")
-  private CitiesFilterType citiesFilterType;
+  private CityFilterType cityFilterType;
 
   @ManyToMany(cascade = CascadeType.ALL)
   @JoinTable(
@@ -58,15 +58,15 @@ public class Targeting extends IdEntity {
 
   protected Targeting() {}
 
-  public Targeting(Boolean male, Integer minAge, Integer maxAge, CitiesTargeting citiesTargeting) {
+  public Targeting(Boolean male, Integer minAge, Integer maxAge, CityTargeting cityTargeting) {
     checkArgument(minAge == null || minAge > 0);
     checkArgument(maxAge == null || maxAge > 0);
     this.male = male;
     this.minAge = minAge;
     this.maxAge = maxAge;
-    if (citiesTargeting != null) {
-      this.cities = newHashSet(citiesTargeting.cities);
-      this.citiesFilterType = citiesTargeting.type;
+    if (cityTargeting != null) {
+      this.cities = newHashSet(cityTargeting.cities);
+      this.cityFilterType = cityTargeting.type;
     }
   }
 

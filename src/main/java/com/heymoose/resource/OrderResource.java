@@ -4,8 +4,8 @@ import com.heymoose.domain.Accounts;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
-import com.heymoose.domain.CitiesFilterType;
-import com.heymoose.domain.CitiesTargeting;
+import com.heymoose.domain.CityFilterType;
+import com.heymoose.domain.CityTargeting;
 import com.heymoose.domain.City;
 import com.heymoose.domain.CityRepository;
 import com.heymoose.domain.Offer;
@@ -101,7 +101,7 @@ public class OrderResource {
                          @FormParam("male") Boolean male,
                          @FormParam("minAge") Integer minAge,
                          @FormParam("maxAge") Integer maxAge,
-                         @FormParam("cityFilterType") CitiesFilterType citiesFilterType,
+                         @FormParam("cityFilterType") CityFilterType cityFilterType,
                          @FormParam("city") List<Long> cityIds,
                          @FormParam("reentrant") @DefaultValue("false") boolean reentrant,
                          @FormParam("type") Offer.Type type,
@@ -139,10 +139,10 @@ public class OrderResource {
     if (maxAge != null && maxAge < 0)
       return Response.status(400).build();
 
-    CitiesTargeting citiesTargeting = null;
-    if (citiesFilterType != null) {
+    CityTargeting cityTargeting = null;
+    if (cityFilterType != null) {
       Map<String, City> cityMap = cities.byIds(cityIds);
-      citiesTargeting = new CitiesTargeting(citiesFilterType, cityMap.values());
+      cityTargeting = new CityTargeting(cityFilterType, cityMap.values());
     }
 
     User user = users.byId(userId);
@@ -169,7 +169,7 @@ public class OrderResource {
       throw new IllegalArgumentException("Unknown type: " + type.name());
     }
     
-    Targeting targeting = new Targeting(male, minAge, maxAge, citiesTargeting);
+    Targeting targeting = new Targeting(male, minAge, maxAge, cityTargeting);
     Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     
     BigDecimal amount = balance;

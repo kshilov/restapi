@@ -62,7 +62,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "and (trg.max_age is null or trg.max_age >= :performerAge) ";
 
     if (info.city != null)
-        sql +="and ( " +
+        sql += "and ( " +
         "        trg.cities_filter_type is null " +
         "        or (trg.cities_filter_type = 0 and trg.id in ( " +
         "                select targeting_id " +
@@ -107,44 +107,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
     query.setParameter("limit", condition.count);
 
-    List<BigInteger> ids = (List<BigInteger>) query.list();
-    return longs(ids);
-  }
-
-  private List<Long> availableIdsFor(Performer performer, Filter.Entry condition) {
-    String sql =
-        "select offer_id " +
-        "from offer " +
-        "join offer_order ord on ord.offer_id = offer.id " +
-        "join targeting trg on trg.id = ord.targeting_id " +
-        "where " +
-        "(offer.id not in (select action.offer_id from action where performer_id = :performerId and action.done = true) or offer.reentrant = true) " +
-        "and ((select allow_negative_balance = true from account where id = ord.account_id) " +
-        "or (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1)) " +
-        "and ord.disabled = false " +
-        "and (trg.male is null or trg.male = " + (performer.male() != null ? ":performerMale" : "null") + ") " +
-        "and (trg.min_age is null or trg.min_age <= " + (performer.year() != null ? ":performerAge" : "null") + ") " +
-        "and (trg.max_age is null or trg.max_age >= " + (performer.year() != null ? ":performerAge" : "null") + ") " +
-        "and offer.type = :type ";
-    if (condition.type == Offer.Type.BANNER) {
-      Filter.BannerEntry bannerCondition = (Filter.BannerEntry) condition;
-      BannerSize bannerSize = bannerSizes.byWidthAndHeight(bannerCondition.width, bannerCondition.height);
-      if (bannerSize == null)
-        return emptyList();
-      sql += String.format("and offer.size = %d ", bannerSize.id());
-    }
-    sql += "order by offer.creation_time desc limit " + condition.count;
-
-    Query query = hiber()
-        .createSQLQuery(sql)
-        .setParameter("performerId", performer.id())
-        .setParameter("type", condition.type.ordinal());
-    
-    if (performer.male() != null)
-      query.setParameter("performerMale", performer.male());
-    if (performer.year() != null)
-      query.setParameter("performerAge", performer.year() != null ? DateTime.now().getYear() - performer.year() : null);
-    
     List<BigInteger> ids = (List<BigInteger>) query.list();
     return longs(ids);
   }

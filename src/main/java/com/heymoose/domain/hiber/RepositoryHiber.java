@@ -35,6 +35,11 @@ public abstract class RepositoryHiber<T extends IdEntity> implements Repository<
   }
 
   @Override
+  public void remove(T entity) {
+    hiber().delete(entity);
+  }
+
+  @Override
   public Set<T> all() {
     return Sets.newHashSet(hiber().createCriteria(getEntityClass()).list());
   }

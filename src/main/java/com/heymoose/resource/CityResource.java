@@ -41,6 +41,16 @@ public class CityResource {
     city.changName(name);
   }
 
+  @Path("{id}")
+  @PUT
+  @Transactional
+  public void delete(@PathParam("id") long id) {
+    City city = cities.byId(id);
+    if (city == null)
+      throw notFound();
+    cities.remove(city);
+  }
+
   @GET
   @Transactional
   public XmlCities all() {
