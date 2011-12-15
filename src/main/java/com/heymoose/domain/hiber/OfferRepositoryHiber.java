@@ -55,7 +55,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "and ord.disabled = false ";
 
     if (info.performer.male() != null)
-      sql += "and (trg.male is null or trg.male = false) ";
+      sql += "and (trg.male is null or trg.male = :performerMale) ";
 
     if (info.performer.year() != null)
         sql += "and (trg.min_age is null or :performerAge => trg.min_age) " +
