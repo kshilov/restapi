@@ -8,6 +8,7 @@ import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
+import com.heymoose.domain.PerformerInfo;
 import java.math.BigInteger;
 import java.util.Collections;
 import static java.util.Collections.emptyList;
@@ -32,11 +33,82 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<Offer> availableFor(Performer performer, Filter filter) {
+  public Set<Offer> availableFor(PerformerInfo info, Filter filter) {
     List<Long> ids = newArrayList();
     for (Filter.Entry entry : filter.entries)
-      ids.addAll(availableIdsFor(performer, entry));
+      ids.addAll(availableIdsFor(info, entry));
     return loadByIds(ids);
+  }
+
+  private List<Long> availableIdsFor(PerformerInfo info, Filter.Entry condition) {
+
+    String sql = "select offer_id " +
+        "from offer " +
+        "        join offer_order ord on ord.offer_id = offer.id " +
+        "        join targeting trg on trg.id = ord.targeting_id " +
+        "where " +
+        "(offer.id not in (select action.offer_id from action where performer_id = :performer and action.done = true) or offer.reentrant = true) " +
+        "and ( " +
+        "        (select allow_negative_balance = true from account where id = ord.account_id) " +
+        "        or (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
+        ") " +
+        "and ord.disabled = false ";
+
+    if (info.performer.male() != null)
+      sql += "and (trg.male is null or trg.male = false) ";
+
+    if (info.performer.year() != null)
+        sql += "and (trg.min_age is null or :performerAge => trg.min_age) " +
+        "and (trg.max_age is null or :performerAge =< trg.max_age) ";
+
+    if (info.city != null)
+        sql +="and ( " +
+        "        trg.cities_filter_type is null " +
+        "        or (trg.cities_filter_type = 0 and trg.id in ( " +
+        "                select targeting_id " +
+        "                from targeting_city tc left join city on tc.city_id = city.id " +
+        "                where city.name like :city " +
+        "        )) " +
+        "        or (trg.cities_filter_type = 1 and trg.id not in ( " +
+        "                select targeting_id " +
+        "                from targeting_city tc left join city on tc.city_id = city.id " +
+        "                where city.name like :city " +
+        "        )) " +
+        ") ";
+
+    sql += "and offer.type = :type ";
+
+    BannerSize bannerSize = null;
+    if (condition.type == Offer.Type.BANNER) {
+      Filter.BannerEntry bannerCondition = (Filter.BannerEntry) condition;
+      bannerSize = bannerSizes.byWidthAndHeight(bannerCondition.width, bannerCondition.height);
+      if (bannerSize == null)
+        return emptyList();
+      sql += "and offer.size = :bannerSize ";
+    }
+    sql += "order by offer.creation_time desc limit :limit";
+
+    Query query = hiber()
+        .createSQLQuery(sql)
+        .setParameter("performer", info.performer.id())
+        .setParameter("type", condition.type.ordinal());
+
+    if (info.performer.male() != null)
+      query.setParameter("performerMale", info.performer.male());
+
+    if (info.performer.year() != null)
+      query.setParameter("performerAge", DateTime.now().getYear() - info.performer.year());
+
+    if (info.city != null)
+      query.setParameter("city", info.city);
+
+    if (bannerSize != null)
+      query.setParameter("bannerSize", bannerSize.id());
+
+    query.setParameter("limit", condition.count);
+
+    List<BigInteger> ids = (List<BigInteger>) query.list();
+    return longs(ids);
   }
 
   private List<Long> availableIdsFor(Performer performer, Filter.Entry condition) {

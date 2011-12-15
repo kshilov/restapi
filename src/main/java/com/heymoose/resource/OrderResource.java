@@ -4,6 +4,10 @@ import com.heymoose.domain.Accounts;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
+import com.heymoose.domain.CitiesFilterType;
+import com.heymoose.domain.CitiesTargeting;
+import com.heymoose.domain.City;
+import com.heymoose.domain.CityRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
@@ -21,6 +25,8 @@ import com.heymoose.util.WebAppUtil;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 
+import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -50,13 +56,16 @@ public class OrderResource {
   private final OrderRepository orders;
   private final Accounts accounts;
   private final BannerSizeRepository bannerSizes;
+  private final CityRepository cities;
 
   @Inject
-  public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts, BannerSizeRepository bannerSizes) {
+  public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts,
+                       BannerSizeRepository bannerSizes, CityRepository cities) {
     this.users = users;
     this.orders = orders;
     this.accounts = accounts;
     this.bannerSizes = bannerSizes;
+    this.cities = cities;
   }
 
   @GET
@@ -92,6 +101,8 @@ public class OrderResource {
                          @FormParam("male") Boolean male,
                          @FormParam("minAge") Integer minAge,
                          @FormParam("maxAge") Integer maxAge,
+                         @FormParam("cityFilterType") CitiesFilterType citiesFilterType,
+                         @FormParam("city") List<Long> cityIds,
                          @FormParam("reentrant") @DefaultValue("false") boolean reentrant,
                          @FormParam("type") Offer.Type type,
                          @FormParam("image") String image,
@@ -128,6 +139,12 @@ public class OrderResource {
     if (maxAge != null && maxAge < 0)
       return Response.status(400).build();
 
+    CitiesTargeting citiesTargeting = null;
+    if (citiesFilterType != null) {
+      Map<String, City> cityMap = cities.byIds(cityIds);
+      citiesTargeting = new CitiesTargeting(citiesFilterType, cityMap.values());
+    }
+
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -152,7 +169,7 @@ public class OrderResource {
       throw new IllegalArgumentException("Unknown type: " + type.name());
     }
     
-    Targeting targeting = new Targeting(male, minAge, maxAge);
+    Targeting targeting = new Targeting(male, minAge, maxAge, citiesTargeting);
     Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     
     BigDecimal amount = balance;

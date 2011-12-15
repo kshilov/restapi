@@ -2,6 +2,7 @@ package com.heymoose.resource.xml;
 
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
+import com.heymoose.domain.City;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -360,5 +361,19 @@ public class Mappers {
       xmlBannerSize.height = bannerSize.height();
     }
     return xmlBannerSize;
+  }
+
+  public static XmlCities toXmlCities(Iterable<City> cities) {
+    XmlCities xmlCities = new XmlCities();
+    for (City city : cities)
+      xmlCities.cities.add(toXmlCity(city));
+    return xmlCities;
+  }
+
+  public static XmlCity toXmlCity(City city) {
+    XmlCity xmlCity = new XmlCity();
+    xmlCity.id = city.id();
+    xmlCity.name = city.name();
+    return xmlCity;
   }
 }

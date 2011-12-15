@@ -1,13 +1,21 @@
 package com.heymoose.domain;
 
+import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.base.IdEntity;
 
+import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -36,14 +44,30 @@ public class Targeting extends IdEntity {
   @Column(name = "max_age")
   private Integer maxAge;
 
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "cities_filter_type")
+  private CitiesFilterType citiesFilterType;
+
+  @ManyToMany(cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "targeting_city",
+      joinColumns = {@JoinColumn(name = "targeting_id", referencedColumnName = "id")},
+      inverseJoinColumns = {@JoinColumn(name = "city_id", referencedColumnName = "id")}
+  )
+  private Set<City> cities;
+
   protected Targeting() {}
 
-  public Targeting(Boolean male, Integer minAge, Integer maxAge) {
+  public Targeting(Boolean male, Integer minAge, Integer maxAge, CitiesTargeting citiesTargeting) {
     checkArgument(minAge == null || minAge > 0);
     checkArgument(maxAge == null || maxAge > 0);
     this.male = male;
     this.minAge = minAge;
     this.maxAge = maxAge;
+    if (citiesTargeting != null) {
+      this.cities = newHashSet(citiesTargeting.cities);
+      this.citiesFilterType = citiesTargeting.type;
+    }
   }
 
   public Boolean male() {

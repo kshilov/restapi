@@ -14,6 +14,8 @@ import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
+import com.heymoose.domain.City;
+import com.heymoose.domain.CityRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.OfferShow;
@@ -31,6 +33,7 @@ import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
 import com.heymoose.domain.hiber.BannerSizeRepositoryHiber;
+import com.heymoose.domain.hiber.CityRepositoryHiber;
 import com.heymoose.domain.hiber.OfferRepositoryHiber;
 import com.heymoose.domain.hiber.OfferShowRepositoryHiber;
 import com.heymoose.domain.hiber.OrderRepositoryHiber;
@@ -75,10 +78,11 @@ public class CommonModule extends AbstractModule {
     bind(ActionRepository.class).to(ActionRepositoryHiber.class);
     bind(OfferShowRepository.class).to(OfferShowRepositoryHiber.class);
     bind(BannerSizeRepository.class).to(BannerSizeRepositoryHiber.class);
+    bind(CityRepository.class).to(CityRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
-        RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class);
+        RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class);
   }
 
   protected void bindEntities(Class... classes) {

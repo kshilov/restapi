@@ -10,6 +10,7 @@ import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Performer;
+import com.heymoose.domain.PerformerInfo;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -70,14 +71,15 @@ public class Api {
   }
 
   @Transactional
-  public Iterable<Offer> getOffers(long appId, String extId, OfferRepository.Filter filter) {
+  public Iterable<Offer> getOffers(long appId, String extId, String city, OfferRepository.Filter filter) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
-    return logShows(offers.availableFor(performer, filter), app, performer);
+    PerformerInfo info = new PerformerInfo(performer, city);
+    return logShows(offers.availableFor(info, filter), app, performer);
   }
 
   @Transactional

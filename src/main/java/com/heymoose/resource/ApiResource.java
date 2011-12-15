@@ -130,11 +130,12 @@ public class ApiResource {
     long appId = safeGetLongParam(params, "app_id");
     validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
+    String city = params.get("city");
     String filterParam = safeGetParam(params, "filter");
     if (!RE_FILTER.matcher(filterParam).matches())
       throw badValue("filter", filterParam);
     OfferRepository.Filter filter = new OfferRepository.Filter(filterParam);
-    Iterable<Offer> offers = api.getOffers(appId, extId, filter);
+    Iterable<Offer> offers = api.getOffers(appId, extId, city, filter);
     OfferTemplate template;
     String contentType;
     if (format.equals("JSON")) {
