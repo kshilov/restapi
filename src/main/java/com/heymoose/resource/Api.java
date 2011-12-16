@@ -134,7 +134,7 @@ public class Api {
       Action action = actions.byPerformerAndOfferAndApp(performer.id(), offer.id(), app.id());
       if (action != null) {
         if (action.done())
-          throw conflict();
+          return OfferResult.of(app.url());
         action.incAttempts();
         return OfferResult.of(URI.create(offer.url()));
       }
