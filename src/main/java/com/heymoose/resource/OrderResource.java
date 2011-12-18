@@ -25,6 +25,7 @@ import com.heymoose.util.WebAppUtil;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -232,6 +233,20 @@ public class OrderResource {
       order.targeting().setMinAge(toInteger(params.getFirst("minAge")));
     if (params.containsKey("maxAge"))
       order.targeting().setMaxAge(toInteger(params.getFirst("maxAge")));
+    if (params.containsKey("cityFilterType")) {
+      String filterTypeParam = params.getFirst("cityFilterType");
+      CityFilterType filterType = null;
+      if (!isNull(filterTypeParam))
+        filterType = Enum.valueOf(CityFilterType.class, filterTypeParam);
+      order.targeting().setCityFilterType(filterType);
+    }
+    if (params.containsKey("city")) {
+      List<Long> ids = new ArrayList<Long>();
+      for (String cityId : params.get("city"))
+        ids.add(Long.valueOf(cityId));
+      order.targeting().cities().clear();
+      order.targeting().cities().addAll(cities.byIds(ids).values());
+    }
     
     Offer offer = HibernateUtil.unproxy(order.offer());
     
