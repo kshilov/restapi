@@ -93,4 +93,16 @@ public class Targeting extends IdEntity {
   public void setMaxAge(Integer maxAge) {
     this.maxAge = maxAge;
   }
+  
+  public CityFilterType cityFilterType() {
+    return cityFilterType;
+  }
+  
+  public void setCityFilterType(CityFilterType filterType) {
+    this.cityFilterType = filterType;
+  }
+  
+  public Set<City> cities() {
+    return cities;
+  }
 }

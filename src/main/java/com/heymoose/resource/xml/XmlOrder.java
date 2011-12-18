@@ -82,4 +82,10 @@ public class XmlOrder {
   
   @XmlElement(name = "max-age")
   public Integer maxAge;
+  
+  @XmlElement(name = "city-filter-type")
+  public String cityFilterType;
+  
+  @XmlElement(name = "cities")
+  public XmlCities cities;
 }

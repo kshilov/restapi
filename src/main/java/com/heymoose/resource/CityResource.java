@@ -27,7 +27,7 @@ public class CityResource {
 
   @POST
   @Transactional
-  public String create(String name) {
+  public String create(@FormParam("name") String name) {
     City city = new City(name);
     cities.put(city);
     return Long.toString(city.id());

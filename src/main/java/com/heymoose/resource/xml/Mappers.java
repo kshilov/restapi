@@ -15,6 +15,7 @@ import com.heymoose.domain.Order;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Role;
+import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.util.HibernateUtil;
@@ -179,9 +180,14 @@ public class Mappers {
       }
       
       // Targeting fields
-      xmlOrder.male = order.targeting().male();
-      xmlOrder.minAge = order.targeting().minAge();
-      xmlOrder.maxAge = order.targeting().maxAge();
+      Targeting targeting = order.targeting();
+      xmlOrder.male = targeting.male();
+      xmlOrder.minAge = targeting.minAge();
+      xmlOrder.maxAge = targeting.maxAge();
+      if (targeting.cityFilterType() != null)
+        xmlOrder.cityFilterType = targeting.cityFilterType().toString();
+      if (targeting.cities() != null)
+        xmlOrder.cities = toXmlCities(targeting.cities());
       
       if (needRelated(d))
         xmlOrder.user = toXmlUser(order.customer(), relatedDetails(d));
