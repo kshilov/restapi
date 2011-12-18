@@ -44,6 +44,7 @@ import com.heymoose.resource.Api;
 import com.heymoose.resource.ApiResource;
 import com.heymoose.resource.AppResource;
 import com.heymoose.resource.BannerSizeResource;
+import com.heymoose.resource.CityResource;
 import com.heymoose.resource.OfferShowResource;
 import com.heymoose.resource.OrderResource;
 import com.heymoose.resource.PerformerResource;
@@ -69,6 +70,7 @@ public class CommonModule extends AbstractModule {
     bind(ApiResource.class);
     bind(Api.class);
     bind(BannerSizeResource.class);
+    bind(CityResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);

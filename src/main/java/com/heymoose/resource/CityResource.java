@@ -7,6 +7,7 @@ import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.resource.xml.Mappers.toXmlCities;
 import com.heymoose.resource.xml.XmlCities;
 import javax.inject.Inject;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,9 +27,10 @@ public class CityResource {
 
   @POST
   @Transactional
-  public void create(String name) {
+  public Long create(String name) {
     City city = new City(name);
     cities.put(city);
+    return city.id();
   }
 
   @Path("{id}")
@@ -38,11 +40,11 @@ public class CityResource {
     City city = cities.byId(id);
     if (city == null)
       throw notFound();
-    city.changName(name);
+    city.changeName(name);
   }
 
   @Path("{id}")
-  @PUT
+  @DELETE
   @Transactional
   public void delete(@PathParam("id") long id) {
     City city = cities.byId(id);

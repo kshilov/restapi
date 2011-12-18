@@ -39,7 +39,7 @@ public class City extends IdEntity {
     return name;
   }
 
-  public void changName(String name) {
+  public void changeName(String name) {
     checkNotNull(name);
     this.name = name;
   }
