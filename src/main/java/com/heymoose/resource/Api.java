@@ -71,15 +71,14 @@ public class Api {
   }
 
   @Transactional
-  public Iterable<Offer> getOffers(long appId, String extId, String city, OfferRepository.Filter filter) {
+  public Iterable<Offer> getOffers(long appId, String extId, OfferRepository.Filter filter) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
-    PerformerInfo info = new PerformerInfo(performer, city);
-    return logShows(offers.availableFor(info, filter), app, performer);
+    return logShows(offers.availableFor(performer, filter), app, performer);
   }
 
   @Transactional
@@ -197,13 +196,13 @@ public class Api {
   }
 
   @Transactional
-  public void introducePerformer(long appId, String extId, boolean male, int year) {
+  public void introducePerformer(long appId, String extId, boolean male, int year, String city) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
     }
-    performer.setInfo(male, year);
+    performer.setInfo(male, year, city);
     performers.put(performer);
   }
 }

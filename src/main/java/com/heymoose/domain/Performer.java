@@ -46,6 +46,9 @@ public class Performer extends IdEntity {
   @Basic
   private Integer year;
 
+  @Basic
+  private String city;
+
   protected Performer() {}
 
   public Performer(String extId, Platform platform, Performer inviter) {
@@ -82,9 +85,14 @@ public class Performer extends IdEntity {
     return year;
   }
 
-  public void setInfo(boolean male, int year) {
+  public String city() {
+    return city;
+  }
+
+  public void setInfo(boolean male, int year, String city) {
     checkArgument(year > 0);
     this.male = male;
     this.year = year;
+    this.city = city;
   }
 }

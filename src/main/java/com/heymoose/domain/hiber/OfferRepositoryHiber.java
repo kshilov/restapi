@@ -37,14 +37,14 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<Offer> availableFor(PerformerInfo info, Filter filter) {
+  public Set<Offer> availableFor(Performer performer, Filter filter) {
     List<Long> ids = newArrayList();
     for (Filter.Entry entry : filter.entries)
-      ids.addAll(availableIdsFor(info, entry));
+      ids.addAll(availableIdsFor(performer, entry));
     return loadByIds(ids);
   }
 
-  private List<Long> availableIdsFor(PerformerInfo info, Filter.Entry condition) {
+  private List<Long> availableIdsFor(Performer performer, Filter.Entry condition) {
 
     String sql = "select offer_id " +
         "from offer " +
@@ -58,14 +58,14 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         ") " +
         "and ord.disabled = false ";
 
-    if (info.performer.male() != null)
+    if (performer.male() != null)
       sql += "and (trg.male is null or trg.male = :performerMale) ";
 
-    if (info.performer.year() != null)
+    if (performer.year() != null)
         sql += "and (trg.min_age is null or trg.min_age <= :performerAge) " +
         "and (trg.max_age is null or trg.max_age >= :performerAge) ";
 
-    if (info.city != null)
+    if (performer.city() != null)
         sql += "and ( " +
         "        trg.cities_filter_type is null " +
         "        or ((trg.cities_filter_type = 0 and trg.id in ( " +
@@ -94,17 +94,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
     Query query = hiber()
         .createSQLQuery(sql)
-        .setParameter("performer", info.performer.id())
+        .setParameter("performer", performer.id())
         .setParameter("type", condition.type.ordinal());
 
-    if (info.performer.male() != null)
-      query.setParameter("performerMale", info.performer.male());
+    if (performer.male() != null)
+      query.setParameter("performerMale", performer.male());
 
-    if (info.performer.year() != null)
-      query.setParameter("performerAge", DateTime.now().getYear() - info.performer.year());
+    if (performer.year() != null)
+      query.setParameter("performerAge", DateTime.now().getYear() - performer.year());
 
-    if (info.city != null)
-      query.setParameter("city", info.city);
+    if (performer.city() != null)
+      query.setParameter("city", performer.city());
 
     if (bannerSize != null)
       query.setParameter("bannerSize", bannerSize.id());

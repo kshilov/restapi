@@ -120,7 +120,8 @@ public class ApiResource {
       throw badValue("sex", _sex);
     boolean male = "MALE".equals(_sex);
     Integer year =  safeGetIntParam(params, "year");
-    api.introducePerformer(appId, extId, male, year);
+    String city = params.get("city");
+    api.introducePerformer(appId, extId, male, year, city);
     return successResponse();
   }
 
@@ -130,12 +131,11 @@ public class ApiResource {
     long appId = safeGetLongParam(params, "app_id");
     validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
-    String city = params.get("city");
     String filterParam = safeGetParam(params, "filter");
     if (!RE_FILTER.matcher(filterParam).matches())
       throw badValue("filter", filterParam);
     OfferRepository.Filter filter = new OfferRepository.Filter(filterParam);
-    Iterable<Offer> offers = api.getOffers(appId, extId, city, filter);
+    Iterable<Offer> offers = api.getOffers(appId, extId, filter);
     OfferTemplate template;
     String contentType;
     if (format.equals("JSON")) {
