@@ -27,10 +27,10 @@ public class CityResource {
 
   @POST
   @Transactional
-  public Long create(String name) {
+  public String create(String name) {
     City city = new City(name);
     cities.put(city);
-    return city.id();
+    return Long.toString(city.id());
   }
 
   @Path("{id}")
