@@ -64,16 +64,16 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (info.city != null)
         sql += "and ( " +
         "        trg.cities_filter_type is null " +
-        "        or (trg.cities_filter_type = 0 and trg.id in ( " +
+        "        or ((trg.cities_filter_type = 0 and trg.id in ( " +
         "                select targeting_id " +
         "                from targeting_city tc left join city on tc.city_id = city.id " +
         "                where city.name like :city " +
         "        )) " +
-        "        or (trg.cities_filter_type = 1 and trg.id not in ( " +
+        "        and (trg.cities_filter_type = 1 and trg.id not in ( " +
         "                select targeting_id " +
         "                from targeting_city tc left join city on tc.city_id = city.id " +
         "                where city.name like :city " +
-        "        )) " +
+        "        ))) " +
         ") ";
 
     sql += "and offer.type = :type ";
