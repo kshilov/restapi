@@ -15,6 +15,7 @@ import static java.util.Collections.emptyList;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.hibernate.Query;
@@ -25,11 +26,14 @@ import org.joda.time.DateTime;
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
 
   private final BannerSizeRepository bannerSizes;
+  private final String randFunction;
 
   @Inject
-  public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes) {
+  public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes,
+                              @Named("rand") String randFunction) {
     super(sessionProvider);
     this.bannerSizes = bannerSizes;
+    this.randFunction = randFunction;
   }
 
   @Override
@@ -86,7 +90,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         return emptyList();
       sql += "and offer.size = :bannerSize ";
     }
-    sql += "order by offer.creation_time desc limit :limit";
+    sql += "order by " + randFunction + " limit :limit";
 
     Query query = hiber()
         .createSQLQuery(sql)
@@ -157,7 +161,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (ids.isEmpty())
       return Collections.emptySet();
     List<Offer> offers = hiber()
-        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by offer.creationTime desc")
+        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by " + randFunction)
         .setParameterList("ids", ids)
         .list();
     return Sets.newHashSet(offers);
