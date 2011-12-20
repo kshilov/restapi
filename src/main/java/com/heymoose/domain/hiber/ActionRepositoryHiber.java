@@ -76,10 +76,6 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   
   @Override
   public long count() {
-    /*return Long.parseLong(hiber()
-        .createQuery("select count(*) from Action")
-        .uniqueResult()
-        .toString());*/
     return count(null, null, null);
   }
   
