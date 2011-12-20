@@ -6,6 +6,7 @@ import com.heymoose.domain.ActionRepository;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
@@ -49,11 +50,25 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
 
   @Override
   public Iterable<Action> list(Ordering ordering, int offset, int limit) {
+    return list(ordering, offset, limit, null, null, null);
+  }
+  
+  @Override
+  public Iterable<Action> list(Ordering ordering, int offset, int limit,
+      Long offerId, Long appId, Long performerId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
+    if (offerId != null)
+      criteria.add(Restrictions.eq("offer.id", offerId));
+    if (appId != null)
+      criteria.add(Restrictions.eq("app.id", appId));
+    if (performerId != null)
+      criteria.add(Restrictions.eq("performer.id", performerId));
+    
     if (ordering.equals(Ordering.BY_CREATION_TIME_DESC))
       criteria.addOrder(Order.desc("creationTime"));
     else if (ordering.equals(Ordering.BY_CREATION_TIME_ASC));
       criteria.addOrder(Order.asc("creationTime"));
+      
     criteria.setFirstResult(offset);
     criteria.setMaxResults(limit);
     return criteria.list();
@@ -61,10 +76,25 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   
   @Override
   public long count() {
-    return Long.parseLong(hiber()
+    /*return Long.parseLong(hiber()
         .createQuery("select count(*) from Action")
         .uniqueResult()
-        .toString());
+        .toString());*/
+    return count(null, null, null);
+  }
+  
+  @Override
+  public long count(Long offerId, Long appId, Long performerId) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+    if (offerId != null)
+      criteria.add(Restrictions.eq("offer.id", offerId));
+    if (appId != null)
+      criteria.add(Restrictions.eq("app.id", appId));
+    if (performerId != null)
+      criteria.add(Restrictions.eq("performer.id", performerId));
+    
+    criteria.setProjection(Projections.rowCount());
+    return (Long)criteria.uniqueResult();
   }
 
   @Override

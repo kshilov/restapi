@@ -112,17 +112,23 @@ public class ActionResource {
   @Transactional
   public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("50") int limit,
-                       @QueryParam("full") @DefaultValue("false") boolean full) {
+                       @QueryParam("full") @DefaultValue("false") boolean full,
+                       @QueryParam("offerId") Long offerId,
+                       @QueryParam("appId") Long appId,
+                       @QueryParam("performerId") Long performerId) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    Iterable<Action> page = actions.list(ActionRepository.Ordering.BY_CREATION_TIME_DESC, offset, limit);
+    Iterable<Action> page = actions.list(ActionRepository.Ordering.BY_CREATION_TIME_DESC, offset, limit,
+        offerId, appId, performerId);
     return Response.ok(Mappers.toXmlActions(page, d)).build();
   }
   
   @GET
   @Path("count")
   @Transactional
-  public Response count() {
-    return Response.ok(Mappers.toXmlCount(actions.count())).build();
+  public Response count(@QueryParam("offerId") Long offerId,
+                        @QueryParam("appId") Long appId,
+                        @QueryParam("performerId") Long performerId) {
+    return Response.ok(Mappers.toXmlCount(actions.count(offerId, appId, performerId))).build();
   }
   
   @GET
