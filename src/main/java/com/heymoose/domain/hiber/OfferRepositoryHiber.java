@@ -8,7 +8,6 @@ import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
-import com.heymoose.domain.PerformerInfo;
 import java.math.BigInteger;
 import java.util.Collections;
 import static java.util.Collections.emptyList;

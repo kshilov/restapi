@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
@@ -10,30 +11,25 @@ import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Performer;
-import com.heymoose.domain.PerformerInfo;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.events.ActionApproved;
-import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
+import static com.heymoose.resource.Exceptions.conflict;
+import static com.heymoose.resource.Exceptions.notFound;
+import static com.heymoose.resource.Exceptions.unauthorized;
 import com.heymoose.util.NameValuePair;
 import com.heymoose.util.URIUtils;
 import com.heymoose.util.URLEncodedUtils;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.heymoose.resource.Exceptions.conflict;
-import static com.heymoose.resource.Exceptions.notFound;
-import static com.heymoose.resource.Exceptions.unauthorized;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Singleton
@@ -196,13 +192,13 @@ public class Api {
   }
 
   @Transactional
-  public void introducePerformer(long appId, String extId, boolean male, int year, String city) {
+  public void introducePerformer(long appId, String extId, Performer.Info info) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
     }
-    performer.setInfo(male, year, city);
+    performer.setInfo(info);
     performers.put(performer);
   }
 }

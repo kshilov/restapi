@@ -1,6 +1,8 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import javax.annotation.Nullable;
+import javax.sound.sampled.DataLine;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -49,6 +51,21 @@ public class Performer extends IdEntity {
   @Basic
   private String city;
 
+  public static class Info {
+    
+    public final Boolean male;
+    public final Integer year;
+    public final String city;
+
+    public Info(Boolean male, Integer year, String city) {
+      if (year != null)
+        checkArgument(year > 0);
+      this.male = male;
+      this.year = year;
+      this.city = city;
+    }
+  }
+
   protected Performer() {}
 
   public Performer(String extId, Platform platform, Performer inviter) {
@@ -89,10 +106,9 @@ public class Performer extends IdEntity {
     return city;
   }
 
-  public void setInfo(boolean male, int year, String city) {
-    checkArgument(year > 0);
-    this.male = male;
-    this.year = year;
-    this.city = city;
+  public void setInfo(Info info) {
+    this.male = info.male;
+    this.year = info.year;
+    this.city = info.city;
   }
 }

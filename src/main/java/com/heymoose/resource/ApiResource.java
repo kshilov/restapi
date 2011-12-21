@@ -5,6 +5,7 @@ import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
+import com.heymoose.domain.Performer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -115,13 +116,14 @@ public class ApiResource {
     long appId = safeGetLongParam(params, "app_id");
     validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
-    String _sex = safeGetParam(params, "sex"); // notNull(params.get("sex"));
-    if (!asList("MALE", "FEMALE").contains(_sex))
+    String _sex = params.get("sex");
+    if (_sex != null && !asList("MALE", "FEMALE").contains(_sex))
       throw badValue("sex", _sex);
-    boolean male = "MALE".equals(_sex);
-    Integer year =  safeGetIntParam(params, "year");
+    Boolean male = (_sex == null) ? null : "MALE".equals(_sex);
+    String _year = params.get("year");
+    Integer year = (_year == null) ? null : parseInt("year", _year);
     String city = params.get("city");
-    api.introducePerformer(appId, extId, male, year, city);
+    api.introducePerformer(appId, extId, new Performer.Info(male, year, city));
     return successResponse();
   }
 
@@ -213,6 +215,14 @@ public class ApiResource {
       return Integer.valueOf(val);
     } catch (NumberFormatException e) {
       throw badValue(paramName, val);
+    }
+  }
+
+  private Integer parseInt(String name, String s) throws ApiRequestException {
+    try {
+      return Integer.valueOf(s);
+    } catch (NumberFormatException e) {
+      throw badValue(name, s);
     }
   }
 
