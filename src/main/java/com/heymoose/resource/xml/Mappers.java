@@ -1,14 +1,13 @@
 package com.heymoose.resource.xml;
 
-import com.heymoose.domain.BannerOffer;
-import com.heymoose.domain.BannerSize;
-import com.heymoose.domain.City;
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
-
+import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
+import com.heymoose.domain.Banner;
+import com.heymoose.domain.BannerOffer;
+import com.heymoose.domain.BannerSize;
+import com.heymoose.domain.City;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.Order;
@@ -174,8 +173,15 @@ public class Mappers {
       // Banner offer fields
       if (offer instanceof BannerOffer) {
         BannerOffer bannerOffer = (BannerOffer) offer;
+        xmlOrder.banners = newArrayList();
+        for (Banner banner : bannerOffer.banners()) {
+          XmlBanner xmlBanner = new XmlBanner();
+          xmlBanner.imageBase64 = banner.imageBase64();
+          xmlBanner.bannerSize = toXmlBannerSize(banner.size(), relatedDetails(d));
+          xmlOrder.banners.add(xmlBanner);
+        }
+        // TODO: remove this
         xmlOrder.imageBase64 = bannerOffer.banners().iterator().next().imageBase64();
-        
         xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.banners().iterator().next().size(), relatedDetails(d));
       }
       

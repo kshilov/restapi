@@ -2,8 +2,10 @@ package com.heymoose.resource.xml;
 
 import java.math.BigDecimal;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "order")
@@ -71,6 +73,10 @@ public class XmlOrder {
 
   @XmlElement(name = "banner-size")
   public XmlBannerSize bannerSize;
+
+  @XmlElementWrapper(name = "banners")
+  @XmlElement(name = "banner")
+  public List<XmlBanner> banners;
 
   // Targeting fields
   
