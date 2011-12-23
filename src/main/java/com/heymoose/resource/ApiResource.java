@@ -1,8 +1,13 @@
 package com.heymoose.resource;
 
+import com.google.common.collect.HashMultimap;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.BannerLocalSore;
+import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
@@ -32,11 +37,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import javax.management.monitor.StringMonitor;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -55,7 +62,7 @@ public class ApiResource {
   private final Provider<HttpRequestContext> requestContextProvider;
   private final AppRepository apps;
   private final UserRepository users;
-  private final OfferTemplate jsonTemplate = new JsonOfferTemplate();
+  private final OfferTemplate jsonTemplate;
   private final Api api;
   private final BigDecimal compensation;
   private final Provider<UriInfo> uriInfoProvider;
@@ -64,13 +71,15 @@ public class ApiResource {
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, AppRepository apps, Api api,
-                     @Named("compensation") BigDecimal compensation, UserRepository users, Provider<UriInfo> uriInfoProvider) {
+                     @Named("compensation") BigDecimal compensation, UserRepository users,
+                     Provider<UriInfo> uriInfoProvider, BannerLocalSore bannerLocalSore) {
     this.requestContextProvider = requestContextProvider;
     this.apps = apps;
     this.api = api;
     this.compensation = compensation;
     this.users = users;
     this.uriInfoProvider = uriInfoProvider;
+    this.jsonTemplate = new JsonOfferTemplate(bannerLocalSore);
   }
 
   @GET
@@ -108,8 +117,21 @@ public class ApiResource {
       return approveAction(params);
     else if (method.equals("introducePerformer"))
       return introducePerformer(params);
+    else if (method.equals("reportShow"))
+      return reportShow(params, queryParamsMulti());
     else
       throw badValue("method", method);
+  }
+
+  private Response reportShow(Map<String, String> params, Multimap<String, String> multiParams) throws ApiRequestException {
+    long appId = safeGetLongParam(params, "app_id");
+    validateAppSig(appId, params);
+    String extId = safeGetParam(params, "uid");
+    List<Long> offers = newArrayList();
+    for (String _offerId : multiParams.get("offer_id"))
+      offers.add(parseLong("offer_id", _offerId));
+    api.reportShow(offers, appId, extId);
+    return successResponse();
   }
 
   private Response introducePerformer(Map<String, String> params) throws ApiRequestException {
@@ -200,6 +222,13 @@ public class ApiResource {
     return params;
   }
 
+  private Multimap<String, String> queryParamsMulti() {
+    Multimap<String, String> params = HashMultimap.create();
+    for (Map.Entry<String, List<String>> ent : requestContextProvider.get().getQueryParameters().entrySet())
+      params.putAll(ent.getKey(), ent.getValue());
+    return params;
+  }
+
   public long safeGetLongParam(Map<String, String> params, String paramName) throws ApiRequestException {
     String val = safeGetParam(params, paramName);
     try {
@@ -225,6 +254,15 @@ public class ApiResource {
       throw badValue(name, s);
     }
   }
+
+  private Long parseLong(String name, String s) throws ApiRequestException {
+     try {
+       return Long.valueOf(s);
+     } catch (NumberFormatException e) {
+       throw badValue(name, s);
+     }
+   }
+
 
   public String safeGetParam(Map<String, String> params, String paramName) throws ApiRequestException {
     String val = params.get(paramName);

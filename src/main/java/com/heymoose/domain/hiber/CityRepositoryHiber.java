@@ -24,18 +24,4 @@ public class CityRepositoryHiber extends RepositoryHiber<City> implements CityRe
   protected Class<City> getEntityClass() {
     return City.class;
   }
-
-  @Override
-  public Map<String, City> byIds(Iterable<Long> ids) {
-    if (isEmpty(ids))
-      return newHashMap();
-    Map<String, City> map = newHashMap();
-    List<City> cities = hiber()
-        .createQuery("from City where id in :ids")
-        .setParameterList("ids", newArrayList(ids))
-        .list();
-    for (City city : cities)
-      map.put(city.name(), city);
-    return map;
-  }
 }

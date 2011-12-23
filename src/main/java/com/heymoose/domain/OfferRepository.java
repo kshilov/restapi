@@ -1,8 +1,10 @@
 package com.heymoose.domain;
 
 import com.google.common.collect.ImmutableList;
+import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.base.Repository;
 import static com.heymoose.resource.Exceptions.badRequest;
+import java.util.List;
 import java.util.Set;
 
 public interface OfferRepository extends Repository<Offer> {
@@ -34,6 +36,14 @@ public interface OfferRepository extends Repository<Offer> {
 
     public final Iterable<Entry> entries;
 
+    public Iterable<BannerEntry> bannerEntries() {
+      List<BannerEntry> bannerEntries = newArrayList();
+      for (Entry entry : entries)
+        if (entry instanceof BannerEntry)
+          bannerEntries.add((BannerEntry) entry);
+      return bannerEntries;
+    }
+
     public Filter(String str) {
       ImmutableList.Builder<Entry> entryBuilder = ImmutableList.builder();
       for (String entry : str.split(",")) {
@@ -64,5 +74,4 @@ public interface OfferRepository extends Repository<Offer> {
 
   Set<Offer> availableFor(Performer performer, Filter filter);
   Set<Offer> doneFor(long performerId);
-  Set<Offer> byIds(Iterable<Long> ids);
 }

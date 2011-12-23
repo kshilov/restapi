@@ -2,9 +2,13 @@ package com.heymoose.domain.hiber;
 
 import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Sets;
 import static com.google.common.collect.Sets.newHashSet;
+import com.heymoose.domain.Banner;
+import com.heymoose.domain.BannerLocalSore;
 import com.heymoose.domain.BannerOffer;
+import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
@@ -15,6 +19,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import static java.util.Collections.emptyList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,20 +34,35 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   private final BannerSizeRepository bannerSizes;
   private final String randFunction;
+  private final BannerLocalSore bannerLocalSore;
+  private final BannerRepository banners;
 
   @Inject
   public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes,
-                              @Named("rand") String randFunction) {
+                              @Named("rand") String randFunction, BannerLocalSore bannerLocalSore, BannerRepository banners) {
     super(sessionProvider);
     this.bannerSizes = bannerSizes;
     this.randFunction = randFunction;
+    this.bannerLocalSore = bannerLocalSore;
+    this.banners = banners;
   }
 
   @Override
   public Set<Offer> availableFor(Performer performer, Filter filter) {
     List<Long> ids = newArrayList();
-    for (Filter.Entry entry : filter.entries)
-      ids.addAll(availableIdsFor(performer, entry));
+    for (Filter.Entry entry : filter.entries) {
+      List<Long> availableIds = availableIdsFor(performer, entry);
+      ids.addAll(availableIds);
+      if (entry instanceof Filter.BannerEntry) {
+        Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry;
+        BannerSize bannerSize  = bannerSizes.byWidthAndHeight(bannerEntry.width, bannerEntry.height);
+        Iterable<Banner> b = banners.byOfferIdsAndBannerSize(availableIds, bannerSize);
+        Map<Long, Banner> map = newHashMap();
+        for (Banner banner : b)
+          map.put(banner.offer().id(), banner);
+        bannerLocalSore.put(map);
+      }
+    }
     return loadByIds(ids);
   }
 
@@ -90,7 +110,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       bannerSize = bannerSizes.byWidthAndHeight(bannerCondition.width, bannerCondition.height);
       if (bannerSize == null)
         return emptyList();
-      sql += "and offer.size = :bannerSize ";
+      sql += "and offer.id in (select offer_id from banner where size = :bannerSize and offer_id = offer.id) ";
     }
     sql += "order by " + randFunction + " limit :limit";
 
@@ -130,11 +150,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
             .setParameter("performerId", performerId)
             .list();
     return loadByIds(longs(ids));
-  }
-
-  @Override
-  public Set<Offer> byIds(Iterable<Long> ids) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
   }
 
   @Override

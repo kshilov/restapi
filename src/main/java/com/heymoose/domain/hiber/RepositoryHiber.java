@@ -1,13 +1,19 @@
 package com.heymoose.domain.hiber;
 
+import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repository;
+import java.util.List;
+import java.util.Map;
 import org.hibernate.Session;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Set;
+import org.hibernate.criterion.Restrictions;
 
 public abstract class RepositoryHiber<T extends IdEntity> implements Repository<T> {
 
@@ -42,5 +48,19 @@ public abstract class RepositoryHiber<T extends IdEntity> implements Repository<
   @Override
   public Set<T> all() {
     return Sets.newHashSet(hiber().createCriteria(getEntityClass()).list());
+  }
+
+  @Override
+  public Map<Long, T> byIds(Iterable<Long> ids) {
+    Map<Long, T> found = newHashMap();
+    if (isEmpty(ids))
+      return found;
+    List<T> list = hiber()
+        .createCriteria(getEntityClass())
+        .add(Restrictions.in("id", newArrayList(ids)))
+        .list();
+    for (T entity : list)
+      found.put(entity.id(), entity);
+    return found;
   }
 }

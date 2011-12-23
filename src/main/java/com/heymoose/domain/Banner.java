@@ -5,6 +5,7 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.io.UnsupportedEncodingException;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,6 +29,10 @@ public class Banner extends IdEntity {
   @ManyToOne
   @JoinColumn(name = "size")
   private BannerSize size;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "offer_id")
+  private BannerOffer offer;
 
   protected Banner() {}
 
@@ -69,5 +74,13 @@ public class Banner extends IdEntity {
   public void setSize(BannerSize size) {
     checkNotNull(size);
     this.size = size;
+  }
+
+  public void setOffer(BannerOffer offer) {
+    this.offer = offer;
+  }
+
+  public BannerOffer offer() {
+    return offer;
   }
 }

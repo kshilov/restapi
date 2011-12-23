@@ -74,15 +74,15 @@ public class Api {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
-    return logShows(offers.availableFor(performer, filter), app, performer);
+    return offers.availableFor(performer, filter);
   }
 
-  @Transactional
-  public Iterable<Offer> logShows(Iterable<Offer> offers, App app, Performer performer) {
-    for (Offer offer : offers)
-      offerShows.put(new OfferShow(offer, app, performer));
-    return offers;
-  }
+//  @Transactional
+//  public Iterable<Offer> logShows(Iterable<Offer> offers, App app, Performer performer) {
+//    for (Offer offer : offers)
+//      offerShows.put(new OfferShow(offer, app, performer));
+//    return offers;
+//  }
 
   public URI doOffer(long offerId, long appId, String extId) {
     OfferResult result = doOfferInternal(offerId, appId, extId);
@@ -200,5 +200,13 @@ public class Api {
     }
     performer.setInfo(info);
     performers.put(performer);
+  }
+
+  @Transactional
+  public void reportShow(List<Long> offers, long appId, String extId) {
+   for (Offer offer : this.offers.byIds(offers).values()) {
+     App app = apps.byId(appId);
+     offerShows.put(new OfferShow(offer, app, performers.byPlatformAndExtId(app.platform(), extId)));
+   }
   }
 }

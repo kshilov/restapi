@@ -16,8 +16,7 @@ import org.joda.time.DateTime;
 @DiscriminatorValue("1")
 public class BannerOffer extends Offer {
 
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-  @JoinColumn(name = "offer_id", nullable = false)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<Banner> banners;
 
   protected BannerOffer() {}
@@ -25,6 +24,8 @@ public class BannerOffer extends Offer {
   public BannerOffer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, Iterable<Banner> banners) {
     super(title, url, autoApprove, creationTime, reentrant);
     this.banners = newHashSet(banners);
+    for (Banner banner : banners)
+      banner.setOffer(this);
   }
 
   public Iterable<Banner> banners() {

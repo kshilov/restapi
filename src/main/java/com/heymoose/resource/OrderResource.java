@@ -144,7 +144,7 @@ public class OrderResource {
 
     CityTargeting cityTargeting = null;
     if (cityFilterType != null) {
-      Map<String, City> cityMap = cities.byIds(cityIds);
+      Map<Long, City> cityMap = cities.byIds(cityIds);
       cityTargeting = new CityTargeting(cityFilterType, cityMap.values());
     }
 

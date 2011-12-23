@@ -1,6 +1,8 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.App;
+import com.heymoose.domain.Banner;
+import com.heymoose.domain.BannerLocalSore;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.RegularOffer;
@@ -15,6 +17,12 @@ import java.math.BigDecimal;
 import static com.heymoose.domain.Compensation.subtractCompensation;
 
 public class JsonOfferTemplate implements OfferTemplate {
+
+  private final BannerLocalSore banners;
+
+  public JsonOfferTemplate(BannerLocalSore banners) {
+    this.banners = banners;
+  }
 
   @Override
   public String render(Iterable<Offer> offers, App app, String extId, BigDecimal compensation) {
@@ -37,13 +45,13 @@ public class JsonOfferTemplate implements OfferTemplate {
           VideoOffer videoOffer = (VideoOffer) offer;
           jsOffer.put("videoUrl", videoOffer.videoUrl());
         } else if (offer instanceof BannerOffer) {
-          BannerOffer bannerOffer = (BannerOffer) offer;
-          jsOffer.put("image", bannerOffer.banners().iterator().next().imageBase64());
+          jsOffer.put("image", banners.get(offer.id()).imageBase64());
         }
         jsOffers.add(jsOffer);
       }
       jsResult.put("success", true);
       jsResult.put("result", jsOffers);
+      banners.clear();
       return mapper.writeValueAsString(jsResult);
     } catch (IOException e) {
       throw new RuntimeException(e);
