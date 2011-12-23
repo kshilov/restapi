@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.base.Repository;
 import static com.heymoose.resource.Exceptions.badRequest;
+import com.heymoose.resource.api.data.OfferData;
 import java.util.List;
 import java.util.Set;
 
@@ -72,6 +73,5 @@ public interface OfferRepository extends Repository<Offer> {
     }
   }
 
-  Set<Offer> availableFor(Performer performer, Filter filter);
-  Set<Offer> doneFor(long performerId);
+  Set<OfferData> availableFor(Performer performer, Filter filter);
 }

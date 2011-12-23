@@ -1,57 +1,32 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.App;
-import com.heymoose.domain.Banner;
-import com.heymoose.domain.BannerLocalSore;
-import com.heymoose.domain.BannerOffer;
-import com.heymoose.domain.Offer;
-import com.heymoose.domain.RegularOffer;
-import com.heymoose.domain.VideoOffer;
+import com.heymoose.resource.api.data.OfferData;
+import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
-import static com.heymoose.domain.Compensation.subtractCompensation;
-
 public class JsonOfferTemplate implements OfferTemplate {
 
-  private final BannerLocalSore banners;
-
-  public JsonOfferTemplate(BannerLocalSore banners) {
-    this.banners = banners;
-  }
-
   @Override
-  public String render(Iterable<Offer> offers, App app, String extId, BigDecimal compensation) {
+  public String render(Iterable<OfferData> offers) {
     try {
       ObjectMapper mapper = MAPPER.get();
       ObjectNode jsResult = mapper.createObjectNode();
       ArrayNode jsOffers = mapper.createArrayNode();
-      for (Offer offer : offers) {
+      for (OfferData offer : offers) {
         ObjectNode jsOffer = mapper.createObjectNode();
-        jsOffer.put("id", offer.id());
-        jsOffer.put("title", offer.title());
-        BigDecimal payment = subtractCompensation(offer.order().cpa(), compensation);
-        jsOffer.put("payment", payment.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString());
-        jsOffer.put("type", offer.type().ordinal());
-        if (offer instanceof RegularOffer) {
-          RegularOffer regularOffer = (RegularOffer) offer;
-          jsOffer.put("description", regularOffer.description());
-          jsOffer.put("image", regularOffer.imageBase64());
-        } else if (offer instanceof VideoOffer) {
-          VideoOffer videoOffer = (VideoOffer) offer;
-          jsOffer.put("videoUrl", videoOffer.videoUrl());
-        } else if (offer instanceof BannerOffer) {
-          jsOffer.put("image", banners.get(offer.id()).imageBase64());
-        }
+        jsOffer.put("id", offer.id);
+        jsOffer.put("title", offer.title);
+        jsOffer.put("payment", offer.payment);
+        jsOffer.put("type", offer.type);
+        jsOffer.put("description", offer.description);
+        jsOffer.put("image", offer.image);
+        jsOffer.put("videoUrl", offer.videoUrl);
         jsOffers.add(jsOffer);
       }
       jsResult.put("success", true);
       jsResult.put("result", jsOffers);
-      banners.clear();
       return mapper.writeValueAsString(jsResult);
     } catch (IOException e) {
       throw new RuntimeException(e);

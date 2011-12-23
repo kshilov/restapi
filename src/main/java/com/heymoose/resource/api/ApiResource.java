@@ -1,4 +1,4 @@
-package com.heymoose.resource;
+package com.heymoose.resource.api;
 
 import com.google.common.collect.HashMultimap;
 import static com.google.common.collect.Lists.newArrayList;
@@ -6,21 +6,21 @@ import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
-import com.heymoose.domain.BannerLocalSore;
-import com.heymoose.domain.BannerRepository;
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
-import static com.heymoose.resource.ApiExceptions.appNotFound;
-import static com.heymoose.resource.ApiExceptions.badSignature;
-import static com.heymoose.resource.ApiExceptions.badValue;
-import static com.heymoose.resource.ApiExceptions.customerNotFound;
-import static com.heymoose.resource.ApiExceptions.notInRole;
-import static com.heymoose.resource.ApiExceptions.nullParam;
+import com.heymoose.resource.JsonOfferTemplate;
+import com.heymoose.resource.OfferTemplate;
+import static com.heymoose.resource.api.ApiExceptions.appNotFound;
+import static com.heymoose.resource.api.ApiExceptions.badSignature;
+import static com.heymoose.resource.api.ApiExceptions.badValue;
+import static com.heymoose.resource.api.ApiExceptions.customerNotFound;
+import static com.heymoose.resource.api.ApiExceptions.notInRole;
+import static com.heymoose.resource.api.ApiExceptions.nullParam;
+import com.heymoose.resource.api.data.OfferData;
 import static com.heymoose.security.Signer.sign;
 import com.sun.jersey.api.core.HttpRequestContext;
 import java.io.IOException;
@@ -37,13 +37,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.management.monitor.StringMonitor;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -62,7 +60,7 @@ public class ApiResource {
   private final Provider<HttpRequestContext> requestContextProvider;
   private final AppRepository apps;
   private final UserRepository users;
-  private final OfferTemplate jsonTemplate;
+  private final OfferTemplate jsonTemplate = new JsonOfferTemplate();
   private final Api api;
   private final BigDecimal compensation;
   private final Provider<UriInfo> uriInfoProvider;
@@ -72,14 +70,13 @@ public class ApiResource {
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, AppRepository apps, Api api,
                      @Named("compensation") BigDecimal compensation, UserRepository users,
-                     Provider<UriInfo> uriInfoProvider, BannerLocalSore bannerLocalSore) {
+                     Provider<UriInfo> uriInfoProvider) {
     this.requestContextProvider = requestContextProvider;
     this.apps = apps;
     this.api = api;
     this.compensation = compensation;
     this.users = users;
     this.uriInfoProvider = uriInfoProvider;
-    this.jsonTemplate = new JsonOfferTemplate(bannerLocalSore);
   }
 
   @GET
@@ -159,7 +156,7 @@ public class ApiResource {
     if (!RE_FILTER.matcher(filterParam).matches())
       throw badValue("filter", filterParam);
     OfferRepository.Filter filter = new OfferRepository.Filter(filterParam);
-    Iterable<Offer> offers = api.getOffers(appId, extId, filter);
+    Iterable<OfferData> offers = api.getOffers(appId, extId, filter);
     OfferTemplate template;
     String contentType;
     if (format.equals("JSON")) {
@@ -169,7 +166,7 @@ public class ApiResource {
       throw badValue("format", format);
     }
     return Response
-        .ok(template.render(offers, apps.byId(appId), extId, compensation))
+        .ok(template.render(offers))
         .type(contentType)
         .build();
   }

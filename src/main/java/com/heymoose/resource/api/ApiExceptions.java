@@ -1,4 +1,4 @@
-package com.heymoose.resource;
+package com.heymoose.resource.api;
 
 import com.heymoose.domain.Role;
 import com.heymoose.domain.base.IdEntity;

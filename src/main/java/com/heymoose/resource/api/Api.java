@@ -1,4 +1,4 @@
-package com.heymoose.resource;
+package com.heymoose.resource.api;
 
 import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.Accounts;
@@ -19,6 +19,7 @@ import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.resource.Exceptions.unauthorized;
+import com.heymoose.resource.api.data.OfferData;
 import com.heymoose.util.NameValuePair;
 import com.heymoose.util.URIUtils;
 import com.heymoose.util.URLEncodedUtils;
@@ -67,7 +68,7 @@ public class Api {
   }
 
   @Transactional
-  public Iterable<Offer> getOffers(long appId, String extId, OfferRepository.Filter filter) {
+  public Iterable<OfferData> getOffers(long appId, String extId, OfferRepository.Filter filter) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {

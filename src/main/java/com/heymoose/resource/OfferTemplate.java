@@ -1,10 +1,7 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.App;
-import com.heymoose.domain.Offer;
-
-import java.math.BigDecimal;
+import com.heymoose.resource.api.data.OfferData;
 
 public interface OfferTemplate {
-  public String render(Iterable<Offer> offers, App app, String extId, BigDecimal compensation);
+  public String render(Iterable<OfferData> offers);
 }

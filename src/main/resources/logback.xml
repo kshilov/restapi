@@ -24,7 +24,7 @@
     
     <logger name="org.hibernate" level="INFO" additivity="false"/>
 
-    <logger name="com.heymoose.resource.ApiResource" additivity="false">
+    <logger name="com.heymoose.resource.api.ApiResource" additivity="false">
       <appender-ref ref="API"/>
     </logger>
     

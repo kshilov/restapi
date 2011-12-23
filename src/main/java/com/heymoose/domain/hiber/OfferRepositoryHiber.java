@@ -1,12 +1,9 @@
 package com.heymoose.domain.hiber;
 
 import com.google.common.collect.Lists;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Sets;
 import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.Banner;
-import com.heymoose.domain.BannerLocalSore;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.BannerSize;
@@ -14,7 +11,10 @@ import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
-import static com.heymoose.util.HibernateUtil.unproxy;
+import com.heymoose.domain.RegularOffer;
+import com.heymoose.domain.VideoOffer;
+import com.heymoose.resource.api.data.OfferData;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import static java.util.Collections.emptyList;
@@ -27,6 +27,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hsqldb.store.ReusableObjectCache;
 import org.joda.time.DateTime;
 
 @Singleton
@@ -34,36 +35,28 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   private final BannerSizeRepository bannerSizes;
   private final String randFunction;
-  private final BannerLocalSore bannerLocalSore;
   private final BannerRepository banners;
+  private final BigDecimal compensation;
 
   @Inject
   public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes,
-                              @Named("rand") String randFunction, BannerLocalSore bannerLocalSore, BannerRepository banners) {
+                              @Named("rand") String randFunction, BannerRepository banners,
+                              @Named("compensation") BigDecimal compensation) {
     super(sessionProvider);
     this.bannerSizes = bannerSizes;
     this.randFunction = randFunction;
-    this.bannerLocalSore = bannerLocalSore;
     this.banners = banners;
+    this.compensation = compensation;
   }
 
   @Override
-  public Set<Offer> availableFor(Performer performer, Filter filter) {
-    List<Long> ids = newArrayList();
+  public Set<OfferData> availableFor(Performer performer, Filter filter) {
+    Map<Long, Filter.Entry> mapping = newHashMap();
     for (Filter.Entry entry : filter.entries) {
-      List<Long> availableIds = availableIdsFor(performer, entry);
-      ids.addAll(availableIds);
-      if (entry instanceof Filter.BannerEntry) {
-        Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry;
-        BannerSize bannerSize  = bannerSizes.byWidthAndHeight(bannerEntry.width, bannerEntry.height);
-        Iterable<Banner> b = banners.byOfferIdsAndBannerSize(availableIds, bannerSize);
-        Map<Long, Banner> map = newHashMap();
-        for (Banner banner : b)
-          map.put(banner.offer().id(), banner);
-        bannerLocalSore.put(map);
-      }
+      for (long offerId : availableIdsFor(performer, entry))
+        mapping.put(offerId, entry);
     }
-    return loadByIds(ids);
+    return load(mapping);
   }
 
   private List<Long> availableIdsFor(Performer performer, Filter.Entry condition) {
@@ -138,21 +131,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<Offer> doneFor(long performerId) {
-    String sql = "select " +
-        "offer.id " +
-        "from " +
-        "offer " +
-        "right join action on offer.id = action.offer_id " +
-        "where action.performer_id = :performerId";
-    List<BigInteger> ids = (List<BigInteger>) hiber()
-            .createSQLQuery(sql)
-            .setParameter("performerId", performerId)
-            .list();
-    return loadByIds(longs(ids));
-  }
-
-  @Override
   public Offer byId(long id) {
     return (Offer) hiber()
         .createQuery("select offer from Offer as offer inner join offer.order as order where order.disabled = false and offer.id = :id")
@@ -179,23 +157,33 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return longs;
   }
 
-  private Set<Offer> loadByIds(List<Long> ids) {
-    if (ids.isEmpty())
+  private Set<OfferData> load(Map<Long, Filter.Entry> mapping) {
+    if (mapping.isEmpty())
       return Collections.emptySet();
     List<Offer> offers = hiber()
         .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by " + randFunction)
-        .setParameterList("ids", ids)
+        .setParameterList("ids", mapping.keySet())
         .list();
-    return Sets.newHashSet(offers);
+    Set<OfferData> ret = newHashSet();
+    for (Offer offer : offers)
+      ret.add(convert(offer, mapping.get(offer.id())));
+    return ret;
   }
 
-  private static Set<Long> extractBannerOfferIds(Iterable<Offer> offers) {
-    Set<Long> ids = newHashSet();
-    for (Offer offer : offers) {
-      offer = unproxy(offer);
-      if (offer instanceof BannerOffer)
-        ids.add(offer.id());
+  private OfferData convert(Offer offer, Filter.Entry filter) {
+    if (offer instanceof BannerOffer) {
+      BannerOffer bannerOffer = (BannerOffer) offer;
+      Filter.BannerEntry bannerEntry = (Filter.BannerEntry) filter;
+      BannerSize bannerSize = bannerSizes.byWidthAndHeight(bannerEntry.width, bannerEntry.height);
+      return OfferData.toOfferData(bannerOffer, compensation, bannerSize);
+    } else if (offer instanceof RegularOffer) {
+      RegularOffer regularOffer = (RegularOffer) offer;
+      return OfferData.toOfferData(regularOffer, compensation);
+    } else if (offer instanceof VideoOffer) {
+      VideoOffer videoOffer = (VideoOffer) offer;
+      return OfferData.toOfferData(videoOffer, compensation);
+    } else {
+      throw new IllegalArgumentException("Unknown offer type: " + offer.getClass().getSimpleName());
     }
-    return ids;
   }
 }
