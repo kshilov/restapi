@@ -1,60 +1,40 @@
 package com.heymoose.domain;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-import java.io.UnsupportedEncodingException;
-import javax.persistence.Basic;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import static org.apache.commons.collections.SetUtils.unmodifiableSet;
 import org.joda.time.DateTime;
 
 @Entity
 @DiscriminatorValue("1")
 public class BannerOffer extends Offer {
 
-  @Basic
-  private byte[] image;
-
-  @ManyToOne
-  @JoinColumn(name = "size")
-  private BannerSize size;
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+  @JoinColumn(name = "offer_id", nullable = false)
+  private Set<Banner> banners;
 
   protected BannerOffer() {}
 
-  public BannerOffer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, String imageBase64, BannerSize size) {
+  public BannerOffer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, Iterable<Banner> banners) {
     super(title, url, autoApprove, creationTime, reentrant);
-    checkNotNull(imageBase64);
-    try {
-      this.image = imageBase64.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
-    this.size = size;
+    this.banners = newHashSet(banners);
   }
 
-  public String imageBase64() {
-    try {
-      return new String(image, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
-  }
-  
-  public void setImageBase64(String imageBase64) {
-    try {
-      this.image = imageBase64.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+  public Iterable<Banner> banners() {
+    return unmodifiableSet(banners);
   }
 
-  public BannerSize size() {
-    return size;
-  }
-  
-  public void setSize(BannerSize size) {
-    this.size = size;
+  public void addBanner(Banner banner) {
+    checkNotNull(banner);
+    if (banners == null)
+      banners = newHashSet();
+    banners.add(banner);
   }
 }

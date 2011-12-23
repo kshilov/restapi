@@ -1,6 +1,7 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.Accounts;
+import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
@@ -26,6 +27,7 @@ import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 
 import java.util.ArrayList;
+import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -165,7 +167,8 @@ public class OrderResource {
       BannerSize size = bannerSizes.byId(bannerSizeId);
       if (size == null)
         return Response.status(404).build();
-      offer = new BannerOffer(title, url, autoApprove, now, reentrant, image, size);
+      Banner banner = new Banner(image, size);
+      offer = new BannerOffer(title, url, autoApprove, now, reentrant, asList(banner));
     } else {
       throw new IllegalArgumentException("Unknown type: " + type.name());
     }
@@ -256,18 +259,6 @@ public class OrderResource {
         regularOffer.setImageBase64(params.getFirst("image"));
       if (params.containsKey("description"))
         regularOffer.setDescription(params.getFirst("description"));
-    }
-    
-    if (offer instanceof BannerOffer) {
-      BannerOffer bannerOffer = (BannerOffer)offer;
-      if (params.containsKey("image"))
-        bannerOffer.setImageBase64(params.getFirst("image"));
-      if (params.containsKey("bannerSize")) {
-        BannerSize size = bannerSizes.byId(Long.valueOf(params.getFirst("bannerSize")));
-        if (size == null)
-          throw new WebApplicationException(404);
-        bannerOffer.setSize(size);
-      }
     }
     
     if (offer instanceof VideoOffer) {

@@ -174,9 +174,9 @@ public class Mappers {
       // Banner offer fields
       if (offer instanceof BannerOffer) {
         BannerOffer bannerOffer = (BannerOffer) offer;
-        xmlOrder.imageBase64 = bannerOffer.imageBase64();
+        xmlOrder.imageBase64 = bannerOffer.banners().iterator().next().imageBase64();
         
-        xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.size(), relatedDetails(d));
+        xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.banners().iterator().next().size(), relatedDetails(d));
       }
       
       // Targeting fields

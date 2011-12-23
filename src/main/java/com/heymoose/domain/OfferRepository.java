@@ -64,4 +64,5 @@ public interface OfferRepository extends Repository<Offer> {
 
   Set<Offer> availableFor(Performer performer, Filter filter);
   Set<Offer> doneFor(long performerId);
+  Set<Offer> byIds(Iterable<Long> ids);
 }

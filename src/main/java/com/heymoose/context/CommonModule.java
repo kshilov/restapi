@@ -11,7 +11,9 @@ import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
+import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.City;
@@ -32,6 +34,7 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
+import com.heymoose.domain.hiber.BannerRepositoryHiber;
 import com.heymoose.domain.hiber.BannerSizeRepositoryHiber;
 import com.heymoose.domain.hiber.CityRepositoryHiber;
 import com.heymoose.domain.hiber.OfferRepositoryHiber;
@@ -49,11 +52,10 @@ import com.heymoose.resource.OfferShowResource;
 import com.heymoose.resource.OrderResource;
 import com.heymoose.resource.PerformerResource;
 import com.heymoose.resource.UserResource;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.Properties;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 public class CommonModule extends AbstractModule {
 
@@ -81,10 +83,12 @@ public class CommonModule extends AbstractModule {
     bind(OfferShowRepository.class).to(OfferShowRepositoryHiber.class);
     bind(BannerSizeRepository.class).to(BannerSizeRepositoryHiber.class);
     bind(CityRepository.class).to(CityRepositoryHiber.class);
+    bind(BannerRepository.class).to(BannerRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
-        RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class);
+        RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class,
+        Banner.class);
   }
 
   protected void bindEntities(Class... classes) {

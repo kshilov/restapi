@@ -38,7 +38,7 @@ public class JsonOfferTemplate implements OfferTemplate {
           jsOffer.put("videoUrl", videoOffer.videoUrl());
         } else if (offer instanceof BannerOffer) {
           BannerOffer bannerOffer = (BannerOffer) offer;
-          jsOffer.put("image", bannerOffer.imageBase64());
+          jsOffer.put("image", bannerOffer.banners().iterator().next().imageBase64());
         }
         jsOffers.add(jsOffer);
       }

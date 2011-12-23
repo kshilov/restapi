@@ -3,11 +3,14 @@ package com.heymoose.domain.hiber;
 import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.Sets;
+import static com.google.common.collect.Sets.newHashSet;
+import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
+import static com.heymoose.util.HibernateUtil.unproxy;
 import java.math.BigInteger;
 import java.util.Collections;
 import static java.util.Collections.emptyList;
@@ -130,6 +133,11 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
+  public Set<Offer> byIds(Iterable<Long> ids) {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
   public Offer byId(long id) {
     return (Offer) hiber()
         .createQuery("select offer from Offer as offer inner join offer.order as order where order.disabled = false and offer.id = :id")
@@ -164,5 +172,15 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         .setParameterList("ids", ids)
         .list();
     return Sets.newHashSet(offers);
+  }
+
+  private static Set<Long> extractBannerOfferIds(Iterable<Offer> offers) {
+    Set<Long> ids = newHashSet();
+    for (Offer offer : offers) {
+      offer = unproxy(offer);
+      if (offer instanceof BannerOffer)
+        ids.add(offer.id());
+    }
+    return ids;
   }
 }
