@@ -19,9 +19,12 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.base.Repository;
 import com.heymoose.hibernate.Transactional;
+import static com.heymoose.resource.Exceptions.badRequest;
+import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.util.HibernateUtil;
+import static com.heymoose.util.HibernateUtil.unproxy;
 import com.heymoose.util.WebAppUtil;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
@@ -188,6 +191,47 @@ public class OrderResource {
 
     orders.put(order);
     return Response.ok(Long.toString(order.id())).build();
+  }
+
+  @POST
+  @Path("banner/{id}/banners")
+  @Transactional
+  public void addBanner(@PathParam("id") long orderId, @FormParam("bannerSize") Integer bannerSizeId,  @FormParam("image") String image) {
+    checkNotNull(bannerSizeId, image);
+    Order order = orders.byId(orderId);
+    if (order == null)
+      throw notFound();
+    Offer offer = unproxy(order.offer());
+    if (!(offer instanceof BannerOffer))
+      throw badRequest();
+    BannerOffer bannerOffer = (BannerOffer) offer;
+    BannerSize size = bannerSizes.byId(bannerSizeId);
+    if (size == null)
+       throw notFound();
+    Banner banner = new Banner(image, size);
+    bannerOffer.addBanner(banner);
+  }
+
+  @DELETE
+  @Path("banner/{id}/banners/{bannerId}")
+  @Transactional
+  public void deleteBanner(@PathParam("id") long orderId, @PathParam("bannerId") long bannerId) {
+    Order order = orders.byId(orderId);
+    if (order == null)
+      throw notFound();
+    Offer offer = unproxy(order.offer());
+    if (!(offer instanceof BannerOffer))
+      throw badRequest();
+    BannerOffer bannerOffer = (BannerOffer) offer;
+    boolean found = false;
+    for (Banner banner : bannerOffer.banners()) {
+      if (banner.id().equals(bannerId)) {
+        found = true;
+        bannerOffer.deleteBanner(banner);
+      }
+    }
+    if (!found)
+      throw badRequest();
   }
 
   @GET
