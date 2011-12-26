@@ -39,6 +39,7 @@ public class BannerOffer extends Offer {
       if (b.size().equals(banner.size()))
         throw new IllegalArgumentException("Size already exists");
     banners.add(banner);
+    banner.setOffer(this);
   }
 
   public void deleteBanner(Banner banner) {
