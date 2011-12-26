@@ -194,7 +194,7 @@ public class OrderResource {
   }
 
   @POST
-  @Path("banner/{id}/banners")
+  @Path("{id}/banners")
   @Transactional
   public void addBanner(@PathParam("id") long orderId, @FormParam("bannerSize") Integer bannerSizeId,  @FormParam("image") String image) {
     checkNotNull(bannerSizeId, image);
@@ -213,7 +213,7 @@ public class OrderResource {
   }
 
   @DELETE
-  @Path("banner/{id}/banners/{bannerId}")
+  @Path("{id}/banners/{bannerId}")
   @Transactional
   public void deleteBanner(@PathParam("id") long orderId, @PathParam("bannerId") long bannerId) {
     Order order = orders.byId(orderId);
