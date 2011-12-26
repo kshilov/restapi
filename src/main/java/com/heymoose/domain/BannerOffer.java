@@ -46,6 +46,8 @@ public class BannerOffer extends Offer {
     checkNotNull(banner);
     if (banners == null)
       banners = newHashSet();
+    if (banners.isEmpty())
+      throw new IllegalArgumentException("Banner collection must not be empty");
     banners.remove(banner);
   }
 }
