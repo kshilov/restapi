@@ -48,7 +48,7 @@ public class Banner extends IdEntity {
 
   @Override
   public Long id() {
-    return null;
+    return id;
   }
 
   public String imageBase64() {

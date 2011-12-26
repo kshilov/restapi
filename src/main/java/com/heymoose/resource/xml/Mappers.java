@@ -176,6 +176,7 @@ public class Mappers {
         xmlOrder.banners = newArrayList();
         for (Banner banner : bannerOffer.banners()) {
           XmlBanner xmlBanner = new XmlBanner();
+          xmlBanner.id = banner.id();
           xmlBanner.imageBase64 = banner.imageBase64();
           xmlBanner.bannerSize = toXmlBannerSize(banner.size(), relatedDetails(d));
           xmlOrder.banners.add(xmlBanner);
