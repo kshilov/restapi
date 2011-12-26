@@ -1,6 +1,8 @@
 package com.heymoose.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.ImmutableSet;
+import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.Set;
@@ -22,6 +24,7 @@ public class BannerOffer extends Offer {
 
   public BannerOffer(String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, Iterable<Banner> banners) {
     super(title, url, autoApprove, creationTime, reentrant);
+    checkArgument(!isEmpty(banners));
     this.banners = newHashSet(banners);
     for (Banner banner : banners)
       banner.setOffer(this);
@@ -44,10 +47,8 @@ public class BannerOffer extends Offer {
 
   public void deleteBanner(Banner banner) {
     checkNotNull(banner);
-    if (banners == null)
-      banners = newHashSet();
-    if (banners.isEmpty())
-      throw new IllegalArgumentException("Banner collection must not be empty");
+    if (banners.size() == 1)
+      throw new IllegalArgumentException("Banner collection must contains at least two elements");
     banners.remove(banner);
   }
 }
