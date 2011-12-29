@@ -1,5 +1,6 @@
 package com.heymoose.resource.xml;
 
+import static com.google.common.collect.Sets.newHashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -23,6 +24,9 @@ public class XmlUser {
   @XmlElement(name = "customer-account")
   public String customerAccount;
 
+  @XmlElement(name = "revenue")
+  public String revenue;
+
   @XmlElement(name = "customer-secret")
   public String customerSecret;
 
@@ -40,4 +44,8 @@ public class XmlUser {
   @XmlElementWrapper(name = "roles")
   @XmlElement(name = "role")
   public Set<String> roles;
+
+  @XmlElementWrapper(name = "referrals")
+  @XmlElement(name = "referral")
+  public Set<String> referrals = newHashSet();
 }

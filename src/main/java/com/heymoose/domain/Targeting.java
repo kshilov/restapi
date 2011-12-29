@@ -20,6 +20,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import org.hibernate.annotations.CollectionOfElements;
 
 @Entity
 @Table(name = "targeting")
@@ -69,12 +70,15 @@ public class Targeting extends IdEntity {
   )
   private Set<App> apps;
 
-  @Basic
-  private Integer hour;
+  @Column(name = "min_hour")
+  private Integer minHour;
+
+  @Column(name = "max_hour")
+  private Integer maxHour;
 
   protected Targeting() {}
 
-  public Targeting(Boolean male, Integer minAge, Integer maxAge, CityTargeting cityTargeting, AppTargeting appTargeting, Integer hour) {
+  public Targeting(Boolean male, Integer minAge, Integer maxAge, CityTargeting cityTargeting, AppTargeting appTargeting, Integer minHour, Integer maxHour) {
     checkArgument(minAge == null || minAge > 0);
     checkArgument(maxAge == null || maxAge > 0);
     this.male = male;
@@ -88,7 +92,8 @@ public class Targeting extends IdEntity {
       this.apps = newHashSet(appTargeting.apps);
       this.appFilterType = appTargeting.type;
     }
-    this.hour = hour;
+    this.minHour = minHour;
+    this.maxHour = maxHour;
   }
 
   public Boolean male() {
@@ -131,7 +136,11 @@ public class Targeting extends IdEntity {
     return apps;
   }
 
-  public Integer hour() {
-    return hour;
+  public Integer minHour() {
+    return minHour;
+  }
+
+  public Integer maxHour() {
+    return maxHour;
   }
 }

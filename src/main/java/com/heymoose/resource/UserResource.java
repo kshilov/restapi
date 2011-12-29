@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
@@ -9,6 +10,7 @@ import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 
+import com.heymoose.resource.xml.XmlUser;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
@@ -84,7 +86,18 @@ public class UserResource {
     checkNotNull(id);
     User user = existing(id);
     Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
-    return Response.ok(Mappers.toXmlUser(user, d)).build();
+    XmlUser xmlUser = Mappers.toXmlUser(user, d);
+    if (user.isCustomer()) {
+      BigDecimal revenue = new BigDecimal(0);
+      for (AccountTx tx : user.customerAccount().transactions())
+        if ("MLM".equals(tx.description()))
+          revenue = revenue.add(tx.diff());
+      xmlUser.revenue = revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
+    }
+    Iterable<User> referrals = users.referrals(id);
+    for (User r : referrals)
+      xmlUser.referrals.add(r.email());
+    return Response.ok(xmlUser).build();
   }
 
   @GET

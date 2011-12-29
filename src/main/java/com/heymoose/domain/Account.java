@@ -2,6 +2,7 @@ package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
+import java.util.Set;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
@@ -85,5 +86,9 @@ public class Account extends IdEntity {
   
   public void setAllowNegativeBalance(boolean allow) {
     this.allowNegativeBalance = allow;
+  }
+
+  public Set<AccountTx> transactions() {
+    return transactions;
   }
 }

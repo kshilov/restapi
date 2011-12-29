@@ -117,7 +117,8 @@ public class OrderResource {
                          @FormParam("city") List<Long> cityIds,
                          @FormParam("appFilterType") AppFilterType appFilterType,
                          @FormParam("app") List<Long> appIds,
-                         @FormParam("hour") Integer hour,
+                         @FormParam("minHour") Integer minHour,
+                         @FormParam("maxHour") Integer maxHour,
                          @FormParam("reentrant") @DefaultValue("false") boolean reentrant,
                          @FormParam("type") Offer.Type type,
                          @FormParam("image") String image,
@@ -191,7 +192,7 @@ public class OrderResource {
       throw new IllegalArgumentException("Unknown type: " + type.name());
     }
 
-    Targeting targeting = new Targeting(male, minAge, maxAge, cityTargeting, appTargeting, hour);
+    Targeting targeting = new Targeting(male, minAge, maxAge, cityTargeting, appTargeting, minHour, maxHour);
     Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     
     BigDecimal amount = balance;

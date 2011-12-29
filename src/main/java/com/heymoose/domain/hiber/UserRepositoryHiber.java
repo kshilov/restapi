@@ -47,7 +47,14 @@ public class UserRepositoryHiber extends RepositoryHiber<User> implements UserRe
       .setMaxResults(limit)
       .list();
   }
-  
+
+  @Override
+  public Iterable<User> referrals(long userId) {
+    return hiber().createQuery("from User where referrer = :referrer")
+        .setParameter("referrer", userId)
+        .list();
+  }
+
   @Override
   public long count() {
     return count(null);
