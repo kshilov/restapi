@@ -56,9 +56,25 @@ public class Targeting extends IdEntity {
   )
   private Set<City> cities;
 
+
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "app_filter_type")
+  private AppFilterType appFilterType;
+
+  @ManyToMany(cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "targeting_app",
+      joinColumns = {@JoinColumn(name = "targeting_id", referencedColumnName = "id")},
+      inverseJoinColumns = {@JoinColumn(name = "app_id", referencedColumnName = "id")}
+  )
+  private Set<App> apps;
+
+  @Basic
+  private Integer hour;
+
   protected Targeting() {}
 
-  public Targeting(Boolean male, Integer minAge, Integer maxAge, CityTargeting cityTargeting) {
+  public Targeting(Boolean male, Integer minAge, Integer maxAge, CityTargeting cityTargeting, AppTargeting appTargeting, Integer hour) {
     checkArgument(minAge == null || minAge > 0);
     checkArgument(maxAge == null || maxAge > 0);
     this.male = male;
@@ -68,6 +84,11 @@ public class Targeting extends IdEntity {
       this.cities = newHashSet(cityTargeting.cities);
       this.cityFilterType = cityTargeting.type;
     }
+    if (appTargeting != null) {
+      this.apps = newHashSet(appTargeting.apps);
+      this.appFilterType = appTargeting.type;
+    }
+    this.hour = hour;
   }
 
   public Boolean male() {
@@ -104,5 +125,13 @@ public class Targeting extends IdEntity {
   
   public Set<City> cities() {
     return cities;
+  }
+
+  public Set<App> apps() {
+    return apps;
+  }
+
+  public Integer hour() {
+    return hour;
   }
 }

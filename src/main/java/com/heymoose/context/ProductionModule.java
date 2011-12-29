@@ -26,10 +26,8 @@ public class ProductionModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    //bind(Mlm.class);
-    //bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
-    //bind(EventBus.class).to(RabbitBus.class);
-    //bind(RabbitMqSender.class);
+    bind(Mlm.class);
+    bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
   @Provides
@@ -49,7 +47,7 @@ public class ProductionModule extends AbstractModule {
     return config;
   }
 
-  /*
+
   protected Provider<Scheduler> schedulerProvider() {
     return new Provider<Scheduler>() {
 
@@ -76,15 +74,4 @@ public class ProductionModule extends AbstractModule {
       }
     };
   }
-
-  @Provides @Named("event-bus") @Singleton
-  protected String eventExchange(@Named("settings") Properties settings) {
-    return settings.getProperty("event-bus");
-  }
-
-  @Provides @Singleton
-  protected ConnectionFactory rabbitConnectionFactory() {
-    ConnectionFactory connectionFactory = new ConnectionFactory();
-    return connectionFactory;
-  } */
 }

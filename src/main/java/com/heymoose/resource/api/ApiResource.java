@@ -153,10 +153,14 @@ public class ApiResource {
     validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
     String filterParam = safeGetParam(params, "filter");
+    String _hour = params.get("hour");
+    Integer hour = null;
+    if (_hour != null)
+      hour = parseInt("hour", _hour);
     if (!RE_FILTER.matcher(filterParam).matches())
       throw badValue("filter", filterParam);
     OfferRepository.Filter filter = new OfferRepository.Filter(filterParam);
-    Iterable<OfferData> offers = api.getOffers(appId, extId, filter);
+    Iterable<OfferData> offers = api.getOffers(appId, hour, extId, filter);
     OfferTemplate template;
     String contentType;
     if (format.equals("JSON")) {

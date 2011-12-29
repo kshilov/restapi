@@ -65,12 +65,13 @@ public class UserResource {
   @Transactional
   public Response register(@FormParam("email") String email,
                            @FormParam("passwordHash") String passwordHash,
-                           @FormParam("nickname") String nickname) {
+                           @FormParam("nickname") String nickname,
+                           @FormParam("referrer") Long referrerId) {
     checkNotNull(email, passwordHash, nickname);
     User existing = users.byEmail(email);
     if (existing != null)
       return Response.status(409).build();
-    User newUser = new User(email, nickname, passwordHash);
+    User newUser = new User(email, nickname, passwordHash, referrerId);
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id()))).build();
   }

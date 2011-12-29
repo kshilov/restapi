@@ -72,13 +72,17 @@ public class User extends IdEntity {
   @Basic(optional = false)
   private String nickname;
 
+  @Column(name = "referrer")
+  private Long referrerId;
+
   protected User() {}
 
-  public User(String email, String nickname, String passwordHash) {
+  public User(String email, String nickname, String passwordHash, Long referrerId) {
     checkNotNull(email, nickname, passwordHash);
     this.email = email;
     this.nickname = nickname;
     this.passwordHash = passwordHash;
+    this.referrerId = referrerId;
   }
 
   public Account developerAccount() {

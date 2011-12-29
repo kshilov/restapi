@@ -8,6 +8,7 @@ import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
+import com.heymoose.domain.Context;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
@@ -27,7 +28,6 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hsqldb.store.ReusableObjectCache;
 import org.joda.time.DateTime;
 
 @Singleton
@@ -50,16 +50,16 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<OfferData> availableFor(Performer performer, Filter filter) {
+  public Set<OfferData> availableFor(Performer performer, Filter filter, Context context) {
     Map<Long, Filter.Entry> mapping = newHashMap();
     for (Filter.Entry entry : filter.entries) {
-      for (long offerId : availableIdsFor(performer, entry))
+      for (long offerId : availableIdsFor(performer, entry, context))
         mapping.put(offerId, entry);
     }
     return load(mapping);
   }
 
-  private List<Long> availableIdsFor(Performer performer, Filter.Entry condition) {
+  private List<Long> availableIdsFor(Performer performer, Filter.Entry condition, Context context) {
 
     String sql = "select offer_id " +
         "from offer " +
@@ -95,6 +95,25 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "        ))) " +
         ") ";
 
+    if (context.app != null)
+      sql += "and ( " +
+          "        trg.app_filter_type is null " +
+          "        or ((trg.app_filter_type = 0 and trg.id in ( " +
+          "                select targeting_id " +
+          "                from targeting_app tc left join app on tc.app_id = app.id " +
+          "                where app.id = :appId " +
+          "        )) " +
+          "        and (trg.app_filter_type = 1 and trg.id not in ( " +
+          "                select targeting_id " +
+          "                from targeting_app tc left join app on tc.app_id = app.id " +
+          "                where app.id = :appId " +
+          "        ))) " +
+          ") ";
+
+    if (context.hour != null)
+      sql += " and (trg.hour is null or trg.hour = :hour) ";
+
+
     sql += "and offer.type = :type ";
 
     BannerSize bannerSize = null;
@@ -123,6 +142,12 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
     if (bannerSize != null)
       query.setParameter("bannerSize", bannerSize.id());
+
+    if (context.app != null)
+      query.setParameter("appId", context.app.id());
+
+    if (context.hour != null)
+      query.setParameter("hour", context.hour);
 
     query.setParameter("limit", condition.count);
 

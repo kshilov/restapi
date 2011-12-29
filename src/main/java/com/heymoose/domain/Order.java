@@ -1,9 +1,8 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
-
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,9 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.math.BigDecimal;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 @Entity
 @Table(name = "offer_order")
@@ -114,3 +112,4 @@ public class Order extends IdEntity {
     return creationTime;
   }
 }
+

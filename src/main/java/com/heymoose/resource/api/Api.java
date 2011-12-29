@@ -6,6 +6,7 @@ import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.Context;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.OfferShow;
@@ -32,6 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import org.hibernate.type.IntegerType;
 
 @Singleton
 public class Api {
@@ -68,14 +70,14 @@ public class Api {
   }
 
   @Transactional
-  public Iterable<OfferData> getOffers(long appId, String extId, OfferRepository.Filter filter) {
+  public Iterable<OfferData> getOffers(long appId, Integer hour, String extId, OfferRepository.Filter filter) {
     App app = apps.byId(appId);
     Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
     }
-    return offers.availableFor(performer, filter);
+    return offers.availableFor(performer, filter, new Context(app, hour));
   }
 
 //  @Transactional

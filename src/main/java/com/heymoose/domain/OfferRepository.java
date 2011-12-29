@@ -73,5 +73,5 @@ public interface OfferRepository extends Repository<Offer> {
     }
   }
 
-  Set<OfferData> availableFor(Performer performer, Filter filter);
+  Set<OfferData> availableFor(Performer performer, Filter filter, Context context);
 }

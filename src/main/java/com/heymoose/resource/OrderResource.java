@@ -1,6 +1,10 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.Accounts;
+import com.heymoose.domain.App;
+import com.heymoose.domain.AppFilterType;
+import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.AppTargeting;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
@@ -63,15 +67,17 @@ public class OrderResource {
   private final Accounts accounts;
   private final BannerSizeRepository bannerSizes;
   private final CityRepository cities;
+  private final AppRepository apps;
 
   @Inject
   public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts,
-                       BannerSizeRepository bannerSizes, CityRepository cities) {
+                       BannerSizeRepository bannerSizes, CityRepository cities, AppRepository apps) {
     this.users = users;
     this.orders = orders;
     this.accounts = accounts;
     this.bannerSizes = bannerSizes;
     this.cities = cities;
+    this.apps = apps;
   }
 
   @GET
@@ -109,6 +115,9 @@ public class OrderResource {
                          @FormParam("maxAge") Integer maxAge,
                          @FormParam("cityFilterType") CityFilterType cityFilterType,
                          @FormParam("city") List<Long> cityIds,
+                         @FormParam("appFilterType") AppFilterType appFilterType,
+                         @FormParam("app") List<Long> appIds,
+                         @FormParam("hour") Integer hour,
                          @FormParam("reentrant") @DefaultValue("false") boolean reentrant,
                          @FormParam("type") Offer.Type type,
                          @FormParam("image") String image,
@@ -151,6 +160,12 @@ public class OrderResource {
       cityTargeting = new CityTargeting(cityFilterType, cityMap.values());
     }
 
+    AppTargeting appTargeting = null;
+    if (appFilterType != null) {
+      Map<Long, App> appMap = apps.byIds(appIds);
+      appTargeting = new AppTargeting(appFilterType, appMap.values());
+    }
+
     User user = users.byId(userId);
     if (user == null)
       return Response.status(404).build();
@@ -175,8 +190,8 @@ public class OrderResource {
     } else {
       throw new IllegalArgumentException("Unknown type: " + type.name());
     }
-    
-    Targeting targeting = new Targeting(male, minAge, maxAge, cityTargeting);
+
+    Targeting targeting = new Targeting(male, minAge, maxAge, cityTargeting, appTargeting, hour);
     Order order = new Order(offer, cpa, user, now, allowNegativeBalance, targeting);
     
     BigDecimal amount = balance;

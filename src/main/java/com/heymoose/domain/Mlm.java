@@ -1,8 +1,10 @@
 package com.heymoose.domain;
 
 import com.google.common.collect.Maps;
+import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.rabbitmq.RabbitMqSender;
+import java.util.Iterator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
@@ -33,74 +35,14 @@ public class Mlm {
   private final static Logger log = LoggerFactory.getLogger(Mlm.class);
 
   private final Provider<Session> sessionProvider;
-  private final Properties settings;
-  private final RabbitMqSender mqSender;
 
   @Inject
-  public Mlm(Provider<Session> sessionProvider,
-             @Named("settings") Properties settings,
-             RabbitMqSender mqSender) {
+  public Mlm(Provider<Session> sessionProvider) {
     this.sessionProvider = sessionProvider;
-    this.settings = settings;
-    this.mqSender = mqSender;
   }
 
   private Session hiber() {
     return sessionProvider.get();
-  }
-
-  private BigDecimal compensation() {
-    return new BigDecimal(Double.parseDouble(settings.getProperty("compensation")));
-  }
-
-  private double tax() {
-    return Double.parseDouble(settings.getProperty("tax"));
-  }
-
-  public static class Report {
-    public DateTime fromTime;
-    public DateTime toTime;
-    public Long appId;
-    public String callback;
-    public List<ReportItem> items = newArrayList();
-  }
-
-  public static class ReportItem {
-    public String extId;
-    public String passiveRevenue;
-  }
-
-  public Iterable<Report> generateReports(Iterable<Node> nodes, DateTime fromTime, DateTime toTime) {
-    List<Report> reports = newArrayList();
-    Report report = new Report();
-    Long prevAppId = null;
-    for (Node node : nodes) {
-      if (prevAppId != null && !Long.valueOf(node.appId).equals(prevAppId)) {
-        report.appId = prevAppId;
-        report.callback = callbackFor(prevAppId);
-        report.fromTime = fromTime;
-        report.toTime = toTime;
-        if (!report.items.isEmpty())
-          reports.add(report);
-        report = new Report();
-      }
-      if (node.revenue.compareTo(new BigDecimal(0.0)) != 0) {
-        ReportItem item = new ReportItem();
-        item.extId = node.extId;
-        item.passiveRevenue = node.revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
-        report.items.add(item);
-        prevAppId = node.appId;
-      }
-    }
-    if (prevAppId != null) {
-      report.appId = prevAppId;
-      report.callback = callbackFor(prevAppId);
-      report.fromTime = fromTime;
-      report.toTime = toTime;
-      if (!report.items.isEmpty())
-        reports.add(report);
-    }
-    return reports;
   }
 
   @Transactional
@@ -111,78 +53,54 @@ public class Mlm {
     log.info("fromTime: {}", fromTime);
     log.info("toTime: {}", toTime);
 
-    String sql = "with recursive _tmp as ( " +
-        "select p.id id, p.inviter pid, p.ext_id ext_id, p.app_id app_id, " +
-        "(select -diff from account_tx t  where t.id = a.reservation order by version desc limit 1) amount " +
-        "from action a inner join performer p on a.performer_id = p.id " +
-        "where a.approve_time between :fromTime and :toTime and a.done = true " +
-        "union all " +
-        "select __tmp.id id, __tmp.inviter pid, __tmp.ext_id ext_id, __tmp.app_id app_id, cast(0 as numeric(19,2)) amount " +
-        "from performer __tmp, _tmp where __tmp.id = _tmp.pid) " +
-        "select _tmp.id, _tmp.pid, _tmp.ext_id, _tmp.app_id, sum(_tmp.amount) " +
-        "from _tmp group by _tmp.id, _tmp.pid, _tmp.ext_id, _tmp.app_id order by _tmp.app_id";
+    String s1 = "select u.id, sum(-t.diff) from action a " +
+        "left join account_tx t on t.id = a.reservation " +
+        "left join offer_order ord on ord.account_id = t.account_id " +
+        "left join user_profile u on u.id = ord.user_id " +
+        "where a.approve_time between :fromTime and :toTime group by u.id";
 
-    List<Object[]> records = hiber().createSQLQuery(sql)
+    List<Object[]> r1 = hiber().createSQLQuery(s1)
         .setTimestamp("fromTime", fromTime.toDate())
         .setTimestamp("toTime", toTime.toDate())
         .list();
 
+    if (r1.isEmpty())
+      return;
+
+    Map<Long, BigDecimal> user2amount = newHashMap();
+    for (Object[] x : r1)
+      user2amount.put(bigIntegerAsLong(x[0]), (BigDecimal) x[1]);
+
+    String s2 = "with recursive _tmp as ( " +
+        "select u.id id, u.referrer referrer from user_profile u where u.id in (:users) " +
+        "union all " +
+        "select u.id id, u.referrer referrer from user_profile u, _tmp where u.id = _tmp.referrer) " +
+        "select distinct id, referrer from _tmp";
+
+    List<Object[]> r2 = hiber().createSQLQuery(s2)
+        .setParameterList("users", user2amount.keySet())
+        .list();
+
     List<Node> nodes = newArrayList();
-    for (Object[] record : records)
-      nodes.add(toNode(record));
+    for (Object[] record : r2)
+      nodes.add(toNode(record, user2amount));
 
-    calcPassiveRevenue(nodes, tax());
+    calcPassiveRevenue(nodes);
 
-    for (Report report : generateReports(nodes, fromTime, toTime))
-      trySendReport(report);
-  }
-
-  private void trySendReport(Report report) {
-    try {
-      mqSender.send(toJson(report).getBytes("UTF-8"), "reports", "notify");
-    } catch (Exception e) {
-      log.error("Failed to publish report", e);
+    for (Node node : nodes) {
+      log.info(node.toString());
+      if (node.revenue.compareTo(bdecimal(0)) > 0) {
+        User user = (User) hiber().get(User.class, node.id);
+        user.customerAccount().addToBalance(node.revenue, "MLM");
+      }
     }
   }
 
-  @Transactional
-  private String callbackFor(long appId) {
-    App app = (App) hiber().get(App.class, appId);
-    return app.callback().toString();
-  }
-
-  private static String toJson(Report report) {
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode json = mapper.createObjectNode();
-    json.put("appId", report.appId);
-    json.put("callback", report.callback);
-    json.put("fromTime", report.fromTime.toString());
-    json.put("toTime", report.toTime.toString());
-    ArrayNode jsonItems = mapper.createArrayNode();
-    for (Mlm.ReportItem item : report.items) {
-      ObjectNode jsonItem = mapper.createObjectNode();
-      jsonItem.put("extId", item.extId);
-      jsonItem.put("passiveRevenue", item.passiveRevenue);
-      jsonItems.add(jsonItem);
-    }
-    json.put("items", jsonItems);
-    try {
-      return mapper.writeValueAsString(json);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create JSON from report", e);
-    }
-  }
-
-  private Node toNode(Object[] record) {
-    //         0           1             2                 3                          4
-    // _tmp.id, _tmp.pid, _tmp.ext_id, _tmp.app_id, sum(_tmp.amount)
+  private Node toNode(Object[] record, Map<Long, BigDecimal> user2amount) {
     long id =  bigIntegerAsLong(record[0]);
     Long pid = (record[1] == null) ? null : bigIntegerAsLong(record[1]);
-    String extId = (String) record[2];
-    long appId = bigIntegerAsLong(record[3]);
-    BigDecimal amount = ((BigDecimal) record[4]);
-    amount = subtractCompensation(amount, compensation());
-    return node(id, pid, extId, appId, amount);
+    BigDecimal amount = user2amount.get(id);
+    return node(id, pid, amount);
   }
 
   private long bigIntegerAsLong(Object bigInteger) {
@@ -193,15 +111,32 @@ public class Mlm {
 
     public long id;
     public Long pid;
-    public String extId;
-    public long appId;
 
     public BigDecimal amount;
-    public BigDecimal revenue = new BigDecimal("0.0");
+    public BigDecimal revenue = new BigDecimal(0);
     public int count;
+
+    public List<Rem> rems = newArrayList();
+
+    @Override
+    public String toString() {
+      return "Node{" +
+          "id=" + id +
+          ", pid=" + pid +
+          ", amount=" + amount +
+          ", revenue=" + revenue +
+          ", count=" + count +
+          ", rems=" + rems +
+          '}';
+    }
   }
 
-  public static void calcPassiveRevenue(Iterable<Node> nodes, double tax) {
+  public static class Rem {
+    public BigDecimal amount;
+    public int ttl;
+  }
+
+  public static void calcPassiveRevenue(Iterable<Node> nodes) {
     // build map
     Map<Long, Node> map = Maps.newHashMap();
     for (Node node : nodes)
@@ -225,32 +160,52 @@ public class Mlm {
     while (!S.isEmpty()) {
       Node n = S.remove();
       Node parent = map.get(n.pid);
+      calcPassiveRevenue(n, parent);
       if (parent == null)
         continue;
       parent.count--;
       if (parent.count == 0)
         S.add(parent);
-      calcPassiveRevenue(n, parent, tax);
     }
   }
 
-  private static void calcPassiveRevenue(Node node, Node parent, double tax) {
-    BigDecimal revenue = node.amount.add(node.revenue).multiply(new BigDecimal(tax));
-    node.revenue = node.revenue.subtract(revenue);
-    parent.revenue = parent.revenue.add(revenue);
+  public static final int[] P = {10, 5, 3, 2};
+
+  private static void calcPassiveRevenue(Node node, Node parent) {
+    if (node.amount != null && parent != null) {
+      for (int i = 0; i < P.length; i++) {
+        Rem rem = new Rem();
+        rem.amount = node.amount.multiply(bdecimal(P[i]).divide(bdecimal(100)));
+        rem.ttl = i;
+        parent.rems.add(rem);
+      }
+    }
+    Iterator<Rem> it = node.rems.iterator();
+    while (it.hasNext()) {
+      Rem rem = it.next();
+      if (rem.ttl == 0) {
+        node.revenue = node.revenue.add(rem.amount);
+      } else if (parent != null) {
+        rem.ttl--;
+        parent.rems.add(rem);
+      }
+      it.remove();
+    }
   }
 
-  public static Node node(long id, Long pid, String extId, long appId, BigDecimal amount) {
+  public static Node node(long id, Long pid, BigDecimal amount) {
     Node node = new Node();
     node.id = id;
     node.pid = pid;
-    node.extId = extId;
-    node.appId = appId;
     node.amount = amount;
     return node;
   }
 
   public static BigDecimal amount(double amount) {
     return new BigDecimal(amount);
+  }
+
+  public static BigDecimal bdecimal(int arg) {
+    return new BigDecimal(arg);
   }
 }
