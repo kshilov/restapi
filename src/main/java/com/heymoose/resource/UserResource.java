@@ -94,6 +94,7 @@ public class UserResource {
           revenue = revenue.add(tx.diff());
       xmlUser.revenue = revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
     }
+    xmlUser.referrer = user.referrerId();
     Iterable<User> referrals = users.referrals(id);
     for (User r : referrals)
       xmlUser.referrals.add(r.email());

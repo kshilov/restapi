@@ -44,6 +44,9 @@ public class XmlUser {
   @XmlElementWrapper(name = "roles")
   @XmlElement(name = "role")
   public Set<String> roles;
+  
+  @XmlElement(name = "referrer")
+  public Long referrer;
 
   @XmlElementWrapper(name = "referrals")
   @XmlElement(name = "referral")

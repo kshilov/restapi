@@ -151,4 +151,8 @@ public class User extends IdEntity {
     checkNotNull(passwordHash);
     this.passwordHash = passwordHash;
   }
+  
+  public Long referrerId() {
+    return referrerId;
+  }
 }
