@@ -131,6 +131,14 @@ public class Targeting extends IdEntity {
   public Set<City> cities() {
     return cities;
   }
+  
+  public AppFilterType appFilterType() {
+    return appFilterType;
+  }
+  
+  public void setAppFilterType(AppFilterType filterType) {
+    this.appFilterType = filterType;
+  }
 
   public Set<App> apps() {
     return apps;
@@ -139,8 +147,16 @@ public class Targeting extends IdEntity {
   public Integer minHour() {
     return minHour;
   }
+  
+  public void setMinHour(Integer minHour) {
+    this.minHour = minHour;
+  }
 
   public Integer maxHour() {
     return maxHour;
+  }
+  
+  public void setMaxHour(Integer maxHour) {
+    this.maxHour = maxHour;
   }
 }

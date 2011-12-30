@@ -192,10 +192,16 @@ public class Mappers {
       xmlOrder.male = targeting.male();
       xmlOrder.minAge = targeting.minAge();
       xmlOrder.maxAge = targeting.maxAge();
+      xmlOrder.minHour = targeting.minHour();
+      xmlOrder.maxHour = targeting.maxHour();
       if (targeting.cityFilterType() != null)
         xmlOrder.cityFilterType = targeting.cityFilterType().toString();
       if (targeting.cities() != null)
         xmlOrder.cities = toXmlCities(targeting.cities());
+      if (targeting.appFilterType() != null)
+        xmlOrder.appFilterType = targeting.appFilterType().toString();
+      if (targeting.apps() != null)
+        xmlOrder.apps = toXmlApps(targeting.apps(), Details.ONLY_ENTITY);
       
       if (needRelated(d))
         xmlOrder.user = toXmlUser(order.customer(), relatedDetails(d));

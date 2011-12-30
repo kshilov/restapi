@@ -89,9 +89,21 @@ public class XmlOrder {
   @XmlElement(name = "max-age")
   public Integer maxAge;
   
+  @XmlElement(name = "min-hour")
+  public Integer minHour;
+  
+  @XmlElement(name = "max-hour")
+  public Integer maxHour;
+  
   @XmlElement(name = "city-filter-type")
   public String cityFilterType;
   
   @XmlElement(name = "cities")
   public XmlCities cities;
+  
+  @XmlElement(name = "app-filter-type")
+  public String appFilterType;
+  
+  @XmlElement(name = "apps")
+  public XmlApps apps;
 }
