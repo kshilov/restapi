@@ -296,6 +296,10 @@ public class OrderResource {
       order.targeting().setMinAge(toInteger(params.getFirst("minAge")));
     if (params.containsKey("maxAge"))
       order.targeting().setMaxAge(toInteger(params.getFirst("maxAge")));
+    if (params.containsKey("minHour"))
+      order.targeting().setMinHour(toInteger(params.getFirst("minHour")));
+    if (params.containsKey("maxHour"))
+      order.targeting().setMaxHour(toInteger(params.getFirst("maxHour")));
     if (params.containsKey("cityFilterType")) {
       String filterTypeParam = params.getFirst("cityFilterType");
       CityFilterType filterType = null;
