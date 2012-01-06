@@ -22,13 +22,15 @@ public class City extends IdEntity {
   @Basic(optional = false)
   private String name;
 
+  @Basic(optional = false)
+  private boolean disabled;
+
   @Override
   public Long id() {
     return id;
   }
 
   protected City() {}
-
 
   public City(String name) {
     checkNotNull(name);
@@ -42,5 +44,17 @@ public class City extends IdEntity {
   public void changeName(String name) {
     checkNotNull(name);
     this.name = name;
+  }
+
+  public boolean disabled() {
+    return disabled;
+  }
+
+  public void disable() {
+    disabled = true;
+  }
+
+  public void enable() {
+    disabled = false;
   }
 }

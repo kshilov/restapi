@@ -11,6 +11,8 @@ public class CityTargeting {
     checkArgument(type != null);
     checkArgument(cities != null);
     checkArgument(!isEmpty(cities));
+    for (City city : cities)
+      checkArgument(!city.disabled());
     this.type = type;
     this.cities = ImmutableSet.copyOf(cities);
   }

@@ -28,6 +28,9 @@ public class BannerSize extends IdEntity {
 
   @Basic(optional = false)
   private int height;
+
+  @Basic(optional = false)
+  private boolean disabled;
   
   @Override
   public Long id() {
@@ -49,5 +52,17 @@ public class BannerSize extends IdEntity {
 
   public int height() {
     return height;
+  }
+
+  public boolean disabled() {
+    return disabled;
+  }
+
+  public void disable() {
+    disabled = true;
+  }
+
+  public void enable() {
+    disabled = false;
   }
 }

@@ -187,6 +187,8 @@ public class OrderResource {
       BannerSize size = bannerSizes.byId(bannerSizeId);
       if (size == null)
         return Response.status(404).build();
+      if (size.disabled())
+        return Response.status(409).build();
       Banner banner = new Banner(image, bannerMimeType, size);
       offer = new BannerOffer(title, url, autoApprove, now, reentrant, asList(banner));
     } else {
