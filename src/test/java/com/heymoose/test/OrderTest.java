@@ -26,6 +26,7 @@ public class OrderTest extends RestTest {
   String DESCRIPTION = "description";
   String BODY = "http://ya.ru";
   String IMAGE = "sdfasdfnaslf";
+  String MIME_TYPE = "image/png";
   String VIDEO_URL = "http://video.com/video1";
   double BALANCE = 20.0;
   double CPA = 2.0;
@@ -52,7 +53,7 @@ public class OrderTest extends RestTest {
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
     long size = heymoose().bannerSize(468, 60);
-    heymoose().createBannerOrder(userId, TITLE, BODY, IMAGE, size, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
+    heymoose().createBannerOrder(userId, TITLE, BODY, IMAGE, MIME_TYPE, size, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
     return userId;
   }
 

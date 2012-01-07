@@ -138,6 +138,7 @@ public class Heymoose {
                                  String title,
                                  String url,
                                  String image,
+                                 String bannerMimeType,
                                  long bannerSize,
                                  double balance,
                                  double cpa,
@@ -145,6 +146,7 @@ public class Heymoose {
     Form form = new Form();
     form.add("userId", userId);
     form.add("title", title);
+    form.add("bannerMimeType", bannerMimeType);
     form.add("bannerSize", bannerSize);
     form.add("url", url);
     form.add("image", image);

@@ -22,6 +22,9 @@ public class Banner extends IdEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "banner-seq")
   @SequenceGenerator(name = "banner-seq", sequenceName = "banner_seq", allocationSize = 1)
   private Long id;
+  
+  @Basic
+  private String mimeType;
 
   @Basic
   private byte[] image;
@@ -36,19 +39,28 @@ public class Banner extends IdEntity {
 
   protected Banner() {}
 
-  public Banner(String imageBase64, BannerSize size) {
-    checkNotNull(imageBase64, size);
+  public Banner(String imageBase64, String mimeType, BannerSize size) {
+    checkNotNull(imageBase64, mimeType, size);
     try {
       this.image = imageBase64.getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
+    this.mimeType = mimeType;
     this.size = size;
   }
 
   @Override
   public Long id() {
     return id;
+  }
+  
+  public String mimeType() {
+    return mimeType;
+  }
+  
+  public void setMimeType(String mimeType) {
+    this.mimeType = mimeType;
   }
 
   public String imageBase64() {

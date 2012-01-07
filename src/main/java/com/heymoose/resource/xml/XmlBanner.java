@@ -12,6 +12,9 @@ public class XmlBanner {
   
   @XmlElement(name = "image")
   public String imageBase64;
+  
+  @XmlElement(name = "mime-type")
+  public String mimeType;
 
   @XmlElement(name = "banner-size")
   public XmlBannerSize bannerSize;

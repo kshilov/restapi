@@ -179,6 +179,7 @@ public class Mappers {
           xmlBanner.id = banner.id();
           if (d == Details.WITH_RELATED_ENTITIES)
             xmlBanner.imageBase64 = banner.imageBase64();
+          xmlBanner.mimeType = banner.mimeType();
           xmlBanner.bannerSize = toXmlBannerSize(banner.size(), d);
           xmlOrder.banners.add(xmlBanner);
         }

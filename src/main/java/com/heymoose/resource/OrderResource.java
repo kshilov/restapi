@@ -124,6 +124,7 @@ public class OrderResource {
                          @FormParam("image") String image,
                          @FormParam("description") String description,
                          @FormParam("videoUrl") String videoUrl,
+                         @FormParam("bannerMimeType") String bannerMimeType,
                          @FormParam("bannerSize") Integer bannerSizeId) {
 
     checkNotNull(_balance, _cpa);
@@ -182,11 +183,11 @@ public class OrderResource {
     } else if (type.equals(Offer.Type.VIDEO)) {
       offer = new VideoOffer(title, url, autoApprove, now, reentrant, videoUrl);
     } else if (type.equals(Offer.Type.BANNER)) {
-      checkNotNull(bannerSizeId);
+      checkNotNull(bannerSizeId, bannerMimeType);
       BannerSize size = bannerSizes.byId(bannerSizeId);
       if (size == null)
         return Response.status(404).build();
-      Banner banner = new Banner(image, size);
+      Banner banner = new Banner(image, bannerMimeType, size);
       offer = new BannerOffer(title, url, autoApprove, now, reentrant, asList(banner));
     } else {
       throw new IllegalArgumentException("Unknown type: " + type.name());
@@ -212,8 +213,11 @@ public class OrderResource {
   @POST
   @Path("{id}/banners")
   @Transactional
-  public void addBanner(@PathParam("id") long orderId, @FormParam("bannerSize") Integer bannerSizeId,  @FormParam("image") String image) {
-    checkNotNull(bannerSizeId, image);
+  public void addBanner(@PathParam("id") long orderId,
+                        @FormParam("bannerSize") Integer bannerSizeId,
+                        @FormParam("mimeType") String mimeType,
+                        @FormParam("image") String image) {
+    checkNotNull(bannerSizeId, mimeType, image);
     Order order = orders.byId(orderId);
     if (order == null)
       throw notFound();
@@ -224,7 +228,7 @@ public class OrderResource {
     BannerSize size = bannerSizes.byId(bannerSizeId);
     if (size == null)
        throw notFound();
-    Banner banner = new Banner(image, size);
+    Banner banner = new Banner(image, mimeType, size);
     bannerOffer.addBanner(banner);
   }
 
