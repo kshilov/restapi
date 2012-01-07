@@ -380,6 +380,7 @@ public class Mappers {
     if (needFields(d)) {
       xmlBannerSize.width = bannerSize.width();
       xmlBannerSize.height = bannerSize.height();
+      xmlBannerSize.disabled = bannerSize.disabled();
     }
     return xmlBannerSize;
   }
@@ -395,6 +396,7 @@ public class Mappers {
     XmlCity xmlCity = new XmlCity();
     xmlCity.id = city.id();
     xmlCity.name = city.name();
+    xmlCity.disabled = city.disabled();
     return xmlCity;
   }
 }

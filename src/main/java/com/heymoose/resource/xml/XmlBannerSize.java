@@ -15,4 +15,7 @@ public class XmlBannerSize {
 
   @XmlElement(name = "height")
   public Integer height;
+  
+  @XmlElement(name = "disabled")
+  public Boolean disabled;
 }

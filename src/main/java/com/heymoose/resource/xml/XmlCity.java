@@ -12,4 +12,7 @@ public class XmlCity {
 
   @XmlElement(name = "name")
   public String name;
+  
+  @XmlElement(name = "disabled")
+  public Boolean disabled;
 }
