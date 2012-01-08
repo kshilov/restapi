@@ -115,11 +115,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       		"(trg.min_hour is null and trg.max_hour is null) or " +
       		"(trg.min_hour is null and :hour <= trg.max_hour) or " +
       		"(trg.max_hour is null and :hour >= trg.min_hour) or " +
-      		"(trg.min_hour <= trg.max_hour and :hour >= trg.min_hour and :hour <= trg.max_hour) or " +
-      		"(trg.min_hour > trg.max_hour and (:hour >= trg.min_hour or :hour <= trg.max_hour))) ";
-    
-      /*sql += " and (trg.min_hour is null or trg.min_hour <= :hour) " +
-          " and (trg.max_hour is null or trg.max_hour >= :hour) ";*/
+      		"(trg.min_hour < trg.max_hour and :hour >= trg.min_hour and :hour <= trg.max_hour) or " +
+      		"(trg.min_hour >= trg.max_hour and (:hour >= trg.min_hour or :hour <= trg.max_hour))) ";
 
     sql += "and offer.type = :type ";
 
