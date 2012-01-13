@@ -37,7 +37,7 @@ public class OfferShowRepositoryHiber extends RepositoryHiber<OfferShow> impleme
       criteria.add(Restrictions.eq("app.id", appId));
     if (performerId != null)
       criteria.add(Restrictions.eq("performer.id", performerId));
-        
+
     return criteria.list();
   }
 }

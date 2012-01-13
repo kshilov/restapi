@@ -140,7 +140,7 @@ public class Api {
 
     if (offer.order().disabled())
       throw conflict();
-    accounts.lock(offer.order().account());
+    accounts.lock(app.owner().developerAccount());
     Action action = new Action(offer, performer, app);
     if (offer.autoApprove())
       action.approve(compensation);
