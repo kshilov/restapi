@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.OfferShowRepository;
-import com.heymoose.hibernate.Transactional;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import static java.util.Arrays.asList;
@@ -13,11 +12,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-
-import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
 @Singleton
@@ -37,11 +33,10 @@ public class OfferShowRepositoryHiber extends RepositoryHiber<OfferShow> impleme
   public Map<DateTime, Integer> stats(DateTime from, DateTime to,
                                       Long offerId, Long appId, Long performerId, String trunc) {
 
-    checkArgument(asList("hour", "month", "year").contains(trunc));
+    checkArgument(asList("hour", "month", "year", "day").contains(trunc));
     String sql = "select date_trunc('{trunc}', show_time), count(*) from offer_show" +
         " where show_time between :from and :to";
 
-    
     if (offerId != null)
       sql += " and offer_id = :offer";
     if (appId != null)

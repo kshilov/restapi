@@ -58,7 +58,7 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
 
   @Override
   public Map<DateTime, Integer> stats(DateTime from, DateTime to, Long offerId, Long appId, Long performerId, String trunc) {
-    checkArgument(asList("hour", "month", "year").contains(trunc));
+    checkArgument(asList("hour", "month", "year", "day").contains(trunc));
     String sql = "select date_trunc('{trunc}', creation_time), count(*) from action" +
         " where creation_time between :from and :to";
 

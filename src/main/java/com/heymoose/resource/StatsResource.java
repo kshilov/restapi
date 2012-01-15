@@ -43,7 +43,7 @@ public class StatsResource {
                       @QueryParam("trunc") String trunc) {
 
     checkNotNull(from, to);
-    checkArgument(asList("hour", "month", "year").contains(trunc));
+    checkArgument(asList("hour", "month", "year", "day").contains(trunc));
 
     DateTime dtFrom = new DateTime(from);
     DateTime dtTo = new DateTime(to);
