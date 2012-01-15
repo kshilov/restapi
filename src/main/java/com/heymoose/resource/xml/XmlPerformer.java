@@ -26,4 +26,7 @@ public class XmlPerformer {
   
   @XmlElement(name = "year")
   public Integer year;
+  
+  @XmlElement(name = "city")
+  public String city;
 }

@@ -325,10 +325,9 @@ public class Mappers {
       
       if (performer.platform() != null)
         xmlPerformer.platform = performer.platform().toString();
-      if (performer.male() != null)
-        xmlPerformer.male = performer.male();
-      if (performer.year() != null)
-        xmlPerformer.year = performer.year();
+      xmlPerformer.male = performer.male();
+      xmlPerformer.year = performer.year();
+      xmlPerformer.city = performer.city();
       
       if (needRelated(d)) {
         if (performer.inviter() != null)
