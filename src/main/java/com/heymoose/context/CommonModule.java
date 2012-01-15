@@ -43,6 +43,7 @@ import com.heymoose.domain.hiber.OrderRepositoryHiber;
 import com.heymoose.domain.hiber.PerformerRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
 import com.heymoose.resource.ActionResource;
+import com.heymoose.resource.StatsResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
 import com.heymoose.resource.AppResource;
@@ -73,6 +74,7 @@ public class CommonModule extends AbstractModule {
     bind(Api.class);
     bind(BannerSizeResource.class);
     bind(CityResource.class);
+    bind(StatsResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);
