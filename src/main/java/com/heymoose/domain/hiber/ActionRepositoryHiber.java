@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
-
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -17,10 +19,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 
 @Singleton
 public class ActionRepositoryHiber extends RepositoryHiber<Action> implements ActionRepository {
@@ -75,8 +73,8 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
 
     SQLQuery query = hiber().createSQLQuery(sql);
 
-    query.setDate("from", from.toDate());
-    query.setDate("to", to.toDate());
+    query.setTimestamp("from", from.toDate());
+    query.setTimestamp("to", to.toDate());
 
     if (offerId != null)
       query.setLong("offer", offerId);

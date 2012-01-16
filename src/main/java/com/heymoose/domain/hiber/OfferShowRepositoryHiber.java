@@ -50,8 +50,8 @@ public class OfferShowRepositoryHiber extends RepositoryHiber<OfferShow> impleme
 
     SQLQuery query = hiber().createSQLQuery(sql);
 
-    query.setDate("from", from.toDate());
-    query.setDate("to", to.toDate());
+    query.setTimestamp("from", from.toDate());
+    query.setTimestamp("to", to.toDate());
 
     if (offerId != null)
       query.setLong("offer", offerId);
