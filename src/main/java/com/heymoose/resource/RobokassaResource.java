@@ -4,6 +4,7 @@ import com.heymoose.domain.Accounts;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
+import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.resource.Exceptions.unauthorized;
 import static java.lang.String.format;
@@ -38,27 +39,44 @@ public class RobokassaResource {
   @POST
   @Path("result")
   @Transactional
-  public void result(@FormParam("nOutSum") double sum,
-                     @FormParam("nInvId") long userId,
+  public void result(@FormParam("nOutSum") String _sum,
+                     @FormParam("nInvId") Long userId,
                      @FormParam("sSignatureValue") String sig) {
-    if (!validateSig(sum, userId, sig)) {
-      log.error("Robokassa[nOutSum: {}, nInvId:{}, sSignatureValue:]: bad sig", new Object[]{sum, userId, sig});
+    if (_sum == null) {
+      logError(_sum, userId, sig, "nOutSum is null");
+      throw badRequest();
+    }
+    if (userId == null) {
+      logError(_sum, userId, sig, "nInvId is null");
+      throw badRequest();
+    }
+    if (sig == null) {
+      logError(_sum, userId, sig, "sSignatureValue is null");
+      throw badRequest();
+    }
+    if (!validateSig(_sum, userId, sig)) {
+      logError(_sum, userId, sig, "bad sig");
       throw unauthorized();
     }
+    double sum = Double.parseDouble(_sum);
     User user = users.byId(userId);
     if (user == null) {
-      log.error("Robokassa[nOutSum: {}, nInvId:{}, sSignatureValue:]: user not found", new Object[]{sum, userId, sig});
+      logError(_sum, userId, sig, "user not found");
       throw notFound();
     }
     if (!user.isCustomer()) {
-      log.error("Robokassa[nOutSum: {}, nInvId:{}, sSignatureValue:]: not a customer", new Object[]{sum, userId, sig});
+      logError(_sum, userId, sig, "not a customer");
       throw unauthorized();
     }
     accounts.lock(user.customerAccount());
     user.customerAccount().addToBalance(new BigDecimal(sum), "Robokassa");
   }
+  
+  private static void logError(String sum, long userId, String sig, String message) {
+    log.error("Robokassa[nOutSum: {}, nInvId:{}, sSignatureValue:{}]: {}", new Object[]{sum, userId, sig, message});
+  }
 
-  private boolean validateSig(double sum, long userId, String sig) {
-    return md5Hex(format("%s:%d:%s", Double.toString(sum), userId, robokassaPass)).equals(sig);
+  private boolean validateSig(String sum, long userId, String sig) {
+    return md5Hex(format("%s:%d:%s", sum, userId, robokassaPass)).equals(sig);
   }
 }
