@@ -106,4 +106,9 @@ public class CommonModule extends AbstractModule {
   protected BigDecimal compensation(@Named("settings") Properties settings) {
     return new BigDecimal(settings.getProperty("compensation"));
   }
+
+  @Provides @Named("robokassaPass")  @Singleton
+  protected String robokassaPass(@Named("settings") Properties settings) {
+    return settings.getProperty("robokassaPass");
+  }
 }

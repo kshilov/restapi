@@ -52,6 +52,7 @@ public class TestModule extends AbstractModule {
     Properties settings = new Properties();
     settings.setProperty("compensation", "0.5");
     settings.setProperty("tax", "0.1");
+    settings.setProperty("robokassaPass", "robokassaPass");
     return settings;
   }
 }
