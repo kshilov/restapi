@@ -1,7 +1,7 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.Account;
 import com.heymoose.domain.Accounts;
-import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,37 +40,34 @@ public class RobokassaResource {
   @POST
   @Path("result")
   @Transactional
-  public void result(@FormParam("nOutSum") String _sum,
-                     @FormParam("nInvId") Long userId,
+  @Produces("text/plain")
+  public String result(@FormParam("nOutSum") String _sum,
+                     @FormParam("nInvId") Long accountId,
                      @FormParam("sSignatureValue") String sig) {
     if (_sum == null) {
-      logError(_sum, userId, sig, "nOutSum is null");
+      logError(_sum, accountId, sig, "nOutSum is null");
       throw badRequest();
     }
-    if (userId == null) {
-      logError(_sum, userId, sig, "nInvId is null");
+    if (accountId == null) {
+      logError(_sum, accountId, sig, "nInvId is null");
       throw badRequest();
     }
     if (sig == null) {
-      logError(_sum, userId, sig, "sSignatureValue is null");
+      logError(_sum, accountId, sig, "sSignatureValue is null");
       throw badRequest();
     }
-    if (!validateSig(_sum, userId, sig)) {
-      logError(_sum, userId, sig, "bad sig");
+    if (!validateSig(_sum, accountId, sig)) {
+      logError(_sum, accountId, sig, "bad sig");
       throw unauthorized();
     }
     double sum = Double.parseDouble(_sum);
-    User user = users.byId(userId);
-    if (user == null) {
-      logError(_sum, userId, sig, "user not found");
+    Account account = accounts.getAndLock(accountId);
+    if (account == null) {
+      logError(_sum, accountId, sig, "account not found");
       throw notFound();
     }
-    if (!user.isCustomer()) {
-      logError(_sum, userId, sig, "not a customer");
-      throw unauthorized();
-    }
-    accounts.lock(user.customerAccount());
-    user.customerAccount().addToBalance(new BigDecimal(sum), "Robokassa");
+    account.addToBalance(new BigDecimal(sum), "Robokassa");
+    return "OK" + accountId;
   }
   
   private static void logError(String sum, long userId, String sig, String message) {

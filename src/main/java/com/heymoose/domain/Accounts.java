@@ -36,4 +36,8 @@ public class Accounts {
       lock(a1);
     }
   }
+  
+  public Account getAndLock(long accountId) {
+    return (Account) hiber().get(Account.class, accountId, LockOptions.UPGRADE);
+  }
 }
