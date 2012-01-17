@@ -42,6 +42,7 @@ import com.heymoose.domain.hiber.OfferShowRepositoryHiber;
 import com.heymoose.domain.hiber.OrderRepositoryHiber;
 import com.heymoose.domain.hiber.PerformerRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
+import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.ActionResource;
 import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.StatsResource;
@@ -77,6 +78,7 @@ public class CommonModule extends AbstractModule {
     bind(CityResource.class);
     bind(StatsResource.class);
     bind(RobokassaResource.class);
+    bind(AccountResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);

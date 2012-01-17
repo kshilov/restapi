@@ -77,7 +77,7 @@ public class UserTest extends RestTest {
     double amount = 1.2;
     heymoose().addToCustomerAccount(userId, amount);
     XmlUser user = heymoose().getUser(userId);
-    assertEquals(Double.valueOf(amount), Double.valueOf(user.customerAccount));
+    assertEquals(Double.valueOf(amount), user.customerAccount.balance);
   }
 
   @Test public void addToCustomerAccountWithoutCustomerRole() {

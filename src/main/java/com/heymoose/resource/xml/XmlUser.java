@@ -22,7 +22,7 @@ public class XmlUser {
   public String passwordHash;
 
   @XmlElement(name = "customer-account")
-  public String customerAccount;
+  public XmlAccount customerAccount;
 
   @XmlElement(name = "revenue")
   public String revenue;
@@ -31,7 +31,7 @@ public class XmlUser {
   public String customerSecret;
 
   @XmlElement(name = "developer-account")
-  public String developerAccount;
+  public XmlAccount developerAccount;
 
   @XmlElementWrapper(name = "apps")
   @XmlElement(name = "app")

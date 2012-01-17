@@ -66,7 +66,7 @@ public class OrderTest extends RestTest {
   @Test public void createOrder() {
     long userId = createAndReturnUserId();
     XmlUser user = heymoose().getUser(userId);
-    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
+    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), user.customerAccount.balance);
     assertEquals(1, user.orders.size());
     assertNotNull(user.customerSecret);
     XmlOrder order = user.orders.iterator().next();
@@ -76,7 +76,7 @@ public class OrderTest extends RestTest {
   @Test public void createOrderWithVideoOffer() {
     long userId = createVideoAndReturnUserId();
     XmlUser user = heymoose().getUser(userId);
-    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
+    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), user.customerAccount.balance);
     assertEquals(1, user.orders.size());
     assertNotNull(user.customerSecret);
     XmlOrder order = user.orders.iterator().next();
@@ -87,7 +87,7 @@ public class OrderTest extends RestTest {
   @Test public void createOrderWithBannerOffer() {
     long userId = createBannerAndReturnUserId();
     XmlUser user = heymoose().getUser(userId);
-    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), Double.valueOf(user.customerAccount));
+    assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), user.customerAccount.balance);
     assertEquals(1, user.orders.size());
     assertNotNull(user.customerSecret);
     XmlOrder order = user.orders.iterator().next();

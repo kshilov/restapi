@@ -2,6 +2,8 @@ package com.heymoose.resource.xml;
 
 import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.Sets;
+import com.heymoose.domain.Account;
+import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
 import com.heymoose.domain.Banner;
@@ -83,19 +85,11 @@ public class Mappers {
       xmlUser.nickname = user.nickname();
       xmlUser.passwordHash = user.passwordHash();
       
-      if (user.customerAccount() != null) {
-        if (user.customerAccount().currentState() == null)
-          xmlUser.customerAccount = "0.0";
-        else
-          xmlUser.customerAccount = user.customerAccount().currentState().balance().toString();
-      }
+      if (user.customerAccount() != null)
+        xmlUser.customerAccount = toXmlAccount(user.customerAccount());
       xmlUser.customerSecret = user.customerSecret();
-      if (user.developerAccount() != null) {
-        if (user.developerAccount().currentState() == null)
-          xmlUser.developerAccount = "0.0";
-        else
-          xmlUser.developerAccount = user.developerAccount().currentState().balance().toString();
-      }
+      if (user.developerAccount() != null)
+        xmlUser.developerAccount = toXmlAccount(user.developerAccount());
       xmlUser.roles = Sets.newHashSet();
       for (Role role : user.roles())
         xmlUser.roles.add(role.toString());
@@ -115,6 +109,17 @@ public class Mappers {
       }
     }
     return xmlUser;
+  }
+  
+  public static XmlAccount toXmlAccount(Account account) {
+    XmlAccount xmlAccount = new XmlAccount();
+    xmlAccount.id = account.id();
+    AccountTx currentState = account.currentState();
+    if (currentState != null)
+      xmlAccount.balance = currentState.balance().doubleValue();
+    else
+      xmlAccount.balance = 0.0;
+    return xmlAccount;
   }
   
   public static XmlOrders toXmlOrders(Iterable<Order> orders) {
@@ -397,5 +402,21 @@ public class Mappers {
     xmlCity.name = city.name();
     xmlCity.disabled = city.disabled();
     return xmlCity;
+  }
+  
+  public static XmlTransactions toXmlTransactions(Iterable<AccountTx> transactions) {
+    XmlTransactions xmlTransactions = new XmlTransactions();
+    for (AccountTx tx : transactions)
+      xmlTransactions.transactions.add(toXmlTransaction(tx));
+    return xmlTransactions;
+  }
+  
+  public static XmlTransaction toXmlTransaction(AccountTx account) {
+    XmlTransaction xmlTransaction = new XmlTransaction();
+    xmlTransaction.id = account.id();
+    xmlTransaction.balance = account.balance().doubleValue();
+    xmlTransaction.diff = account.diff().doubleValue();
+    xmlTransaction.description = account.description();
+    return xmlTransaction;
   }
 }

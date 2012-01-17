@@ -40,4 +40,8 @@ public class Accounts {
   public Account getAndLock(long accountId) {
     return (Account) hiber().get(Account.class, accountId, LockOptions.UPGRADE);
   }
+
+  public Account get(long accountId) {
+    return (Account) hiber().get(Account.class, accountId);
+  }
 }
