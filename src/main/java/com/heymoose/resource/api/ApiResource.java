@@ -133,7 +133,7 @@ public class ApiResource {
 
   private Response introducePerformer(Map<String, String> params) throws ApiRequestException {
     long appId = safeGetLongParam(params, "app_id");
-    validateAppSig(appId, params);
+    App app = validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
     String _sex = params.get("sex");
     if (_sex != null && !asList("MALE", "FEMALE").contains(_sex))
@@ -142,7 +142,7 @@ public class ApiResource {
     String _year = params.get("year");
     Integer year = (_year == null) ? null : parseInt("year", _year);
     String city = params.get("city");
-    api.introducePerformer(appId, extId, new Performer.Info(male, year, city));
+    api.introducePerformer(app.platform(), extId, new Performer.Info(male, year, city));
     return successResponse();
   }
 

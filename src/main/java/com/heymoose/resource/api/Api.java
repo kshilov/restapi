@@ -13,6 +13,7 @@ import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
+import com.heymoose.domain.Platform;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.events.ActionApproved;
@@ -195,12 +196,10 @@ public class Api {
   }
 
   @Transactional
-  public void introducePerformer(long appId, String extId, Performer.Info info) {
-    App app = apps.byId(appId);
-    Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
-    if (performer == null) {
-      performer = new Performer(extId, app.platform(), null);
-    }
+  public void introducePerformer(Platform platform, String extId, Performer.Info info) {
+    Performer performer = performers.byPlatformAndExtId(platform, extId);
+    if (performer == null)
+      performer = new Performer(extId, platform, null);
     performer.setInfo(info);
     performers.put(performer);
   }
