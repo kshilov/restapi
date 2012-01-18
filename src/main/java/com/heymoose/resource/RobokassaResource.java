@@ -70,11 +70,11 @@ public class RobokassaResource {
     return "OK" + accountId;
   }
   
-  private static void logError(String sum, long userId, String sig, String message) {
+  private static void logError(String sum, Long userId, String sig, String message) {
     log.error("Robokassa[nOutSum: {}, nInvId:{}, sSignatureValue:{}]: {}", new Object[]{sum, userId, sig, message});
   }
 
   private boolean validateSig(String sum, long userId, String sig) {
-    return md5Hex(format("%s:%d:%s", sum, userId, robokassaPass)).equals(sig);
+    return md5Hex(format("%s:%d:%s", sum, userId, robokassaPass)).equalsIgnoreCase(sig);
   }
 }
