@@ -122,12 +122,12 @@ public class ApiResource {
 
   private Response reportShow(Map<String, String> params, Multimap<String, String> multiParams) throws ApiRequestException {
     long appId = safeGetLongParam(params, "app_id");
-    validateAppSig(appId, params);
+    App app = validateAppSig(appId, params);
     String extId = safeGetParam(params, "uid");
     List<Long> offers = newArrayList();
     for (String _offerId : multiParams.get("offer_id"))
       offers.add(parseLong("offer_id", _offerId));
-    api.reportShow(offers, appId, extId);
+    api.reportShow(offers, app, extId);
     return successResponse();
   }
 
@@ -192,11 +192,12 @@ public class ApiResource {
   }
 
   @Transactional
-  public void validateAppSig(long appId, Map<String, String> params) throws ApiRequestException {
+  public App validateAppSig(long appId, Map<String, String> params) throws ApiRequestException {
     App app = apps.byId(appId);
     if (app == null)
       throw appNotFound(appId);
     validateSig(app.secret(), params);
+    return app;
   }
 
   @Transactional

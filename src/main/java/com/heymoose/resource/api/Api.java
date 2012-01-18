@@ -206,10 +206,8 @@ public class Api {
   }
 
   @Transactional
-  public void reportShow(List<Long> offers, long appId, String extId) {
-   for (Offer offer : this.offers.byIds(offers).values()) {
-     App app = apps.byId(appId);
+  public void reportShow(List<Long> offers, App app, String extId) {
+   for (Offer offer : this.offers.byIds(offers).values())
      offerShows.put(new OfferShow(offer, app, performers.byPlatformAndExtId(app.platform(), extId)));
-   }
   }
 }
