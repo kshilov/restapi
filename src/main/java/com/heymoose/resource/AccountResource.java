@@ -50,6 +50,6 @@ public class AccountResource {
     int cnt = 0;
     for(int i = offset; i < transactions.size() && cnt < limit; cnt++, i++)
       page.add(transactions.get(i));
-    return Mappers.toXmlTransactions(page);
+    return Mappers.toXmlTransactions(page, transactions.size());
   }
 }
