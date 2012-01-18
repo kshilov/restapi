@@ -41,19 +41,19 @@ public class RobokassaResource {
   @Path("result")
   @Transactional
   @Produces("text/plain")
-  public String result(@FormParam("nOutSum") String _sum,
-                     @FormParam("nInvId") Long accountId,
-                     @FormParam("sSignatureValue") String sig) {
+  public String result(@FormParam("OutSum") String _sum,
+                     @FormParam("InvId") Long accountId,
+                     @FormParam("SignatureValue") String sig) {
     if (_sum == null) {
-      logError(_sum, accountId, sig, "nOutSum is null");
+      logError(_sum, accountId, sig, "OutSum is null");
       throw badRequest();
     }
     if (accountId == null) {
-      logError(_sum, accountId, sig, "nInvId is null");
+      logError(_sum, accountId, sig, "InvId is null");
       throw badRequest();
     }
     if (sig == null) {
-      logError(_sum, accountId, sig, "sSignatureValue is null");
+      logError(_sum, accountId, sig, "SignatureValue is null");
       throw badRequest();
     }
     if (!validateSig(_sum, accountId, sig)) {
@@ -71,7 +71,7 @@ public class RobokassaResource {
   }
   
   private static void logError(String sum, Long userId, String sig, String message) {
-    log.error("Robokassa[nOutSum: {}, nInvId:{}, sSignatureValue:{}]: {}", new Object[]{sum, userId, sig, message});
+    log.error("Robokassa[OutSum: {}, InvId:{}, SignatureValue:{}]: {}", new Object[]{sum, userId, sig, message});
   }
 
   private boolean validateSig(String sum, long userId, String sig) {
