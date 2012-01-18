@@ -17,6 +17,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,7 @@ public class RobokassaResource {
       logError(_sum, accountId, sig, "account not found");
       throw notFound();
     }
-    account.addToBalance(new BigDecimal(sum), "Robokassa");
+    account.addToBalance(new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"));
     return "OK" + accountId;
   }
   
