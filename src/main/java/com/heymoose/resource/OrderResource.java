@@ -320,6 +320,22 @@ public class OrderResource {
       order.targeting().cities().clear();
       order.targeting().cities().addAll(cities.byIds(ids).values());
     }
+    if (params.containsKey("appFilterType")) {
+      String filterTypeParam = params.getFirst("appFilterType");
+      AppFilterType filterType = null;
+      if (!isNull(filterTypeParam))
+        filterType = Enum.valueOf(AppFilterType.class, filterTypeParam);
+      else
+        order.targeting().apps().clear();
+      order.targeting().setAppFilterType(filterType);
+    }
+    if (params.containsKey("app")) {
+      List<Long> ids = new ArrayList<Long>();
+      for (String appId : params.get("app"))
+        ids.add(Long.valueOf(appId));
+      order.targeting().apps().clear();
+      order.targeting().apps().addAll(apps.byIds(ids).values());
+    }
     
     Offer offer = HibernateUtil.unproxy(order.offer());
     
