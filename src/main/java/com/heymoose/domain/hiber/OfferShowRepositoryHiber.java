@@ -12,8 +12,12 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+
+import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
 @Singleton
@@ -68,5 +72,19 @@ public class OfferShowRepositoryHiber extends RepositoryHiber<OfferShow> impleme
     }
 
     return stats;
+  }
+
+  @Override
+  public Long count(Long offerId, Long appId, Long performerId) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+    if (offerId != null)
+      criteria.add(Restrictions.eq("offer.id", offerId));
+    if (appId != null)
+      criteria.add(Restrictions.eq("app.id", appId));
+    if (performerId != null)
+      criteria.add(Restrictions.eq("performer.id", performerId));
+    
+    criteria.setProjection(Projections.rowCount());
+    return (Long)criteria.uniqueResult();
   }
 }
