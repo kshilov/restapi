@@ -20,6 +20,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
@@ -82,9 +83,29 @@ public class AppResource {
       return Response.status(404).build();
     return Response.ok(Mappers.toXmlApp(app, Details.WITH_RELATED_ENTITIES)).build();
   }
-
+  
   @PUT
   @Path("{id}")
+  @Transactional
+  public void update(@PathParam("id") long appId,
+                     @FormParam("title") String title,
+                     @FormParam("url") String url,
+                     @FormParam("callback") String callback,
+                     @FormParam("platform") Platform platform,
+                     @FormParam("deleted") Boolean deleted) {
+    App app = apps.anyById(appId);
+    if (app == null)
+      throw new WebApplicationException(404);
+    
+    if (title != null) app.setTitle(title);
+    if (url != null) app.setUrl(URI.create(url));
+    if (callback != null) app.setCallback(URI.create(callback));
+    if (platform != null) app.setPlatform(platform);
+    if (deleted != null) app.setDeleted(deleted);
+  }
+
+  @PUT
+  @Path("{id}/secret")
   @Transactional
   public Response regenerateSecret(@PathParam("id") long appId) {
     App app = apps.byId(appId);

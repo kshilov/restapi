@@ -78,6 +78,10 @@ public class App extends IdEntity {
   public String title() {
     return title;
   }
+  
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
   public User owner() {
     return user;
@@ -98,13 +102,25 @@ public class App extends IdEntity {
   public void delete() {
     this.deleted = true;
   }
+  
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
+  }
 
   public URI url() {
     return URI.create(url);
   }
+  
+  public void setUrl(URI url) {
+    this.url = url.toString();
+  }
 
   public URI callback() {
     return URI.create(callbackUrl);
+  }
+  
+  public void setCallback(URI callback) {
+    this.callbackUrl = callback.toString();
   }
   
   public DateTime creationTime() {
@@ -113,5 +129,9 @@ public class App extends IdEntity {
 
   public Platform platform() {
     return platform;
+  }
+  
+  public void setPlatform(Platform platform) {
+    this.platform = platform;
   }
 }

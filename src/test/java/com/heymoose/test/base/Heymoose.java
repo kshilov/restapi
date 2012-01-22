@@ -87,7 +87,7 @@ public class Heymoose {
   }
 
   public void regenerateSecret(long appId) {
-    client.path("apps").path(Long.toString(appId)).put();
+    client.path("apps").path(Long.toString(appId)).path("secret").put();
   }
 
   public void deleteApp(long appId) {
