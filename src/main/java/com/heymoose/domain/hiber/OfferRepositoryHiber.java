@@ -317,15 +317,42 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         .list();
     Set<OfferData> ret = newHashSet();
     for (Offer offer : offers)
-      ret.add(convert(offer, mapping.get(offer.id())));
+      ret.add(convert(offer, mapping.get(offer.id()), loadSizes(mapping)));
+    return ret;
+  }
+  
+  private Map<Long, BannerSize> loadSizes(Map<Long, Filter.Entry> mapping) {
+    List<Integer> widths = newArrayList();
+    List<Integer> heights = newArrayList();
+    for (Filter.Entry entry : mapping.values()) {
+      if (entry instanceof Filter.BannerEntry) {
+        Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry;
+        widths.add(bannerEntry.width);
+        heights.add(bannerEntry.height);
+      }
+    }
+    List<BannerSize> sizes = hiber().createQuery("from BannerSize where width in :width and height in :height")
+        .setParameterList("width", widths)
+        .setParameterList("height", heights)
+        .list();
+    Map<Long, BannerSize> ret = newHashMap();
+    for (Map.Entry<Long, Filter.Entry> entry : mapping.entrySet()) {
+      if (entry instanceof Filter.BannerEntry) {
+        Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry;
+        for (BannerSize size : sizes) {
+          if (size.width() == bannerEntry.width && size.height() == bannerEntry.height)
+            ret.put(entry.getKey(), size);
+        }
+      }
+    }
     return ret;
   }
 
-  private OfferData convert(Offer offer, Filter.Entry filter) {
+  private OfferData convert(Offer offer, Filter.Entry filter, Map<Long, BannerSize> sizes) {
     if (offer instanceof BannerOffer) {
       BannerOffer bannerOffer = (BannerOffer) offer;
       Filter.BannerEntry bannerEntry = (Filter.BannerEntry) filter;
-      BannerSize bannerSize = bannerSizes.byWidthAndHeight(bannerEntry.width, bannerEntry.height);
+      BannerSize bannerSize = sizes.get(offer.id());
       return OfferData.toOfferData(bannerOffer, compensation, bannerSize);
     } else if (offer instanceof RegularOffer) {
       RegularOffer regularOffer = (RegularOffer) offer;
