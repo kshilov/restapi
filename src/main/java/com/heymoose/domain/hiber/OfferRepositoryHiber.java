@@ -1,6 +1,12 @@
 package com.heymoose.domain.hiber;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import static com.google.common.collect.Iterables.isEmpty;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Sets;
 import static com.google.common.collect.Sets.newHashSet;
@@ -15,12 +21,19 @@ import com.heymoose.domain.Performer;
 import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.resource.api.data.OfferData;
+import static java.lang.Math.round;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
+import static java.util.Collections.checkedCollection;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.indexOfSubList;
+import static java.util.Collections.min;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -52,16 +65,118 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   @Override
   public Set<OfferData> availableFor(Performer performer, Filter filter, Context context) {
     Map<Long, Filter.Entry> mapping = newHashMap();
+    List<Long> ids = newArrayList();
     for (Filter.Entry entry : filter.entries) {
-      for (long offerId : availableIdsFor(performer, entry, context))
+      for (long offerId : availableIdsFor(performer, entry, context)) {
         mapping.put(offerId, entry);
+        ids.add(offerId);
+      }
     }
-    return load(mapping);
+    return load(ids, mapping);
+  }
+
+  private Map<Long, Double> getOfferCTRs(long appId) {
+    String sql ="select a.offer_id, cast(a.c as decimal) / s.c  " +
+        "from ( " +
+        "select offer_id offer_id, count(*) c " +
+        "from action " +
+        "where creation_time >= :start and app_id = :appId " +
+        "group by offer_id " +
+        ") a left join ( " +
+        "select offer_id, count(*) c " +
+        "from offer_show " +
+        "where show_time >= :start and app_id = :appId " +
+        "group by offer_id " +
+        ") s " +
+        "on a.offer_id = s.offer_id";
+    List<Object[]> records = hiber().createSQLQuery(sql)
+        .setParameter("start", DateTime.now().minusDays(1).toDate())
+        .setParameter("appId", appId)
+        .list();
+    Map<Long, Double> ret = newHashMap();
+    for (Object[] record : records) {
+      long offerId = ((BigInteger) record[0]).longValue();
+      BigDecimal _ctr = (BigDecimal) record[1];
+      Double ctr = (_ctr == null) ? null : _ctr.doubleValue();
+      ret.put(offerId, ctr);
+    }
+    return ret;
+  }
+
+  public static class BannerContainer {
+    public final Long bannerId;
+    public final double cpc;
+    public Double ctr;
+
+    public double product;
+    public int weight;
+    public int sum;
+
+    public BannerContainer(Long bannerId, double cpc, Double ctr) {
+      this.bannerId = bannerId;
+      this.cpc = cpc;
+      this.ctr = ctr;
+    }
+  }
+
+  public static void calcWeights(Iterable<BannerContainer> banners) {
+    Double minPositiveCtr = Double.MAX_VALUE;
+    boolean found = false;
+    for (BannerContainer banner : banners) {
+      if (banner.ctr == null)
+        continue;
+      if (minPositiveCtr > banner.ctr) {
+        minPositiveCtr = banner.ctr;
+        found = true;
+      }
+    }
+    if (!found) {
+      for (BannerContainer banner : banners)
+        banner.weight = 1;
+      return;
+    }
+    for (BannerContainer banner: banners) {
+      if (banner.ctr == null)
+        banner.product = banner.cpc * minPositiveCtr / 2;
+      else
+        banner.product = banner.cpc * banner.ctr;
+    }
+    double minProduct = Double.MAX_VALUE;
+    for (BannerContainer banner : banners)
+      if (minProduct > banner.product)
+        minProduct = banner.product;
+    for (BannerContainer banner : banners)
+      banner.weight = Long.valueOf(round(banner.product / minProduct)).intValue();
+  }
+
+  public static List<Long> extractRandoms(Collection<BannerContainer> banners, int count) {
+    checkArgument(count >= 0);
+    if (count == 0 || isEmpty(banners))
+      return emptyList();
+    int sum = 0;
+    for (BannerContainer banner : banners) {
+      sum += banner.weight;
+      banner.sum = sum;
+    }
+    ImmutableList.Builder<Long> randoms = ImmutableList.builder();
+    Random random = new Random();
+    for (int i = 0; i < count && i < banners.size(); i++) {
+      int val = 1 + random.nextInt(sum);
+      for (BannerContainer banner : banners) {
+        if (banner.sum >= val) {
+          randoms.add(banner.bannerId);
+          break;
+        }
+      }
+    }
+    return randoms.build();
   }
 
   private List<Long> availableIdsFor(Performer performer, Filter.Entry condition, Context context) {
 
-    String sql = "select offer_id " +
+    Map<Long, Double> ctrs = getOfferCTRs(context.app.id());
+
+    String sql = "select offer_id, ord.cpa " +
         "from offer " +
         "        join offer_order ord on ord.offer_id = offer.id " +
         "        join targeting trg on trg.id = ord.targeting_id " +
@@ -128,7 +243,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         return emptyList();
       sql += "and offer.id in (select offer_id from banner where size = :bannerSize and offer_id = offer.id) ";
     }
-    sql += "order by " + randFunction + " limit :limit";
 
     Query query = hiber()
         .createSQLQuery(sql)
@@ -153,10 +267,18 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (context.hour != null)
       query.setParameter("hour", context.hour);
 
-    query.setParameter("limit", condition.count);
+    List<Object[]> records = query.list();
+    Set<BannerContainer> banners = newHashSet();
+    for (Object[] record : records) {
+      long bannerId = ((BigInteger) record[0]).longValue();
+      double cpc = ((BigDecimal) record[1]).doubleValue();
+      Double ctr = ctrs.get(bannerId);
+      banners.add(new BannerContainer(bannerId, cpc, ctr));
+    }
 
-    List<BigInteger> ids = (List<BigInteger>) query.list();
-    return longs(ids);
+    calcWeights(banners);
+
+    return extractRandoms(banners, condition.count);
   }
 
   @Override
@@ -186,12 +308,12 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return longs;
   }
 
-  private Set<OfferData> load(Map<Long, Filter.Entry> mapping) {
+  private Set<OfferData> load(List<Long> ids, Map<Long, Filter.Entry> mapping) {
     if (mapping.isEmpty())
       return Collections.emptySet();
     List<Offer> offers = hiber()
         .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by " + randFunction)
-        .setParameterList("ids", mapping.keySet())
+        .setParameterList("ids", ids)
         .list();
     Set<OfferData> ret = newHashSet();
     for (Offer offer : offers)

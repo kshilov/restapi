@@ -8,17 +8,14 @@ import com.heymoose.resource.xml.XmlApp;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.net.URI;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 public class OfferTest extends RestTest {
 
