@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import static java.util.Collections.checkedCollection;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.indexOfSubList;
 import static java.util.Collections.min;
 import java.util.Iterator;
@@ -301,13 +302,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return Offer.class;
   }
 
-  private static List<Long> longs(List<BigInteger> from) {
-    List<Long> longs = Lists.newArrayListWithCapacity(from.size());
-    for (BigInteger x : from)
-      longs.add(x.longValue());
-    return longs;
-  }
-
   private Set<OfferData> load(List<Long> ids, Map<Long, Filter.Entry> mapping) {
     if (mapping.isEmpty())
       return Collections.emptySet();
@@ -316,29 +310,34 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         .setParameterList("ids", ids)
         .list();
     Set<OfferData> ret = newHashSet();
+    Map<Long, BannerSize> sizes = loadSizes(mapping);
     for (Offer offer : offers)
-      ret.add(convert(offer, mapping.get(offer.id()), loadSizes(mapping)));
+      ret.add(convert(offer, sizes));
     return ret;
   }
   
   private Map<Long, BannerSize> loadSizes(Map<Long, Filter.Entry> mapping) {
+    if (mapping.isEmpty())
+      return emptyMap();
     List<Integer> widths = newArrayList();
     List<Integer> heights = newArrayList();
-    for (Filter.Entry entry : mapping.values()) {
+    for (Filter.Entry entry : newHashSet(mapping.values())) {
       if (entry instanceof Filter.BannerEntry) {
         Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry;
         widths.add(bannerEntry.width);
         heights.add(bannerEntry.height);
       }
     }
+    if (widths.isEmpty())
+      return emptyMap();
     List<BannerSize> sizes = hiber().createQuery("from BannerSize where width in :width and height in :height")
         .setParameterList("width", widths)
         .setParameterList("height", heights)
         .list();
     Map<Long, BannerSize> ret = newHashMap();
     for (Map.Entry<Long, Filter.Entry> entry : mapping.entrySet()) {
-      if (entry instanceof Filter.BannerEntry) {
-        Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry;
+      if (entry.getValue() instanceof Filter.BannerEntry) {
+        Filter.BannerEntry bannerEntry = (Filter.BannerEntry) entry.getValue();
         for (BannerSize size : sizes) {
           if (size.width() == bannerEntry.width && size.height() == bannerEntry.height)
             ret.put(entry.getKey(), size);
@@ -348,10 +347,9 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return ret;
   }
 
-  private OfferData convert(Offer offer, Filter.Entry filter, Map<Long, BannerSize> sizes) {
+  private OfferData convert(Offer offer, Map<Long, BannerSize> sizes) {
     if (offer instanceof BannerOffer) {
       BannerOffer bannerOffer = (BannerOffer) offer;
-      Filter.BannerEntry bannerEntry = (Filter.BannerEntry) filter;
       BannerSize bannerSize = sizes.get(offer.id());
       return OfferData.toOfferData(bannerOffer, compensation, bannerSize);
     } else if (offer instanceof RegularOffer) {

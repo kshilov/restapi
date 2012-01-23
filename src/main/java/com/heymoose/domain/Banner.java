@@ -29,7 +29,7 @@ public class Banner extends IdEntity {
   @Basic
   private byte[] image;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "size")
   private BannerSize size;
 

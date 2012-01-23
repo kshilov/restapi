@@ -17,7 +17,7 @@ import org.joda.time.DateTime;
 @DiscriminatorValue("1")
 public class BannerOffer extends Offer {
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.EAGER, orphanRemoval = true)
   private Set<Banner> banners;
 
   protected BannerOffer() {}
