@@ -1,10 +1,12 @@
 package com.heymoose.domain.hiber;
 
+import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.ImmutableList;
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.BannerOffer;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -310,7 +313,14 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     Map<Long, BannerSize> sizes = loadSizes(mapping);
     for (Long id : ids)
       ret.add(convert(offerMap.get(id), sizes));
-    return ret;
+    return Ordering
+        .explicit(ids)
+        .onResultOf(new Function<OfferData, Long>() {
+          @Override
+          public Long apply(OfferData o) {
+            return o.id;
+          }
+        }).sortedCopy(ret);
   }
   
   private Map<Long, BannerSize> loadSizes(Map<Long, Filter.Entry> mapping) {
