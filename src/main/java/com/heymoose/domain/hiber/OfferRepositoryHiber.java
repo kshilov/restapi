@@ -313,14 +313,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     Map<Long, BannerSize> sizes = loadSizes(mapping);
     for (Long id : ids)
       ret.add(convert(offerMap.get(id), sizes));
-    return Ordering
-        .explicit(ids)
-        .onResultOf(new Function<OfferData, Long>() {
-          @Override
-          public Long apply(OfferData o) {
-            return o.id;
-          }
-        }).sortedCopy(ret);
+    Collections.shuffle(ret);
+    return ret;
   }
   
   private Map<Long, BannerSize> loadSizes(Map<Long, Filter.Entry> mapping) {
