@@ -45,7 +45,7 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   @Override
   public Iterable<App> list(int offset, int limit) {
     return hiber()
-        .createQuery("from App")
+        .createQuery("from App order by creationTime desc")
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
