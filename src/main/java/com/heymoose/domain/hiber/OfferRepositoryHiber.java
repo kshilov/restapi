@@ -2,10 +2,7 @@ package com.heymoose.domain.hiber;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import static com.google.common.collect.Iterables.isEmpty;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Sets;
@@ -26,12 +23,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
-import static java.util.Collections.checkedCollection;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.indexOfSubList;
 import static java.util.Collections.min;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -64,7 +58,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public Set<OfferData> availableFor(Performer performer, Filter filter, Context context) {
+  public List<OfferData> availableFor(Performer performer, Filter filter, Context context) {
     Map<Long, Filter.Entry> mapping = newHashMap();
     List<Long> ids = newArrayList();
     for (Filter.Entry entry : filter.entries) {
@@ -302,17 +296,20 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return Offer.class;
   }
 
-  private Set<OfferData> load(List<Long> ids, Map<Long, Filter.Entry> mapping) {
+  private List<OfferData> load(List<Long> ids, Map<Long, Filter.Entry> mapping) {
     if (mapping.isEmpty())
-      return Collections.emptySet();
+      return Collections.emptyList();
     List<Offer> offers = hiber()
         .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by " + randFunction)
-        .setParameterList("ids", ids)
+        .setParameterList("ids", newHashSet(ids))
         .list();
-    Set<OfferData> ret = newHashSet();
-    Map<Long, BannerSize> sizes = loadSizes(mapping);
+    Map<Long, Offer> offerMap = newHashMap();
     for (Offer offer : offers)
-      ret.add(convert(offer, sizes));
+      offerMap.put(offer.id(), offer);    
+    List<OfferData> ret = newArrayList();
+    Map<Long, BannerSize> sizes = loadSizes(mapping);
+    for (Long id : ids)
+      ret.add(convert(offerMap.get(id), sizes));
     return ret;
   }
   
