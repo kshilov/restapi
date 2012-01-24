@@ -1,12 +1,10 @@
 package com.heymoose.domain.hiber;
 
-import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.checkArgument;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.BannerOffer;
@@ -23,16 +21,14 @@ import com.heymoose.resource.api.data.OfferData;
 import static java.lang.Math.round;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Collections;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.min;
+import static java.util.Collections.emptySet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -63,14 +59,10 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   @Override
   public List<OfferData> availableFor(Performer performer, Filter filter, Context context) {
     Map<Long, Filter.Entry> mapping = newHashMap();
-    List<Long> ids = newArrayList();
-    for (Filter.Entry entry : filter.entries) {
-      for (long offerId : availableIdsFor(performer, entry, context)) {
+    for (Filter.Entry entry : filter.entries)
+      for (long offerId : availableIdsFor(performer, entry, context))
         mapping.put(offerId, entry);
-        ids.add(offerId);
-      }
-    }
-    return load(ids, mapping);
+    return load(mapping);
   }
 
   private Map<Long, Double> getOfferCTRs(long appId) {
@@ -108,7 +100,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
     public double product;
     public int weight;
-    public int sum;
 
     public BannerContainer(Long bannerId, double cpc, Double ctr) {
       this.bannerId = bannerId;
@@ -147,25 +138,31 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       banner.weight = Long.valueOf(round(banner.product / minProduct)).intValue();
   }
 
-  public static List<Long> extractRandoms(Collection<BannerContainer> banners, int count) {
+  public static BannerContainer extractRandom(Set<BannerContainer> banners, Random random) {
+    if (isEmpty(banners))
+      return null;
+    int sum = 0;
+    for (BannerContainer banner : banners)
+      sum += banner.weight;
+    int val = 1 + random.nextInt(sum);
+    for (BannerContainer banner : banners) {
+      val -= banner.weight;
+      if (val <= 0)
+        return banner;
+    }
+    throw new IllegalStateException();
+  }
+
+  public static Set<BannerContainer> extractRandoms(Set<BannerContainer> banners, int count) {
     checkArgument(count >= 0);
     if (count == 0 || isEmpty(banners))
-      return emptyList();
-    int sum = 0;
-    for (BannerContainer banner : banners) {
-      sum += banner.weight;
-      banner.sum = sum;
-    }
-    ImmutableList.Builder<Long> randoms = ImmutableList.builder();
+      return emptySet();
+    ImmutableSet.Builder<BannerContainer> randoms = ImmutableSet.builder();
     Random random = new Random();
     for (int i = 0; i < count && i < banners.size(); i++) {
-      int val = 1 + random.nextInt(sum);
-      for (BannerContainer banner : banners) {
-        if (banner.sum >= val) {
-          randoms.add(banner.bannerId);
-          break;
-        }
-      }
+      BannerContainer banner = extractRandom(banners, random);
+      randoms.add(banner);
+      banners.remove(banner);
     }
     return randoms.build();
   }
@@ -276,7 +273,10 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
     calcWeights(banners);
 
-    return extractRandoms(banners, condition.count);
+    List<Long> ret = newArrayList();
+    for (BannerContainer banner : extractRandoms(banners, condition.count))
+      ret.add(banner.bannerId);
+    return ret;
   }
 
   @Override
@@ -299,20 +299,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return Offer.class;
   }
 
-  private List<OfferData> load(List<Long> ids, Map<Long, Filter.Entry> mapping) {
+  private List<OfferData> load(Map<Long, Filter.Entry> mapping) {
     if (mapping.isEmpty())
       return Collections.emptyList();
     List<Offer> offers = hiber()
         .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by " + randFunction)
-        .setParameterList("ids", newHashSet(ids))
+        .setParameterList("ids", mapping.keySet())
         .list();
-    Map<Long, Offer> offerMap = newHashMap();
-    for (Offer offer : offers)
-      offerMap.put(offer.id(), offer);    
     List<OfferData> ret = newArrayList();
     Map<Long, BannerSize> sizes = loadSizes(mapping);
-    for (Long id : ids)
-      ret.add(convert(offerMap.get(id), sizes));
+    for (Offer offer : offers)
+      ret.add(convert(offer, sizes));
     Collections.shuffle(ret);
     return ret;
   }
