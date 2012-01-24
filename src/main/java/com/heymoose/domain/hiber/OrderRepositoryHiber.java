@@ -27,7 +27,7 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
   @Override
   public Iterable<Order> list(int offset, int limit) {
     return hiber()
-        .createQuery("from Order")
+        .createQuery("from Order order by creationTime desc")
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();

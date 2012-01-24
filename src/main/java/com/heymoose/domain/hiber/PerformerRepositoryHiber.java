@@ -34,7 +34,7 @@ public class PerformerRepositoryHiber extends RepositoryHiber<Performer> impleme
   @Override
   public Iterable<Performer> list(int offset, int limit) {
     return hiber()
-        .createQuery("from Performer")
+        .createQuery("from Performer order by creationTime desc")
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();

@@ -34,13 +34,13 @@ public class UserRepositoryHiber extends RepositoryHiber<User> implements UserRe
   
   @Override
   public Iterable<User> list(int offset, int limit, Role role) {
-    Query query = null;
+    Query query;
     if (role != null)
       query = hiber()
-        .createQuery("from User u where :role in elements(u.roles)")
+        .createQuery("from User u where :role in elements(u.roles) order by id desc")
         .setParameter("role", role.ordinal());
     else
-      query = hiber().createQuery("from User");
+      query = hiber().createQuery("from User order by id desc");
     
     return query
       .setFirstResult(offset)
@@ -62,7 +62,7 @@ public class UserRepositoryHiber extends RepositoryHiber<User> implements UserRe
   
   @Override
   public long count(Role role) {
-    Query query = null;
+    Query query;
     if (role != null)
       query = hiber()
         .createQuery("select count(*) from User u " +

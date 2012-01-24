@@ -21,7 +21,7 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
 
   @Override
   public Set<App> all() {
-    return Sets.newHashSet(hiber().createQuery("from App where deleted = false").list());
+    return Sets.newHashSet(hiber().createQuery("from App where deleted = false order by creationTime desc").list());
   }
 
   @Override

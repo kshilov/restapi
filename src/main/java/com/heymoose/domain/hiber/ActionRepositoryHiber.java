@@ -18,6 +18,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.ResultTransformer;
 import org.joda.time.DateTime;
 
 @Singleton
@@ -50,6 +51,8 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
       criteria.add(Restrictions.eq("app.id", appId));
     if (performerId != null)
       criteria.add(Restrictions.eq("performer.id", performerId));
+
+    criteria.addOrder(Order.desc("creationTime"));
         
     return criteria.list();
   }
