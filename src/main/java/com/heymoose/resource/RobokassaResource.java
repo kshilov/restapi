@@ -45,7 +45,7 @@ public class RobokassaResource {
   public String result(@FormParam("OutSum") String _sum,
                      @FormParam("InvId") Long invId,
                      @FormParam("SignatureValue") String sig,
-                     @FormParam("accountId") Long accountId) {
+                     @FormParam("shpAccountId") Long accountId) {
     if (_sum == null) {
       logError(_sum, invId, sig, accountId, "OutSum is null");
       throw badRequest();
@@ -55,7 +55,7 @@ public class RobokassaResource {
       throw badRequest();
     }
     if (accountId == null) {
-      logError(_sum, invId, sig, accountId,"accountId is null");
+      logError(_sum, invId, sig, accountId,"shpAccountId is null");
       throw badRequest();
     }
     if (sig == null) {

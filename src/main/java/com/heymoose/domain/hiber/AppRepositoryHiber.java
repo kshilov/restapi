@@ -4,12 +4,11 @@ import com.google.common.collect.Sets;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.hibernate.Transactional;
-import org.hibernate.Session;
-
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.util.Set;
+import org.hibernate.Session;
 
 @Singleton
 public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepository {
