@@ -43,39 +43,44 @@ public class RobokassaResource {
   @Transactional
   @Produces("text/plain")
   public String result(@FormParam("OutSum") String _sum,
-                     @FormParam("InvId") Long accountId,
-                     @FormParam("SignatureValue") String sig) {
+                     @FormParam("InvId") Long invId,
+                     @FormParam("SignatureValue") String sig,
+                     @FormParam("accountId") Long accountId) {
     if (_sum == null) {
-      logError(_sum, accountId, sig, "OutSum is null");
+      logError(_sum, invId, sig, accountId, "OutSum is null");
+      throw badRequest();
+    }
+    if (invId == null) {
+      logError(_sum, invId, sig, accountId,"InvId is null");
       throw badRequest();
     }
     if (accountId == null) {
-      logError(_sum, accountId, sig, "InvId is null");
+      logError(_sum, invId, sig, accountId,"accountId is null");
       throw badRequest();
     }
     if (sig == null) {
-      logError(_sum, accountId, sig, "SignatureValue is null");
+      logError(_sum, invId, sig, accountId, "SignatureValue is null");
       throw badRequest();
     }
-    if (!validateSig(_sum, accountId, sig)) {
-      logError(_sum, accountId, sig, "bad sig");
+    if (!validateSig(_sum, invId, accountId, sig)) {
+      logError(_sum, invId, sig, accountId, "bad sig");
       throw unauthorized();
     }
     double sum = Double.parseDouble(_sum);
     Account account = accounts.getAndLock(accountId);
     if (account == null) {
-      logError(_sum, accountId, sig, "account not found");
+      logError(_sum, invId, sig, accountId, "account not found");
       throw notFound();
     }
     account.addToBalance(new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"));
-    return "OK" + accountId;
+    return "OK" + invId;
   }
   
-  private static void logError(String sum, Long userId, String sig, String message) {
-    log.error("Robokassa[OutSum: {}, InvId:{}, SignatureValue:{}]: {}", new Object[]{sum, userId, sig, message});
+  private static void logError(String sum, Long invId, String sig, Long accountId, String message) {
+    log.error("Robokassa[OutSum: {}, InvId:{}, SignatureValue:{}, accountId:{}]: {}", new Object[]{sum, invId, sig, accountId, message});
   }
 
-  private boolean validateSig(String sum, long userId, String sig) {
-    return md5Hex(format("%s:%d:%s", sum, userId, robokassaPass)).equalsIgnoreCase(sig);
+  private boolean validateSig(String sum, long invId, long accountId, String sig) {
+    return md5Hex(format("%s:%d:%s:%d", sum, invId, robokassaPass, accountId)).equalsIgnoreCase(sig);
   }
 }
