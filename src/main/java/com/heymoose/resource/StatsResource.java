@@ -17,6 +17,8 @@ import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+
 import org.joda.time.DateTime;
 
 @Path("stats")
@@ -35,7 +37,7 @@ public class StatsResource {
   @GET
   @Path("ctr")
   @Transactional
-  public XmlStats get(@QueryParam("from") Long from,
+  public XmlStats ctr(@QueryParam("from") Long from,
                       @QueryParam("to") Long to,
                       @QueryParam("offerId") Long offerId,
                       @QueryParam("appId") Long appId,
@@ -66,6 +68,52 @@ public class StatsResource {
       xmlStats.stats.add(xmlStat);
     }
 
+    return xmlStats;
+  }
+  
+  @GET
+  @Path("ctr-by-ids")
+  @Transactional
+  public XmlStats ctrByIds(@QueryParam("from") Long from,
+                           @QueryParam("to") Long to,
+                           @QueryParam("offer") List<Long> offerIds,
+                           @QueryParam("app") List<Long> appIds) {
+    if (offerIds.isEmpty() == appIds.isEmpty())
+      throw new WebApplicationException(400);
+    
+    DateTime dtFrom = from != null ? new DateTime(from) : null;
+    DateTime dtTo = to != null ? new DateTime(to) : null;
+    List<Long> ids = null;
+    Map<Long, Integer> showCounts = null;
+    Map<Long, Integer> actionCounts = null;
+    
+    if (offerIds.isEmpty()) {
+      ids = appIds;
+      showCounts = shows.countByApps(appIds, dtFrom, dtTo);
+      actionCounts = actions.countByApps(appIds, dtFrom, dtTo);
+    }
+    else {
+      ids = offerIds;
+      showCounts = shows.countByOffers(offerIds, dtFrom, dtTo);
+      actionCounts = actions.countByOffers(offerIds, dtFrom, dtTo);
+    }
+    
+    XmlStats xmlStats = new XmlStats();
+    for (Long id : ids) {
+      Integer shows = showCounts.get(id);
+      if (shows == null) shows = 0;
+      Integer actions = actionCounts.get(id);
+      if (actions == null) actions = 0;
+      
+      XmlStat xmlStat = new XmlStat();
+      xmlStat.id = id;
+      xmlStat.shows = shows;
+      xmlStat.actions = actions;
+      xmlStat.ctr = shows > 0 ? (double)actions / shows : 0;
+      
+      xmlStats.stats.add(xmlStat);
+    }
+    
     return xmlStats;
   }
 }

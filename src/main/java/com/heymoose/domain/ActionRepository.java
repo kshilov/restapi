@@ -1,6 +1,7 @@
 package com.heymoose.domain;
 
 import java.util.Map;
+import java.util.List;
 import org.joda.time.DateTime;
 
 import com.heymoose.domain.base.Repository;
@@ -15,6 +16,8 @@ public interface ActionRepository extends Repository<Action> {
 
   Map<DateTime, Integer> stats(DateTime from, DateTime to,
                                Long offerId, Long appId, Long performerId, String trunc);
+  Map<Long, Integer> countByApps(List<Long> appIds, DateTime from, DateTime to);
+  Map<Long, Integer> countByOffers(List<Long> offerIds, DateTime from, DateTime to);
 
   
   long count();

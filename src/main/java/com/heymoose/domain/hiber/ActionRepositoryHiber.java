@@ -145,4 +145,41 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   protected Class<Action> getEntityClass() {
     return Action.class;
   }
+
+  @Override
+  public Map<Long, Integer> countByApps(List<Long> appIds, DateTime from, DateTime to) {
+    return countBy("app_id", appIds, from, to);
+  }
+
+  @Override
+  public Map<Long, Integer> countByOffers(List<Long> offerIds, DateTime from, DateTime to) {
+    return countBy("offer_id", offerIds, from, to);
+  }
+  
+  private Map<Long, Integer> countBy(String column, List<Long> ids, DateTime from, DateTime to) {
+    String sql = "select " + column + ", count(*) from action where " + column + " in :ids";
+    if (from != null && to != null)
+      sql += " and creation_time between :from and :to";
+    else if (from != null)
+      sql += " and creation_time >= :from";
+    else if (to != null)
+      sql += " and creation_time <= :to";
+    sql += " group by " + column;
+    
+    SQLQuery query = hiber().createSQLQuery(sql);
+    query.setParameterList("ids", ids);
+    if (from != null)
+      query.setTimestamp("from", from.toDate());
+    if (to != null)
+      query.setTimestamp("to", to.toDate());
+    
+    Map<Long, Integer> counts = newHashMap();
+    for (Object[] data : (List<Object[]>) query.list()) {
+      long id = ((BigInteger)data[0]).longValue();
+      int count = ((BigInteger)data[1]).intValue();
+      counts.put(id, count);
+    }
+    
+    return counts;
+  }
 }
