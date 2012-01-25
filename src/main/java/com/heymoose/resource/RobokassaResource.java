@@ -81,6 +81,6 @@ public class RobokassaResource {
   }
 
   private boolean validateSig(String sum, long invId, long accountId, String sig) {
-    return md5Hex(format("%s:%d:%s:%d", sum, invId, robokassaPass, accountId)).equalsIgnoreCase(sig);
+    return md5Hex(format("%s:%d:%s:shpAccountId=%d", sum, invId, robokassaPass, accountId)).equalsIgnoreCase(sig);
   }
 }
