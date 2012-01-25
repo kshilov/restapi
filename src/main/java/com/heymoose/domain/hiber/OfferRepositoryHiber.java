@@ -138,7 +138,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       banner.weight = Long.valueOf(round(banner.product / minProduct)).intValue();
   }
 
-  public static BannerContainer extractRandom(Set<BannerContainer> banners, Random random) {
+  public static BannerContainer getRandom(Set<BannerContainer> banners, Random random) {
     if (isEmpty(banners))
       return null;
     int sum = 0;
@@ -160,7 +160,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     ImmutableSet.Builder<BannerContainer> randoms = ImmutableSet.builder();
     Random random = new Random();
     for (int i = 0; i < count && i < banners.size(); i++) {
-      BannerContainer banner = extractRandom(banners, random);
+      BannerContainer banner = getRandom(banners, random);
       randoms.add(banner);
       banners.remove(banner);
     }
@@ -303,7 +303,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (mapping.isEmpty())
       return Collections.emptyList();
     List<Offer> offers = hiber()
-        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids order by " + randFunction)
+        .createQuery("from Offer as offer inner join fetch offer.order where offer.id in :ids")
         .setParameterList("ids", mapping.keySet())
         .list();
     List<OfferData> ret = newArrayList();
