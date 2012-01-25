@@ -8,7 +8,12 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
 @Singleton
 public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepository {
@@ -42,19 +47,28 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
 
   @Override
-  public Iterable<App> list(int offset, int limit) {
-    return hiber()
-        .createQuery("from App order by creationTime desc")
+  public Iterable<App> list(int offset, int limit, boolean withDeleted) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+    
+    if (!withDeleted)
+      criteria.add(Restrictions.eq("deleted", false));
+    
+    return criteria
+        .addOrder(Order.desc("creationTime"))
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
   }
   
   @Override
-  public long count() {
-    return Long.parseLong(hiber()
-        .createQuery("select count(*) from App")
-        .uniqueResult()
-        .toString());
+  public long count(boolean withDeleted) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+    
+    if (!withDeleted)
+      criteria.add(Restrictions.eq("deleted", false));
+    
+    return Long.parseLong(criteria
+        .setProjection(Projections.rowCount())
+        .uniqueResult().toString());
   }
 }
