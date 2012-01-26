@@ -53,7 +53,7 @@ public class Heymoose {
   }
 
   public XmlUser getUser(long userId) {
-    return client.path("users").path(Long.toString(userId)).get(XmlUser.class);
+    return client.path("users").path(Long.toString(userId)).queryParam("full", "true").get(XmlUser.class);
   }
 
   public XmlUser getUserByEmail(String email) {

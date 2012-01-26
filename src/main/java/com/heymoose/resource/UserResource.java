@@ -82,7 +82,7 @@ public class UserResource {
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") Long id,
-                      @QueryParam("full") @DefaultValue("true") boolean full) {
+                      @QueryParam("full") @DefaultValue("false") boolean full) {
     checkNotNull(id);
     User user = existing(id);
     Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
