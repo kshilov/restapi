@@ -21,6 +21,9 @@ public class XmlOrder {
 
   @XmlElement(name = "disabled")
   public Boolean disabled;
+
+  @XmlElement(name = "paused")
+  public Boolean paused;
   
   @XmlElement(name = "cpa")
   public BigDecimal cpa;

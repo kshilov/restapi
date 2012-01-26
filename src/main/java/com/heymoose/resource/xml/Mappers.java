@@ -143,6 +143,7 @@ public class Mappers {
     
     if (needFields(d)) {
       xmlOrder.disabled = order.disabled();
+      xmlOrder.paused = order.paused();
       xmlOrder.cpa = order.cpa();
       xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();

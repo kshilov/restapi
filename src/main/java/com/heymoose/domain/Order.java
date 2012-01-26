@@ -1,6 +1,7 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import static com.heymoose.resource.Exceptions.conflict;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
@@ -58,6 +59,9 @@ public class Order extends IdEntity {
   @JoinColumn(name = "targeting_id")
   private Targeting targeting;
 
+  @Basic
+  private Boolean paused;
+
   protected Order() {}
 
   public Order(Offer offer, BigDecimal cpa, User user, DateTime creationTime, boolean allowNegativeBalance, Targeting targeting) {
@@ -110,6 +114,22 @@ public class Order extends IdEntity {
   
   public DateTime creationTime() {
     return creationTime;
+  }
+
+  public void pause() {
+    if (disabled)
+      throw conflict();
+    paused = true;
+  }
+
+  public void play() {
+    if (disabled)
+      throw conflict();
+    paused = false;
+  }
+  
+  public boolean paused() {
+    return (paused == null) ? false : paused;
   }
 }
 

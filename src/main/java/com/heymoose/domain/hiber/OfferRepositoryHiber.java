@@ -181,7 +181,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "        (select allow_negative_balance = true from account where id = ord.account_id) " +
         "        or (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
         ") " +
-        "and ord.disabled = false ";
+        "and ord.disabled = false and (ord.paused is null or ord.paused = false) ";
 
     if (performer.male() != null)
       sql += "and (trg.male is null or trg.male = :performerMale) ";

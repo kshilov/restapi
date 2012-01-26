@@ -377,6 +377,29 @@ public class OrderResource {
     order.disable();
     return Response.ok().build();
   }
+
+
+  @PUT
+  @Path("{id}/paused")
+  @Transactional
+  public Response pause(@PathParam("id") long orderId) {
+    Order order = orders.byId(orderId);
+    if (order == null)
+      return Response.status(404).build();
+    order.pause();
+    return Response.ok().build();
+  }
+
+  @DELETE
+  @Path("{id}/paused")
+  @Transactional
+  public Response play(@PathParam("id") long orderId) {
+    Order order = orders.byId(orderId);
+    if (order == null)
+      return Response.status(404).build();
+    order.play();
+    return Response.ok().build();
+  }
   
   private Order existing(long id) {
     Order order = orders.byId(id);
