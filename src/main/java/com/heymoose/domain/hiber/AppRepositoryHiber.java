@@ -47,8 +47,11 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
 
   @Override
-  public Iterable<App> list(int offset, int limit, boolean withDeleted) {
+  public Iterable<App> list(int offset, int limit, Long userId, boolean withDeleted) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
+    
+    if (userId != null)
+      criteria.add(Restrictions.eq("user.id", userId));
     
     if (!withDeleted)
       criteria.add(Restrictions.eq("deleted", false));
@@ -61,8 +64,11 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
   
   @Override
-  public long count(boolean withDeleted) {
+  public long count(Long userId, boolean withDeleted) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
+    
+    if (userId != null)
+      criteria.add(Restrictions.eq("user.id", userId));
     
     if (!withDeleted)
       criteria.add(Restrictions.eq("deleted", false));

@@ -44,16 +44,18 @@ public class AppResource {
   public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit,
                        @QueryParam("full") @DefaultValue("false") boolean full,
-                       @QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted) {
+                       @QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted,
+                       @QueryParam("userId") Long userId) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Response.ok(Mappers.toXmlApps(apps.list(offset, limit, withDeleted), d)).build();
+    return Response.ok(Mappers.toXmlApps(apps.list(offset, limit, userId, withDeleted), d)).build();
   }
   
   @GET
   @Path("count")
   @Transactional
-  public Response count(@QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted) {
-    return Response.ok(Mappers.toXmlCount(apps.count(withDeleted))).build();
+  public Response count(@QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted,
+                        @QueryParam("userId") Long userId) {
+    return Response.ok(Mappers.toXmlCount(apps.count(userId, withDeleted))).build();
   }
 
   @POST

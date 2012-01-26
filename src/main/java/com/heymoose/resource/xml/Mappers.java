@@ -189,9 +189,6 @@ public class Mappers {
           xmlBanner.bannerSize = toXmlBannerSize(banner.size(), d);
           xmlOrder.banners.add(xmlBanner);
         }
-        // TODO: remove this
-        xmlOrder.imageBase64 = bannerOffer.banners().iterator().next().imageBase64();
-        xmlOrder.bannerSize = toXmlBannerSize(bannerOffer.banners().iterator().next().size(), relatedDetails(d));
       }
       
       // Targeting fields

@@ -86,19 +86,20 @@ public class OrderResource {
                        @QueryParam("dir") @DefaultValue("desc") String dir,
                        @QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit,
-                       @QueryParam("full") @DefaultValue("false") boolean full) {
+                       @QueryParam("full") @DefaultValue("false") boolean full,
+                       @QueryParam("userId") Long userId) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
     return Response.ok(Mappers.toXmlOrders(orders.list(
         WebAppUtil.queryParamToEnum(ord, OrderRepository.Ordering.CREATION_TIME),
         WebAppUtil.queryParamToEnum(dir, Repository.Direction.DESC),
-        offset, limit, 0), d)).build();
+        offset, limit, userId), d)).build();
   }
   
   @GET
   @Path("count")
   @Transactional
-  public Response count() {
-    return Response.ok(Mappers.toXmlCount(orders.count())).build();
+  public Response count(@QueryParam("userId") Long userId) {
+    return Response.ok(Mappers.toXmlCount(orders.count(userId))).build();
   }
 
   @POST

@@ -5,8 +5,8 @@ import com.heymoose.domain.base.Repository;
 public interface OrderRepository extends Repository<Order> {
   Iterable<Order> list(int offset, int limit);
   Iterable<Order> list(Ordering ordering, Direction direction, 
-      int offset, int limit, int userId);
-  long count();
+      int offset, int limit, Long userId);
+  long count(Long userId);
   
   public enum Ordering
   {

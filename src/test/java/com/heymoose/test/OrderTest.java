@@ -1,6 +1,7 @@
 package com.heymoose.test;
 
 import com.heymoose.domain.Role;
+import com.heymoose.resource.xml.XmlBanner;
 import com.heymoose.resource.xml.XmlBannerSize;
 import com.heymoose.resource.xml.XmlOrder;
 import com.heymoose.resource.xml.XmlUser;
@@ -90,11 +91,12 @@ public class OrderTest extends RestTest {
     assertEquals(Double.valueOf(CUSTOMER_BALANCE - BALANCE), user.customerAccount.balance);
     assertEquals(1, user.orders.size());
     assertNotNull(user.customerSecret);
-    XmlOrder order = user.orders.iterator().next();
+    XmlOrder order = heymoose().getOrder(user.orders.iterator().next().id);
     validateNewOrder(order);
-    assertEquals(IMAGE, order.imageBase64);
+    XmlBanner banner = order.banners.iterator().next();
+    assertEquals(IMAGE, banner.imageBase64);
     Long size = heymoose().bannerSize(468, 60);
-    assertEquals(size, order.bannerSize.id);
+    assertEquals(size, banner.bannerSize.id);
   }
 
   @Test public void createOrderWithoutCustomerRole() {

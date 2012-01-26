@@ -9,6 +9,7 @@ import com.heymoose.domain.base.Repository.Direction;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import javax.inject.Inject;
@@ -35,7 +36,7 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
   
   @Override
   public Iterable<Order> list(Ordering ordering, Direction direction, 
-      int offset, int limit, int userId)
+      int offset, int limit, Long userId)
   {
     String ord = "";
     switch (ordering)
@@ -52,7 +53,7 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
     
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
-    if (userId > 0)
+    if (userId != null)
       criteria.add(Restrictions.eq("user.id", userId));
     
     if (direction == Direction.ASC)
@@ -70,11 +71,15 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
   }
   
   @Override
-  public long count() {
-    return Long.parseLong(hiber()
-        .createQuery("select count(*) from Order")
-        .uniqueResult()
-        .toString());
+  public long count(Long userId) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+    
+    if (userId != null)
+      criteria.add(Restrictions.eq("user.id", userId));
+    
+    return Long.parseLong(criteria
+        .setProjection(Projections.rowCount())
+        .uniqueResult().toString());
   }
 
   @Override
