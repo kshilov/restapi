@@ -193,7 +193,7 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
     
     Map<Integer, Integer> counts = newHashMap();
     for (Object[] data : (List<Object[]>) query.list()) {
-      int year = (Integer)data[0];
+      Integer year = (Integer)data[0];
       int count = ((BigInteger)data[1]).intValue();
       counts.put(year, count);
     }

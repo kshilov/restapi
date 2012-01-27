@@ -282,7 +282,7 @@ public class OrderResource {
       catch (Exception e) {
         throw new WebApplicationException(400);
       }
-      if (cpa.signum() != 1 || cpa.compareTo(order.account().currentState().balance()) == 1)
+      if (cpa.signum() != 1)
         throw new WebApplicationException(400);
       order.setCpa(cpa);
     }

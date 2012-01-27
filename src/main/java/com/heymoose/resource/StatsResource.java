@@ -190,7 +190,6 @@ public class StatsResource {
     
     Map<Integer, Integer> counts = actions.countByPerformerYears(offerId, appId, dtFrom, dtTo);
     List<Integer> years = newArrayList(counts.keySet());
-    Collections.sort(years);
     
     XmlStats xmlStats = new XmlStats();
     for (Integer year : years) {
@@ -199,6 +198,14 @@ public class StatsResource {
       xmlStat.actions = counts.get(year);
       xmlStats.stats.add(xmlStat);
     }
+    
+    Collections.sort(xmlStats.stats, new Comparator<XmlStat>() {
+      public int compare(XmlStat one, XmlStat other) {
+        if (one.year == null) return -1;
+        if (other.year == null) return 1;
+        return one.year.compareTo(other.year);
+      }
+    });
     
     return xmlStats;
   }
