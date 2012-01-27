@@ -182,4 +182,86 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
     
     return counts;
   }
+
+  @Override
+  public Map<Integer, Integer> countByPerformerYears(Long offerId, Long appId,
+      DateTime from, DateTime to) {
+    String sql = "select p.year, count(a.id) from action a join performer p on a.performer_id = p.id" +
+        makeWhereClause("a.", offerId, appId, from, to) + " group by p.year";
+    SQLQuery query = hiber().createSQLQuery(sql);
+    setSQLParameters(query, offerId, appId, from, to);
+    
+    Map<Integer, Integer> counts = newHashMap();
+    for (Object[] data : (List<Object[]>) query.list()) {
+      int year = (Integer)data[0];
+      int count = ((BigInteger)data[1]).intValue();
+      counts.put(year, count);
+    }
+    
+    return counts;
+  }
+
+  @Override
+  public Map<Boolean, Integer> countByPerformerGenders(Long offerId,
+      Long appId, DateTime from, DateTime to) {
+    String sql = "select p.male, count(a.id) from action a join performer p on a.performer_id = p.id" +
+        makeWhereClause("a.", offerId, appId, from, to) + " group by p.male";
+    SQLQuery query = hiber().createSQLQuery(sql);
+    setSQLParameters(query, offerId, appId, from, to);
+    
+    Map<Boolean, Integer> counts = newHashMap();
+    for (Object[] data : (List<Object[]>) query.list()) {
+      Boolean male = (Boolean)data[0];
+      int count = ((BigInteger)data[1]).intValue();
+      counts.put(male, count);
+    }
+    
+    return counts;
+  }
+
+  @Override
+  public Map<String, Integer> countByPerformerCities(Long offerId, Long appId,
+      DateTime from, DateTime to) {
+    String sql = "select p.city, count(a.id) from action a join performer p on a.performer_id = p.id" +
+        makeWhereClause("a.", offerId, appId, from, to) + " group by p.city";
+    SQLQuery query = hiber().createSQLQuery(sql);
+    setSQLParameters(query, offerId, appId, from, to);
+    
+    Map<String, Integer> counts = newHashMap();
+    for (Object[] data : (List<Object[]>) query.list()) {
+      String city = (String)data[0];
+      int count = ((BigInteger)data[1]).intValue();
+      counts.put(city, count);
+    }
+    
+    return counts;
+  }
+  
+  private String makeWhereClause(String prefix, Long offerId, Long appId, DateTime from, DateTime to) {
+    String sql = "";
+    if (offerId != null)
+      sql += " and " + prefix + "offer_id = :offer_id";
+    if (appId != null)
+      sql += " and " + prefix + "app_id = :app_id";
+    
+    if (from != null && to != null)
+      sql += " and " + prefix + "creation_time between :from and :to";
+    else if (from != null)
+      sql += " and " + prefix + "creation_time >= :from";
+    else if (to != null)
+      sql += " and " + prefix + "creation_time <= :to";
+    
+    return sql.replaceFirst(" and ", " where ");
+  }
+  
+  private void setSQLParameters(SQLQuery query, Long offerId, Long appId, DateTime from, DateTime to) {
+    if (offerId != null)
+      query.setLong("offer_id", offerId);
+    if (appId != null)
+      query.setLong("app_id", appId);
+    if (from != null)
+      query.setTimestamp("from", from.toDate());
+    if (to != null)
+      query.setTimestamp("to", to.toDate());
+  }
 }

@@ -9,6 +9,15 @@ public class XmlStat {
   @XmlAttribute(name = "id")
   public Long id;
   
+  @XmlAttribute(name = "gender")
+  public Boolean gender;
+  
+  @XmlAttribute(name = "year")
+  public Integer year;
+  
+  @XmlAttribute(name = "city")
+  public String city;
+  
   @XmlAttribute(name = "time")
   public Long time;
   
