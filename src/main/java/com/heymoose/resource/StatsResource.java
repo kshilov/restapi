@@ -201,9 +201,9 @@ public class StatsResource {
     
     Collections.sort(xmlStats.stats, new Comparator<XmlStat>() {
       public int compare(XmlStat one, XmlStat other) {
-        if (one.year == null) return -1;
-        if (other.year == null) return 1;
-        return one.year.compareTo(other.year);
+        if (one.year == null) return 1;
+        if (other.year == null) return -1;
+        return -one.year.compareTo(other.year);
       }
     });
     
