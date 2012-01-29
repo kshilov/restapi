@@ -8,13 +8,18 @@ import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlTransactions;
+import com.heymoose.util.Pair;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -51,5 +56,17 @@ public class AccountResource {
     for(int i = offset; i < transactions.size() && cnt < limit; cnt++, i++)
       page.add(transactions.get(i));
     return Mappers.toXmlTransactions(page, transactions.size());
+  }
+
+  @POST
+  @Path("transfer")
+  @Transactional
+  public void transfer(@FormParam("from") Long fromAccountId, 
+                       @FormParam("to") Long toAccountId, 
+                       @FormParam("amount") Double _amount) {
+    checkNotNull(fromAccountId, toAccountId, _amount);
+    BigDecimal amount = new BigDecimal(_amount);
+    Pair<Account, Account> pair = accounts.getAndLock(fromAccountId,toAccountId);
+    accounts.transfer(pair.fst, pair.snd, amount);
   }
 }
