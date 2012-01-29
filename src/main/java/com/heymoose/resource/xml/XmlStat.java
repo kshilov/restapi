@@ -26,6 +26,9 @@ public class XmlStat {
 
   @XmlAttribute(name = "actions")
   public Integer actions;
+  
+  @XmlAttribute(name = "performers")
+  public Integer performers;
 
   @XmlAttribute(name = "ctr")
   public Double ctr;

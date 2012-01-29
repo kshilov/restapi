@@ -184,9 +184,10 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   }
 
   @Override
-  public Map<Integer, Integer> countByPerformerYears(Long offerId, Long appId,
+  public Map<Integer, Integer> audienceByYears(Long offerId, Long appId,
       DateTime from, DateTime to) {
-    String sql = "select p.year, count(a.id) from action a join performer p on a.performer_id = p.id" +
+    String sql = "select p.year, count(distinct a.performer_id)" +
+    		" from action a join performer p on a.performer_id = p.id" +
         makeWhereClause("a.", offerId, appId, from, to) + " group by p.year";
     SQLQuery query = hiber().createSQLQuery(sql);
     setSQLParameters(query, offerId, appId, from, to);
@@ -202,9 +203,10 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   }
 
   @Override
-  public Map<Boolean, Integer> countByPerformerGenders(Long offerId,
+  public Map<Boolean, Integer> audienceByGenders(Long offerId,
       Long appId, DateTime from, DateTime to) {
-    String sql = "select p.male, count(a.id) from action a join performer p on a.performer_id = p.id" +
+    String sql = "select p.male, count(distinct a.performer_id)" +
+    		" from action a join performer p on a.performer_id = p.id" +
         makeWhereClause("a.", offerId, appId, from, to) + " group by p.male";
     SQLQuery query = hiber().createSQLQuery(sql);
     setSQLParameters(query, offerId, appId, from, to);
@@ -220,9 +222,10 @@ public class ActionRepositoryHiber extends RepositoryHiber<Action> implements Ac
   }
 
   @Override
-  public Map<String, Integer> countByPerformerCities(Long offerId, Long appId,
+  public Map<String, Integer> audienceByCities(Long offerId, Long appId,
       DateTime from, DateTime to) {
-    String sql = "select p.city, count(a.id) from action a join performer p on a.performer_id = p.id" +
+    String sql = "select p.city, count(distinct a.performer_id)" +
+    		" from action a join performer p on a.performer_id = p.id" +
         makeWhereClause("a.", offerId, appId, from, to) + " group by p.city";
     SQLQuery query = hiber().createSQLQuery(sql);
     setSQLParameters(query, offerId, appId, from, to);

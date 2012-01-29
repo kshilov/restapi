@@ -119,29 +119,29 @@ public class StatsResource {
   }
   
   @GET
-  @Path("actions/by-gender")
+  @Path("audience/by-genders")
   @Transactional
-  public XmlStats actionsByPerformerGender(@QueryParam("offerId") Long offerId,
-                                           @QueryParam("appId") Long appId,
-                                           @QueryParam("from") Long from,
-                                           @QueryParam("to") Long to) {
+  public XmlStats audienceByGenders(@QueryParam("offerId") Long offerId,
+                                    @QueryParam("appId") Long appId,
+                                    @QueryParam("from") Long from,
+                                    @QueryParam("to") Long to) {
     DateTime dtFrom = from != null ? new DateTime(from) : null;
     DateTime dtTo = to != null ? new DateTime(to) : null;
     
-    Map<Boolean, Integer> counts = actions.countByPerformerGenders(offerId, appId, dtFrom, dtTo);
+    Map<Boolean, Integer> counts = actions.audienceByGenders(offerId, appId, dtFrom, dtTo);
     List<Boolean> genders = newArrayList(counts.keySet());
     
     XmlStats xmlStats = new XmlStats();
     for (Boolean gender : genders) {
       XmlStat xmlStat = new XmlStat();
       xmlStat.gender = gender;
-      xmlStat.actions = counts.get(gender);
+      xmlStat.performers = counts.get(gender);
       xmlStats.stats.add(xmlStat);
     }
     
     Collections.sort(xmlStats.stats, new Comparator<XmlStat>() {
       public int compare(XmlStat one, XmlStat other) {
-        return -one.actions.compareTo(other.actions);
+        return -one.performers.compareTo(other.performers);
       }
     });
     
@@ -149,29 +149,29 @@ public class StatsResource {
   }
   
   @GET
-  @Path("actions/by-city")
+  @Path("audience/by-cities")
   @Transactional
-  public XmlStats actionsByPerformerCity(@QueryParam("offerId") Long offerId,
-                                         @QueryParam("appId") Long appId,
-                                         @QueryParam("from") Long from,
-                                         @QueryParam("to") Long to) {
+  public XmlStats audienceByCities(@QueryParam("offerId") Long offerId,
+                                   @QueryParam("appId") Long appId,
+                                   @QueryParam("from") Long from,
+                                   @QueryParam("to") Long to) {
     DateTime dtFrom = from != null ? new DateTime(from) : null;
     DateTime dtTo = to != null ? new DateTime(to) : null;
     
-    Map<String, Integer> counts = actions.countByPerformerCities(offerId, appId, dtFrom, dtTo);
+    Map<String, Integer> counts = actions.audienceByCities(offerId, appId, dtFrom, dtTo);
     List<String> cities = newArrayList(counts.keySet());
     
     XmlStats xmlStats = new XmlStats();
     for (String city : cities) {
       XmlStat xmlStat = new XmlStat();
       xmlStat.city = city;
-      xmlStat.actions = counts.get(city);
+      xmlStat.performers = counts.get(city);
       xmlStats.stats.add(xmlStat);
     }
     
     Collections.sort(xmlStats.stats, new Comparator<XmlStat>() {
       public int compare(XmlStat one, XmlStat other) {
-        return -one.actions.compareTo(other.actions);
+        return -one.performers.compareTo(other.performers);
       }
     });
     
@@ -179,23 +179,23 @@ public class StatsResource {
   }
   
   @GET
-  @Path("actions/by-year")
+  @Path("audience/by-years")
   @Transactional
-  public XmlStats actionsByPerformerYear(@QueryParam("offerId") Long offerId,
-                                         @QueryParam("appId") Long appId,
-                                         @QueryParam("from") Long from,
-                                         @QueryParam("to") Long to) {
+  public XmlStats audienceByYears(@QueryParam("offerId") Long offerId,
+                                  @QueryParam("appId") Long appId,
+                                  @QueryParam("from") Long from,
+                                  @QueryParam("to") Long to) {
     DateTime dtFrom = from != null ? new DateTime(from) : null;
     DateTime dtTo = to != null ? new DateTime(to) : null;
     
-    Map<Integer, Integer> counts = actions.countByPerformerYears(offerId, appId, dtFrom, dtTo);
+    Map<Integer, Integer> counts = actions.audienceByYears(offerId, appId, dtFrom, dtTo);
     List<Integer> years = newArrayList(counts.keySet());
     
     XmlStats xmlStats = new XmlStats();
     for (Integer year : years) {
       XmlStat xmlStat = new XmlStat();
       xmlStat.year = year;
-      xmlStat.actions = counts.get(year);
+      xmlStat.performers = counts.get(year);
       xmlStats.stats.add(xmlStat);
     }
     

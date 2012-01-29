@@ -18,9 +18,9 @@ public interface ActionRepository extends Repository<Action> {
                                Long offerId, Long appId, Long performerId, String trunc);
   Map<Long, Integer> countByApps(List<Long> appIds, DateTime from, DateTime to);
   Map<Long, Integer> countByOffers(List<Long> offerIds, DateTime from, DateTime to);
-  Map<Integer, Integer> countByPerformerYears(Long offerId, Long appId, DateTime from, DateTime to);
-  Map<Boolean, Integer> countByPerformerGenders(Long offerId, Long appId, DateTime from, DateTime to);
-  Map<String, Integer> countByPerformerCities(Long offerId, Long appId, DateTime from, DateTime to);
+  Map<Integer, Integer> audienceByYears(Long offerId, Long appId, DateTime from, DateTime to);
+  Map<Boolean, Integer> audienceByGenders(Long offerId, Long appId, DateTime from, DateTime to);
+  Map<String, Integer> audienceByCities(Long offerId, Long appId, DateTime from, DateTime to);
 
   
   long count();
