@@ -31,13 +31,8 @@ public class XmlOrder {
   @XmlElement(name = "creation-time")
   public String creationTime;
   
-  // Account fields
-  
-  @XmlElement(name = "balance")
-  public String balance;
-  
-  @XmlElement(name = "allow-negative-balance")
-  public Boolean allowNegativeBalance;
+  @XmlElement(name = "account")
+  public XmlAccount account;
   
   // Common offer fields
   

@@ -12,4 +12,7 @@ public class XmlAccount {
 
   @XmlElement(name = "balance")
   public Double balance;
+  
+  @XmlElement(name = "allow-negative-balance")
+  public Boolean allowNegativeBalance;
 }

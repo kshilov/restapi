@@ -60,7 +60,7 @@ public class OrderTest extends RestTest {
 
   void validateNewOrder(XmlOrder order) {
     assertEquals(TITLE, order.title);
-    assertEquals(Double.valueOf(BALANCE), Double.valueOf(order.balance));
+    assertEquals(Double.valueOf(BALANCE), Double.valueOf(order.account.balance));
     assertTrue(order.disabled);
   }
 

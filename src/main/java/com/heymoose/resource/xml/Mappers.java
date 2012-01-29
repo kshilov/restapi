@@ -119,6 +119,7 @@ public class Mappers {
       xmlAccount.balance = currentState.balance().doubleValue();
     else
       xmlAccount.balance = 0.0;
+    xmlAccount.allowNegativeBalance = account.allowNegativeBalance();
     return xmlAccount;
   }
   
@@ -147,10 +148,7 @@ public class Mappers {
       xmlOrder.cpa = order.cpa();
       xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();
-      
-      // Account fields
-      xmlOrder.balance = order.account().currentState().balance().toString();
-      xmlOrder.allowNegativeBalance = order.account().allowNegativeBalance();
+      xmlOrder.account = toXmlAccount(order.account());
       
       // Common offer fields
       Offer offer = order.offer();
