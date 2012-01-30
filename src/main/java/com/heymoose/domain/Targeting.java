@@ -20,7 +20,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import org.hibernate.annotations.CollectionOfElements;
 
 @Entity
 @Table(name = "targeting")
@@ -39,11 +38,17 @@ public class Targeting extends IdEntity {
   @Basic
   private Boolean male;
 
+  @Column(name = "allow_empty_male", columnDefinition = "boolean default true not null")
+  private boolean allowEmptyMale = true;
+
   @Column(name = "min_age")
   private Integer minAge;
 
   @Column(name = "max_age")
   private Integer maxAge;
+
+  @Column(name = "allow_empty_age", columnDefinition = "boolean default true not null")
+  private boolean allowEmptyAge = true;
 
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "cities_filter_type")
@@ -57,6 +62,8 @@ public class Targeting extends IdEntity {
   )
   private Set<City> cities;
 
+  @Column(name = "allow_empty_city", columnDefinition = "boolean default true not null")
+  private boolean allowEmptyCity = true;
 
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "app_filter_type")
@@ -158,5 +165,17 @@ public class Targeting extends IdEntity {
   
   public void setMaxHour(Integer maxHour) {
     this.maxHour = maxHour;
+  }
+
+  public boolean allowEmptyMale() {
+    return allowEmptyMale;
+  }
+
+  public boolean allowEmptyAge() {
+    return allowEmptyAge;
+  }
+
+  public boolean allowEmptyCity() {
+    return allowEmptyCity;
   }
 }

@@ -185,10 +185,14 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
     if (performer.male() != null)
       sql += "and (trg.male is null or trg.male = :performerMale) ";
+    else
+      sql += "and (trg.allow_empty_male or trg.male is not null) ";
 
     if (performer.year() != null)
         sql += "and (trg.min_age is null or trg.min_age <= :performerAge) " +
         "and (trg.max_age is null or trg.max_age >= :performerAge) ";
+    else
+      sql += "and (trg.allow_empty_age or (trg.min_age is not null and trg.max_age is not null)) ";
 
     if (performer.city() != null)
         sql += "and ( " +
@@ -204,29 +208,31 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "                where city.name like :city " +
         "        ))) " +
         ") ";
+    else
+      sql += "and (trg.allow_empty_city or trg.cities_filter_type is not null) ";
 
-    if (context.app != null)
-      sql += "and ( " +
-          "        trg.app_filter_type is null " +
-          "        or ((trg.app_filter_type = 0 and trg.id in ( " +
-          "                select targeting_id " +
-          "                from targeting_app tc left join app on tc.app_id = app.id " +
-          "                where app.id = :appId " +
-          "        )) " +
-          "        and (trg.app_filter_type = 1 and trg.id not in ( " +
-          "                select targeting_id " +
-          "                from targeting_app tc left join app on tc.app_id = app.id " +
-          "                where app.id = :appId " +
-          "        ))) " +
-          ") ";
+    // app targeting
+    sql += "and ( " +
+        "        trg.app_filter_type is null " +
+        "        or ((trg.app_filter_type = 0 and trg.id in ( " +
+        "                select targeting_id " +
+        "                from targeting_app tc left join app on tc.app_id = app.id " +
+        "                where app.id = :appId " +
+        "        )) " +
+        "        and (trg.app_filter_type = 1 and trg.id not in ( " +
+        "                select targeting_id " +
+        "                from targeting_app tc left join app on tc.app_id = app.id " +
+        "                where app.id = :appId " +
+        "        ))) " +
+        ") ";
 
-    if (context.hour != null)
-      sql += " and (" +
-      		"(trg.min_hour is null and trg.max_hour is null) or " +
-      		"(trg.min_hour is null and :hour <= trg.max_hour) or " +
-      		"(trg.max_hour is null and :hour >= trg.min_hour) or " +
-      		"(trg.min_hour < trg.max_hour and :hour >= trg.min_hour and :hour <= trg.max_hour) or " +
-      		"(trg.min_hour >= trg.max_hour and (:hour >= trg.min_hour or :hour <= trg.max_hour))) ";
+    // hour targeting
+    sql += " and (" +
+        "(trg.min_hour is null and trg.max_hour is null) or " +
+        "(trg.min_hour is null and :hour <= trg.max_hour) or " +
+        "(trg.max_hour is null and :hour >= trg.min_hour) or " +
+        "(trg.min_hour < trg.max_hour and :hour >= trg.min_hour and :hour <= trg.max_hour) or " +
+        "(trg.min_hour >= trg.max_hour and (:hour >= trg.min_hour or :hour <= trg.max_hour))) ";
 
     sql += "and offer.type = :type ";
 
@@ -256,11 +262,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (bannerSize != null)
       query.setParameter("bannerSize", bannerSize.id());
 
-    if (context.app != null)
-      query.setParameter("appId", context.app.id());
-
-    if (context.hour != null)
-      query.setParameter("hour", context.hour);
+    query.setParameter("appId", context.app.id());
+    query.setParameter("hour", context.hour);
 
     List<Object[]> records = query.list();
     Set<BannerContainer> banners = newHashSet();
