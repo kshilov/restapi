@@ -51,7 +51,7 @@ public class UserResource {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
     Role r = null;
     try { r = Role.valueOf(role.toUpperCase()); } catch (Exception e) { }
-    return Response.ok(Mappers.toXmlUsers(users.list(offset, limit, r), d)).build();
+    return Response.ok(Mappers.toXmlUsers(accounts, users.list(offset, limit, r), d)).build();
   }
   
   @GET
@@ -86,7 +86,7 @@ public class UserResource {
     checkNotNull(id);
     User user = existing(id);
     Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
-    XmlUser xmlUser = Mappers.toXmlUser(user, d);
+    XmlUser xmlUser = Mappers.toXmlUser(accounts, user, d);
     if (user.isCustomer()) {
       BigDecimal revenue = new BigDecimal(0);
       for (AccountTx tx : user.customerAccount().transactions())
@@ -110,7 +110,7 @@ public class UserResource {
     if (user == null)
       return Response.status(404).build();
     Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
-    return Response.ok(Mappers.toXmlUser(user, d)).build();
+    return Response.ok(Mappers.toXmlUser(accounts, user, d)).build();
   }
 
   @POST
@@ -131,7 +131,7 @@ public class UserResource {
     if (!user.isCustomer())
       throw conflict();
     accounts.lock(user.customerAccount());
-    user.customerAccount().addToBalance(new BigDecimal(amount), "Adding to balance");
+    accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance");
   }
 
   @PUT

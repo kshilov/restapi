@@ -142,9 +142,9 @@ public class Api {
     if (offer.order().disabled())
       throw conflict();
     accounts.lock(app.owner().developerAccount());
-    Action action = new Action(offer, performer, app);
+    Action action = new Action(accounts, offer, performer, app);
     if (offer.autoApprove())
-      action.approve(compensation);
+      action.approve(accounts, compensation);
     actions.put(action);
     URI redirectUrl = appendQueryParam(URI.create(offer.url()), "action_id", action.id());
     redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
@@ -174,7 +174,7 @@ public class Api {
     if (action.deleted())
       throw conflict();
     accounts.lock(action.app().owner().developerAccount());
-    action.approve(compensation);
+    action.approve(accounts, compensation);
     return new ActionApproved(action, compensation);
   }
 

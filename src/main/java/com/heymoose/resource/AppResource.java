@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.Platform;
@@ -32,11 +33,13 @@ public class AppResource {
 
   private final UserRepository users;
   private final AppRepository apps;
+  private final Accounts accounts;
 
   @Inject
-  public AppResource(UserRepository users, AppRepository apps) {
+  public AppResource(UserRepository users, AppRepository apps, Accounts accounts) {
     this.users = users;
     this.apps = apps;
+    this.accounts = accounts;
   }
   
   @GET
@@ -47,7 +50,7 @@ public class AppResource {
                        @QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted,
                        @QueryParam("userId") Long userId) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Response.ok(Mappers.toXmlApps(apps.list(offset, limit, userId, withDeleted), d)).build();
+    return Response.ok(Mappers.toXmlApps(accounts, apps.list(offset, limit, userId, withDeleted), d)).build();
   }
   
   @GET
@@ -84,7 +87,7 @@ public class AppResource {
     App app = apps.anyById(appId);
     if (app == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlApp(app, Details.WITH_RELATED_ENTITIES)).build();
+    return Response.ok(Mappers.toXmlApp(accounts, app, Details.WITH_RELATED_ENTITIES)).build();
   }
   
   @PUT

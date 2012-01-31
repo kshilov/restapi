@@ -3,13 +3,11 @@ package com.heymoose.domain;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.util.Pair;
 import java.math.BigDecimal;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import sun.management.counter.AbstractCounter;
+import org.hibernate.LockOptions;
+import org.hibernate.Session;
 
 @Singleton
 public class Accounts {
@@ -28,7 +26,6 @@ public class Accounts {
   public void lock(Account account) {
     hiber().flush();
     hiber().buildLockRequest(LockOptions.UPGRADE).lock(account);
-    hiber().refresh(account);
   }
 
   public void lock(Account a1, Account a2) {
@@ -62,7 +59,32 @@ public class Accounts {
   public void transfer(Account from, Account to, BigDecimal amount) {
     checkArgument(amount.signum() > 0);
     String desc = String.format("Transferring %s from account:%d to account:%d", Double.toString(amount.doubleValue()), from.id(), to.id());
-    from.subtractFromBalance(amount, desc);
-    to.addToBalance(amount, desc);
+    subtractFromBalance(from, amount, desc);
+    addToBalance(to, amount, desc);
+  }
+
+  public AccountTx subtractFromBalance(Account account, BigDecimal amount, String desc) {
+    AccountTx lastTx = lastTxOf(account);
+    if (lastTx == null)
+      throw new IllegalStateException("No enough money");
+    AccountTx newTx = lastTx.subtract(amount, desc, account.allowNegativeBalance());
+    hiber().save(newTx);
+    return newTx;
+  }
+  
+  public AccountTx addToBalance(Account account, BigDecimal amount, String desc) {
+    AccountTx lastTx = lastTxOf(account);
+    AccountTx newTx = (lastTx == null) ?
+        new AccountTx(account, amount) : lastTx.add(amount, desc);
+    hiber().save(newTx);
+    return newTx;
+  }
+
+  public AccountTx lastTxOf(Account account) {
+    return (AccountTx) hiber()
+        .createQuery("from AccountTx where account = :account order by version desc")
+        .setParameter("account", account)
+        .setMaxResults(1)
+        .uniqueResult();
   }
 }

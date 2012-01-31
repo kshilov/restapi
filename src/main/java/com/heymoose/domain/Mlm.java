@@ -1,5 +1,6 @@
 package com.heymoose.domain;
 
+import static com.google.common.collect.Lists.reverse;
 import com.google.common.collect.Maps;
 import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.hibernate.Transactional;
@@ -35,10 +36,12 @@ public class Mlm {
   private final static Logger log = LoggerFactory.getLogger(Mlm.class);
 
   private final Provider<Session> sessionProvider;
+  private final Accounts accounts;
 
   @Inject
-  public Mlm(Provider<Session> sessionProvider) {
+  public Mlm(Provider<Session> sessionProvider, Accounts accounts) {
     this.sessionProvider = sessionProvider;
+    this.accounts = accounts;
   }
 
   private Session hiber() {
@@ -91,7 +94,7 @@ public class Mlm {
       log.info(node.toString());
       if (node.revenue.compareTo(bdecimal(0)) > 0) {
         User user = (User) hiber().get(User.class, node.id);
-        user.customerAccount().addToBalance(node.revenue, "MLM");
+        accounts.addToBalance(user.customerAccount(), node.revenue, "MLM");
       }
     }
   }

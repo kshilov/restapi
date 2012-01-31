@@ -67,7 +67,7 @@ public class ActionResource {
     if (action.deleted())
       throw new WebApplicationException(409);
     accounts.lock(action.app().owner().developerAccount());
-    action.approve(compensation);
+    action.approve(accounts, compensation);
     return new ActionApproved(action, compensation);
   }
 
@@ -83,10 +83,10 @@ public class ActionResource {
     Order order = action.offer().order();
     if (order.disabled()) {
       accounts.lock(order.customer().customerAccount());
-      order.customer().customerAccount().addToBalance(action.reservedAmount(), "Action deleted");
+      accounts.addToBalance(order.customer().customerAccount(), action.reservedAmount(), "Action deleted");
     } else {
       accounts.lock(order.account());
-      order.account().addToBalance(action.reservedAmount(), "Action deleted");
+      accounts.addToBalance(order.account(), action.reservedAmount(), "Action deleted");
     }
     action.delete();
     return Response.ok().build();
@@ -104,7 +104,7 @@ public class ActionResource {
     DateTime dtFrom = new DateTime(from * 1000);
     DateTime dtTo = new DateTime(to * 1000);
     return Response.ok(Mappers.toXmlActions(
-        actions.list(dtFrom, dtTo, offerId, appId, performerId), Details.ONLY_ENTITY)
+        accounts, actions.list(dtFrom, dtTo, offerId, appId, performerId), Details.ONLY_ENTITY)
     ).build();
   }
 
@@ -119,7 +119,7 @@ public class ActionResource {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
     Iterable<Action> page = actions.list(ActionRepository.Ordering.BY_CREATION_TIME_DESC, offset, limit,
         offerId, appId, performerId);
-    return Response.ok(Mappers.toXmlActions(page, d)).build();
+    return Response.ok(Mappers.toXmlActions(accounts, page, d)).build();
   }
   
   @GET
@@ -138,6 +138,6 @@ public class ActionResource {
     Action action = actions.byId(actionId);
     if (action == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlAction(action, Details.WITH_RELATED_ENTITIES)).build();
+    return Response.ok(Mappers.toXmlAction(accounts, action, Details.WITH_RELATED_ENTITIES)).build();
   }
 }

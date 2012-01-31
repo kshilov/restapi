@@ -4,6 +4,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Account;
 import com.heymoose.domain.AccountTx;
+import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
 import com.heymoose.domain.Banner;
@@ -61,22 +62,22 @@ public class Mappers {
     return Details.ONLY_ENTITY;
   }
   
-  public static XmlUsers toXmlUsers(Iterable<User> users) {
-    return toXmlUsers(users, Details.WITH_RELATED_IDS);
+  public static XmlUsers toXmlUsers(Accounts accounts, Iterable<User> users) {
+    return toXmlUsers(accounts, users, Details.WITH_RELATED_IDS);
   }
   
-  public static XmlUsers toXmlUsers(Iterable<User> users, Details d) {
+  public static XmlUsers toXmlUsers(Accounts accounts, Iterable<User> users, Details d) {
     XmlUsers xmlUsers = new XmlUsers();
     for (User user : users)
-      xmlUsers.users.add(toXmlUser(user, d));
+      xmlUsers.users.add(toXmlUser(accounts, user, d));
     return xmlUsers;
   }
   
-  public static XmlUser toXmlUser(User user) {
-    return toXmlUser(user, Details.WITH_RELATED_LISTS);
+  public static XmlUser toXmlUser(Accounts accounts, User user) {
+    return toXmlUser(accounts, user, Details.WITH_RELATED_LISTS);
   }
 
-  public static XmlUser toXmlUser(User user, Details d) {
+  public static XmlUser toXmlUser(Accounts accounts, User user, Details d) {
     XmlUser xmlUser = new XmlUser();
     xmlUser.id = user.id();
     
@@ -86,10 +87,10 @@ public class Mappers {
       xmlUser.passwordHash = user.passwordHash();
       
       if (user.customerAccount() != null)
-        xmlUser.customerAccount = toXmlAccount(user.customerAccount());
+        xmlUser.customerAccount = toXmlAccount(accounts, user.customerAccount());
       xmlUser.customerSecret = user.customerSecret();
       if (user.developerAccount() != null)
-        xmlUser.developerAccount = toXmlAccount(user.developerAccount());
+        xmlUser.developerAccount = toXmlAccount(accounts, user.developerAccount());
       xmlUser.roles = Sets.newHashSet();
       for (Role role : user.roles())
         xmlUser.roles.add(role.toString());
@@ -98,47 +99,47 @@ public class Mappers {
         if (!user.apps().isEmpty()) {
           xmlUser.apps = Sets.newHashSet();
           for (App app : user.apps())
-            xmlUser.apps.add(toXmlApp(app, relatedDetails(d)));
+            xmlUser.apps.add(toXmlApp(accounts, app, relatedDetails(d)));
         }
         
         if (needRelatedLists(d)) {
           xmlUser.orders = Sets.newHashSet();
           for (Order order : user.orders())
-            xmlUser.orders.add(toXmlOrder(order, relatedListDetails(d)));
+            xmlUser.orders.add(toXmlOrder(accounts, order, relatedListDetails(d)));
         }
       }
     }
     return xmlUser;
   }
   
-  public static XmlAccount toXmlAccount(Account account) {
+  public static XmlAccount toXmlAccount(Accounts accounts, Account account) {
     XmlAccount xmlAccount = new XmlAccount();
     xmlAccount.id = account.id();
-    AccountTx currentState = account.currentState();
-    if (currentState != null)
-      xmlAccount.balance = currentState.balance().doubleValue();
+    AccountTx lastTx = accounts.lastTxOf(account);
+    if (lastTx != null)
+      xmlAccount.balance = lastTx.balance().doubleValue();
     else
       xmlAccount.balance = 0.0;
     xmlAccount.allowNegativeBalance = account.allowNegativeBalance();
     return xmlAccount;
   }
   
-  public static XmlOrders toXmlOrders(Iterable<Order> orders) {
-    return toXmlOrders(orders, Details.WITH_RELATED_IDS);
+  public static XmlOrders toXmlOrders(Accounts accounts, Iterable<Order> orders) {
+    return toXmlOrders(accounts, orders, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlOrders toXmlOrders(Iterable<Order> orders, Details d) {
+  public static XmlOrders toXmlOrders(Accounts accounts, Iterable<Order> orders, Details d) {
     XmlOrders xmlOrders = new XmlOrders();
     for (Order order : orders)
-      xmlOrders.orders.add(toXmlOrder(order, d));
+      xmlOrders.orders.add(toXmlOrder(accounts, order, d));
     return xmlOrders;
   }
 
-  public static XmlOrder toXmlOrder(Order order) {
-    return toXmlOrder(order, Details.WITH_RELATED_IDS);
+  public static XmlOrder toXmlOrder(Accounts accounts, Order order) {
+    return toXmlOrder(accounts, order, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlOrder toXmlOrder(Order order, Details d) {
+  public static XmlOrder toXmlOrder(Accounts accounts, Order order, Details d) {
     XmlOrder xmlOrder = new XmlOrder();
     xmlOrder.id = order.id();
     
@@ -148,7 +149,7 @@ public class Mappers {
       xmlOrder.cpa = order.cpa();
       xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();
-      xmlOrder.account = toXmlAccount(order.account());
+      xmlOrder.account = toXmlAccount(accounts, order.account());
       
       // Common offer fields
       Offer offer = order.offer();
@@ -203,30 +204,30 @@ public class Mappers {
       if (targeting.appFilterType() != null)
         xmlOrder.appFilterType = targeting.appFilterType().toString();
       if (targeting.apps() != null)
-        xmlOrder.apps = toXmlApps(targeting.apps(), Details.ONLY_ENTITY);
+        xmlOrder.apps = toXmlApps(accounts, targeting.apps(), Details.ONLY_ENTITY);
       
       if (needRelated(d))
-        xmlOrder.user = toXmlUser(order.customer(), relatedDetails(d));
+        xmlOrder.user = toXmlUser(accounts, order.customer(), relatedDetails(d));
     }
     return xmlOrder;
   }
   
-  public static XmlApps toXmlApps(Iterable<App> apps) {
-    return toXmlApps(apps, Details.WITH_RELATED_IDS);
+  public static XmlApps toXmlApps(Accounts accounts, Iterable<App> apps) {
+    return toXmlApps(accounts, apps, Details.WITH_RELATED_IDS);
   }
   
-  public static XmlApps toXmlApps(Iterable<App> apps, Details d) {
+  public static XmlApps toXmlApps(Accounts accounts, Iterable<App> apps, Details d) {
     XmlApps xmlApps = new XmlApps();
     for (App app : apps)
-      xmlApps.apps.add(toXmlApp(app, d));
+      xmlApps.apps.add(toXmlApp(accounts, app, d));
     return xmlApps;
   }
 
-  public static XmlApp toXmlApp(App app) {
-    return toXmlApp(app, Details.WITH_RELATED_IDS);
+  public static XmlApp toXmlApp(Accounts accounts, App app) {
+    return toXmlApp(accounts, app, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlApp toXmlApp(App app, Details d) {
+  public static XmlApp toXmlApp(Accounts accounts, App app, Details d) {
     XmlApp xmlApp = new XmlApp();
     xmlApp.id = app.id();
     
@@ -243,27 +244,27 @@ public class Mappers {
         xmlApp.platform = app.platform().toString();
       
       if (needRelated(d))
-        xmlApp.user = toXmlUser(app.owner(), relatedDetails(d));
+        xmlApp.user = toXmlUser(accounts, app.owner(), relatedDetails(d));
     }
     return xmlApp;
   }
   
-  public static XmlActions toXmlActions(Iterable<Action> actions) {
-    return toXmlActions(actions, Details.WITH_RELATED_IDS);
+  public static XmlActions toXmlActions(Accounts accounts, Iterable<Action> actions) {
+    return toXmlActions(accounts, actions, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlActions toXmlActions(Iterable<Action> actions, Details d) {
+  public static XmlActions toXmlActions(Accounts accounts, Iterable<Action> actions, Details d) {
     XmlActions xmlActions = new XmlActions();
     for (Action action : actions)
-      xmlActions.actions.add(toXmlAction(action, d));
+      xmlActions.actions.add(toXmlAction(accounts, action, d));
     return xmlActions;
   }
   
-  public static XmlAction toXmlAction(Action action) {
-    return toXmlAction(action, Details.WITH_RELATED_IDS);
+  public static XmlAction toXmlAction(Accounts accounts, Action action) {
+    return toXmlAction(accounts, action, Details.WITH_RELATED_IDS);
   }
 
-  public static XmlAction toXmlAction(Action action, Details d) {
+  public static XmlAction toXmlAction(Accounts accounts, Action action, Details d) {
     XmlAction xmlAction = new XmlAction();
     xmlAction.id = action.id();
     
@@ -279,8 +280,8 @@ public class Mappers {
       
       if (needRelated(d)) {
         xmlAction.performer = toXmlPerformer(action.performer(), relatedDetails(d));
-        xmlAction.order = toXmlOrder(action.offer().order(), relatedDetails(d));
-        xmlAction.app = toXmlApp(action.app(), relatedDetails(d));
+        xmlAction.order = toXmlOrder(accounts, action.offer().order(), relatedDetails(d));
+        xmlAction.app = toXmlApp(accounts, action.app(), relatedDetails(d));
       }
     }
     return xmlAction;

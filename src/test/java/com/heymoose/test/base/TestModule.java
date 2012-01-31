@@ -1,17 +1,16 @@
 package com.heymoose.test.base;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.events.Event;
 import com.heymoose.events.EventBus;
-import org.hibernate.cfg.Configuration;
-import org.junit.Ignore;
-
-import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
+import org.hibernate.cfg.Configuration;
+import org.junit.Ignore;
 
 @Ignore
 public class TestModule extends AbstractModule {
@@ -28,7 +27,7 @@ public class TestModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected Configuration hibernateConfig(@Named("entities") Set<Class> classes) {
+  protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, Injector injector) {
     Configuration config = new Configuration();
 
     for (Class klass : classes)

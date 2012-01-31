@@ -89,7 +89,7 @@ public class OrderResource {
                        @QueryParam("full") @DefaultValue("false") boolean full,
                        @QueryParam("userId") Long userId) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Response.ok(Mappers.toXmlOrders(orders.list(
+    return Response.ok(Mappers.toXmlOrders(accounts, orders.list(
         WebAppUtil.queryParamToEnum(ord, OrderRepository.Ordering.CREATION_TIME),
         WebAppUtil.queryParamToEnum(dir, Repository.Direction.DESC),
         offset, limit, userId), d)).build();
@@ -201,15 +201,12 @@ public class OrderResource {
     
     BigDecimal amount = balance;
 
-    if (user.customerAccount().currentState().balance().compareTo(amount) == -1)
+    if (accounts.lastTxOf(user.customerAccount()).balance().compareTo(amount) == -1)
       return Response.status(409).build();
 
-    String desc = String.format("Transfering %s from %s to %s", _balance, user.customerAccount().id(), order.account().id());
-    accounts.lock(user.customerAccount());
-    user.customerAccount().subtractFromBalance(amount, desc);
-    order.account().addToBalance(amount, desc);
-
     orders.put(order);
+    accounts.transfer(user.customerAccount(), order.account(), amount);
+
     return Response.ok(Long.toString(order.id())).build();
   }
 
@@ -264,7 +261,7 @@ public class OrderResource {
     Order order = orders.byId(orderId);
     if (order == null)
       return Response.status(404).build();
-    return Response.ok(Mappers.toXmlOrder(order, Details.WITH_RELATED_ENTITIES)).build();
+    return Response.ok(Mappers.toXmlOrder(accounts, order, Details.WITH_RELATED_ENTITIES)).build();
   }
   
   @PUT
