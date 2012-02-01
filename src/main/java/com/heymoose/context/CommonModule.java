@@ -44,22 +44,27 @@ import com.heymoose.domain.hiber.PerformerRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
 import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.ActionResource;
-import com.heymoose.resource.MlmResource;
-import com.heymoose.resource.RobokassaResource;
-import com.heymoose.resource.StatsResource;
-import com.heymoose.resource.api.Api;
-import com.heymoose.resource.api.ApiResource;
 import com.heymoose.resource.AppResource;
 import com.heymoose.resource.BannerSizeResource;
 import com.heymoose.resource.CityResource;
+import com.heymoose.resource.MlmResource;
 import com.heymoose.resource.OfferShowResource;
 import com.heymoose.resource.OrderResource;
 import com.heymoose.resource.PerformerResource;
+import com.heymoose.resource.RobokassaResource;
+import com.heymoose.resource.StatsResource;
 import com.heymoose.resource.UserResource;
+import com.heymoose.resource.api.Api;
+import com.heymoose.resource.api.ApiResource;
 import java.math.BigDecimal;
 import java.util.Properties;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 public class CommonModule extends AbstractModule {
 
@@ -114,5 +119,20 @@ public class CommonModule extends AbstractModule {
   @Provides @Named("robokassaPass")  @Singleton
   protected String robokassaPass(@Named("settings") Properties settings) {
     return settings.getProperty("robokassaPass");
+  }
+
+  @Provides @Singleton
+  protected Ehcache cache() {
+    CacheManager cacheManager = CacheManager.create();
+    Ehcache cache = new Cache(
+        new CacheConfiguration("ctr", 200)
+            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+            .timeToLiveSeconds(30 * 60)
+            .diskPersistent(false)
+            .overflowToDisk(false)
+            .overflowToOffHeap(false)
+    );
+    cacheManager.addCache(cache);
+    return cache;
   }
 }

@@ -33,6 +33,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
@@ -44,16 +46,18 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   private final String randFunction;
   private final BannerRepository banners;
   private final BigDecimal compensation;
+  private final Ehcache cache;
 
   @Inject
   public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes,
                               @Named("rand") String randFunction, BannerRepository banners,
-                              @Named("compensation") BigDecimal compensation) {
+                              @Named("compensation") BigDecimal compensation, Ehcache cache) {
     super(sessionProvider);
     this.bannerSizes = bannerSizes;
     this.randFunction = randFunction;
     this.banners = banners;
     this.compensation = compensation;
+    this.cache = cache;
   }
 
   @Override
@@ -66,6 +70,9 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   private Map<Long, Double> getOfferCTRs(long appId) {
+    Element element = cache.get(appId);
+    if (element != null)
+      return (Map<Long, Double>) element.getValue();
     String sql ="select a.offer_id, cast(a.c as decimal) / s.c  " +
         "from ( " +
         "select offer_id offer_id, count(*) c " +
@@ -90,6 +97,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       Double ctr = (_ctr == null) ? null : _ctr.doubleValue();
       ret.put(offerId, ctr);
     }
+    cache.put(new Element(appId, ret));
     return ret;
   }
 
