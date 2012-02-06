@@ -20,6 +20,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
+
+import java.net.URI;
 import java.util.Set;
 import java.util.UUID;
 
@@ -69,20 +74,60 @@ public class User extends IdEntity {
   @Basic(optional = false)
   private String passwordHash;
 
-  @Basic(optional = false)
-  private String nickname;
+  @Column(name = "first_name", nullable = false)
+  private String firstName;
+  
+  @Column(name = "last_name", nullable = false)
+  private String lastName;
+  
+  @Basic
+  private String organization;
+  
+  @Basic
+  private String phone;
+  
+  @Column(name = "source_url")
+  private String sourceUrl;
+  
+  @Enumerated
+  @Column(name = "messenger_type")
+  private MessengerType messengerType;
+  
+  @Column(name = "messenger_uid")
+  private String messengerUid;
 
   @Column(name = "referrer")
   private Long referrerId;
+  
+  @Basic(optional = false)
+  private boolean confirmed;
+  
+  @Basic(optional = false)
+  private boolean blocked;
+  
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+  @Column(name = "register_time", nullable = false)
+  private DateTime registerTime;
 
   protected User() {}
 
-  public User(String email, String nickname, String passwordHash, Long referrerId) {
-    checkNotNull(email, nickname, passwordHash);
+  public User(String email, String passwordHash, String firstName, String lastName, String organization,
+              String phone, URI sourceUrl, MessengerType messengerType, String messengerUid,
+              Long referrerId) {
+    checkNotNull(email, passwordHash, firstName, lastName);
     this.email = email;
-    this.nickname = nickname;
     this.passwordHash = passwordHash;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.organization = organization;
+    this.phone = phone;
+    this.sourceUrl = sourceUrl != null ? sourceUrl.toString() : null;
+    this.messengerType = messengerType;
+    this.messengerUid = messengerUid;
     this.referrerId = referrerId;
+    this.confirmed = false;
+    this.blocked = false;
+    this.registerTime = DateTime.now();
   }
 
   public Account developerAccount() {
@@ -99,6 +144,16 @@ public class User extends IdEntity {
 
   public String email() {
     return email;
+  }
+  
+  public void setEmail(String email) {
+    checkNotNull(email);
+    this.email = email;
+  }
+  
+  public void changeEmail(String email) {
+    setEmail(email);
+    confirmed = false;
   }
 
   public Set<App> apps() {
@@ -139,8 +194,59 @@ public class User extends IdEntity {
     return roles != null && roles.contains(Role.DEVELOPER);
   }
 
-  public String nickname() {
-    return nickname;
+  public String firstName() {
+    return firstName;
+  }
+  
+  public void setFirstName(String firstName) {
+    checkNotNull(firstName);
+    this.firstName = firstName;
+  }
+  
+  public String lastName() {
+    return lastName;
+  }
+  
+  public void setLastName(String lastName) {
+    checkNotNull(lastName);
+    this.lastName = lastName;
+  }
+  
+  public String organization() {
+    return organization;
+  }
+  
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
+  
+  public String phone() {
+    return phone;
+  }
+  
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+  
+  public URI sourceUrl() {
+    return sourceUrl != null ? URI.create(sourceUrl) : null;
+  }
+  
+  public void setSourceUrl(URI sourceUrl) {
+    this.sourceUrl = sourceUrl != null ? sourceUrl.toString() : null;
+  }
+  
+  public MessengerType messengerType() {
+    return messengerType;
+  }
+  
+  public String messengerUid() {
+    return messengerUid;
+  }
+  
+  public void setMessenger(MessengerType type, String uid) {
+    this.messengerType = type;
+    this.messengerUid = uid;
   }
 
   public String passwordHash() {
@@ -154,5 +260,25 @@ public class User extends IdEntity {
   
   public Long referrerId() {
     return referrerId;
+  }
+  
+  public boolean confirmed() {
+    return confirmed;
+  }
+  
+  public void setConfirmed(boolean confirmed) {
+    this.confirmed = confirmed;
+  }
+  
+  public boolean blocked() {
+    return blocked;
+  }
+  
+  public void setBlocked(boolean blocked) {
+    this.blocked = blocked;
+  }
+  
+  public DateTime registerTime() {
+    return registerTime;
   }
 }

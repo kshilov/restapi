@@ -15,11 +15,29 @@ public class XmlUser {
   @XmlElement(name = "email")
   public String email;
 
-  @XmlElement(name = "nickname")
-  public String nickname;
-
   @XmlElement(name = "password-hash")
   public String passwordHash;
+  
+  @XmlElement(name = "first-name")
+  public String firstName;
+  
+  @XmlElement(name = "last-name")
+  public String lastName;
+  
+  @XmlElement(name = "organization")
+  public String organization;
+  
+  @XmlElement(name = "phone")
+  public String phone;
+  
+  @XmlElement(name = "source-url")
+  public String sourceUrl;
+  
+  @XmlElement(name = "messenger-type")
+  public String messengerType;
+  
+  @XmlElement(name = "messenger-uid")
+  public String messengerUid;
 
   @XmlElement(name = "customer-account")
   public XmlAccount customerAccount;
@@ -51,4 +69,13 @@ public class XmlUser {
   @XmlElementWrapper(name = "referrals")
   @XmlElement(name = "referral")
   public Set<String> referrals = newHashSet();
+  
+  @XmlElement(name = "confirmed")
+  public Boolean confirmed;
+  
+  @XmlElement(name = "blocked")
+  public Boolean blocked;
+  
+  @XmlElement(name = "register-time")
+  public String registerTime;
 }

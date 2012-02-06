@@ -22,8 +22,10 @@ public class OfferTest extends RestTest {
   String EXT_ID = "ext1";
 
   String EMAIL = "test@heymoose.com";
-  String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
+  String FIRST_NAME = "Ivan";
+  String LAST_NAME = "Ivanov";
+  String PHONE = "+7 (915) 123-45-67";
 
   double CUSTOMER_BALANCE = 30.0;
 
@@ -45,7 +47,7 @@ public class OfferTest extends RestTest {
 
   @Before
   public void createApp() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);

@@ -83,8 +83,20 @@ public class Mappers {
     
     if (needFields(d)) {
       xmlUser.email = user.email();
-      xmlUser.nickname = user.nickname();
       xmlUser.passwordHash = user.passwordHash();
+      xmlUser.firstName = user.firstName();
+      xmlUser.lastName = user.lastName();
+      xmlUser.organization = user.organization();
+      xmlUser.phone = user.phone();
+      if (user.sourceUrl() != null)
+        xmlUser.sourceUrl = user.sourceUrl().toString();
+      if (user.messengerType() != null) {
+        xmlUser.messengerType = user.messengerType().toString();
+        xmlUser.messengerUid = user.messengerUid();
+      }
+      xmlUser.confirmed = user.confirmed();
+      xmlUser.blocked = user.blocked();
+      xmlUser.registerTime = user.registerTime().toString();
       
       if (user.customerAccount() != null)
         xmlUser.customerAccount = toXmlAccount(accounts, user.customerAccount());

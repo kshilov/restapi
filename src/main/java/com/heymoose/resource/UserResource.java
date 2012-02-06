@@ -2,6 +2,7 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
+import com.heymoose.domain.MessengerType;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -11,6 +12,9 @@ import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 
 import com.heymoose.resource.xml.XmlUser;
+import com.sun.jersey.api.core.HttpContext;
+import com.sun.jersey.api.representation.Form;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
@@ -22,6 +26,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -67,13 +72,21 @@ public class UserResource {
   @Transactional
   public Response register(@FormParam("email") String email,
                            @FormParam("passwordHash") String passwordHash,
-                           @FormParam("nickname") String nickname,
+                           @FormParam("firstName") String firstName,
+                           @FormParam("lastName") String lastName,
+                           @FormParam("organization") String organization,
+                           @FormParam("phone") String phone,
+                           @FormParam("sourceUrl") String sourceUrl,
+                           @FormParam("messengerType") MessengerType messengerType,
+                           @FormParam("messengerUid") String messengerUid,
                            @FormParam("referrer") Long referrerId) {
-    checkNotNull(email, passwordHash, nickname);
+    checkNotNull(email, passwordHash, firstName, lastName);
     User existing = users.byEmail(email);
     if (existing != null)
       return Response.status(409).build();
-    User newUser = new User(email, nickname, passwordHash, referrerId);
+    URI uriSourceUrl = sourceUrl != null ? URI.create(sourceUrl) : null;
+    User newUser = new User(email, passwordHash, firstName, lastName, organization,
+        phone, uriSourceUrl, messengerType, messengerUid, referrerId);
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id()))).build();
   }
@@ -137,11 +150,58 @@ public class UserResource {
   @PUT
   @Path("{id}")
   @Transactional
-  public void update(@PathParam("id") long id,
-                     @FormParam("passwordHash") String passwordHash) {
+  public void update(@Context HttpContext context, @PathParam("id") long id) {
     User user = existing(id);
-    if (passwordHash != null)
-      user.changePasswordHash(passwordHash);
+    Form params = context.getRequest().getEntity(Form.class);
+    if (params.containsKey("email"))
+      user.setEmail(params.getFirst("email"));
+    if (params.containsKey("passwordHash"))
+      user.changePasswordHash(params.getFirst("passwordHash"));
+    if (params.containsKey("firstName"))
+      user.setFirstName(params.getFirst("firstName"));
+    if (params.containsKey("lastName"))
+      user.setLastName(params.getFirst("lastName"));
+    if (params.containsKey("organization"))
+      user.setOrganization(nullableParam(params.getFirst("organization")));
+    if (params.containsKey("phone"))
+      user.setPhone(nullableParam(params.getFirst("phone")));
+    if (params.containsKey("sourceUrl")) {
+      String sourceUrlParam = params.getFirst("sourceUrl");
+      user.setSourceUrl(!isNull(sourceUrlParam) ? URI.create(sourceUrlParam) : null);
+    }
+    if (params.containsKey("messengerType")) {
+      String messengerTypeParam = params.getFirst("messengerType");
+      String messengerUidParam = params.containsKey("messengerUid") ? params.getFirst("messengerUid") : "";
+      if (!isNull(messengerTypeParam)) {
+        if (isNull(messengerUidParam))
+          throw new WebApplicationException(400);
+        user.setMessenger(Enum.valueOf(MessengerType.class, messengerTypeParam), messengerUidParam);
+      }
+      else
+        user.setMessenger(null, null);
+    }
+    if (params.containsKey("confirmed"))
+      user.setConfirmed(Boolean.valueOf(params.getFirst("confirmed")));
+    if (params.containsKey("blocked"))
+      user.setBlocked(Boolean.valueOf(params.getFirst("blocked")));
+  }
+  
+  @PUT
+  @Path("{id}/confirmed")
+  @Transactional
+  public void confirm(@PathParam("id") long id) {
+    User user = existing(id);
+    user.setConfirmed(true);
+  }
+  
+  @PUT
+  @Path("{id}/email")
+  @Transactional
+  public void changeEmail(@PathParam("id") long id,
+                          @FormParam("email") String email) {
+    checkNotNull(email);
+    User user = existing(id);
+    user.changeEmail(email);
   }
 
   private User existing(long id) {
@@ -149,5 +209,16 @@ public class UserResource {
     if (user == null)
       throw new WebApplicationException(404);
     return user;
+  }
+  
+  private boolean isNull(String param) {
+    String paramLower = param.toLowerCase();
+    return paramLower.isEmpty() || paramLower.equals("null") || paramLower.equals("none");
+  }
+  
+  private String nullableParam(String param) {
+    if (isNull(param))
+      return null;
+    return param;
   }
 }

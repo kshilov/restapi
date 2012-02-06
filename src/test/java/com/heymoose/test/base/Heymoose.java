@@ -35,11 +35,13 @@ public class Heymoose {
     this.client = client;
   }
 
-  public long registerUser(String email, String nickname, String passwordHash) {
+  public long registerUser(String email, String passwordHash, String firstName, String lastName, String phone) {
     Form form = new Form();
     form.add("email", email);
-    form.add("nickname", nickname);
     form.add("passwordHash", passwordHash);
+    form.add("firstName", firstName);
+    form.add("lastName", lastName);
+    form.add("phone", phone);
     ClientResponse response = client.path("users").post(ClientResponse.class, form);
     if (response.getStatus() >= 300)
       throw new UniformInterfaceException(response);

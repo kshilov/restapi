@@ -12,23 +12,27 @@ import static org.junit.Assert.fail;
 public class UserTest extends RestTest {
 
   String EMAIL = "test@heymoose.com";
-  String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
+  String FIRST_NAME = "Ivan";
+  String LAST_NAME = "Ivanov";
+  String PHONE = "+7 (915) 123-45-67";
 
   void baseValidateUser(XmlUser user) {
     assertEquals(EMAIL, user.email);
-    assertEquals(NICKNAME, user.nickname);
     assertEquals(PASSWORD_HASH, user.passwordHash);
+    assertEquals(FIRST_NAME, user.firstName);
+    assertEquals(LAST_NAME, user.lastName);
+    assertEquals(PHONE, user.phone);
   }
 
   @Test public void register() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     XmlUser user = heymoose().getUser(userId);
     baseValidateUser(user);
   }
 
   @Test public void changePassword() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     XmlUser user = heymoose().getUser(userId);
     assertEquals(PASSWORD_HASH, user.passwordHash);
     String newHash = "sfnslflwe";
@@ -47,7 +51,7 @@ public class UserTest extends RestTest {
   }
 
   @Test public void getByEmail() {
-    heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     XmlUser user = heymoose().getUserByEmail(EMAIL);
     baseValidateUser(user);
   }
@@ -62,7 +66,7 @@ public class UserTest extends RestTest {
   }
 
   @Test public void addRole() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     XmlUser user = heymoose().getUser(userId);
     assertEquals(0, user.roles.size());
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
@@ -72,7 +76,7 @@ public class UserTest extends RestTest {
   }
 
   @Test public void addToCustomerAccount() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     double amount = 1.2;
     heymoose().addToCustomerAccount(userId, amount);
@@ -81,7 +85,7 @@ public class UserTest extends RestTest {
   }
 
   @Test public void addToCustomerAccountWithoutCustomerRole() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     double amount = 1.2;
     try {
       heymoose().addToCustomerAccount(userId, amount);

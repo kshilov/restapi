@@ -19,8 +19,10 @@ import static org.junit.Assert.fail;
 public class AppTest extends RestTest {
 
   String EMAIL = "test@heymoose.com";
-  String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
+  String FIRST_NAME = "Ivan";
+  String LAST_NAME = "Ivanov";
+  String PHONE = "+7 (915) 123-45-67";
 
   String APP_TITLE = "The App";
   String APP_URL = "http://example.org";
@@ -28,7 +30,7 @@ public class AppTest extends RestTest {
   Platform PLATFORM = Platform.FACEBOOK;
 
   long create() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
@@ -36,7 +38,7 @@ public class AppTest extends RestTest {
   }
 
   @Test public void createApp() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.DEVELOPER);
     heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     XmlUser user = heymoose().getUser(userId);
@@ -48,7 +50,7 @@ public class AppTest extends RestTest {
   }
 
   @Test public void createAppWithoutDeveloperRole() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     try {
       heymoose().createApp(APP_TITLE, userId, APP_URL, CALLBACK, PLATFORM);
     } catch (UniformInterfaceException e) {

@@ -18,8 +18,10 @@ import static org.junit.Assert.fail;
 public class OrderTest extends RestTest {
 
   String EMAIL = "test@heymoose.com";
-  String NICKNAME = "anon";
   String PASSWORD_HASH = "3gewn4iougho";
+  String FIRST_NAME = "Ivan";
+  String LAST_NAME = "Ivanov";
+  String PHONE = "+7 (915) 123-45-67";
 
   double CUSTOMER_BALANCE = 30.0;
 
@@ -34,7 +36,7 @@ public class OrderTest extends RestTest {
   boolean ALLOW_NEGATIVE_BALANCE = false;
 
   long createAndReturnUserId() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
     heymoose().createRegularOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
@@ -42,7 +44,7 @@ public class OrderTest extends RestTest {
   }
 
   long createVideoAndReturnUserId() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
     heymoose().createVideoOrder(userId, TITLE, VIDEO_URL, BODY, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
@@ -50,7 +52,7 @@ public class OrderTest extends RestTest {
   }
 
   long createBannerAndReturnUserId() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, CUSTOMER_BALANCE);
     long size = heymoose().bannerSize(468, 60);
@@ -100,7 +102,7 @@ public class OrderTest extends RestTest {
   }
 
   @Test public void createOrderWithoutCustomerRole() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     try {
       heymoose().createRegularOrder(userId, TITLE, DESCRIPTION, BODY, IMAGE, BALANCE, CPA, ALLOW_NEGATIVE_BALANCE);
       fail();
@@ -110,7 +112,7 @@ public class OrderTest extends RestTest {
   }
 
   @Test public void createOrderWithNoEnoughMoney() {
-    long userId = heymoose().registerUser(EMAIL, NICKNAME, PASSWORD_HASH);
+    long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     heymoose().addRoleToUser(userId, Role.CUSTOMER);
     heymoose().addToCustomerAccount(userId, 10.0);
     try {
