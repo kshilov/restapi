@@ -4,6 +4,7 @@ import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.MessengerType;
 import com.heymoose.domain.Role;
+import com.heymoose.domain.TxType;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
@@ -144,7 +145,7 @@ public class UserResource {
     if (!user.isCustomer())
       throw conflict();
     accounts.lock(user.customerAccount());
-    accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance");
+    accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance", TxType.REPLENISHMENT);
   }
 
   @PUT
@@ -202,6 +203,16 @@ public class UserResource {
     checkNotNull(email);
     User user = existing(id);
     user.changeEmail(email);
+  }
+
+  @POST
+  @Path("{id}/developer-account/withdraw")
+  @Transactional
+  public void withdrawDeveloperRevenue(@PathParam("id") long id) {
+    User user = existing(id);
+    if (!user.isDeveloper())
+      throw conflict();
+    accounts.withdraw(user.developerAccount(), TxType.ACTION_APPROVED);
   }
 
   private User existing(long id) {

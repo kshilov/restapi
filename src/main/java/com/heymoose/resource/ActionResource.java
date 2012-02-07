@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.TxType;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 import com.heymoose.domain.Accounts;
@@ -7,7 +8,6 @@ import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.Order;
 import com.heymoose.events.ActionApproved;
-import com.heymoose.events.EventBus;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
@@ -83,10 +83,10 @@ public class ActionResource {
     Order order = action.offer().order();
     if (order.disabled()) {
       accounts.lock(order.customer().customerAccount());
-      accounts.addToBalance(order.customer().customerAccount(), action.reservedAmount(), "Action deleted");
+      accounts.addToBalance(order.customer().customerAccount(), action.reservedAmount(), "Action deleted", TxType.RESERVATION_CANCELLED);
     } else {
       accounts.lock(order.account());
-      accounts.addToBalance(order.account(), action.reservedAmount(), "Action deleted");
+      accounts.addToBalance(order.account(), action.reservedAmount(), "Action deleted", TxType.RESERVATION_CANCELLED);
     }
     action.delete();
     return Response.ok().build();

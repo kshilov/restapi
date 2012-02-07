@@ -1,0 +1,12 @@
+package com.heymoose.domain;
+
+public enum TxType {
+  UNKNOWN,
+  TRANSFER,
+  RESERVATION,
+  ACTION_APPROVED,
+  MLM,
+  RESERVATION_CANCELLED,
+  REPLENISHMENT,
+  WITHDRAW
+}

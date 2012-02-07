@@ -80,7 +80,7 @@ public class Action extends IdEntity {
     DateTime now = DateTime.now();
     this.creationTime = now;
     Order order = offer.order();
-    this.reservation = accounts.subtractFromBalance(order.account(), order.cpa(), "Reservation");
+    this.reservation = accounts.subtractFromBalance(order.account(), order.cpa(), "Reservation", TxType.RESERVATION);
   }
 
   public boolean done() {
@@ -114,7 +114,7 @@ public class Action extends IdEntity {
       throw new IllegalStateException("Already done");
     done = true;
     approveTime = DateTime.now();
-    accounts.addToBalance(app.owner().developerAccount(), subtractCompensation(reservedAmount(), compensation), "Action approved");
+    accounts.addToBalance(app.owner().developerAccount(), subtractCompensation(reservedAmount(), compensation), "Action approved", TxType.ACTION_APPROVED);
   }
 
   public void delete() {

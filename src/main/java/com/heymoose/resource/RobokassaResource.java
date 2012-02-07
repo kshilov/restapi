@@ -2,6 +2,7 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.Account;
 import com.heymoose.domain.Accounts;
+import com.heymoose.domain.TxType;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
@@ -72,7 +73,7 @@ public class RobokassaResource {
       logError(_sum, invId, sig, accountId, "account not found");
       throw notFound();
     }
-    accounts.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"));
+    accounts.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"), TxType.REPLENISHMENT);
     return "OK" + invId;
   }
   

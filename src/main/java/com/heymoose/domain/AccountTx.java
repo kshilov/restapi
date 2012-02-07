@@ -6,6 +6,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +17,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 @Entity
 @Table(
@@ -52,13 +55,22 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   @Basic
   private String description;
 
+  @Enumerated
+  private TxType type;
+
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+  @Column(name = "creation_time", nullable = true)
+  private DateTime creationTime;
+
   protected AccountTx() {}
 
-  public AccountTx(Account account, BigDecimal balance) {
+  public AccountTx(Account account, BigDecimal balance, TxType type) {
     this.account = account;
     this.balance = balance;
     this.diff = balance;
     this.version = 1;
+    this.type = type;
+    this.creationTime = DateTime.now();
   }
 
   public Account account() {
@@ -85,7 +97,20 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     return description;
   }
 
-  public AccountTx add(BigDecimal amount, String description) {
+  public DateTime creationTime() {
+    return creationTime;
+  }
+
+  public void addInPlace(BigDecimal amount, String description) {
+    if (amount.signum() != 1)
+      throw new IllegalArgumentException("Amount must be positive");
+    version++;
+    balance = balance.add(amount);
+    this.description = description;
+    diff = diff.add(amount);
+  }
+
+  public AccountTx add(BigDecimal amount, String description, TxType type) {
     if (amount.signum() != 1)
       throw new IllegalArgumentException("Amount must be positive");
     AccountTx newAccount = new AccountTx();
@@ -95,10 +120,12 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     newAccount.description = description;
     newAccount.diff = amount;
     newAccount.parentId = this.id;
+    newAccount.type = type;
+    newAccount.creationTime = DateTime.now();
     return newAccount;
   }
 
-  public AccountTx subtract(BigDecimal amount, String description, boolean allowNegativeBalance) {
+  public AccountTx subtract(BigDecimal amount, String description, boolean allowNegativeBalance, TxType type) {
     if (amount.signum() != 1)
       throw new IllegalArgumentException("Amount must be positive");
     if (!allowNegativeBalance && balance.compareTo(amount) == -1)
@@ -110,7 +137,15 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     newAccount.description = description;
     newAccount.diff = amount.negate();
     newAccount.parentId = this.id;
+    newAccount.type = type;
+    newAccount.creationTime = DateTime.now();
     return newAccount;
+  }
+  
+  public TxType type() {
+    if (type == null)
+      return TxType.UNKNOWN;
+    return type;
   }
 
   @Override

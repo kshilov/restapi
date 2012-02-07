@@ -94,7 +94,7 @@ public class Mlm {
       log.info(node.toString());
       if (node.revenue.compareTo(bdecimal(0)) > 0) {
         User user = (User) hiber().get(User.class, node.id);
-        accounts.addToBalance(user.customerAccount(), node.revenue, "MLM");
+        accounts.addToBalance(user.customerAccount(), node.revenue, "MLM", TxType.MLM);
       }
     }
   }

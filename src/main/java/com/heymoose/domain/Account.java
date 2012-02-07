@@ -40,11 +40,11 @@ public class Account extends IdEntity {
     this.allowNegativeBalance = allowNegativeBalance;
   }
 
-  public Account(BigDecimal balance, boolean allowNegativeBalance) {
+  public Account(BigDecimal balance, boolean allowNegativeBalance, TxType type) {
     this(allowNegativeBalance);
     if (transactions == null)
       transactions = Sets.newTreeSet();
-    transactions.add(new AccountTx(this, balance));
+    transactions.add(new AccountTx(this, balance, type));
   }
 
   public boolean allowNegativeBalance() {
