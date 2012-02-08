@@ -1,0 +1,26 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+  <session-factory>
+    <mapping class="com.heymoose.domain.Account"/>
+    <mapping class="com.heymoose.domain.AccountTx"/>
+    <mapping class="com.heymoose.domain.Action"/>
+    <mapping class="com.heymoose.domain.App"/>
+    <mapping class="com.heymoose.domain.Targeting"/>
+    <mapping class="com.heymoose.domain.Offer"/>
+    <mapping class="com.heymoose.domain.Order"/>
+    <mapping class="com.heymoose.domain.Performer"/>
+    <mapping class="com.heymoose.domain.Platform"/>
+    <mapping class="com.heymoose.domain.User"/>
+    <mapping class="com.heymoose.domain.OfferShow"/>
+    <mapping class="com.heymoose.domain.RegularOffer"/>
+    <mapping class="com.heymoose.domain.VideoOffer"/>
+    <mapping class="com.heymoose.domain.BannerOffer"/>
+    <mapping class="com.heymoose.domain.BannerSize"/>
+    <mapping class="com.heymoose.domain.City"/>
+    <mapping class="com.heymoose.domain.Banner"/>
+    <mapping class="com.heymoose.domain.Withdraw"/>
+  </session-factory>
+</hibernate-configuration>

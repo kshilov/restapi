@@ -62,6 +62,10 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   @Column(name = "creation_time", nullable = true)
   private DateTime creationTime;
 
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+  @Column(name = "end_time", nullable = true)
+  private DateTime endTime;
+
   protected AccountTx() {}
 
   public AccountTx(Account account, BigDecimal balance, TxType type) {
@@ -101,6 +105,10 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     return creationTime;
   }
 
+  public DateTime endTime() {
+    return endTime;
+  }
+
   public void addInPlace(BigDecimal amount, String description) {
     if (amount.signum() != 1)
       throw new IllegalArgumentException("Amount must be positive");
@@ -108,6 +116,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     balance = balance.add(amount);
     this.description = description;
     diff = diff.add(amount);
+    this.endTime = DateTime.now();
   }
 
   public AccountTx add(BigDecimal amount, String description, TxType type) {

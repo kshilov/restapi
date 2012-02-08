@@ -1,6 +1,8 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
+import java.math.BigDecimal;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Type;
@@ -25,18 +26,19 @@ public class Withdraw extends IdEntity {
   @SequenceGenerator(name = "withdraw-seq", sequenceName = "withdraw_seq", allocationSize = 1)
   protected Long id;
 
-
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "account_id", nullable = false)
   private Account account;
+
+  @Basic
+  private BigDecimal amount;
 
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "timestamp", nullable = true)
   private DateTime timestamp;
 
-  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "last_tx", nullable = false)
-  private AccountTx lastTx;
+  @Basic
+  private Boolean done = false;
 
   @Override
   public Long id() {
@@ -45,10 +47,10 @@ public class Withdraw extends IdEntity {
 
   protected Withdraw() { }
 
-  public Withdraw(Account account, AccountTx lastTx) {
+  public Withdraw(Account account, BigDecimal amount) {
     this.account = account;
+    this.amount = amount;
     this.timestamp = DateTime.now();
-    this.lastTx = lastTx;
   }
 
   public Account account() {
@@ -59,7 +61,15 @@ public class Withdraw extends IdEntity {
     return timestamp;
   }
 
-  public AccountTx lastTx() {
-    return lastTx;
+  public void approve() {
+    done = true;
+  }
+
+  public BigDecimal amount() {
+    return amount;
+  }
+
+  public boolean done() {
+    return done;
   }
 }

@@ -13,6 +13,8 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 
 @Singleton
 public class Accounts {
@@ -77,12 +79,20 @@ public class Accounts {
     return newTx;
   }
   
+  private static DateTime lastChangeTime(AccountTx tx) {
+    return (tx.endTime() == null)
+        ? tx.creationTime()
+        : tx.endTime();
+  }
+  
   public AccountTx addToBalance(Account account, BigDecimal amount, String desc, TxType type) {
     AccountTx lastTx = lastTxOf(account);
     if (lastTx != null
         && type == TxType.ACTION_APPROVED
-        && lastTx.type() == TxType.ACTION_APPROVED) {
+        && lastTx.type() == TxType.ACTION_APPROVED
+        && lastChangeTime(lastTx).isAfter(DateMidnight.now()) ) {
       lastTx.addInPlace(amount, desc);
+      return lastTx;
     }
     AccountTx newTx = (lastTx == null) ?
         new AccountTx(account, amount, type) : lastTx.add(amount, desc, type);
@@ -98,40 +108,27 @@ public class Accounts {
         .uniqueResult();
   }
 
-  public void withdraw(Account account, TxType txType) {
-    Withdraw lastWithdraw = (Withdraw) hiber()
-        .createQuery("from Withdraw where account = :account order by timestamp desc")
-        .setParameter("account", account)
-        .setMaxResults(1)
-        .uniqueResult();
-    List<AccountTx> transactions;
-    if (lastWithdraw == null) {
-      transactions = hiber()
-          .createQuery("from AccountTx where account = :account and type = :type")
-          .setParameter("account", account)
-          .setParameter("type", txType)
-          .list();
-    } else {
-      int lastVersion = lastWithdraw.lastTx().version();
-      transactions = hiber()
-          .createQuery("from AccountTx where account = :account and type = :type and version > :version")
-          .setParameter("account", account)
-          .setParameter("type", txType)
-          .setParameter("version", lastVersion)
-          .list();
-    }
-    if (transactions.isEmpty())
-      return;
-    BigDecimal amount = new BigDecimal(0);
-    for (AccountTx tx : transactions) {
-      checkState(tx.diff().signum() == 1);
-      amount = amount.add(tx.diff());
-    }
-    transactions = newArrayList(transactions);
-    Collections.sort(transactions);
-    AccountTx lastTx = transactions.get(transactions.size() - 1);
+  public Withdraw withdraw(Account account, BigDecimal amount) {
     subtractFromBalance(account, amount, "Withdraw", TxType.WITHDRAW);
-    Withdraw withdraw = new Withdraw(account, lastTx);
+    Withdraw withdraw = new Withdraw(account, amount);
     hiber().save(withdraw);
+    return withdraw;
+  }
+  
+  public List<Withdraw> withdraws(Account account) {
+    return hiber().createQuery("from Withdraw where account = :account order by timestamp")
+        .setParameter("account", account)
+        .list();
+  }
+
+  public Withdraw withdrawOfAccount(Account account, long withdrawId) {
+    return (Withdraw) hiber().createQuery("from Withdraw where account = :account and id = :id")
+        .setParameter("account", account)
+        .setParameter("id", withdrawId)
+        .uniqueResult();
+  }
+
+  public void deleteWithdraw(Withdraw withdraw) {
+    hiber().delete(withdraw);
   }
 }

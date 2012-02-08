@@ -20,6 +20,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.VideoOffer;
+import com.heymoose.domain.Withdraw;
 import com.heymoose.util.HibernateUtil;
 
 public class Mappers {
@@ -428,5 +429,22 @@ public class Mappers {
     xmlTransaction.diff = account.diff().doubleValue();
     xmlTransaction.description = account.description();
     return xmlTransaction;
+  }
+  
+  public static XmlWithdraws toXmlWithdraws(long accountId, Iterable<Withdraw> withdraws) {
+    XmlWithdraws xmlWithdraws = new XmlWithdraws();
+    xmlWithdraws.accountId = accountId;
+    for (Withdraw withdraw : withdraws)
+      xmlWithdraws.withdraws.add(toXmlWithdraw(withdraw));
+    return xmlWithdraws;
+  }
+
+  public static XmlWithdraw toXmlWithdraw(Withdraw withdraw) {
+    XmlWithdraw xmlWithdraw = new XmlWithdraw();
+    xmlWithdraw.id = withdraw.id();
+    xmlWithdraw.amount = withdraw.amount().doubleValue();
+    xmlWithdraw.done = withdraw.done();
+    xmlWithdraw.timestamp = withdraw.timestamp().toString();
+    return xmlWithdraw;
   }
 }

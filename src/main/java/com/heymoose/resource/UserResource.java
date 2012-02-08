@@ -7,15 +7,19 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.TxType;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.Withdraw;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
+import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 
 import com.heymoose.resource.xml.XmlUser;
+import com.heymoose.resource.xml.XmlWithdraws;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -223,13 +227,53 @@ public class UserResource {
   }
 
   @POST
-  @Path("{id}/developer-account/withdraw")
+  @Path("{id}/developer-account/withdraws")
   @Transactional
-  public void withdrawDeveloperRevenue(@PathParam("id") long id) {
+  public String createWithdraw(@PathParam("id") long id, @FormParam("amount") String _amount) {
+    checkNotNull(_amount);
+    BigDecimal amount = new BigDecimal(_amount);
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
-    accounts.withdraw(user.developerAccount(), TxType.ACTION_APPROVED);
+    Withdraw withdraw = accounts.withdraw(user.developerAccount(), amount);
+    return Long.toString(withdraw.id());
+  }
+
+  @GET
+  @Transactional
+  @Path("{id}/developer-account/withdraws")
+  public XmlWithdraws developerWithdraws(@PathParam("id") long id) {
+    User user = existing(id);
+    if (!user.isDeveloper())
+      throw conflict();
+    List<Withdraw> withdraws = accounts.withdraws(user.developerAccount());
+    return Mappers.toXmlWithdraws(user.developerAccount().id(), withdraws);
+  }
+
+  @PUT
+  @Transactional
+  @Path("{id}/developer-account/withdraws/{withdrawId}")
+  public void approveDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
+    User user = existing(id);
+    if (!user.isDeveloper())
+      throw conflict();
+    Withdraw withdraw = accounts.withdrawOfAccount(user.developerAccount(), withdrawId);
+    if (withdraw == null)
+      throw notFound();
+    withdraw.approve();
+  }
+
+  @DELETE
+  @Transactional
+  @Path("{id}/developer-account/withdraws/{withdrawId}")
+  public void deleteDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
+    User user = existing(id);
+    if (!user.isDeveloper())
+      throw conflict();
+    Withdraw withdraw = accounts.withdrawOfAccount(user.developerAccount(), withdrawId);
+    if (withdraw == null)
+      throw notFound();
+    accounts.deleteWithdraw(withdraw);
   }
 
   private User existing(long id) {
