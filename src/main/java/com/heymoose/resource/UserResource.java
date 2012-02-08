@@ -18,6 +18,7 @@ import com.sun.jersey.api.representation.Form;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -193,6 +194,22 @@ public class UserResource {
   public void confirm(@PathParam("id") long id) {
     User user = existing(id);
     user.setConfirmed(true);
+  }
+  
+  @PUT
+  @Path("{id}/blocked")
+  @Transactional
+  public void block(@PathParam("id") long id) {
+    User user = existing(id);
+    user.setBlocked(true);
+  }
+  
+  @DELETE
+  @Path("{id}/blocked")
+  @Transactional
+  public void unblock(@PathParam("id") long id) {
+    User user = existing(id);
+    user.setBlocked(false);
   }
   
   @PUT
