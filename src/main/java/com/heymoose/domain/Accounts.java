@@ -129,6 +129,7 @@ public class Accounts {
   }
 
   public void deleteWithdraw(Withdraw withdraw) {
+    addToBalance(withdraw.account(), withdraw.amount(), "Withdraw cancelled", TxType.WITHDRAW);
     hiber().delete(withdraw);
   }
 }
