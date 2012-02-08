@@ -26,7 +26,7 @@ public class Withdraw extends IdEntity {
   @SequenceGenerator(name = "withdraw-seq", sequenceName = "withdraw_seq", allocationSize = 1)
   protected Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "account_id", nullable = false)
   private Account account;
 
