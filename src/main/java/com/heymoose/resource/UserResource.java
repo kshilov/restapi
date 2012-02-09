@@ -267,6 +267,7 @@ public class UserResource {
   @Transactional
   @Path("{id}/developer-account/withdraws/{withdrawId}")
   public void deleteDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId, @FormParam("comment") String comment) {
+    checkNotNull(comment);
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
