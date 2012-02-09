@@ -18,4 +18,13 @@ public class XmlTransaction {
 
   @XmlElement(name = "description")
   String description;
+  
+  @XmlElement(name = "type")
+  String type;
+  
+  @XmlElement(name = "creation-time")
+  String creationTime;
+  
+  @XmlElement(name = "end-time")
+  String endTime;
 }

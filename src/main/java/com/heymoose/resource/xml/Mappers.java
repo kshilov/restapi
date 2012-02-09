@@ -428,6 +428,12 @@ public class Mappers {
     xmlTransaction.balance = account.balance().doubleValue();
     xmlTransaction.diff = account.diff().doubleValue();
     xmlTransaction.description = account.description();
+    if (account.type() != null)
+      xmlTransaction.type = account.type().toString();
+    if (account.creationTime() != null)
+      xmlTransaction.creationTime = account.creationTime().toString();
+    if (account.endTime() != null)
+      xmlTransaction.endTime = account.endTime().toString();
     return xmlTransaction;
   }
   
