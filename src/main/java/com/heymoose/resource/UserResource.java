@@ -266,14 +266,14 @@ public class UserResource {
   @DELETE
   @Transactional
   @Path("{id}/developer-account/withdraws/{withdrawId}")
-  public void deleteDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
+  public void deleteDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId, @FormParam("comment") String comment) {
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
     Withdraw withdraw = accounts.withdrawOfAccount(user.developerAccount(), withdrawId);
     if (withdraw == null)
       throw notFound();
-    accounts.deleteWithdraw(withdraw);
+    accounts.deleteWithdraw(withdraw, comment);
   }
 
   private User existing(long id) {

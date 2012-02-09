@@ -11,6 +11,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.joda.time.DateMidnight;
@@ -128,8 +129,9 @@ public class Accounts {
         .uniqueResult();
   }
 
-  public void deleteWithdraw(Withdraw withdraw) {
-    addToBalance(withdraw.account(), withdraw.amount(), "Withdraw cancelled", TxType.WITHDRAW);
+  public void deleteWithdraw(Withdraw withdraw, String comment) {
+    checkArgument(!isBlank(comment));
+    addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW);
     hiber().delete(withdraw);
   }
 }
