@@ -121,7 +121,7 @@ public class Accounts {
       criteria.add(Restrictions.eq("account", account));
     
     return criteria
-        .addOrder(Order.desc("creationTime"))
+        .addOrder(Order.desc("id"))
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
