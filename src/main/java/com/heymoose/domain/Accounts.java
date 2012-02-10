@@ -12,8 +12,13 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
+
+import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
@@ -107,6 +112,30 @@ public class Accounts {
         .setParameter("account", account)
         .setMaxResults(1)
         .uniqueResult();
+  }
+  
+  public List<AccountTx> transactions(int offset, int limit, Account account) {
+    Criteria criteria = hiber().createCriteria(AccountTx.class);
+    
+    if (account != null)
+      criteria.add(Restrictions.eq("account", account));
+    
+    return criteria
+        .addOrder(Order.desc("creationTime"))
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
+  
+  public long transactionsCount(Account account) {
+    Criteria criteria = hiber().createCriteria(AccountTx.class);
+    
+    if (account != null)
+      criteria.add(Restrictions.eq("account", account));
+    
+    return Long.parseLong(criteria
+        .setProjection(Projections.rowCount())
+        .uniqueResult().toString());
   }
 
   public Withdraw withdraw(Account account, BigDecimal amount) {

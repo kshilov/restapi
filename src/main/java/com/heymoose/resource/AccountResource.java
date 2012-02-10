@@ -1,19 +1,15 @@
 package com.heymoose.resource;
 
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.Account;
-import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.XmlCount;
 import com.heymoose.resource.xml.XmlTransactions;
 import com.heymoose.util.Pair;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
@@ -41,21 +37,16 @@ public class AccountResource {
   public XmlTransactions transactions(@PathParam("accountId") long accountId, 
                                       @QueryParam("offset") @DefaultValue("0") int offset,
                                       @QueryParam("limit") @DefaultValue("20") int limit) {
-    Account account = accounts.get(accountId);
-    if (account == null)
-      throw notFound();
-    List<AccountTx> transactions = newArrayList(account.transactions());
-    Collections.sort(transactions, new Comparator<AccountTx>() {
-      @Override
-      public int compare(AccountTx o1, AccountTx o2) {
-        return o2.version().compareTo(o1.version());
-      }
-    });
-    List<AccountTx> page = newArrayList();
-    int cnt = 0;
-    for(int i = offset; i < transactions.size() && cnt < limit; cnt++, i++)
-      page.add(transactions.get(i));
-    return Mappers.toXmlTransactions(page, transactions.size());
+    Account account = existing(accountId);
+    return Mappers.toXmlTransactions(accounts.transactions(offset, limit, account));
+  }
+  
+  @GET
+  @Path("{accountId}/transactions/count")
+  @Transactional
+  public XmlCount transactionsCount(@PathParam("accountId") long accountId) {
+    Account account = existing(accountId);
+    return Mappers.toXmlCount(accounts.transactionsCount(account));
   }
 
   @POST
@@ -68,5 +59,12 @@ public class AccountResource {
     BigDecimal amount = new BigDecimal(_amount);
     Pair<Account, Account> pair = accounts.getAndLock(fromAccountId,toAccountId);
     accounts.transfer(pair.fst, pair.snd, amount);
+  }
+  
+  private Account existing(long id) {
+    Account account = accounts.get(id);
+    if (account == null)
+      throw notFound();
+    return account;
   }
 }

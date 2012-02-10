@@ -414,11 +414,10 @@ public class Mappers {
     return xmlCity;
   }
   
-  public static XmlTransactions toXmlTransactions(Iterable<AccountTx> transactions, int count) {
+  public static XmlTransactions toXmlTransactions(Iterable<AccountTx> transactions) {
     XmlTransactions xmlTransactions = new XmlTransactions();
     for (AccountTx tx : transactions)
       xmlTransactions.transactions.add(toXmlTransaction(tx));
-    xmlTransactions.count = count;
     return xmlTransactions;
   }
   
