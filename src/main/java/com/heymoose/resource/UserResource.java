@@ -150,7 +150,8 @@ public class UserResource {
     if (!user.isCustomer())
       throw conflict();
     accounts.lock(user.customerAccount());
-    accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance", TxType.REPLENISHMENT);
+    accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance",
+        TxType.REPLENISHMENT_ADMIN);
   }
 
   @PUT

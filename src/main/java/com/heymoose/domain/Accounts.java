@@ -117,7 +117,7 @@ public class Accounts {
   }
   
   public List<Withdraw> withdraws(Account account) {
-    return hiber().createQuery("from Withdraw where account = :account order by timestamp")
+    return hiber().createQuery("from Withdraw where account = :account order by timestamp desc")
         .setParameter("account", account)
         .list();
   }
@@ -131,7 +131,7 @@ public class Accounts {
 
   public void deleteWithdraw(Withdraw withdraw, String comment) {
     checkArgument(!isBlank(comment));
-    addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW);
+    addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW_DELETED);
     hiber().delete(withdraw);
   }
 }

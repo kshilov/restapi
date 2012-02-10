@@ -73,7 +73,8 @@ public class RobokassaResource {
       logError(_sum, invId, sig, accountId, "account not found");
       throw notFound();
     }
-    accounts.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"), TxType.REPLENISHMENT);
+    accounts.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"),
+        TxType.REPLENISHMENT_ROBOKASSA);
     return "OK" + invId;
   }
   
