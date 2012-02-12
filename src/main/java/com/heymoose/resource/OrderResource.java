@@ -145,10 +145,7 @@ public class OrderResource {
       return Response.status(400).build();
     }
 
-    if (cpa.signum() != 1 || balance.signum() != 1)
-      return Response.status(400).build();
-
-    if (cpa.compareTo(balance) == 1)
+    if (cpa.signum() != 1 || balance.signum() < 0)
       return Response.status(400).build();
 
     if (minAge != null && minAge < 0)
@@ -201,11 +198,13 @@ public class OrderResource {
     
     BigDecimal amount = balance;
 
-    if (accounts.lastTxOf(user.customerAccount()).balance().compareTo(amount) == -1)
+    if (balance.signum() > 0 && accounts.lastTxOf(user.customerAccount()).balance().compareTo(amount) == -1)
       return Response.status(409).build();
 
     orders.put(order);
-    accounts.transfer(user.customerAccount(), order.account(), amount);
+    
+    if (balance.signum() > 0)
+      accounts.transfer(user.customerAccount(), order.account(), amount);
 
     return Response.ok(Long.toString(order.id())).build();
   }
