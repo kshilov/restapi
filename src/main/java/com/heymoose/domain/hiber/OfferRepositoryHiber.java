@@ -17,6 +17,7 @@ import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.VideoOffer;
+import com.heymoose.domain.settings.Settings;
 import com.heymoose.resource.api.data.OfferData;
 import static java.lang.Math.round;
 import java.math.BigDecimal;
@@ -47,17 +48,19 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   private final BannerRepository banners;
   private final BigDecimal compensation;
   private final Ehcache cache;
+  private final Settings settings;
 
   @Inject
   public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes,
                               @Named("rand") String randFunction, BannerRepository banners,
-                              @Named("compensation") BigDecimal compensation, Ehcache cache) {
+                              @Named("compensation") BigDecimal compensation, Ehcache cache, Settings settings) {
     super(sessionProvider);
     this.bannerSizes = bannerSizes;
     this.randFunction = randFunction;
     this.banners = banners;
     this.compensation = compensation;
     this.cache = cache;
+    this.settings = settings;
   }
 
   @Override
@@ -189,6 +192,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "        (select allow_negative_balance = true from account where id = ord.account_id) " +
         "        or (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
         ") " +
+        "and ord.cpa >= :Cmin " +
         "and ord.disabled = false and (ord.paused is null or ord.paused = false) ";
 
     if (performer.male() != null)
@@ -256,7 +260,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     Query query = hiber()
         .createSQLQuery(sql)
         .setParameter("performer", performer.id())
-        .setParameter("type", condition.type.ordinal());
+        .setParameter("type", condition.type.ordinal())
+        .setParameter("Cmin", settings.Cmin());
 
     if (performer.male() != null)
       query.setParameter("performerMale", performer.male());

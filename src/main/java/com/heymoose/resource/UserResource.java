@@ -13,12 +13,13 @@ import static com.heymoose.resource.Exceptions.conflict;
 import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
-
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.resource.xml.XmlWithdraws;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-
+import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,10 +35,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigDecimal;
-import java.net.URI;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("users")
 @Singleton

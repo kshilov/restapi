@@ -5,7 +5,11 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.util.Pair;
+import com.heymoose.util.URLEncodedUtils;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -162,5 +166,11 @@ public class Accounts {
     checkArgument(!isBlank(comment));
     addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW_DELETED);
     hiber().delete(withdraw);
+  }
+
+  public static void main(String[] args) throws UnsupportedEncodingException {
+    String s = "http://tdsmi.net/?l=t254u234z4y2x4t2w4x2t2t2y3q2x444w22384y2841374v274%7Cx2d4";
+    URI uri = URI.create(s);
+    System.out.println(uri.toString());
   }
 }

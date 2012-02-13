@@ -22,6 +22,7 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.base.Repository;
+import com.heymoose.domain.settings.Settings;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -68,16 +69,18 @@ public class OrderResource {
   private final BannerSizeRepository bannerSizes;
   private final CityRepository cities;
   private final AppRepository apps;
+  private final Settings settings;
 
   @Inject
   public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts,
-                       BannerSizeRepository bannerSizes, CityRepository cities, AppRepository apps) {
+                       BannerSizeRepository bannerSizes, CityRepository cities, AppRepository apps, Settings settings) {
     this.users = users;
     this.orders = orders;
     this.accounts = accounts;
     this.bannerSizes = bannerSizes;
     this.cities = cities;
     this.apps = apps;
+    this.settings = settings;
   }
 
   @GET
@@ -146,6 +149,9 @@ public class OrderResource {
     }
 
     if (cpa.signum() != 1 || balance.signum() < 0)
+      return Response.status(400).build();
+
+    if (cpa.compareTo(settings.Cmin()) < 0)
       return Response.status(400).build();
 
     if (minAge != null && minAge < 0)

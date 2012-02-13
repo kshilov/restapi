@@ -22,5 +22,6 @@
     <mapping class="com.heymoose.domain.City"/>
     <mapping class="com.heymoose.domain.Banner"/>
     <mapping class="com.heymoose.domain.Withdraw"/>
+    <mapping class="com.heymoose.domain.settings.Setting"/>
   </session-factory>
 </hibernate-configuration>

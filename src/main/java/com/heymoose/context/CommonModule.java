@@ -1,6 +1,7 @@
 package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -43,6 +44,8 @@ import com.heymoose.domain.hiber.OfferShowRepositoryHiber;
 import com.heymoose.domain.hiber.OrderRepositoryHiber;
 import com.heymoose.domain.hiber.PerformerRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
+import com.heymoose.domain.settings.Setting;
+import com.heymoose.domain.settings.Settings;
 import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.ActionResource;
 import com.heymoose.resource.AppResource;
@@ -53,6 +56,7 @@ import com.heymoose.resource.OfferShowResource;
 import com.heymoose.resource.OrderResource;
 import com.heymoose.resource.PerformerResource;
 import com.heymoose.resource.RobokassaResource;
+import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.StatsResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.api.Api;
@@ -60,12 +64,14 @@ import com.heymoose.resource.api.ApiResource;
 import java.math.BigDecimal;
 import java.util.Properties;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.hibernate.Session;
 
 public class CommonModule extends AbstractModule {
 
@@ -87,6 +93,8 @@ public class CommonModule extends AbstractModule {
     bind(RobokassaResource.class);
     bind(AccountResource.class);
     bind(MlmResource.class);
+    bind(Settings.class);
+    bind(SettingResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);
@@ -102,7 +110,7 @@ public class CommonModule extends AbstractModule {
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
         RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class,
-        Banner.class, Withdraw.class);
+        Banner.class, Withdraw.class, Setting.class);
   }
 
   protected void bindEntities(Class... classes) {
@@ -136,4 +144,12 @@ public class CommonModule extends AbstractModule {
     cacheManager.addCache(cache);
     return cache;
   }
+
+//  @Provides @Singleton
+//  private Settings settings(Injector injector) {
+//    Settings settings = injector.getInstance(Settings.class);
+//    settings.init();
+//
+//
+//  }
 }
