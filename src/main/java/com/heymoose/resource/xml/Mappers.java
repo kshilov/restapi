@@ -252,6 +252,8 @@ public class Mappers {
       xmlApp.callback = app.callback().toString();
       xmlApp.creationTime = app.creationTime().toString();
       xmlApp.userId = app.owner().id();
+      xmlApp.d = app.D();
+      xmlApp.t = app.T();
       
       if (app.platform() != null)
         xmlApp.platform = app.platform().toString();

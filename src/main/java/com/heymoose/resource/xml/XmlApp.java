@@ -1,5 +1,7 @@
 package com.heymoose.resource.xml;
 
+import java.math.BigDecimal;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,4 +37,10 @@ public class XmlApp {
   
   @XmlElement(name = "creation-time")
   public String creationTime;
+  
+  @XmlElement(name = "d")
+  public BigDecimal d;
+  
+  @XmlElement(name = "t")
+  public BigDecimal t;
 }
