@@ -35,17 +35,14 @@ public class ActionResource {
   
   private final ActionRepository actions;
 //  private final EventBus eventBus;
-  private final BigDecimal compensation;
   private final Accounts accounts;
 
   @Inject
   public ActionResource(ActionRepository actions,
 //                        EventBus eventBus,
-                        @Named("compensation") BigDecimal compensation,
                         Accounts accounts) {
     this.actions = actions;
 //    this.eventBus = eventBus;
-    this.compensation = compensation;
     this.accounts = accounts;
   }
   
@@ -63,12 +60,12 @@ public class ActionResource {
     if (action == null)
       throw new WebApplicationException(404);
     if (action.done())
-      return new ActionApproved(action, compensation);
+      return new ActionApproved(action);
     if (action.deleted())
       throw new WebApplicationException(409);
     accounts.lock(action.app().owner().developerAccount());
-    action.approve(accounts, compensation);
-    return new ActionApproved(action, compensation);
+    action.approve(accounts);
+    return new ActionApproved(action);
   }
 
   @DELETE

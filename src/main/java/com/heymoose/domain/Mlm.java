@@ -1,34 +1,23 @@
 package com.heymoose.domain;
 
-import static com.google.common.collect.Lists.reverse;
+import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.Maps;
 import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.hibernate.Transactional;
-import com.heymoose.rabbitmq.RabbitMqSender;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Iterator;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.ObjectNode;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Queue;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.heymoose.domain.Compensation.subtractCompensation;
 
 @Singleton
 public class Mlm {

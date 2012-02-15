@@ -46,19 +46,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   private final BannerSizeRepository bannerSizes;
   private final String randFunction;
   private final BannerRepository banners;
-  private final BigDecimal compensation;
   private final Ehcache cache;
   private final Settings settings;
 
   @Inject
   public OfferRepositoryHiber(Provider<Session> sessionProvider, BannerSizeRepository bannerSizes,
                               @Named("rand") String randFunction, BannerRepository banners,
-                              @Named("compensation") BigDecimal compensation, Ehcache cache, Settings settings) {
+                              Ehcache cache, Settings settings) {
     super(sessionProvider);
     this.bannerSizes = bannerSizes;
     this.randFunction = randFunction;
     this.banners = banners;
-    this.compensation = compensation;
     this.cache = cache;
     this.settings = settings;
   }
@@ -69,7 +67,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     for (Filter.Entry entry : filter.entries)
       for (long offerId : availableIdsFor(performer, entry, context))
         mapping.put(offerId, entry);
-    return load(mapping);
+    return load(mapping, context);
   }
 
   private Map<Long, Double> getOfferCTRs(long appId) {
@@ -192,7 +190,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "        (select allow_negative_balance = true from account where id = ord.account_id) " +
         "        or (select ord.cpa <= balance from account_tx where account_tx.account_id = ord.account_id order by version desc limit 1) " +
         ") " +
-        "and ord.cpa >= :Cmin " +
+        "and ord.cpa >= :C " +
         "and ord.disabled = false and (ord.paused is null or ord.paused = false) ";
 
     if (performer.male() != null)
@@ -261,7 +259,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         .createSQLQuery(sql)
         .setParameter("performer", performer.id())
         .setParameter("type", condition.type.ordinal())
-        .setParameter("Cmin", settings.Cmin());
+        .setParameter("C", context.app.D().add(settings.M()));
 
     if (performer.male() != null)
       query.setParameter("performerMale", performer.male());
@@ -315,7 +313,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return Offer.class;
   }
 
-  private List<OfferData> load(Map<Long, Filter.Entry> mapping) {
+  private List<OfferData> load(Map<Long, Filter.Entry> mapping, Context context) {
     if (mapping.isEmpty())
       return Collections.emptyList();
     List<Offer> offers = hiber()
@@ -325,7 +323,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     List<OfferData> ret = newArrayList();
     Map<Long, BannerSize> sizes = loadSizes(mapping);
     for (Offer offer : offers)
-      ret.add(convert(offer, sizes));
+      ret.add(convert(offer, sizes, context));
     Collections.shuffle(ret);
     return ret;
   }
@@ -361,17 +359,18 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     return ret;
   }
 
-  private OfferData convert(Offer offer, Map<Long, BannerSize> sizes) {
+  private OfferData convert(Offer offer, Map<Long, BannerSize> sizes, Context context) {
+    BigDecimal payment = context.app.calcRevenue(offer.order().cpa());
     if (offer instanceof BannerOffer) {
       BannerOffer bannerOffer = (BannerOffer) offer;
       BannerSize bannerSize = sizes.get(offer.id());
-      return OfferData.toOfferData(bannerOffer, compensation, bannerSize);
+      return OfferData.toOfferData(bannerOffer, payment, bannerSize);
     } else if (offer instanceof RegularOffer) {
       RegularOffer regularOffer = (RegularOffer) offer;
-      return OfferData.toOfferData(regularOffer, compensation);
+      return OfferData.toOfferData(regularOffer, payment);
     } else if (offer instanceof VideoOffer) {
       VideoOffer videoOffer = (VideoOffer) offer;
-      return OfferData.toOfferData(videoOffer, compensation);
+      return OfferData.toOfferData(videoOffer, payment);
     } else {
       throw new IllegalArgumentException("Unknown offer type: " + offer.getClass().getSimpleName());
     }

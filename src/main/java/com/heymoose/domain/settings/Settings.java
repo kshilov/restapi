@@ -84,4 +84,8 @@ public class Settings {
     double M = getDouble(Settings.M);
     return new BigDecimal(Davg + M);
   }
+
+  public BigDecimal M() {
+    return new BigDecimal(getDouble(Settings.M));
+  }
 }

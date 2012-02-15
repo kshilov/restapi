@@ -119,12 +119,6 @@ public class CommonModule extends AbstractModule {
       multibinder.addBinding().toInstance(klass);
   }
 
-
-  @Provides @Named("compensation")  @Singleton
-  protected BigDecimal compensation(@Named("settings") Properties settings) {
-    return new BigDecimal(settings.getProperty("compensation"));
-  }
-
   @Provides @Named("robokassaPass")  @Singleton
   protected String robokassaPass(@Named("settings") Properties settings) {
     return settings.getProperty("robokassaPass");
@@ -144,12 +138,4 @@ public class CommonModule extends AbstractModule {
     cacheManager.addCache(cache);
     return cache;
   }
-
-//  @Provides @Singleton
-//  private Settings settings(Injector injector) {
-//    Settings settings = injector.getInstance(Settings.class);
-//    settings.init();
-//
-//
-//  }
 }

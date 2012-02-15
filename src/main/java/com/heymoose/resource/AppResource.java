@@ -10,6 +10,7 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 
+import java.math.BigDecimal;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -98,7 +99,9 @@ public class AppResource {
                      @FormParam("url") String url,
                      @FormParam("callback") String callback,
                      @FormParam("platform") Platform platform,
-                     @FormParam("deleted") Boolean deleted) {
+                     @FormParam("deleted") Boolean deleted,
+                     @FormParam("d") Double d,
+                     @FormParam("t") Double t) {
     App app = apps.anyById(appId);
     if (app == null)
       throw new WebApplicationException(404);
@@ -108,6 +111,8 @@ public class AppResource {
     if (callback != null) app.setCallback(URI.create(callback));
     if (platform != null) app.setPlatform(platform);
     if (deleted != null) app.setDeleted(deleted);
+    if (d != null) app.setD(new BigDecimal(d));
+    if (t != null) app.setT(new BigDecimal(t));
   }
 
   @PUT

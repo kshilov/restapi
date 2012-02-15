@@ -1,9 +1,10 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
-
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.util.UUID;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,11 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.ws.rs.WebApplicationException;
-import java.net.URI;
-import java.util.UUID;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 @Entity
 @Table(name = "app")
@@ -62,6 +60,12 @@ public class App extends IdEntity {
   @Basic(optional = false)
   private boolean deleted;
 
+  @Basic
+  private BigDecimal d;
+
+  @Basic
+  private BigDecimal t;
+
   protected App() {}
 
   public App(String title, User user, URI url, URI callback, Platform platform) {
@@ -73,6 +77,8 @@ public class App extends IdEntity {
     this.url = url.toString();
     this.callbackUrl = callback.toString();
     this.platform = platform;
+    this.d = new BigDecimal(0.8);
+    this.t = new BigDecimal(0.1);
   }
 
   public String title() {
@@ -133,5 +139,29 @@ public class App extends IdEntity {
   
   public void setPlatform(Platform platform) {
     this.platform = platform;
+  }
+
+  public BigDecimal D() {
+    if (d == null)
+      return new BigDecimal(0.8);
+    return d;
+  }
+
+  public void setD(BigDecimal d) {
+    this.d = d;
+  }
+
+  public BigDecimal T() {
+    if (t == null)
+      return new BigDecimal(0.1);
+    return t;
+  }
+
+  public void setT(BigDecimal t) {
+    this.t = t;
+  }
+
+  public BigDecimal calcRevenue(BigDecimal cost) {
+    return cost.subtract(D()).multiply(T()).add(D());
   }
 }

@@ -62,19 +62,16 @@ public class ApiResource {
   private final UserRepository users;
   private final OfferTemplate jsonTemplate = new JsonOfferTemplate();
   private final Api api;
-  private final BigDecimal compensation;
   private final Provider<UriInfo> uriInfoProvider;
   
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, AppRepository apps, Api api,
-                     @Named("compensation") BigDecimal compensation, UserRepository users,
-                     Provider<UriInfo> uriInfoProvider) {
+                     UserRepository users, Provider<UriInfo> uriInfoProvider) {
     this.requestContextProvider = requestContextProvider;
     this.apps = apps;
     this.api = api;
-    this.compensation = compensation;
     this.users = users;
     this.uriInfoProvider = uriInfoProvider;
   }

@@ -167,10 +167,4 @@ public class Accounts {
     addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW_DELETED);
     hiber().delete(withdraw);
   }
-
-  public static void main(String[] args) throws UnsupportedEncodingException {
-    String s = "http://tdsmi.net/?l=t254u234z4y2x4t2w4x2t2t2y3q2x444w22384y2841374v274%7Cx2d4";
-    URI uri = URI.create(s);
-    System.out.println(uri.toString());
-  }
 }

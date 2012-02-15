@@ -44,7 +44,6 @@ public class Api {
   private final AppRepository apps;
   private final ActionRepository actions;
   private final Accounts accounts;
-  private final BigDecimal compensation;
 //  private final EventBus eventBus;
   private final UserRepository users;
   private final OfferShowRepository offerShows;
@@ -55,7 +54,6 @@ public class Api {
              AppRepository apps,
              ActionRepository actions,
              Accounts accounts,
-             @Named("compensation") BigDecimal compensation,
 //             EventBus eventBus,
              UserRepository users,
              OfferShowRepository offerShows) {
@@ -64,7 +62,6 @@ public class Api {
     this.apps = apps;
     this.actions = actions;
     this.accounts = accounts;
-    this.compensation = compensation;
 //    this.eventBus = eventBus;
     this.users = users;
     this.offerShows = offerShows;
@@ -144,12 +141,12 @@ public class Api {
     accounts.lock(app.owner().developerAccount());
     Action action = new Action(accounts, offer, performer, app);
     if (offer.autoApprove())
-      action.approve(accounts, compensation);
+      action.approve(accounts);
     actions.put(action);
     URI redirectUrl = appendQueryParam(URI.create(offer.url()), "action_id", action.id());
     redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
     if (offer.autoApprove())
-      return OfferResult.of(redirectUrl, new ActionApproved(action, compensation));
+      return OfferResult.of(redirectUrl, new ActionApproved(action));
     else
       return OfferResult.of(redirectUrl);
   }
@@ -170,12 +167,12 @@ public class Api {
     if (!customer.id().equals(action.offer().order().customer().id()))
       throw unauthorized();
     if (action.done())
-      return new ActionApproved(action, compensation);
+      return new ActionApproved(action);
     if (action.deleted())
       throw conflict();
     accounts.lock(action.app().owner().developerAccount());
-    action.approve(accounts, compensation);
-    return new ActionApproved(action, compensation);
+    action.approve(accounts);
+    return new ActionApproved(action);
   }
 
   private static URI appendQueryParam(URI uri, String name, Object value) {
