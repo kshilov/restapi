@@ -1,8 +1,11 @@
 package com.heymoose.domain.settings;
 
+import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -69,6 +72,14 @@ public class Settings {
   @Transactional
   public Iterable<Setting> list() {
     return sessionProvider.get().createQuery("from Setting").list();
+  }
+  
+  public Map<String, String> map() {
+    Map<String, String> settingsMap = newHashMap();
+    Iterable<Setting> settings = list();
+    for (Setting setting : settings)
+      settingsMap.put(setting.name, setting.value);
+    return settingsMap;
   }
 
   private Setting existingSetting(String name) {

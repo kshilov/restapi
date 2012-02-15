@@ -1,7 +1,6 @@
 package com.heymoose.resource.xml;
 
 import static com.google.common.collect.Sets.newHashSet;
-import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
