@@ -7,6 +7,7 @@ import com.heymoose.domain.Mlm;
 import com.heymoose.events.EventBus;
 import com.heymoose.job.Job;
 import com.heymoose.job.Scheduler;
+import com.heymoose.job.SettingsCalculatorTask;
 import com.heymoose.rabbitmq.RabbitBus;
 import com.heymoose.rabbitmq.RabbitMqSender;
 import com.heymoose.util.PropertiesUtil;
@@ -27,6 +28,7 @@ public class ProductionModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(Mlm.class);
+    bind(SettingsCalculatorTask.class);
     bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
@@ -56,6 +58,9 @@ public class ProductionModule extends AbstractModule {
 
       @Inject
       private Mlm mlm;
+      
+      @Inject
+      private SettingsCalculatorTask settingsCalculatorTask;
 
       @Override
       public Scheduler get() {
@@ -67,6 +72,7 @@ public class ProductionModule extends AbstractModule {
           @Override
           public void run(DateTime plannedStartTime) throws Exception {
             mlm.doMlmExport(plannedStartTime);
+            settingsCalculatorTask.run(plannedStartTime);
           }
         });
         scheduler.schedule();

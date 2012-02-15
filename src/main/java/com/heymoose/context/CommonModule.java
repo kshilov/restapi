@@ -58,6 +58,7 @@ import com.heymoose.resource.PerformerResource;
 import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.StatsResource;
+import com.heymoose.resource.TaskResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
@@ -95,6 +96,7 @@ public class CommonModule extends AbstractModule {
     bind(MlmResource.class);
     bind(Settings.class);
     bind(SettingResource.class);
+    bind(TaskResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);
