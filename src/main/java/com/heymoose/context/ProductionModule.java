@@ -77,7 +77,7 @@ public class ProductionModule extends AbstractModule {
           @Override
           public void run(DateTime plannedStartTime) throws Exception {
             mlm.doMlmExport(plannedStartTime);
-            settingsCalculatorTask.run(plannedStartTime);
+            //settingsCalculatorTask.run(plannedStartTime);
             userStatCalculatorTask.run(plannedStartTime);
           }
         });

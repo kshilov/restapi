@@ -55,11 +55,9 @@ public class UserResource {
   public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit,
                        @QueryParam("full") @DefaultValue("false") boolean full,
-                       @QueryParam("role") String role) {
+                       @QueryParam("role") Role role) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    Role r = null;
-    try { r = Role.valueOf(role.toUpperCase()); } catch (Exception e) { }
-    return Response.ok(Mappers.toXmlUsers(accounts, users.list(offset, limit, r), d)).build();
+    return Response.ok(Mappers.toXmlUsers(accounts, users.list(offset, limit, role), d)).build();
   }
   
   @GET
