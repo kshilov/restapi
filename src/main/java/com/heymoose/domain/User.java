@@ -108,6 +108,9 @@ public class User extends IdEntity {
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
+  
+  @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+  private UserStat stat;
 
   protected User() {}
 
@@ -280,5 +283,9 @@ public class User extends IdEntity {
   
   public DateTime registerTime() {
     return registerTime;
+  }
+  
+  public UserStat stat() {
+    return stat;
   }
 }

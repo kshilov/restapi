@@ -8,6 +8,7 @@ import com.heymoose.events.EventBus;
 import com.heymoose.job.Job;
 import com.heymoose.job.Scheduler;
 import com.heymoose.job.SettingsCalculatorTask;
+import com.heymoose.job.UserStatCalculatorTask;
 import com.heymoose.rabbitmq.RabbitBus;
 import com.heymoose.rabbitmq.RabbitMqSender;
 import com.heymoose.util.PropertiesUtil;
@@ -29,6 +30,7 @@ public class ProductionModule extends AbstractModule {
   protected void configure() {
     bind(Mlm.class);
     bind(SettingsCalculatorTask.class);
+    bind(UserStatCalculatorTask.class);
     bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
@@ -61,6 +63,9 @@ public class ProductionModule extends AbstractModule {
       
       @Inject
       private SettingsCalculatorTask settingsCalculatorTask;
+      
+      @Inject
+      private UserStatCalculatorTask userStatCalculatorTask;
 
       @Override
       public Scheduler get() {
@@ -73,6 +78,7 @@ public class ProductionModule extends AbstractModule {
           public void run(DateTime plannedStartTime) throws Exception {
             mlm.doMlmExport(plannedStartTime);
             settingsCalculatorTask.run(plannedStartTime);
+            userStatCalculatorTask.run(plannedStartTime);
           }
         });
         scheduler.schedule();

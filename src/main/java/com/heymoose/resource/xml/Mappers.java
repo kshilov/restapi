@@ -19,6 +19,7 @@ import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
+import com.heymoose.domain.UserStat;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.util.HibernateUtil;
@@ -107,6 +108,8 @@ public class Mappers {
       xmlUser.roles = Sets.newHashSet();
       for (Role role : user.roles())
         xmlUser.roles.add(role.toString());
+      if (user.stat() != null)
+        xmlUser.stats = toXmlUserStat(user.stat());
       
       if (needRelated(d)) {
         if (!user.apps().isEmpty()) {
@@ -123,6 +126,14 @@ public class Mappers {
       }
     }
     return xmlUser;
+  }
+  
+  public static XmlUserStat toXmlUserStat(UserStat userStat) {
+    XmlUserStat xmlUserStat = new XmlUserStat();
+    xmlUserStat.id = userStat.id();
+    if (userStat.payments() != null)
+      xmlUserStat.payments = userStat.payments().doubleValue();
+    return xmlUserStat;
   }
   
   public static XmlAccount toXmlAccount(Accounts accounts, Account account) {

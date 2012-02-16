@@ -23,5 +23,6 @@
     <mapping class="com.heymoose.domain.Banner"/>
     <mapping class="com.heymoose.domain.Withdraw"/>
     <mapping class="com.heymoose.domain.settings.Setting"/>
+    <mapping class="com.heymoose.domain.UserStat"/>
   </session-factory>
 </hibernate-configuration>

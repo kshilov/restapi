@@ -78,4 +78,7 @@ public class XmlUser {
   
   @XmlElement(name = "register-time")
   public String registerTime;
+  
+  @XmlElement(name = "stats")
+  public XmlUserStat stats;
 }
