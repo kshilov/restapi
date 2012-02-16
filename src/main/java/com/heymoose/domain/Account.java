@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
 import java.math.BigDecimal;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,6 +35,9 @@ public class Account extends IdEntity {
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "account", fetch = FetchType.LAZY)
   private Set<AccountTx> transactions;
 
+  @Basic
+  private BigDecimal balance;
+
   protected Account() {}
 
   public Account(boolean allowNegativeBalance) {
@@ -57,5 +61,13 @@ public class Account extends IdEntity {
 
   public Set<AccountTx> transactions() {
     return transactions;
+  }
+
+  public BigDecimal getBalance() {
+    return balance;
+  }
+
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
   }
 }

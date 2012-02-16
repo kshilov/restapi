@@ -71,6 +71,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   public AccountTx(Account account, BigDecimal balance, TxType type) {
     this.account = account;
     this.balance = balance;
+    account.setBalance(balance);
     this.diff = balance;
     this.version = 1;
     this.type = type;
@@ -114,6 +115,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
       throw new IllegalArgumentException("Amount must be positive");
     version++;
     balance = balance.add(amount);
+    account.setBalance(balance);
     this.description = description;
     diff = diff.add(amount);
     this.endTime = DateTime.now();
@@ -126,6 +128,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     newAccount.account = this.account;
     newAccount.version = this.version + 1;
     newAccount.balance = this.balance.add(amount);
+    account.setBalance(newAccount.balance);
     newAccount.description = description;
     newAccount.diff = amount;
     newAccount.parentId = this.id;
@@ -143,6 +146,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     newAccount.account = this.account;
     newAccount.version = this.version + 1;
     newAccount.balance = this.balance.subtract(amount);
+    account.setBalance(newAccount.balance);
     newAccount.description = description;
     newAccount.diff = amount.negate();
     newAccount.parentId = this.id;
