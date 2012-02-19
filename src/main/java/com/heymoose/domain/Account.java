@@ -41,11 +41,11 @@ public class Account extends IdEntity {
   protected Account() {}
 
   public Account(boolean allowNegativeBalance) {
-    this.allowNegativeBalance = allowNegativeBalance;
+    this(new BigDecimal(0), allowNegativeBalance, TxType.UNKNOWN);
   }
 
   public Account(BigDecimal balance, boolean allowNegativeBalance, TxType type) {
-    this(allowNegativeBalance);
+    this.allowNegativeBalance = allowNegativeBalance;
     if (transactions == null)
       transactions = Sets.newTreeSet();
     transactions.add(new AccountTx(this, balance, type));

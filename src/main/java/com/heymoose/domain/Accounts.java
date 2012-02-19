@@ -111,11 +111,17 @@ public class Accounts {
   }
 
   public AccountTx lastTxOf(Account account) {
-    return (AccountTx) hiber()
+    AccountTx lastTx = (AccountTx) hiber()
         .createQuery("from AccountTx where account = :account order by version desc")
         .setParameter("account", account)
         .setMaxResults(1)
         .uniqueResult();
+    if (lastTx != null)
+      return lastTx;
+//  TODO: workaround
+    lastTx = new AccountTx(account, new BigDecimal(0), TxType.UNKNOWN);
+    hiber().save(lastTx);
+    return lastTx;
   }
   
   public List<AccountTx> transactions(int offset, int limit, Account account) {
