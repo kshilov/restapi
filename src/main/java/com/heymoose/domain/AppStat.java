@@ -37,25 +37,25 @@ public class AppStat {
   private BigDecimal dauAverage;
   
   @Column(name = "dau_day0")
-  private BigDecimal dauDay0;
+  private Long dauDay0;
   
   @Column(name = "dau_day1")
-  private BigDecimal dauDay1;
+  private Long dauDay1;
   
   @Column(name = "dau_day2")
-  private BigDecimal dauDay2;
+  private Long dauDay2;
   
   @Column(name = "dau_day3")
-  private BigDecimal dauDay3;
+  private Long dauDay3;
   
   @Column(name = "dau_day4")
-  private BigDecimal dauDay4;
+  private Long dauDay4;
   
   @Column(name = "dau_day5")
-  private BigDecimal dauDay5;
+  private Long dauDay5;
   
   @Column(name = "dau_day6")
-  private BigDecimal dauDay6;
+  private Long dauDay6;
   
   public AppStat() {}
   
@@ -83,31 +83,31 @@ public class AppStat {
     return dauAverage;
   }
   
-  public BigDecimal dauDay0() {
+  public Long dauDay0() {
     return dauDay0;
   }
   
-  public BigDecimal dauDay1() {
+  public Long dauDay1() {
     return dauDay1;
   }
   
-  public BigDecimal dauDay2() {
+  public Long dauDay2() {
     return dauDay2;
   }
   
-  public BigDecimal dauDay3() {
+  public Long dauDay3() {
     return dauDay3;
   }
   
-  public BigDecimal dauDay4() {
+  public Long dauDay4() {
     return dauDay4;
   }
   
-  public BigDecimal dauDay5() {
+  public Long dauDay5() {
     return dauDay5;
   }
   
-  public BigDecimal dauDay6() {
+  public Long dauDay6() {
     return dauDay6;
   }
 }

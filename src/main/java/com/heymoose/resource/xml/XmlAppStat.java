@@ -20,23 +20,23 @@ public class XmlAppStat {
   public Double dauAverage;
   
   @XmlElement(name = "dau-day0")
-  public Double dauDay0;
+  public Long dauDay0;
   
   @XmlElement(name = "dau-day1")
-  public Double dauDay1;
+  public Long dauDay1;
   
   @XmlElement(name = "dau-day2")
-  public Double dauDay2;
+  public Long dauDay2;
   
   @XmlElement(name = "dau-day3")
-  public Double dauDay3;
+  public Long dauDay3;
   
   @XmlElement(name = "dau-day4")
-  public Double dauDay4;
+  public Long dauDay4;
   
   @XmlElement(name = "dau-day5")
-  public Double dauDay5;
+  public Long dauDay5;
   
   @XmlElement(name = "dau-day6")
-  public Double dauDay6;
+  public Long dauDay6;
 }

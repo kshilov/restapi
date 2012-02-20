@@ -106,7 +106,7 @@ public class AppStatCalculatorTask {
     int dayOfWeek = DateTime.now().minusDays(1 + daysOffset).getDayOfWeek() % 7;
     String exprOffset = daysOffset > 0 ? String.format("- CAST('%d DAY' AS interval)", daysOffset) : "";
     
-    executeSQL(String.format("update app_stat set dau_day%d = 0.00", dayOfWeek));
+    executeSQL(String.format("update app_stat set dau_day%d = 0", dayOfWeek));
     executeSQL(String.format(
       "update app_stat " + 
       "set dau_day%d = app_dau.dau " + 

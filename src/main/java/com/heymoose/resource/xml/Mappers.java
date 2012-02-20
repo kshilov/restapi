@@ -291,19 +291,19 @@ public class Mappers {
     if (appStat.dauAverage() != null)
       xmlAppStat.dauAverage = appStat.dauAverage().doubleValue();
     if (appStat.dauDay0() != null)
-      xmlAppStat.dauDay0 = appStat.dauDay0().doubleValue();
+      xmlAppStat.dauDay0 = appStat.dauDay0();
     if (appStat.dauDay1() != null)
-      xmlAppStat.dauDay1 = appStat.dauDay1().doubleValue();
+      xmlAppStat.dauDay1 = appStat.dauDay1();
     if (appStat.dauDay2() != null)
-      xmlAppStat.dauDay2 = appStat.dauDay2().doubleValue();
+      xmlAppStat.dauDay2 = appStat.dauDay2();
     if (appStat.dauDay3() != null)
-      xmlAppStat.dauDay3 = appStat.dauDay3().doubleValue();
+      xmlAppStat.dauDay3 = appStat.dauDay3();
     if (appStat.dauDay4() != null)
-      xmlAppStat.dauDay4 = appStat.dauDay4().doubleValue();
+      xmlAppStat.dauDay4 = appStat.dauDay4();
     if (appStat.dauDay5() != null)
-      xmlAppStat.dauDay5 = appStat.dauDay5().doubleValue();
+      xmlAppStat.dauDay5 = appStat.dauDay5();
     if (appStat.dauDay6() != null)
-      xmlAppStat.dauDay6 = appStat.dauDay6().doubleValue();
+      xmlAppStat.dauDay6 = appStat.dauDay6();
     return xmlAppStat;
   }
   
