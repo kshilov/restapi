@@ -13,5 +13,8 @@ public class XmlSettings {
   public String Q;
   
   @XmlElement(name = "d-avg")
-  public String Davg;
+  public String Davg = "0";
+
+  @XmlElement(name = "c-min")
+  public String Cmin;
 }

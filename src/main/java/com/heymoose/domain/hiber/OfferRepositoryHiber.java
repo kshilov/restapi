@@ -188,6 +188,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         "(offer.id not in (select action.offer_id from action where performer_id = :performer and action.done = true) or offer.reentrant = true) " +
         "and (select allow_negative_balance = true or ord.cpa <= balance from account where id = ord.account_id) " +
         "and ord.cpa >= :C " +
+        "and ord.cpa >= :Cmin " +
         "and ord.disabled = false and (ord.paused is null or ord.paused = false) ";
 
     if (performer.male() != null)
@@ -256,7 +257,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
         .createSQLQuery(sql)
         .setParameter("performer", performer.id())
         .setParameter("type", condition.type.ordinal())
-        .setParameter("C", context.app.D().add(settings.M()));
+        .setParameter("C", context.app.D().add(settings.M()))
+        .setParameter("Cmin", settings.Cmin());
 
     if (performer.male() != null)
       query.setParameter("performerMale", performer.male());

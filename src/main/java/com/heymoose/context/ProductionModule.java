@@ -7,7 +7,6 @@ import com.heymoose.domain.Mlm;
 import com.heymoose.job.AppStatCalculatorTask;
 import com.heymoose.job.Job;
 import com.heymoose.job.Scheduler;
-import com.heymoose.job.SettingsCalculatorTask;
 import com.heymoose.job.UserStatCalculatorTask;
 import com.heymoose.util.PropertiesUtil;
 import static com.heymoose.util.PropertiesUtil.subTree;
@@ -24,7 +23,6 @@ public class ProductionModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(Mlm.class);
-    bind(SettingsCalculatorTask.class);
     bind(UserStatCalculatorTask.class);
     bind(AppStatCalculatorTask.class);
     bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();

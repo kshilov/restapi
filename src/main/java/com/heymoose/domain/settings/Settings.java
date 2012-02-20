@@ -17,7 +17,7 @@ public class Settings {
   
   public static String M = "M";
   public static String Q = "Q";
-  public static String D_AVG = "Davg";
+  public static String C_MIN = "Cmin";
 
   @Inject
   public Settings(Provider<Session> sessionProvider) {
@@ -29,7 +29,7 @@ public class Settings {
   public void init() {
     saveIfNotExists(M, "0.1");
     saveIfNotExists(Q, "1.1");
-    saveIfNotExists(D_AVG, "1.9");
+    saveIfNotExists(C_MIN, "2.0");
   }
 
   @Transactional
@@ -88,14 +88,11 @@ public class Settings {
     return setting;
   }
 
-  @Transactional
-  public BigDecimal Cmin() {
-    double Davg = getDouble(Settings.D_AVG);
-    double M = getDouble(Settings.M);
-    return new BigDecimal(Davg + M);
-  }
-
   public BigDecimal M() {
     return new BigDecimal(getDouble(Settings.M));
+  }
+  
+  public BigDecimal Cmin() {
+    return new BigDecimal(getDouble(Settings.C_MIN));
   }
 }

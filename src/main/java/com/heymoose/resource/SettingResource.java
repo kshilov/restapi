@@ -39,16 +39,18 @@ public class SettingResource {
     Map<String, String> settingsMap = settings.map();
     xmlSettings.M = settingsMap.get(Settings.M);
     xmlSettings.Q = settingsMap.get(Settings.Q);
-    xmlSettings.Davg = settingsMap.get(Settings.D_AVG);
+    xmlSettings.Cmin = settingsMap.get(Settings.C_MIN);
     return xmlSettings;
   }
   
   @PUT
   @Transactional
-  public void update(@FormParam("m") Double m, @FormParam("q") Double q) {
+  public void update(@FormParam("m") Double m, @FormParam("q") Double q, @FormParam("c-min") Double cmin) {
     if (m != null)
       settings.set(Settings.M, m);
     if (q != null)
       settings.set(Settings.Q, q);
+    if (cmin != null)
+      settings.set(Settings.C_MIN, cmin);
   }
 }
