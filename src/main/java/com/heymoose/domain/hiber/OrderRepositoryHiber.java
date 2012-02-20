@@ -1,25 +1,21 @@
 package com.heymoose.domain.hiber;
 
-import com.google.common.collect.Sets;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
-import com.heymoose.domain.OrderRepository.Ordering;
-import com.heymoose.domain.base.Repository.Direction;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.util.Set;
 
 @Singleton
 public class OrderRepositoryHiber extends RepositoryHiber<Order> implements OrderRepository {
-
+  
   @Inject
   public OrderRepositoryHiber(Provider<Session> sessionProvider) {
     super(sessionProvider);
@@ -35,39 +31,18 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
   }
   
   @Override
-  public Iterable<Order> list(Ordering ordering, Direction direction, 
-      int offset, int limit, Long userId)
-  {
-    String ord = "";
-    switch (ordering)
-    {
-      case ID: ord = "id"; break;
-      case CREATION_TIME: ord = "creationTime"; break;
-      case CPA: ord = "cpa"; break;
-      case USER_NICKNAME: ord = "user.nickname"; break;
-      case USER_EMAIL: ord = "user.email"; break;
-      case APPROVED: ord = "approved"; break;
-      case DELETED: ord = "deleted"; break;
-      default: ord = "creationTime"; break;
-    }
-    
+  public Iterable<Order> list(Ordering ord, boolean asc, int offset, int limit, Long userId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (userId != null)
       criteria.add(Restrictions.eq("user.id", userId));
     
-    if (direction == Direction.ASC)
-      criteria.addOrder(org.hibernate.criterion.Order.asc(ord));
-    else
-      criteria.addOrder(org.hibernate.criterion.Order.desc(ord));
-    
-    if (offset > 0 || limit > 0)
-    {
-      criteria.setFirstResult(offset);
-      criteria.setMaxResults(limit);
-    }
-    
-    return criteria.list();
+    setOrdering(criteria, ord, asc);
+    return criteria
+      .setFetchMode("offer.banners", FetchMode.SELECT)
+      .setFirstResult(offset)
+      .setMaxResults(limit)
+      .list();
   }
   
   @Override
@@ -85,5 +60,20 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
   @Override
   protected Class<Order> getEntityClass() {
     return Order.class;
+  }
+  
+  private static void setOrdering(Criteria criteria, Ordering ord, boolean asc) {
+    switch (ord) {
+    case ID: criteria.addOrder(order("id", asc)); break;
+    case TITLE: criteria.createAlias("offer", "offer").addOrder(order("offer.title", asc)); break;
+    case URL: criteria.createAlias("offer", "offer").addOrder(order("offer.url", asc)); break;
+    case CPA: criteria.addOrder(order("cpa", asc)); break;
+    case DISABLED: criteria.addOrder(order("disabled", asc)); break;
+    case CREATION_TIME: criteria.addOrder(order("creationTime", asc)); break;
+    case USER_LAST_NAME: criteria.createAlias("user", "user").addOrder(order("user.lastName", asc)); break;
+    }
+    
+    if (ord != Ordering.ID)
+      criteria.addOrder(order("id", asc));
   }
 }

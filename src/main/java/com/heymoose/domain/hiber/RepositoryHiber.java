@@ -13,6 +13,8 @@ import org.hibernate.Session;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Set;
+
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 public abstract class RepositoryHiber<T extends IdEntity> implements Repository<T> {
@@ -28,6 +30,10 @@ public abstract class RepositoryHiber<T extends IdEntity> implements Repository<
 
   protected Session hiber() {
     return sessionProvider.get();
+  }
+  
+  protected static Order order(String propertyName, boolean ascending) {
+    return ascending ? Order.asc(propertyName) : Order.desc(propertyName);
   }
 
   @Override

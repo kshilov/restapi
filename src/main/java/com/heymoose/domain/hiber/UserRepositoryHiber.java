@@ -28,24 +28,39 @@ public class UserRepositoryHiber extends RepositoryHiber<User> implements UserRe
   }
   
   @Override
-  public Iterable<User> list(int offset, int limit) {
-    return list(offset, limit, null);
+  public Iterable<User> list(int offset, int limit, Ordering ord, boolean asc) {
+    return list(offset, limit, ord, asc, null);
   }
   
   @Override
-  public Iterable<User> list(int offset, int limit, Role role) {
-    Query query;
+  public Iterable<User> list(int offset, int limit, Ordering ord, boolean asc, Role role) {
+    // Here is HQL query because Criteria API can't work with ElementCollections
+    String hql = "from User ";
     if (role != null)
-      query = hiber()
-        .createQuery("from User u where :role in elements(u.roles) order by id desc")
-        .setParameter("role", role.ordinal());
-    else
-      query = hiber().createQuery("from User order by id desc");
+      hql += "where :role in elements(roles) ";
+    
+    String dir = asc ? "asc" : "desc";
+    String fmtOrderBy = "order by ";
+    switch (ord) {
+    case ID: fmtOrderBy += "id %s"; break;
+    case EMAIL: fmtOrderBy += "email %s, id %s"; break;
+    case LAST_NAME: fmtOrderBy += "lastName %s, id %s"; break;
+    case ORGANIZATION: fmtOrderBy += "organization %s, id %s"; break;
+    case CONFIRMED: fmtOrderBy += "confirmed %s, id %s"; break;
+    case REGISTER_TIME: fmtOrderBy += "registerTime %s, id %s"; break;
+    case STAT_PAYMENTS: fmtOrderBy += "stat.payments %s, id %s"; break;
+    }
+    
+    hql += String.format(fmtOrderBy, dir, dir);
+    Query query = hiber().createQuery(hql);
+    
+    if (role != null)
+      query.setParameter("role", role.ordinal());
     
     return query
-      .setFirstResult(offset)
-      .setMaxResults(limit)
-      .list();
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
   }
 
   @Override

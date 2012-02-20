@@ -16,21 +16,21 @@ import com.heymoose.domain.CityRepository;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
+import com.heymoose.domain.OrderRepository.Ordering;
 import com.heymoose.domain.RegularOffer;
 import com.heymoose.domain.Targeting;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.VideoOffer;
-import com.heymoose.domain.base.Repository;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
+import com.heymoose.resource.xml.XmlOrders;
 import com.heymoose.util.HibernateUtil;
 import static com.heymoose.util.HibernateUtil.unproxy;
-import com.heymoose.util.WebAppUtil;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 
@@ -85,17 +85,15 @@ public class OrderResource {
 
   @GET
   @Transactional
-  public Response list(@QueryParam("ord") @DefaultValue("creation-time") String ord,
-                       @QueryParam("dir") @DefaultValue("desc") String dir,
-                       @QueryParam("offset") @DefaultValue("0") int offset,
-                       @QueryParam("limit") @DefaultValue("20") int limit,
-                       @QueryParam("full") @DefaultValue("false") boolean full,
-                       @QueryParam("userId") Long userId) {
+  public XmlOrders list(@QueryParam("offset") @DefaultValue("0") int offset,
+                        @QueryParam("limit") @DefaultValue("20") int limit,
+                        @QueryParam("ord") @DefaultValue("ID") Ordering ord,
+                        @QueryParam("asc") @DefaultValue("false") boolean asc,
+                        @QueryParam("full") @DefaultValue("false") boolean full,
+                        @QueryParam("userId") Long userId) {
+    
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Response.ok(Mappers.toXmlOrders(accounts, orders.list(
-        WebAppUtil.queryParamToEnum(ord, OrderRepository.Ordering.CREATION_TIME),
-        WebAppUtil.queryParamToEnum(dir, Repository.Direction.DESC),
-        offset, limit, userId), d)).build();
+    return Mappers.toXmlOrders(accounts, orders.list(ord, asc, offset, limit, userId), d);
   }
   
   @GET

@@ -7,6 +7,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.TxType;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.UserRepository.Ordering;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
@@ -14,6 +15,7 @@ import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.resource.xml.XmlUser;
+import com.heymoose.resource.xml.XmlUsers;
 import com.heymoose.resource.xml.XmlWithdraws;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
@@ -52,12 +54,14 @@ public class UserResource {
   @GET
   @Path("list")
   @Transactional
-  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
+  public XmlUsers list(@QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit,
+                       @QueryParam("ord") @DefaultValue("ID") Ordering ord,
+                       @QueryParam("asc") @DefaultValue("false") boolean asc,
                        @QueryParam("full") @DefaultValue("false") boolean full,
                        @QueryParam("role") Role role) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Response.ok(Mappers.toXmlUsers(accounts, users.list(offset, limit, role), d)).build();
+    return Mappers.toXmlUsers(accounts, users.list(offset, limit, ord, asc, role), d);
   }
   
   @GET
