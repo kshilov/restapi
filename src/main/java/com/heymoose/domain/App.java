@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Type;
@@ -65,6 +66,9 @@ public class App extends IdEntity {
 
   @Basic
   private BigDecimal t;
+  
+  @OneToOne(fetch = FetchType.LAZY, mappedBy = "app")
+  private AppStat stat;
 
   protected App() {}
 
@@ -163,5 +167,9 @@ public class App extends IdEntity {
 
   public BigDecimal calcRevenue(BigDecimal cost) {
     return cost.subtract(D()).multiply(T()).add(D());
+  }
+  
+  public AppStat stat() {
+    return stat;
   }
 }

@@ -7,6 +7,7 @@ import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.App;
+import com.heymoose.domain.AppStat;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
@@ -133,6 +134,8 @@ public class Mappers {
     xmlUserStat.id = userStat.id();
     if (userStat.payments() != null)
       xmlUserStat.payments = userStat.payments().doubleValue();
+    if (userStat.unpaidActions() != null)
+      xmlUserStat.unpaidActions = userStat.unpaidActions();
     return xmlUserStat;
   }
   
@@ -269,10 +272,39 @@ public class Mappers {
       if (app.platform() != null)
         xmlApp.platform = app.platform().toString();
       
+      if (app.stat() != null)
+        xmlApp.stats = toXmlAppStat(app.stat());
+      
       if (needRelated(d))
         xmlApp.user = toXmlUser(accounts, app.owner(), relatedDetails(d));
     }
     return xmlApp;
+  }
+  
+  public static XmlAppStat toXmlAppStat(AppStat appStat) {
+    XmlAppStat xmlAppStat = new XmlAppStat();
+    xmlAppStat.id = appStat.id();
+    if (appStat.showsOverall() != null)
+      xmlAppStat.showsOverall = appStat.showsOverall();
+    if (appStat.actionsOverall() != null)
+      xmlAppStat.actionsOverall = appStat.actionsOverall();
+    if (appStat.dauAverage() != null)
+      xmlAppStat.dauAverage = appStat.dauAverage().doubleValue();
+    if (appStat.dauDay0() != null)
+      xmlAppStat.dauDay0 = appStat.dauDay0().doubleValue();
+    if (appStat.dauDay1() != null)
+      xmlAppStat.dauDay1 = appStat.dauDay1().doubleValue();
+    if (appStat.dauDay2() != null)
+      xmlAppStat.dauDay2 = appStat.dauDay2().doubleValue();
+    if (appStat.dauDay3() != null)
+      xmlAppStat.dauDay3 = appStat.dauDay3().doubleValue();
+    if (appStat.dauDay4() != null)
+      xmlAppStat.dauDay4 = appStat.dauDay4().doubleValue();
+    if (appStat.dauDay5() != null)
+      xmlAppStat.dauDay5 = appStat.dauDay5().doubleValue();
+    if (appStat.dauDay6() != null)
+      xmlAppStat.dauDay6 = appStat.dauDay6().doubleValue();
+    return xmlAppStat;
   }
   
   public static XmlActions toXmlActions(Accounts accounts, Iterable<Action> actions) {

@@ -12,4 +12,7 @@ public class XmlUserStat {
   
   @XmlElement(name = "payments")
   public Double payments;
+  
+  @XmlElement(name = "unpaid-actions")
+  public Long unpaidActions;
 }

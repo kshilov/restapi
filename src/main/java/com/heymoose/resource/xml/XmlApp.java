@@ -43,4 +43,7 @@ public class XmlApp {
   
   @XmlElement(name = "t")
   public BigDecimal t;
+  
+  @XmlElement(name = "stats")
+  public XmlAppStat stats;
 }

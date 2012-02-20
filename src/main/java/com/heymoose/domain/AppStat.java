@@ -82,4 +82,32 @@ public class AppStat {
   public BigDecimal dauAverage() {
     return dauAverage;
   }
+  
+  public BigDecimal dauDay0() {
+    return dauDay0;
+  }
+  
+  public BigDecimal dauDay1() {
+    return dauDay1;
+  }
+  
+  public BigDecimal dauDay2() {
+    return dauDay2;
+  }
+  
+  public BigDecimal dauDay3() {
+    return dauDay3;
+  }
+  
+  public BigDecimal dauDay4() {
+    return dauDay4;
+  }
+  
+  public BigDecimal dauDay5() {
+    return dauDay5;
+  }
+  
+  public BigDecimal dauDay6() {
+    return dauDay6;
+  }
 }
