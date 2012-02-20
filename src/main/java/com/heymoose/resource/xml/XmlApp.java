@@ -1,7 +1,6 @@
 package com.heymoose.resource.xml;
 
 import java.math.BigDecimal;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

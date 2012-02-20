@@ -5,7 +5,6 @@ import com.heymoose.hibernate.Transactional;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;

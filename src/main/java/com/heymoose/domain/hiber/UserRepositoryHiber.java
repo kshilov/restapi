@@ -1,15 +1,13 @@
 package com.heymoose.domain.hiber;
 
+import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.Role;
-
-import org.hibernate.Session;
-import org.hibernate.Query;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 @Singleton
 public class UserRepositoryHiber extends RepositoryHiber<User> implements UserRepository {

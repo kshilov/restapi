@@ -1,11 +1,10 @@
 package com.heymoose.security;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 
 public class Signer {

@@ -9,8 +9,9 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
-
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
+import java.net.URI;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -24,9 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("apps")
 @Singleton

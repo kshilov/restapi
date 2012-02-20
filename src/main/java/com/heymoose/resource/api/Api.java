@@ -26,15 +26,12 @@ import com.heymoose.util.NameValuePair;
 import com.heymoose.util.URIUtils;
 import com.heymoose.util.URLEncodedUtils;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import org.hibernate.type.IntegerType;
 
 @Singleton
 public class Api {

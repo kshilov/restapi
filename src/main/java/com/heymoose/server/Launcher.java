@@ -10,10 +10,9 @@ import com.heymoose.context.AppContextListener;
 import com.heymoose.context.SettingsModule;
 import com.sun.grizzly.http.embed.GrizzlyWebServer;
 import com.sun.grizzly.http.servlet.ServletAdapter;
-
-import javax.servlet.http.HttpServlet;
 import java.io.IOException;
 import java.util.Properties;
+import javax.servlet.http.HttpServlet;
 
 public class Launcher {
 

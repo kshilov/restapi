@@ -1,14 +1,11 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.City;
 import com.heymoose.domain.CityRepository;
 import com.heymoose.hibernate.Transactional;
-import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.resource.xml.Mappers.toXmlCities;
 import com.heymoose.resource.xml.XmlCities;
-import static java.util.Arrays.asList;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;

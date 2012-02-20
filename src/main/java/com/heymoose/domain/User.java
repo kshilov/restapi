@@ -2,7 +2,12 @@ package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
-
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.net.URI;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
+import java.util.Set;
+import java.util.UUID;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,17 +25,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
-
-import java.net.URI;
-import java.util.Set;
-import java.util.UUID;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
 
 @Entity
 @Table(name = "user_profile", uniqueConstraints = @UniqueConstraint(columnNames = "email"))

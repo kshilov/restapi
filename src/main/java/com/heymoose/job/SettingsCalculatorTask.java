@@ -1,15 +1,14 @@
 package com.heymoose.job;
 
-import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.hibernate.Transactional;
+import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class SettingsCalculatorTask {

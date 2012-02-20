@@ -9,10 +9,10 @@ import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
-import com.heymoose.domain.CityFilterType;
-import com.heymoose.domain.CityTargeting;
 import com.heymoose.domain.City;
+import com.heymoose.domain.CityFilterType;
 import com.heymoose.domain.CityRepository;
+import com.heymoose.domain.CityTargeting;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
@@ -31,15 +31,14 @@ import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.resource.xml.XmlOrders;
 import com.heymoose.util.HibernateUtil;
 import static com.heymoose.util.HibernateUtil.unproxy;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
-import org.joda.time.DateTime;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -54,10 +53,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import java.math.BigDecimal;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import org.joda.time.DateTime;
 
 @Path("orders")
 @Singleton

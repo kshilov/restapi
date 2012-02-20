@@ -2,17 +2,11 @@ package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.resource.Exceptions.badRequest;
-import java.util.NoSuchElementException;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.ws.rs.WebApplicationException;
-import org.joda.time.DateTime;
-
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -20,12 +14,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.io.UnsupportedEncodingException;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import org.joda.time.DateTime;
 
 @Entity
 @Table(name = "offer")

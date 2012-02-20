@@ -3,7 +3,6 @@ package com.heymoose.rabbitmq;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 

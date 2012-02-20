@@ -2,11 +2,10 @@ package com.heymoose.security;
 
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 public class SecuredInterceptor implements MethodInterceptor {
 

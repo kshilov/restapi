@@ -2,16 +2,14 @@ package com.heymoose.domain.hiber;
 
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
-
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 
 @Singleton
 public class OrderRepositoryHiber extends RepositoryHiber<Order> implements OrderRepository {

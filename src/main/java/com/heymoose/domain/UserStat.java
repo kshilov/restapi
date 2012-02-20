@@ -1,7 +1,6 @@
 package com.heymoose.domain;
 
 import java.math.BigDecimal;
-
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

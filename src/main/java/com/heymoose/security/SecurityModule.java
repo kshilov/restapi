@@ -1,5 +1,6 @@
 package com.heymoose.security;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.Provides;
@@ -10,8 +11,6 @@ import com.google.inject.servlet.RequestScoped;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.sun.jersey.api.core.HttpRequestContext;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class SecurityModule extends AbstractModule {
 

@@ -2,7 +2,6 @@ package com.heymoose.events;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.Action;
-import com.heymoose.domain.App;
 import java.math.BigDecimal;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;

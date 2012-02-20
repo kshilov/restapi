@@ -1,17 +1,15 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.TxType;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
-
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.Order;
+import com.heymoose.domain.TxType;
 import com.heymoose.events.ActionApproved;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
-
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -23,7 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-
 import org.joda.time.DateTime;
 
 @Path("actions")

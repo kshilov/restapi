@@ -1,7 +1,7 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
-
+import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,7 +16,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.math.BigDecimal;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 

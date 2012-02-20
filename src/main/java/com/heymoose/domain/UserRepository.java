@@ -1,7 +1,6 @@
 package com.heymoose.domain;
 
 import com.heymoose.domain.base.Repository;
-import com.heymoose.domain.Role;
 
 public interface UserRepository extends Repository<User> {
   User byEmail(String email);

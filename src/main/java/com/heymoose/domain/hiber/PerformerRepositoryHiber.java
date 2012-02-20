@@ -3,11 +3,10 @@ package com.heymoose.domain.hiber;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
 import com.heymoose.domain.Platform;
-import org.hibernate.Session;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.hibernate.Session;
 
 @Singleton
 public class PerformerRepositoryHiber extends RepositoryHiber<Performer> implements PerformerRepository {

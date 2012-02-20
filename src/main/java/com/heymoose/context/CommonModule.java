@@ -1,7 +1,6 @@
 package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -64,17 +63,14 @@ import com.heymoose.resource.TaskResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
-import java.math.BigDecimal;
 import java.util.Properties;
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.hibernate.Session;
 
 public class CommonModule extends AbstractModule {
 

@@ -1,15 +1,14 @@
 package com.heymoose.job;
 
-import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.heymoose.domain.TxType;
 import com.heymoose.hibernate.Transactional;
+import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class UserStatCalculatorTask {
@@ -75,22 +74,22 @@ public class UserStatCalculatorTask {
   public void updateUnpaidActions() {
     executeSQL("update user_stat set unpaid_actions = 0");
     executeSQL(
-      "update user_stat " + 
-  		"set unpaid_actions = user_actions.cnt " + 
-  		"from ( " + 
-  		"  select app.user_id as user_id, count(act.id) as cnt " + 
-  		"  from app " + 
-  		"  join action act on app.id = act.app_id " + 
-  		"  join user_profile usr on usr.id = app.user_id " + 
-  		"  where act.done = true  " + 
-  		"  and act.creation_time > coalesce( " + 
-  		"    (select timestamp from withdraw w  " + 
-  		"      where w.account_id = usr.developer_account_id " + 
-  		"      order by w.id desc limit 1), " + 
-  		"    '1970-01-01') " + 
-  		"  group by app.user_id " + 
-  		") user_actions " + 
-  		"where user_stat.user_id = user_actions.user_id"
+        "update user_stat " +
+            "set unpaid_actions = user_actions.cnt " +
+            "from ( " +
+            "  select app.user_id as user_id, count(act.id) as cnt " +
+            "  from app " +
+            "  join action act on app.id = act.app_id " +
+            "  join user_profile usr on usr.id = app.user_id " +
+            "  where act.done = true  " +
+            "  and act.creation_time > coalesce( " +
+            "    (select timestamp from withdraw w  " +
+            "      where w.account_id = usr.developer_account_id " +
+            "      order by w.id desc limit 1), " +
+            "    '1970-01-01') " +
+            "  group by app.user_id " +
+            ") user_actions " +
+            "where user_stat.user_id = user_actions.user_id"
     );
   }
 }

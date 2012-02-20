@@ -1,8 +1,8 @@
 package com.heymoose.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.base.IdEntity;
-
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -18,8 +18,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 @Entity
 @Table(name = "targeting")

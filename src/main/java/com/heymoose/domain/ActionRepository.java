@@ -1,10 +1,9 @@
 package com.heymoose.domain;
 
-import java.util.Map;
-import java.util.List;
-import org.joda.time.DateTime;
-
 import com.heymoose.domain.base.Repository;
+import java.util.List;
+import java.util.Map;
+import org.joda.time.DateTime;
 
 public interface ActionRepository extends Repository<Action> {
   Action byPerformerAndOfferAndApp(long performerId, long offerId, long appId);

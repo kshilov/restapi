@@ -1,10 +1,9 @@
 package com.heymoose.domain;
 
+import com.heymoose.domain.base.Repository;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
-
-import com.heymoose.domain.base.Repository;
 
 public interface OfferShowRepository extends Repository<OfferShow> {
   Map<DateTime, Integer> stats(DateTime from, DateTime to,

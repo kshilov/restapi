@@ -8,12 +8,10 @@ import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repository;
 import java.util.List;
 import java.util.Map;
-import org.hibernate.Session;
-
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.Set;
-
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 

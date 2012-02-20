@@ -4,17 +4,11 @@ import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlCount;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
-import org.joda.time.DateTime;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("shows")
 @Singleton

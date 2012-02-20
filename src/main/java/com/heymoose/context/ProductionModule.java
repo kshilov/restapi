@@ -10,16 +10,14 @@ import com.heymoose.job.Scheduler;
 import com.heymoose.job.SettingsCalculatorTask;
 import com.heymoose.job.UserStatCalculatorTask;
 import com.heymoose.util.PropertiesUtil;
-import org.hibernate.cfg.Configuration;
-import org.joda.time.DateTime;
-
+import static com.heymoose.util.PropertiesUtil.subTree;
+import java.util.Properties;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.util.Properties;
-import java.util.Set;
-
-import static com.heymoose.util.PropertiesUtil.subTree;
+import org.hibernate.cfg.Configuration;
+import org.joda.time.DateTime;
 
 public class ProductionModule extends AbstractModule {
 
