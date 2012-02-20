@@ -12,6 +12,7 @@ import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.AppStat;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
@@ -113,7 +114,7 @@ public class CommonModule extends AbstractModule {
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
         RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class,
-        Banner.class, Withdraw.class, Setting.class, UserStat.class);
+        Banner.class, Withdraw.class, Setting.class, UserStat.class, AppStat.class);
   }
 
   protected void bindEntities(Class... classes) {

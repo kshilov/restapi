@@ -13,7 +13,6 @@ import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -26,8 +25,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.joda.time.DateTime;
-
-import java.math.BigDecimal;
 
 @Path("actions")
 @Singleton

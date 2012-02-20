@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,11 +31,13 @@ public class UserStat {
   @Basic
   private BigDecimal payments;
   
+  @Column(name = "unpaid_actions")
+  private Long unpaidActions;
+  
   public UserStat() {}
   
-  public UserStat(User user, BigDecimal payments) {
+  public UserStat(User user) {
     this.user = user;
-    this.payments = payments;
   }
   
   public Long id() {
@@ -47,5 +50,9 @@ public class UserStat {
   
   public BigDecimal payments() {
     return payments;
+  }
+  
+  public Long unpaidActions() {
+    return unpaidActions;
   }
 }

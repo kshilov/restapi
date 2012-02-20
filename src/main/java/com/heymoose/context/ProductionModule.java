@@ -4,15 +4,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.heymoose.domain.Mlm;
-import com.heymoose.events.EventBus;
+import com.heymoose.job.AppStatCalculatorTask;
 import com.heymoose.job.Job;
 import com.heymoose.job.Scheduler;
 import com.heymoose.job.SettingsCalculatorTask;
 import com.heymoose.job.UserStatCalculatorTask;
-import com.heymoose.rabbitmq.RabbitBus;
-import com.heymoose.rabbitmq.RabbitMqSender;
 import com.heymoose.util.PropertiesUtil;
-import com.rabbitmq.client.ConnectionFactory;
 import org.hibernate.cfg.Configuration;
 import org.joda.time.DateTime;
 
@@ -31,6 +28,7 @@ public class ProductionModule extends AbstractModule {
     bind(Mlm.class);
     bind(SettingsCalculatorTask.class);
     bind(UserStatCalculatorTask.class);
+    bind(AppStatCalculatorTask.class);
     bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
@@ -62,10 +60,10 @@ public class ProductionModule extends AbstractModule {
       private Mlm mlm;
       
       @Inject
-      private SettingsCalculatorTask settingsCalculatorTask;
+      private UserStatCalculatorTask userStatCalculatorTask;
       
       @Inject
-      private UserStatCalculatorTask userStatCalculatorTask;
+      private AppStatCalculatorTask appStatCalculatorTask;
 
       @Override
       public Scheduler get() {
@@ -77,8 +75,8 @@ public class ProductionModule extends AbstractModule {
           @Override
           public void run(DateTime plannedStartTime) throws Exception {
             mlm.doMlmExport(plannedStartTime);
-            //settingsCalculatorTask.run(plannedStartTime);
             userStatCalculatorTask.run(plannedStartTime);
+            appStatCalculatorTask.run(plannedStartTime, false);
           }
         });
         scheduler.schedule();
