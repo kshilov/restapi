@@ -6,6 +6,8 @@ import com.heymoose.domain.Action;
 import com.heymoose.domain.ActionRepository;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.AppVisit;
+import com.heymoose.domain.AppVisitRepository;
 import com.heymoose.domain.Context;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
@@ -44,6 +46,7 @@ public class Api {
 //  private final EventBus eventBus;
   private final UserRepository users;
   private final OfferShowRepository offerShows;
+  private final AppVisitRepository appVisits;
 
   @Inject
   public Api(OfferRepository offers,
@@ -53,7 +56,8 @@ public class Api {
              Accounts accounts,
 //             EventBus eventBus,
              UserRepository users,
-             OfferShowRepository offerShows) {
+             OfferShowRepository offerShows,
+             AppVisitRepository appVisits) {
     this.offers = offers;
     this.performers = performers;
     this.apps = apps;
@@ -62,6 +66,7 @@ public class Api {
 //    this.eventBus = eventBus;
     this.users = users;
     this.offerShows = offerShows;
+    this.appVisits = appVisits;
   }
 
   @Transactional
@@ -71,6 +76,7 @@ public class Api {
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
+      registerVisit(app, performer);
     }
     return offers.availableFor(performer, filter, new Context(app, hour));
   }
@@ -118,6 +124,7 @@ public class Api {
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
+      registerVisit(app, performer);
     }
     Offer offer = offers.byId(offerId);
     if (offer == null)
@@ -190,17 +197,29 @@ public class Api {
   }
 
   @Transactional
-  public void introducePerformer(Platform platform, String extId, Performer.Info info) {
-    Performer performer = performers.byPlatformAndExtId(platform, extId);
+  public void introducePerformer(App app, String extId, Performer.Info info) {
+    Performer performer = performers.byPlatformAndExtId(app.platform(), extId);
     if (performer == null)
-      performer = new Performer(extId, platform, null);
+      performer = new Performer(extId, app.platform(), null);
     performer.setInfo(info);
     performers.put(performer);
+    registerVisit(app, performer);
   }
 
   @Transactional
   public void reportShow(List<Long> offers, App app, String extId) {
    for (Offer offer : this.offers.byIds(offers).values())
      offerShows.put(new OfferShow(offer, app, performers.byPlatformAndExtId(app.platform(), extId)));
+  }
+
+  @Transactional
+  public void registerVisit(App app, Performer performer) {
+    AppVisit appVisit = appVisits.byVisitorAppAnd(performer, app);
+    if (appVisit != null) {
+      appVisit.update();
+      return;
+    }
+    appVisit = new AppVisit(performer, app);
+    appVisits.put(appVisit);
   }
 }

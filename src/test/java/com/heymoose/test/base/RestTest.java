@@ -55,6 +55,7 @@ public class RestTest {
     try {
       session.createQuery("delete from OfferShow").executeUpdate();
       session.createQuery("delete from Action").executeUpdate();
+      session.createQuery("delete from AppVisit").executeUpdate();
       session.createQuery("delete from Performer").executeUpdate();
       session.createQuery("delete from Order").executeUpdate();
       session.createQuery("delete from Banner").executeUpdate();

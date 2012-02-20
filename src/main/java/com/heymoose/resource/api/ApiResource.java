@@ -137,7 +137,7 @@ public class ApiResource {
     String _year = params.get("year");
     Integer year = (_year == null) ? null : parseInt("year", _year);
     String city = params.get("city");
-    api.introducePerformer(app.platform(), extId, new Performer.Info(male, year, city));
+    api.introducePerformer(app, extId, new Performer.Info(male, year, city));
     return successResponse();
   }
 

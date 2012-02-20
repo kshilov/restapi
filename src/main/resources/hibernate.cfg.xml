@@ -25,5 +25,6 @@
     <mapping class="com.heymoose.domain.settings.Setting"/>
     <mapping class="com.heymoose.domain.UserStat"/>
     <mapping class="com.heymoose.domain.AppStat"/>
+    <mapping class="com.heymoose.domain.AppVisit"/>
   </session-factory>
 </hibernate-configuration>
