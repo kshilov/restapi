@@ -176,6 +176,7 @@ public class Mappers {
       xmlOrder.cpa = order.cpa();
       xmlOrder.creationTime = order.creationTime().toString();
       xmlOrder.userId = order.customer().id();
+      xmlOrder.user = toXmlUser(accounts, order.customer(), Details.ONLY_ENTITY);
       xmlOrder.account = toXmlAccount(accounts, order.account());
       
       // Common offer fields
@@ -232,9 +233,6 @@ public class Mappers {
         xmlOrder.appFilterType = targeting.appFilterType().toString();
       if (targeting.apps() != null)
         xmlOrder.apps = toXmlApps(accounts, targeting.apps(), Details.ONLY_ENTITY);
-      
-      if (needRelated(d))
-        xmlOrder.user = toXmlUser(accounts, order.customer(), relatedDetails(d));
     }
     return xmlOrder;
   }

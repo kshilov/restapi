@@ -98,6 +98,13 @@ public class OrderResource {
   public Response count(@QueryParam("userId") Long userId) {
     return Response.ok(Mappers.toXmlCount(orders.count(userId))).build();
   }
+  
+  @GET
+  @Path("price-off")
+  @Transactional
+  public XmlOrders priceOff() {
+    return Mappers.toXmlOrders(accounts, orders.priceOff(settings.Cmin()), Details.WITH_RELATED_IDS);
+  }
 
   @POST
   @Transactional

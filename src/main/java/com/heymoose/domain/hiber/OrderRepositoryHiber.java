@@ -1,5 +1,7 @@
 package com.heymoose.domain.hiber;
 
+import java.math.BigDecimal;
+
 import com.heymoose.domain.Order;
 import com.heymoose.domain.OrderRepository;
 import javax.inject.Inject;
@@ -53,6 +55,13 @@ public class OrderRepositoryHiber extends RepositoryHiber<Order> implements Orde
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())
         .uniqueResult().toString());
+  }
+  
+  @Override
+  public Iterable<Order> priceOff(BigDecimal c) {
+    return hiber().createQuery("from Order where cpa < :c")
+      .setParameter("c", c)
+      .list();
   }
 
   @Override
