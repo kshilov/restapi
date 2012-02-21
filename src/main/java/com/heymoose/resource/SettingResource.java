@@ -45,7 +45,7 @@ public class SettingResource {
   
   @PUT
   @Transactional
-  public void update(@FormParam("m") Double m, @FormParam("q") Double q, @FormParam("c-min") Double cmin) {
+  public void update(@FormParam("m") Double m, @FormParam("q") Double q, @FormParam("cmin") Double cmin) {
     if (m != null)
       settings.set(Settings.M, m);
     if (q != null)
