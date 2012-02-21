@@ -9,6 +9,8 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
+import com.heymoose.resource.xml.XmlApps;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -43,21 +45,23 @@ public class AppResource {
   
   @GET
   @Transactional
-  public Response list(@QueryParam("offset") @DefaultValue("0") int offset,
+  public XmlApps list(@QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("20") int limit,
                        @QueryParam("full") @DefaultValue("false") boolean full,
                        @QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted,
-                       @QueryParam("userId") Long userId) {
+                       @QueryParam("userId") Long userId,
+                       @QueryParam("maxD") Double maxD) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Response.ok(Mappers.toXmlApps(accounts, apps.list(offset, limit, userId, withDeleted), d)).build();
+    return Mappers.toXmlApps(accounts, apps.list(offset, limit, userId, maxD, withDeleted), d);
   }
   
   @GET
   @Path("count")
   @Transactional
   public Response count(@QueryParam("withDeleted") @DefaultValue("false") boolean withDeleted,
-                        @QueryParam("userId") Long userId) {
-    return Response.ok(Mappers.toXmlCount(apps.count(userId, withDeleted))).build();
+                        @QueryParam("userId") Long userId,
+                        @QueryParam("maxD") Double maxD) {
+    return Response.ok(Mappers.toXmlCount(apps.count(userId, maxD, withDeleted))).build();
   }
 
   @POST

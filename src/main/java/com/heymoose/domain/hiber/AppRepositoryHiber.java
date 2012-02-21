@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
 import com.heymoose.hibernate.Transactional;
+
+import java.math.BigDecimal;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -46,11 +48,14 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
 
   @Override
-  public Iterable<App> list(int offset, int limit, Long userId, boolean withDeleted) {
+  public Iterable<App> list(int offset, int limit, Long userId, Double maxD, boolean withDeleted) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (userId != null)
       criteria.add(Restrictions.eq("user.id", userId));
+    
+    if (maxD != null)
+      criteria.add(Restrictions.le("d", new BigDecimal(maxD)));
     
     if (!withDeleted)
       criteria.add(Restrictions.eq("deleted", false));
@@ -63,11 +68,14 @@ public class AppRepositoryHiber extends RepositoryHiber<App> implements AppRepos
   }
   
   @Override
-  public long count(Long userId, boolean withDeleted) {
+  public long count(Long userId, Double maxD, boolean withDeleted) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (userId != null)
       criteria.add(Restrictions.eq("user.id", userId));
+    
+    if (maxD != null)
+      criteria.add(Restrictions.le("d", maxD));
     
     if (!withDeleted)
       criteria.add(Restrictions.eq("deleted", false));
