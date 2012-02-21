@@ -76,7 +76,6 @@ public class Api {
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
-      registerVisit(app, performer);
     }
     return offers.availableFor(performer, filter, new Context(app, hour));
   }
@@ -124,7 +123,6 @@ public class Api {
     if (performer == null) {
       performer = new Performer(extId, app.platform(), null);
       performers.put(performer);
-      registerVisit(app, performer);
     }
     Offer offer = offers.byId(offerId);
     if (offer == null)

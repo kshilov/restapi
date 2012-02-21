@@ -27,6 +27,7 @@ public class AppVisitRepositoryHiber extends RepositoryHiber<AppVisit> implement
     return (AppVisit) hiber().createQuery("from AppVisit where app = :app and visitor = :visitor")
         .setParameter("app", app)
         .setParameter("visitor", visitor)
+        .setMaxResults(1)
         .uniqueResult();
   }
 }
