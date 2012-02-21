@@ -14,6 +14,7 @@ import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.City;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferShow;
+import com.heymoose.domain.OfferStat;
 import com.heymoose.domain.Order;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.RegularOffer;
@@ -187,6 +188,9 @@ public class Mappers {
       xmlOrder.autoApprove = offer.autoApprove();
       xmlOrder.reentrant = offer.reentrant();
       xmlOrder.type = offer.type().toString();
+      
+      if (offer.stat() != null)
+        xmlOrder.stats = toXmlOfferStat(offer.stat());
 
       offer = HibernateUtil.unproxy(offer);
 
@@ -235,6 +239,16 @@ public class Mappers {
         xmlOrder.apps = toXmlApps(accounts, targeting.apps(), Details.ONLY_ENTITY);
     }
     return xmlOrder;
+  }
+  
+  public static XmlOfferStat toXmlOfferStat(OfferStat offerStat) {
+    XmlOfferStat xmlOfferStat = new XmlOfferStat();
+    xmlOfferStat.id = offerStat.id();
+    if (offerStat.showsOverall() != null)
+      xmlOfferStat.showsOverall = offerStat.showsOverall();
+    if (offerStat.actionsOverall() != null)
+      xmlOfferStat.actionsOverall = offerStat.actionsOverall();
+    return xmlOfferStat;
   }
   
   public static XmlApps toXmlApps(Accounts accounts, Iterable<App> apps) {

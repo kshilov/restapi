@@ -53,6 +53,9 @@ public class XmlOrder {
   @XmlElement(name = "type")
   public String type;
   
+  @XmlElement(name = "stats")
+  public XmlOfferStat stats;
+  
   // Regular offer fields
 
   @XmlElement(name = "description")

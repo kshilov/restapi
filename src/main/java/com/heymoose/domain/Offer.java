@@ -58,6 +58,9 @@ public abstract class Offer extends IdEntity {
 
   @Basic(optional = false)
   private boolean reentrant;
+  
+  @OneToOne(fetch = FetchType.LAZY, mappedBy = "offer")
+  private OfferStat stat;
 
   public static enum Type {
     REGULAR, // 0
@@ -126,5 +129,9 @@ public abstract class Offer extends IdEntity {
 
   public Type type() {
     return type;
+  }
+  
+  public OfferStat stat() {
+    return stat;
   }
 }

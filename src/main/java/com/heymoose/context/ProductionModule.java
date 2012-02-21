@@ -6,6 +6,7 @@ import com.google.inject.Provides;
 import com.heymoose.domain.Mlm;
 import com.heymoose.job.AppStatCalculatorTask;
 import com.heymoose.job.Job;
+import com.heymoose.job.OfferStatCalculatorTask;
 import com.heymoose.job.Scheduler;
 import com.heymoose.job.UserStatCalculatorTask;
 import com.heymoose.util.PropertiesUtil;
@@ -25,6 +26,7 @@ public class ProductionModule extends AbstractModule {
     bind(Mlm.class);
     bind(UserStatCalculatorTask.class);
     bind(AppStatCalculatorTask.class);
+    bind(OfferStatCalculatorTask.class);
     bind(Scheduler.class).toProvider(schedulerProvider()).asEagerSingleton();
   }
 
@@ -60,6 +62,9 @@ public class ProductionModule extends AbstractModule {
       
       @Inject
       private AppStatCalculatorTask appStatCalculatorTask;
+      
+      @Inject
+      private OfferStatCalculatorTask offerStatCalculatorTask;
 
       @Override
       public Scheduler get() {
@@ -73,6 +78,7 @@ public class ProductionModule extends AbstractModule {
             mlm.doMlmExport(plannedStartTime);
             userStatCalculatorTask.run(plannedStartTime);
             appStatCalculatorTask.run(plannedStartTime, false);
+            offerStatCalculatorTask.run(plannedStartTime);
           }
         });
         scheduler.schedule();
