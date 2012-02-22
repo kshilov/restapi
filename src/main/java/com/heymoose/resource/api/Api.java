@@ -141,6 +141,8 @@ public class Api {
     if (offer.order().disabled())
       throw conflict();
     accounts.lock(app.owner().developerAccount());
+    if (offer.order().account().getBalance().compareTo(offer.order().cpa()) < 0)
+      return OfferResult.of(app.url());
     Action action = new Action(accounts, offer, performer, app);
     if (offer.autoApprove())
       action.approve(accounts);
