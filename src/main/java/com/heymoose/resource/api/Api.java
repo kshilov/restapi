@@ -34,9 +34,13 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class Api {
+
+  private final static Logger LOGGER = LoggerFactory.getLogger(Api.class);
 
   private final OfferRepository offers;
   private final PerformerRepository performers;
@@ -142,11 +146,17 @@ public class Api {
       throw conflict();
     accounts.lock(app.owner().developerAccount());
     if (!offer.order().account().allowNegativeBalance() && offer.order().account().getBalance().compareTo(offer.order().cpa()) < 0)
-      return OfferResult.of(app.url());
+      return OfferResult.of(URI.create(offer.url()));
     Action action = new Action(accounts, offer, performer, app);
-    if (offer.autoApprove())
-      action.approve(accounts);
     actions.put(action);
+    if (offer.autoApprove()) {
+      try {
+        action.approve(accounts);
+      } catch (IllegalStateException moneyEx) {
+        LOGGER.error(moneyEx.getMessage(), moneyEx);
+        return OfferResult.of(URI.create(offer.url()));
+      }
+    }
     URI redirectUrl = appendQueryParam(URI.create(offer.url()), "action_id", action.id());
     redirectUrl = appendQueryParam(redirectUrl, "back_url", app.url());
     if (offer.autoApprove())

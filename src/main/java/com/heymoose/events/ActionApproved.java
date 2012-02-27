@@ -18,7 +18,7 @@ public class ActionApproved implements Event {
     callback = action.app().callback().toString();
     extId = action.performer().extId();
     offerId = action.offer().id();
-    amount = action.app().calcRevenue(action.reservedAmount());
+    amount = action.app().calcRevenue(action.offer().order().cpa());
   }
 
   @Override

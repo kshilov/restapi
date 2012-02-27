@@ -71,14 +71,6 @@ public class ActionResource {
       return Response.status(404).build();
     if (action.deleted())
       return Response.ok().build();
-    Order order = action.offer().order();
-    if (order.disabled()) {
-      accounts.lock(order.customer().customerAccount());
-      accounts.addToBalance(order.customer().customerAccount(), action.reservedAmount(), "Action deleted", TxType.RESERVATION_CANCELLED);
-    } else {
-      accounts.lock(order.account());
-      accounts.addToBalance(order.account(), action.reservedAmount(), "Action deleted", TxType.RESERVATION_CANCELLED);
-    }
     action.delete();
     return Response.ok().build();
   }

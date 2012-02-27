@@ -54,10 +54,6 @@ public class Action extends IdEntity {
   @Column(name = "approve_time", nullable = true)
   private DateTime approveTime;
 
-  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "reservation", nullable = false)
-  private AccountTx reservation;
-
   @Basic(optional = false)
   private boolean done;
 
@@ -77,7 +73,6 @@ public class Action extends IdEntity {
     DateTime now = DateTime.now();
     this.creationTime = now;
     Order order = offer.order();
-    this.reservation = accounts.subtractFromBalance(order.account(), order.cpa(), "Reservation", TxType.RESERVATION);
   }
 
   public boolean done() {
@@ -96,10 +91,6 @@ public class Action extends IdEntity {
     return app;
   }
 
-  public BigDecimal reservedAmount() {
-    return reservation.diff().negate();
-  }
-
   public Offer offer() {
     return offer;
   }
@@ -109,9 +100,10 @@ public class Action extends IdEntity {
       throw new IllegalStateException("Action was deleted");
     if (done)
       throw new IllegalStateException("Already done");
+    accounts.subtractFromBalance(offer().order().account(), offer().order().cpa(), "Action approved", TxType.ACTION_APPROVED);
+    accounts.addToBalance(app().owner().developerAccount(), app().calcRevenue(offer.order().cpa()), "Action approved", TxType.ACTION_APPROVED);
     done = true;
     approveTime = DateTime.now();
-    accounts.addToBalance(app().owner().developerAccount(), app().calcRevenue(reservedAmount()), "Action approved", TxType.ACTION_APPROVED);
   }
 
   public void delete() {
