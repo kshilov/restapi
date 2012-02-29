@@ -45,11 +45,11 @@ public class Mlm {
     log.info("fromTime: {}", fromTime);
     log.info("toTime: {}", toTime);
 
-    String s1 = "select u.id, sum(-t.diff) from action a " +
-        "left join account_tx t on t.id = a.reservation " +
+    String s1 = "select u.id, sum(-t.diff) " +
+        "from account_tx t " +
         "left join offer_order ord on ord.account_id = t.account_id " +
         "left join user_profile u on u.id = ord.user_id " +
-        "where a.approve_time between :fromTime and :toTime group by u.id";
+        "where t.type = 3 and ord.id is not null and t.creation_time between :fromTime and :toTime group by u.id";
 
     List<Object[]> r1 = hiber().createSQLQuery(s1)
         .setTimestamp("fromTime", fromTime.toDate())

@@ -147,7 +147,7 @@ public class Api {
     accounts.lock(app.owner().developerAccount());
     if (!offer.order().account().allowNegativeBalance() && offer.order().account().getBalance().compareTo(offer.order().cpa()) < 0)
       return OfferResult.of(URI.create(offer.url()));
-    Action action = new Action(accounts, offer, performer, app);
+    Action action = new Action(offer, performer, app);
     actions.put(action);
     if (offer.autoApprove()) {
       try {

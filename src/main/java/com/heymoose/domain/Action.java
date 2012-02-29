@@ -2,7 +2,6 @@ package com.heymoose.domain;
 
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Type;
@@ -65,14 +63,13 @@ public class Action extends IdEntity {
 
   protected Action() {}
 
-  public Action(Accounts accounts, Offer offer, Performer performer, App app) {
+  public Action(Offer offer, Performer performer, App app) {
     checkNotNull(offer, performer);
     this.offer = offer;
     this.performer = performer;
     this.app = app;
     DateTime now = DateTime.now();
     this.creationTime = now;
-    Order order = offer.order();
   }
 
   public boolean done() {
