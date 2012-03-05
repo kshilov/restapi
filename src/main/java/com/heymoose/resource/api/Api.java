@@ -145,8 +145,10 @@ public class Api {
     if (offer.order().disabled())
       throw conflict();
     accounts.lock(app.owner().developerAccount());
-    if (!offer.order().account().allowNegativeBalance() && offer.order().account().getBalance().compareTo(offer.order().cpa()) < 0)
+    if (!offer.order().account().allowNegativeBalance() && offer.order().account().getBalance().compareTo(offer.order().cpa()) < 0) {
+      LOGGER.warn("No enough money [appId={}, offerId={}]", appId, offerId);
       return OfferResult.of(URI.create(offer.url()));
+    }
     Action action = new Action(offer, performer, app);
     actions.put(action);
     if (offer.autoApprove()) {
