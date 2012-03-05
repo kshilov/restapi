@@ -9,6 +9,7 @@ import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
+import com.heymoose.domain.BannerStore;
 import com.heymoose.domain.City;
 import com.heymoose.domain.CityFilterType;
 import com.heymoose.domain.CityRepository;
@@ -34,6 +35,7 @@ import static com.heymoose.util.HibernateUtil.unproxy;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import static java.util.Arrays.asList;
@@ -66,10 +68,12 @@ public class OrderResource {
   private final CityRepository cities;
   private final AppRepository apps;
   private final Settings settings;
+  private final BannerStore bannerStore;
 
   @Inject
   public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts,
-                       BannerSizeRepository bannerSizes, CityRepository cities, AppRepository apps, Settings settings) {
+                       BannerSizeRepository bannerSizes, CityRepository cities, AppRepository apps,
+                       Settings settings, BannerStore bannerStore) {
     this.users = users;
     this.orders = orders;
     this.accounts = accounts;
@@ -77,6 +81,7 @@ public class OrderResource {
     this.cities = cities;
     this.apps = apps;
     this.settings = settings;
+    this.bannerStore = bannerStore;
   }
 
   @GET
@@ -130,7 +135,7 @@ public class OrderResource {
                          @FormParam("description") String description,
                          @FormParam("videoUrl") String videoUrl,
                          @FormParam("bannerMimeType") String bannerMimeType,
-                         @FormParam("bannerSize") Integer bannerSizeId) {
+                         @FormParam("bannerSize") Integer bannerSizeId) throws IOException {
 
     checkNotNull(_balance, _cpa);
 
@@ -183,6 +188,7 @@ public class OrderResource {
     DateTime now = DateTime.now();
 
     Offer offer;
+    Banner banner = null;
     if (type.equals(Offer.Type.REGULAR)) {
       offer = new RegularOffer(title, url, autoApprove, now, reentrant, description, image);
     } else if (type.equals(Offer.Type.VIDEO)) {
@@ -194,7 +200,7 @@ public class OrderResource {
         return Response.status(404).build();
       if (size.disabled())
         return Response.status(409).build();
-      Banner banner = new Banner(image, bannerMimeType, size);
+      banner = new Banner(image, bannerMimeType, size);
       offer = new BannerOffer(title, url, autoApprove, now, reentrant, asList(banner));
     } else {
       throw new IllegalArgumentException("Unknown type: " + type.name());
@@ -209,6 +215,9 @@ public class OrderResource {
       return Response.status(409).build();
 
     orders.put(order);
+
+    if (type.equals(Offer.Type.BANNER))
+      bannerStore.saveBanner(banner);
     
     if (balance.signum() > 0)
       accounts.transfer(user.customerAccount(), order.account(), amount);
@@ -222,7 +231,7 @@ public class OrderResource {
   public void addBanner(@PathParam("id") long orderId,
                         @FormParam("bannerSize") Integer bannerSizeId,
                         @FormParam("mimeType") String mimeType,
-                        @FormParam("image") String image) {
+                        @FormParam("image") String image) throws IOException {
     checkNotNull(bannerSizeId, mimeType, image);
     Order order = orders.byId(orderId);
     if (order == null)
@@ -236,6 +245,7 @@ public class OrderResource {
        throw notFound();
     Banner banner = new Banner(image, mimeType, size);
     bannerOffer.addBanner(banner);
+    bannerStore.saveBanner(banner);
   }
 
   @DELETE

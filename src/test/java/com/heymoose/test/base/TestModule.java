@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.events.Event;
 import com.heymoose.events.EventBus;
+import java.io.File;
 import java.util.Properties;
 import java.util.Set;
 import org.hibernate.cfg.Configuration;
@@ -51,6 +52,7 @@ public class TestModule extends AbstractModule {
     Properties settings = new Properties();
     settings.setProperty("tax", "0.1");
     settings.setProperty("robokassaPass", "robokassaPass");
+    settings.setProperty("banners.dir", "target/banners");
     return settings;
   }
 }

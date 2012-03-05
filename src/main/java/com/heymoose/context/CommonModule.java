@@ -17,8 +17,10 @@ import com.heymoose.domain.AppVisitRepository;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
+import com.heymoose.domain.BannerResource;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
+import com.heymoose.domain.BannerStore;
 import com.heymoose.domain.City;
 import com.heymoose.domain.CityRepository;
 import com.heymoose.domain.Offer;
@@ -67,6 +69,7 @@ import com.heymoose.resource.TaskResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
+import java.io.File;
 import java.util.Properties;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -99,6 +102,8 @@ public class CommonModule extends AbstractModule {
     bind(Settings.class);
     bind(SettingResource.class);
     bind(TaskResource.class);
+    bind(BannerStore.class);
+    bind(BannerResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);
@@ -128,6 +133,17 @@ public class CommonModule extends AbstractModule {
   @Provides @Named("robokassaPass")  @Singleton
   protected String robokassaPass(@Named("settings") Properties settings) {
     return settings.getProperty("robokassaPass");
+  }
+
+  @Provides @Named("banners-dir")  @Singleton
+  protected String bannersDir(@Named("settings") Properties settings) {
+    String bannerDirStr = settings.getProperty("banners.dir");
+    File bannerDir = new File(bannerDirStr);
+    if (!bannerDir.exists())
+      bannerDir.mkdirs();
+    else if (!bannerDir.isDirectory())
+      throw new IllegalArgumentException("Not a directory: "+ bannerDirStr);
+    return bannerDirStr;
   }
 
   @Provides @Singleton

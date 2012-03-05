@@ -11,6 +11,8 @@ install:
 	install -D -m 644 target/rest.jar $(DESTDIR)/usr/share/backend/backend.jar
 	install -D -m 644 src/etc/settings.properties $(DESTDIR)/etc/backend/settings.properties
 	install -D -m 755 backend $(DESTDIR)/usr/bin/backend
+	mkdir -p $(DESTDIR)/var/lib/backend/banners
+	chmod -R 666 $(DESTDIR)/var/lib/backend/banners
 
 dev-build:
 	mvn package -DskipTests=true
