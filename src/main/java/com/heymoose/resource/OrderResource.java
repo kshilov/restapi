@@ -7,6 +7,7 @@ import com.heymoose.domain.AppRepository;
 import com.heymoose.domain.AppTargeting;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
+import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.BannerStore;
@@ -69,11 +70,12 @@ public class OrderResource {
   private final AppRepository apps;
   private final Settings settings;
   private final BannerStore bannerStore;
+  private final BannerRepository banners;
 
   @Inject
   public OrderResource(UserRepository users, OrderRepository orders, Accounts accounts,
                        BannerSizeRepository bannerSizes, CityRepository cities, AppRepository apps,
-                       Settings settings, BannerStore bannerStore) {
+                       Settings settings, BannerStore bannerStore, BannerRepository banners) {
     this.users = users;
     this.orders = orders;
     this.accounts = accounts;
@@ -82,6 +84,7 @@ public class OrderResource {
     this.apps = apps;
     this.settings = settings;
     this.bannerStore = bannerStore;
+    this.banners = banners;
   }
 
   @GET
@@ -245,6 +248,7 @@ public class OrderResource {
        throw notFound();
     Banner banner = new Banner(image, mimeType, size);
     bannerOffer.addBanner(banner);
+    banners.put(banner);
     bannerStore.saveBanner(banner);
   }
 

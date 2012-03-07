@@ -17,7 +17,7 @@ import com.heymoose.domain.AppVisitRepository;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
-import com.heymoose.domain.BannerResource;
+import com.heymoose.domain.affiliate.BannerResource;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.BannerStore;
