@@ -36,12 +36,11 @@ public class BannerResource {
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") long bannerId, @QueryParam("site_id") Long siteId) throws IOException {
-    if (siteId == null)
-      throw badRequest();
     Banner banner = bannerRepository.byId(bannerId);
     if (banner == null)
       throw notFound();
-    bannerShowRepository.put(new BannerShow(bannerId, siteId));
+    if (siteId != null)
+      bannerShowRepository.put(new BannerShow(bannerId, siteId));
     File bannerFile = bannerStore.path(bannerId);
     if (bannerFile.exists()) {
       return Response.ok()
