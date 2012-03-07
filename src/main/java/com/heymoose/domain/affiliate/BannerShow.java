@@ -2,6 +2,7 @@ package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.base.IdEntity;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,16 +25,14 @@ public class BannerShow extends IdEntity {
   @JoinColumn(name = "banner_id", insertable = false, updatable = false)
   private Banner banner;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "banner_id")
+  @Column(name = "banner_id")
   private Long bannerId;
 
   @ManyToOne
   @JoinColumn(name = "site_id", insertable = false, updatable = false)
   public Site site;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "site_id")
+  @Column(name = "site_id")
   public Long siteId;
 
   @Override
