@@ -40,6 +40,8 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.UserStat;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
+import com.heymoose.domain.affiliate.BannerShowRepository;
+import com.heymoose.domain.affiliate.hiber.BannerShowRepositoryHiber;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
 import com.heymoose.domain.hiber.AppVisitRepositoryHiber;
@@ -116,6 +118,7 @@ public class CommonModule extends AbstractModule {
     bind(CityRepository.class).to(CityRepositoryHiber.class);
     bind(BannerRepository.class).to(BannerRepositoryHiber.class);
     bind(AppVisitRepository.class).to(AppVisitRepositoryHiber.class);
+    bind(BannerShowRepository.class).to(BannerShowRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
