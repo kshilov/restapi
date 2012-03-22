@@ -66,7 +66,7 @@ public class Mlm {
     String s2 = "with recursive _tmp as ( " +
         "select u.id id, u.referrer referrer from user_profile u where u.id in (:users) " +
         "union all " +
-        "select u.id id, u.referrer referrer from user_profile u, _tmp where u.referrer = _tmp.id) " +
+        "select u.id id, u.referrer referrer from user_profile u, _tmp where u.id = _tmp.referrer) " +
         "select distinct id, referrer from _tmp";
 
     List<Object[]> r2 = hiber().createSQLQuery(s2)
