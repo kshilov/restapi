@@ -63,6 +63,12 @@ public class Accounts {
   public Account get(long accountId) {
     return (Account) hiber().get(Account.class, accountId);
   }
+
+  public AccountTx transferCompact(Account from, Account to, BigDecimal amount) {
+    AccountTx accountTx = new AccountTx(from, to, amount, TxType.TRANSFER);
+    hiber().save(accountTx);
+    return accountTx;
+  }
   
   public void transfer(Account from, Account to, BigDecimal amount) {
     checkArgument(amount.signum() > 0);
@@ -163,5 +169,9 @@ public class Accounts {
     checkArgument(!isBlank(comment));
     addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW_DELETED);
     hiber().delete(withdraw);
+  }
+
+  public void cancel(AccountTx tx) {
+    hiber().save(tx.cancel());
   }
 }

@@ -1,16 +1,23 @@
 package com.heymoose.resource.api;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.App;
 import com.heymoose.domain.AppRepository;
+import com.heymoose.domain.Offer;
 import com.heymoose.domain.OfferRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.affiliate.Click;
+import com.heymoose.domain.affiliate.GeoTargeting;
+import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.Tracking;
+import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.JsonOfferTemplate;
 import com.heymoose.resource.OfferTemplate;
@@ -18,6 +25,8 @@ import static com.heymoose.resource.api.ApiExceptions.appNotFound;
 import static com.heymoose.resource.api.ApiExceptions.badSignature;
 import static com.heymoose.resource.api.ApiExceptions.badValue;
 import static com.heymoose.resource.api.ApiExceptions.customerNotFound;
+import static com.heymoose.resource.api.ApiExceptions.illegalState;
+import static com.heymoose.resource.api.ApiExceptions.notFound;
 import static com.heymoose.resource.api.ApiExceptions.notInRole;
 import static com.heymoose.resource.api.ApiExceptions.nullParam;
 import com.heymoose.resource.api.data.OfferData;
@@ -27,7 +36,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
@@ -61,17 +73,23 @@ public class ApiResource {
   private final OfferTemplate jsonTemplate = new JsonOfferTemplate();
   private final Api api;
   private final Provider<UriInfo> uriInfoProvider;
+  private final Tracking tracking;
+  private final Repo repo;
+  private final GeoTargeting geoTargeting;
   
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, AppRepository apps, Api api,
-                     UserRepository users, Provider<UriInfo> uriInfoProvider) {
+                     UserRepository users, Provider<UriInfo> uriInfoProvider, Tracking tracking, Repo repo, GeoTargeting geoTargeting) {
     this.requestContextProvider = requestContextProvider;
     this.apps = apps;
     this.api = api;
     this.users = users;
     this.uriInfoProvider = uriInfoProvider;
+    this.tracking = tracking;
+    this.repo = repo;
+    this.geoTargeting = geoTargeting;
   }
 
   @GET
@@ -111,8 +129,84 @@ public class ApiResource {
       return introducePerformer(params);
     else if (method.equals("reportShow"))
       return reportShow(params, queryParamsMulti());
+    else if (method.equals("track"))
+      return track(params);
+    else if (method.equals("click"))
+      return click(params);
+    else if (method.equals("reportAction"))
+      return reportAction(params);
     else
       throw badValue("method", method);
+  }
+
+  @Transactional
+  private Response reportAction(Map<String, String> params) throws ApiRequestException {
+    Long clickId = safeGetLongParam(params, "click_id");
+    String txId = safeGetParam(params, "transaction_id");
+    String sOffer = safeGetParam(params, "offer");
+    String[] pairs = sOffer.split(",");
+    Map<Offer, Optional<Double>> offers = newHashMap();
+    for (String pair : pairs) {
+      String[] parts = pair.split(":");
+      String sOfferId = parts[0];
+      long offerId = Long.valueOf(sOfferId);
+      Offer offer = repo.get(Offer.class, offerId);
+      Optional<Double> price = (parts.length == 2)
+          ? Optional.of(Double.parseDouble(parts[1]))
+          : Optional.<Double>absent();
+      offers.put(offer, price);
+    }
+    Click click = repo.get(Click.class, clickId);
+    tracking.actionDone(click, txId, offers);
+    return null;
+  }
+
+  @Transactional
+  private Response click(Map<String, String> params) throws ApiRequestException {
+    String sBannerId = params.get("banner_id");
+    Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
+    long offerId = safeGetLongParam(params, "offer_id");
+    long affId = safeGetLongParam(params, "aff_id");
+    Offer offer = repo.get(Offer.class, offerId);
+    if (offer == null)
+      throw notFound(Offer.class, offerId);
+    User affiliate = repo.get(User.class, affId);
+    if (affiliate == null)
+      throw notFound(Offer.class, offerId);
+    OfferGrant grant = tracking.granted(offer, affiliate);
+    if (grant == null)
+      throw illegalState("Offer was not granted: " + offerId);
+    String subId = params.get("sub_id");
+    String sourceId = params.get("source_id");
+    Long ipNum = getRealIp();
+    if (ipNum == null)
+      throw new ApiRequestException(409, "Can't get IP address");
+    if (!geoTargeting.isAllowed(offer, ipNum))
+      return Response.status(302).location(URI.create(grant.backUrl())).build();
+    Click click = tracking.click(bannerId, offerId, affId, subId, sourceId);
+    URI location = URI.create(offer.url());
+    location = Api.appendQueryParam(location, "_hm_click_id", click);
+    return Response.status(302).location(location).build();
+  }
+
+  @Transactional
+  private Response track(Map<String, String> params) throws ApiRequestException {
+    String sBannerId = params.get("banner_id");
+    Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
+    long offerId = safeGetLongParam(params, "offer_id");
+    long affId = safeGetLongParam(params, "aff_id");
+    Offer offer = repo.get(Offer.class, offerId);
+    if (offer == null)
+      throw notFound(Offer.class, offerId);
+    User affiliate = repo.get(User.class, affId);
+    if (affiliate == null)
+      throw notFound(Offer.class, offerId);
+    if (tracking.granted(offer, affiliate) == null)
+      throw illegalState("Offer was not granted: " + offerId);
+    String subId = params.get("sub_id");
+    String sourceId = params.get("source_id");
+    tracking.track(bannerId, offer, affiliate, subId, sourceId);
+    return Response.ok().build();
   }
 
   private Response reportShow(Map<String, String> params, Multimap<String, String> multiParams) throws ApiRequestException {
@@ -217,6 +311,29 @@ public class ApiResource {
       if (!ent.getValue().isEmpty())
         params.put(ent.getKey(), ent.getValue().get(0));
     return params;
+  }
+  
+  private Long getRealIp() {
+    String hRealIp = requestContextProvider.get().getHeaderValue("X-Real-IP");
+    if (hRealIp == null)
+      return null;
+    String[] parts = hRealIp.split("\\.");
+    long a = Long.valueOf(parts[0]);
+    long b = Long.valueOf(parts[1]);
+    long c = Long.valueOf(parts[2]);
+    long d = Long.valueOf(parts[3]);
+    return (a << 24) | (b << 16) | (c << 8) | d;
+  }
+
+  public static void main(String[] args) throws UnknownHostException {
+    String sIP = "176.14.151.53";
+    String[] parts = sIP.split("\\.");
+    long a = Long.valueOf(parts[0]);
+    long b = Long.valueOf(parts[1]);
+    long c = Long.valueOf(parts[2]);
+    long d = Long.valueOf(parts[3]);
+    long ip = (a << 24) | (b << 16) | (c << 8) | d;
+    System.out.println(ip);
   }
 
   private Multimap<String, String> queryParamsMulti() {

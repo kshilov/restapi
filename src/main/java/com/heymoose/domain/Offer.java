@@ -3,6 +3,7 @@ package com.heymoose.domain;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -65,7 +66,9 @@ public abstract class Offer extends IdEntity {
   public static enum Type {
     REGULAR, // 0
     BANNER, // 1
-    VIDEO; // 2
+    VIDEO, // 2
+    NEW, // 3
+    SUB; // 4
 
     public static Type fromOrdinal(int ordinal) {
       for (Type type : values())

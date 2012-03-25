@@ -1,11 +1,13 @@
 package com.heymoose.domain;
 
+import static com.google.common.base.Preconditions.checkState;
 import com.heymoose.domain.base.IdEntity;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -45,8 +47,19 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   @JoinColumn(name = "account_id")
   private Account account;
 
+  @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @JoinColumn(name = "from_account_id")
+  private Account from;
+
+  @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @JoinColumn(name = "to_account_id")
+  private Account to;
+
   @Basic
   private BigDecimal balance;
+
+  @Basic
+  private BigDecimal amount;
 
   @Basic
   private BigDecimal diff;
@@ -65,16 +78,31 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   @Column(name = "end_time", nullable = true)
   private DateTime endTime;
 
+  @Enumerated(EnumType.ORDINAL)
+  private AccountTxState state;
+
   protected AccountTx() {}
+
+  public AccountTx(Account from, Account to, BigDecimal amount, TxType type) {
+    this.from = from;
+    this.to = to;
+    this.amount = amount;
+    this.type = type;
+    this.creationTime = DateTime.now();
+    this.state = AccountTxState.NOT_APPROVED;
+  }
 
   public AccountTx(Account account, BigDecimal balance, TxType type) {
     this.account = account;
+    this.to = account;
     this.balance = balance;
     account.setBalance(balance);
     this.diff = balance;
+    this.amount = balance;
     this.version = 1;
     this.type = type;
     this.creationTime = DateTime.now();
+    this.state = AccountTxState.APPROVED;
   }
 
   public Account account() {
@@ -108,6 +136,21 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
   public DateTime endTime() {
     return endTime;
   }
+  
+  public AccountTxState state() {
+    return state;
+  }
+
+  public void approve() {
+    checkState(state == AccountTxState.NOT_APPROVED);
+    state = AccountTxState.APPROVED;
+  }
+
+  public AccountTx cancel() {
+    checkState(state == AccountTxState.NOT_APPROVED);
+    state = AccountTxState.CANCELED;
+    return new AccountTx(to, from, amount, type);
+  }
 
   public void addInPlace(BigDecimal amount, String description) {
     if (amount.signum() != 1)
@@ -117,6 +160,7 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     account.setBalance(balance);
     this.description = description;
     diff = diff.add(amount);
+    this.amount = diff;
     this.endTime = DateTime.now();
   }
 
@@ -125,11 +169,13 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
       throw new IllegalArgumentException("Amount must be positive");
     AccountTx newAccount = new AccountTx();
     newAccount.account = this.account;
+    newAccount.to = this.account;
     newAccount.version = this.version + 1;
     newAccount.balance = this.balance.add(amount);
     account.setBalance(newAccount.balance);
     newAccount.description = description;
     newAccount.diff = amount;
+    newAccount.amount = amount;
     newAccount.parentId = this.id;
     newAccount.type = type;
     newAccount.creationTime = DateTime.now();
@@ -143,17 +189,19 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
       throw new IllegalStateException("No enough money");
     AccountTx newAccount = new AccountTx();
     newAccount.account = this.account;
+    newAccount.from = this.account;
     newAccount.version = this.version + 1;
     newAccount.balance = this.balance.subtract(amount);
     account.setBalance(newAccount.balance);
     newAccount.description = description;
     newAccount.diff = amount.negate();
+    newAccount.amount = amount;
     newAccount.parentId = this.id;
     newAccount.type = type;
     newAccount.creationTime = DateTime.now();
     return newAccount;
   }
-  
+
   public TxType type() {
     if (type == null)
       return TxType.UNKNOWN;

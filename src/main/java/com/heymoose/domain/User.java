@@ -3,6 +3,7 @@ package com.heymoose.domain;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.math.BigDecimal;
 import java.net.URI;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
@@ -108,6 +109,9 @@ public class User extends IdEntity {
   @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
   private UserStat stat;
 
+  @Basic
+  private int fee;
+
   protected User() {}
 
   public User(String email, String passwordHash, String firstName, String lastName, String organization,
@@ -170,6 +174,8 @@ public class User extends IdEntity {
       customerSecret = UUID.randomUUID().toString();
     }
     if (role.equals(Role.DEVELOPER) && developerAccount == null)
+      developerAccount = new Account(false);
+    if (role.equals(Role.AFFILIATE) && developerAccount == null)
       developerAccount = new Account(false);
   }
 
@@ -283,5 +289,9 @@ public class User extends IdEntity {
   
   public UserStat stat() {
     return stat;
+  }
+  
+  public int fee() {
+    return fee;
   }
 }

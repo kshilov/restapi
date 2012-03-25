@@ -4,6 +4,11 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.base.IdEntity;
 
 public class ApiExceptions {
+
+  public static ApiRequestException illegalState(String reason) {
+    return new ApiRequestException(409, reason);
+  }
+  
   public static ApiRequestException notFound(Class<? extends IdEntity> clazz, long id) {
     return new ApiRequestException(404, clazz.getSimpleName() + "with id " + id + " was not found");
   }

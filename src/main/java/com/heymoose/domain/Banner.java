@@ -35,7 +35,7 @@ public class Banner extends IdEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "offer_id")
-  private BannerOffer offer;
+  private Offer offer;
 
   protected Banner() {}
 
@@ -88,11 +88,11 @@ public class Banner extends IdEntity {
     this.size = size;
   }
 
-  public void setOffer(BannerOffer offer) {
+  public void setOffer(Offer offer) {
     this.offer = offer;
   }
 
-  public BannerOffer offer() {
+  public Offer offer() {
     return offer;
   }
 }

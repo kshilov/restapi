@@ -40,10 +40,10 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.UserStat;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
-import com.heymoose.domain.affiliate.BannerShow;
-import com.heymoose.domain.affiliate.BannerShowRepository;
+import com.heymoose.domain.affiliate.ShowStat;
+import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.Site;
-import com.heymoose.domain.affiliate.hiber.BannerShowRepositoryHiber;
+import com.heymoose.domain.affiliate.hiber.HibernateRepo;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
 import com.heymoose.domain.hiber.AppVisitRepositoryHiber;
@@ -120,13 +120,13 @@ public class CommonModule extends AbstractModule {
     bind(CityRepository.class).to(CityRepositoryHiber.class);
     bind(BannerRepository.class).to(BannerRepositoryHiber.class);
     bind(AppVisitRepository.class).to(AppVisitRepositoryHiber.class);
-    bind(BannerShowRepository.class).to(BannerShowRepositoryHiber.class);
+    bind(Repo.class).to(HibernateRepo.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
         RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class,
         Banner.class, Withdraw.class, Setting.class, UserStat.class, AppStat.class, OfferStat.class,
-        AppVisit.class, BannerShow.class, Site.class);
+        AppVisit.class, ShowStat.class, Site.class);
   }
 
   protected void bindEntities(Class... classes) {

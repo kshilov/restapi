@@ -50,7 +50,7 @@ public class RestTest {
 
   @Before public void reset() throws InterruptedException {
     SessionFactory sessionFactory = injector().getInstance(SessionFactory.class);
-    Session session =  sessionFactory.openSession();
+    Session session = sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
       session.createQuery("delete from OfferShow").executeUpdate();

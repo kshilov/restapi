@@ -15,7 +15,6 @@ import com.heymoose.domain.OfferShow;
 import com.heymoose.domain.OfferShowRepository;
 import com.heymoose.domain.Performer;
 import com.heymoose.domain.PerformerRepository;
-import com.heymoose.domain.Platform;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.events.ActionApproved;
@@ -191,7 +190,7 @@ public class Api {
     return new ActionApproved(action);
   }
 
-  private static URI appendQueryParam(URI uri, String name, Object value) {
+  public static URI appendQueryParam(URI uri, String name, Object value) {
     List<NameValuePair> params = newArrayList(URLEncodedUtils.parse(uri, "UTF-8"));
     params.add(new NameValuePair(name, value.toString()));
     try {
