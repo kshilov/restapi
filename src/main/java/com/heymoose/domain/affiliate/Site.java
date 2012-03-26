@@ -2,7 +2,6 @@ package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.User;
 import com.heymoose.domain.base.IdEntity;
-import com.sun.tools.internal.xjc.Language;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;

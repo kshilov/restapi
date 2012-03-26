@@ -13,7 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.ManyToAny;
 import org.joda.time.DateTime;
-import sun.jvm.hotspot.bugspot.BugSpotAgent;
 
 @Entity
 @DiscriminatorValue("4")

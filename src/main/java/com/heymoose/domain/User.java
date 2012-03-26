@@ -173,6 +173,8 @@ public class User extends IdEntity {
       customerAccount = new Account(false);
       customerSecret = UUID.randomUUID().toString();
     }
+    if (role.equals(Role.ADVERTISER) && customerAccount == null)
+      customerAccount = new Account(false);
     if (role.equals(Role.DEVELOPER) && developerAccount == null)
       developerAccount = new Account(false);
     if (role.equals(Role.AFFILIATE) && developerAccount == null)
