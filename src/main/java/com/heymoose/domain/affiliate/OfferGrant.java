@@ -3,6 +3,7 @@ package com.heymoose.domain.affiliate;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,11 +38,11 @@ public class OfferGrant extends BaseEntity {
   @JoinColumn(name = "aff_id", insertable = false, updatable = false)
   private User affiliate;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
   @JoinColumn(name = "back_url")
   private String backUrl;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
   @JoinColumn(name = "post_back_url")
   private String postBackUrl;
 
@@ -62,13 +63,41 @@ public class OfferGrant extends BaseEntity {
     return id;
   }
   
-  public OfferGrant(Long offerId, Long affiliateId, String postBackUrl, String message) {
+  public OfferGrant(Long offerId, Long affiliateId, String message) {
+    checkNotNull(offerId, affiliateId, message);
     this.offerId = offerId;
     this.affiliateId = affiliateId;
-    this.postBackUrl = postBackUrl;
     this.message = message;
     this.approved = false;
     this.active = false;
+  }
+  
+  public Long offerId() {
+    return offerId;
+  }
+  
+  public NewOffer offer() {
+    return (NewOffer) offer;
+  }
+  
+  public Long affiliateId() {
+    return affiliateId;
+  }
+  
+  public User affiliate() {
+    return affiliate;
+  }
+  
+  public String backUrl() {
+    return backUrl;
+  }
+  
+  public String postBackUrl() {
+    return postBackUrl;
+  }
+  
+  public String message() {
+    return message;
   }
 
   public boolean offerIsVisible() {
@@ -81,9 +110,5 @@ public class OfferGrant extends BaseEntity {
 
   public void moderateAsAdvertiser() {
     this.active = true;
-  }
-
-  public String backUrl() {
-    return backUrl;
   }
 }

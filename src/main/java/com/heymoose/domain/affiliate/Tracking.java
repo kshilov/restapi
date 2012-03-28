@@ -63,8 +63,8 @@ public class Tracking {
     if (payMethod == PayMethod.CPC) {
       Offer offer = repo.get(Offer.class, offerId);
       accounts.lock(offer.order().account(), click.affiliate().developerAccount());
-      BigDecimal cpa = cpa(offer);
-      BigDecimal amount = cpa.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
+      BigDecimal cost = cost(offer);
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       accounts.transferCompact(offer.order().account(), click.affiliate().developerAccount(), amount);
     }
     repo.put(click);
@@ -79,16 +79,16 @@ public class Tracking {
       PayMethod payMethod = payMethod(offer);
       if (payMethod != PayMethod.CPA)
         throw new IllegalArgumentException("Not CPA offer: " + offer.id());
-      BigDecimal cpa = null;
+      BigDecimal cost = null;
       if (cpaPolicy == CpaPolicy.PERCENT) {
         Optional<Double> price = offers.get(offer);
         if (!price.isPresent())
           throw new IllegalArgumentException("No price for offer with id = " + offer.id());
-        cpa = new BigDecimal(price.get()).multiply(ratio(offer));
-      } else  if (cpaPolicy == CpaPolicy.FIXED) {
-        cpa = cpa(offer);
+        cost = new BigDecimal(price.get()).multiply(percent(offer).divide(new BigDecimal(100.0)));
+      } else if (cpaPolicy == CpaPolicy.FIXED) {
+        cost = cost(offer);
       } else throw new IllegalStateException();
-      BigDecimal amount = cpa.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       accounts.lock(offer.order().account(), click.affiliate().developerAccount());
       AccountTx tx = accounts.transferCompact(offer.order().account(), click.affiliate().developerAccount(), amount);
       OfferAction action = new OfferAction(click, offer, transactionId, tx);
@@ -116,20 +116,20 @@ public class Tracking {
       throw new IllegalArgumentException();
   }
 
-  private static BigDecimal cpa(Offer offer) {
+  private static BigDecimal cost(Offer offer) {
     if (offer instanceof NewOffer)
-      return ((NewOffer) offer).cpa();
+      return ((NewOffer) offer).cost();
     else if (offer instanceof SubOffer)
-      return ((SubOffer) offer).cpa();
+      return ((SubOffer) offer).cost();
     else
       throw new IllegalArgumentException();
   }
   
-  private static BigDecimal ratio(Offer offer) {
+  private static BigDecimal percent(Offer offer) {
     if (offer instanceof NewOffer)
-      return ((NewOffer) offer).ratio();
+      return ((NewOffer) offer).percent();
     else if (offer instanceof SubOffer)
-      return ((SubOffer) offer).ratio();
+      return ((SubOffer) offer).percent();
     else
       throw new IllegalArgumentException();
   }
