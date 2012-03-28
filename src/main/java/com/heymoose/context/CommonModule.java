@@ -18,6 +18,10 @@ import com.heymoose.domain.Banner;
 import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.affiliate.BannerResource;
+import com.heymoose.domain.affiliate.NewOffer;
+import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.BannerSize;
 import com.heymoose.domain.BannerSizeRepository;
 import com.heymoose.domain.BannerStore;
@@ -44,6 +48,7 @@ import com.heymoose.domain.affiliate.ShowStat;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.Site;
 import com.heymoose.domain.affiliate.hiber.HibernateRepo;
+import com.heymoose.domain.affiliate.hiber.NewOfferRepositoryHiber;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
 import com.heymoose.domain.hiber.AppVisitRepositoryHiber;
@@ -71,6 +76,7 @@ import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.StatsResource;
 import com.heymoose.resource.TaskResource;
 import com.heymoose.resource.UserResource;
+import com.heymoose.resource.affiliate.NewOfferResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
 import java.io.File;
@@ -108,6 +114,7 @@ public class CommonModule extends AbstractModule {
     bind(TaskResource.class);
     bind(BannerStore.class);
     bind(BannerResource.class);
+    bind(NewOfferResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);
@@ -121,12 +128,13 @@ public class CommonModule extends AbstractModule {
     bind(BannerRepository.class).to(BannerRepositoryHiber.class);
     bind(AppVisitRepository.class).to(AppVisitRepositoryHiber.class);
     bind(Repo.class).to(HibernateRepo.class);
+    bind(NewOfferRepository.class).to(NewOfferRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
         RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class,
         Banner.class, Withdraw.class, Setting.class, UserStat.class, AppStat.class, OfferStat.class,
-        AppVisit.class, ShowStat.class, Site.class);
+        AppVisit.class, ShowStat.class, Site.class, NewOffer.class, SubOffer.class, OfferGrant.class);
   }
 
   protected void bindEntities(Class... classes) {

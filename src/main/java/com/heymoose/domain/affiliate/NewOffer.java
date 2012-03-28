@@ -53,6 +53,9 @@ public class NewOffer extends Offer {
   @Enumerated(EnumType.STRING)
   @Column(name = "cpa_policy")
   private CpaPolicy cpaPolicy;
+  
+  @Basic
+  private String name;
 
   @Basic
   private BigDecimal cost;
@@ -77,13 +80,13 @@ public class NewOffer extends Offer {
 
   protected NewOffer() {}
 
-  public NewOffer(User advertiser, boolean allowNegativeBalance,
+  public NewOffer(User advertiser, boolean allowNegativeBalance, String name,
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, String url, boolean autoApprove, boolean reentrant,
                   Iterable<Region> regions) {
     
     super(title, url, autoApprove, DateTime.now(), reentrant);
-    checkNotNull(advertiser, payMethod);
+    checkNotNull(advertiser, name, payMethod);
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
     
@@ -98,6 +101,7 @@ public class NewOffer extends Offer {
     
     this.advertiser = advertiser;
     this.account = new Account(allowNegativeBalance);
+    this.name = name;
     this.payMethod = payMethod;
     this.cpaPolicy = cpaPolicy;
     this.cost = cost;
@@ -143,6 +147,10 @@ public class NewOffer extends Offer {
 
   public PayMethod payMethod() {
     return payMethod;
+  }
+  
+  public String name() {
+    return name;
   }
   
   public BigDecimal cost() {

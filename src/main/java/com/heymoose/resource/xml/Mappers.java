@@ -24,6 +24,7 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserStat;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
+import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.util.HibernateUtil;
 
 public class Mappers {
@@ -66,6 +67,17 @@ public class Mappers {
     return Details.ONLY_ENTITY;
   }
   
+  public static XmlUsers toXmlUsers(Iterable<User> users) {
+    return toXmlUsers(users, Details.WITH_RELATED_IDS);
+  }
+  
+  public static XmlUsers toXmlUsers(Iterable<User> users, Details d) {
+    XmlUsers xmlUsers = new XmlUsers();
+    for (User user : users)
+      xmlUsers.users.add(toXmlUser(null, user, d));
+    return xmlUsers;
+  }
+  
   public static XmlUsers toXmlUsers(Accounts accounts, Iterable<User> users) {
     return toXmlUsers(accounts, users, Details.WITH_RELATED_IDS);
   }
@@ -75,6 +87,10 @@ public class Mappers {
     for (User user : users)
       xmlUsers.users.add(toXmlUser(accounts, user, d));
     return xmlUsers;
+  }
+  
+  public static XmlUser toXmlUser(User user) {
+    return toXmlUser(null, user, Details.WITH_RELATED_LISTS);
   }
   
   public static XmlUser toXmlUser(Accounts accounts, User user) {
@@ -140,14 +156,26 @@ public class Mappers {
     return xmlUserStat;
   }
   
+  public static XmlAccount toXmlAccount(Account account) {
+    XmlAccount xmlAccount = new XmlAccount();
+    xmlAccount.id = account.id();
+    xmlAccount.balance = account.getBalance().doubleValue();
+    xmlAccount.allowNegativeBalance = account.allowNegativeBalance();
+    return xmlAccount;
+  }
+  
   public static XmlAccount toXmlAccount(Accounts accounts, Account account) {
     XmlAccount xmlAccount = new XmlAccount();
     xmlAccount.id = account.id();
-    AccountTx lastTx = accounts.lastTxOf(account);
-    if (lastTx != null)
-      xmlAccount.balance = lastTx.balance().doubleValue();
+    if (accounts != null) {
+      AccountTx lastTx = accounts.lastTxOf(account);
+      if (lastTx != null)
+        xmlAccount.balance = lastTx.balance().doubleValue();
+      else
+        xmlAccount.balance = 0.0;
+    }
     else
-      xmlAccount.balance = 0.0;
+      xmlAccount.balance = account.getBalance().doubleValue();
     xmlAccount.allowNegativeBalance = account.allowNegativeBalance();
     return xmlAccount;
   }
@@ -508,5 +536,34 @@ public class Mappers {
     xmlWithdraw.done = withdraw.done();
     xmlWithdraw.timestamp = withdraw.timestamp().toString();
     return xmlWithdraw;
+  }
+  
+  
+  public static XmlNewOffer toXmlNewOffer(NewOffer offer) {
+    XmlNewOffer xmlNewOffer = new XmlNewOffer();
+    xmlNewOffer.id = offer.id();
+    xmlNewOffer.advertiser = toXmlUser(offer.advertiser());
+    xmlNewOffer.account = toXmlAccount(offer.account());
+    xmlNewOffer.payMethod = offer.payMethod().toString();
+    if (offer.cpaPolicy() != null)
+      xmlNewOffer.cpaPolicy = offer.cpaPolicy().toString();
+    xmlNewOffer.name = offer.name();
+    xmlNewOffer.cost = offer.cost();
+    xmlNewOffer.percent = offer.percent();
+    xmlNewOffer.disabled = offer.disabled();
+    xmlNewOffer.paused = offer.paused();
+    xmlNewOffer.creationTime = offer.creationTime().toString();
+    xmlNewOffer.title = offer.title();
+    xmlNewOffer.autoApprove = offer.autoApprove();
+    xmlNewOffer.reentrant = offer.reentrant();
+    return xmlNewOffer;
+  }
+  
+  public static XmlNewOffers toXmlNewOffers(Iterable<NewOffer> offers, Long count) {
+    XmlNewOffers xmlNewOffers = new XmlNewOffers();
+    xmlNewOffers.count = count;
+    for (NewOffer offer : offers)
+      xmlNewOffers.offers.add(toXmlNewOffer(offer));
+    return xmlNewOffers;
   }
 }
