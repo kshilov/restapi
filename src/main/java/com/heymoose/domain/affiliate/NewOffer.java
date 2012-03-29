@@ -63,6 +63,14 @@ public class NewOffer extends Offer {
   @Column(name = "region")
   private Set<Region> regions;
 
+  @ManyToMany
+  @JoinTable(
+      name = "site_category",
+      joinColumns = @JoinColumn(name = "offer_id", referencedColumnName = "id"),
+      inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id")
+  )
+  private Set<Category> categories;
+
   protected NewOffer() {}
 
   public NewOffer(CpaPolicy cpaPolicy, String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, Iterable<Region> regions, Iterable<Banner> banners) {
