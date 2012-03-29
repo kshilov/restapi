@@ -15,7 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import sun.jvm.hotspot.oops.LongField;
 
 @Entity
 @Table(name = "show_stat")

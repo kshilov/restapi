@@ -4,7 +4,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.User;
 import com.heymoose.domain.base.IdEntity;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.replaceAll;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
 import javax.persistence.Basic;

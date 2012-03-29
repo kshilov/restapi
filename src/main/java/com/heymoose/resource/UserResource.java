@@ -146,7 +146,7 @@ public class UserResource {
   public void addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
     checkNotNull(id, amount);
     User user = existing(id);
-    if (!user.isCustomer())
+    if (!user.isCustomer() && !user.isAdvertiser())
       throw conflict();
     accounts.lock(user.customerAccount());
     accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance",

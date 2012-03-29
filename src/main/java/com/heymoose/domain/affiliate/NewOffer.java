@@ -2,14 +2,15 @@ package com.heymoose.domain.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.ImmutableSet;
-import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Sets.newHashSet;
+
+import com.heymoose.domain.Account;
 import com.heymoose.domain.Banner;
-import com.heymoose.domain.City;
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.User;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
-import java.util.Collections;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
@@ -24,35 +25,52 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.CollectionOfElements;
+import javax.persistence.OneToOne;
+
 import org.joda.time.DateTime;
 
 @Entity
 @DiscriminatorValue("3")
 public class NewOffer extends Offer {
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User advertiser;
+  
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "account_id")
+  private Account account;
+  
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<SubOffer> suboffers;
+  
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.EAGER, orphanRemoval = true)
   private Set<Banner> banners;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "pay_method", nullable = false)
+  @Column(name = "pay_method")
   private PayMethod payMethod;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "cpa_policy")
   private CpaPolicy cpaPolicy;
+  
+  @Basic
+  private String name;
+  
+  @Basic
+  private String description;
+  
+  @Column(name = "logo_file_name")
+  private String logoFileName;
 
   @Basic
-  private BigDecimal cpa;
-
+  private BigDecimal cost;
+  
   @Basic
-  private BigDecimal cpс;
-
-  @Basic
-  private BigDecimal ratio;
+  private BigDecimal percent;
 
   @ElementCollection
   @Enumerated(EnumType.STRING)
@@ -62,6 +80,12 @@ public class NewOffer extends Offer {
   )
   @Column(name = "region")
   private Set<Region> regions;
+  
+  @Basic
+  private boolean disabled = true;
+  
+  @Basic
+  private boolean paused = false;
 
   @ManyToMany
   @JoinTable(
@@ -73,15 +97,50 @@ public class NewOffer extends Offer {
 
   protected NewOffer() {}
 
-  public NewOffer(CpaPolicy cpaPolicy, String title, String url, boolean autoApprove, DateTime creationTime, boolean reentrant, Iterable<Region> regions, Iterable<Banner> banners) {
-    super(title, url, autoApprove, creationTime, reentrant);
-    checkNotNull(cpaPolicy);
-    checkArgument(!isEmpty(banners));
+  public NewOffer(User advertiser, boolean allowNegativeBalance, String name, String description,
+                  PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
+                  String title, String url, boolean autoApprove, boolean reentrant,
+                  Iterable<Region> regions, String logoFileName) {
+    
+    super(title, url, autoApprove, DateTime.now(), reentrant);
+    checkNotNull(advertiser, name, description, payMethod);
+    if (payMethod == PayMethod.CPA)
+      checkNotNull(cpaPolicy);
+    
+    if (payMethod == PayMethod.CPC || (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.FIXED)) {
+      checkNotNull(cost);
+      checkArgument(cost.signum() == 1);
+    }
+    else {
+      checkNotNull(percent);
+      checkArgument(percent.signum() == 1);
+    }
+    
+    this.advertiser = advertiser;
+    this.account = new Account(allowNegativeBalance);
+    this.name = name;
+    this.description = description;
+    this.logoFileName = logoFileName;
+    this.payMethod = payMethod;
     this.cpaPolicy = cpaPolicy;
-    this.banners = newHashSet(banners);
+    this.cost = cost;
+    this.percent = percent;
+    
+    this.suboffers = newHashSet();
+    this.banners = newHashSet();
     this.regions = newHashSet(regions);
-    for (Banner banner : banners)
-      banner.setOffer(this);
+  }
+  
+  public User advertiser() {
+    return advertiser;
+  }
+  
+  public Account account() {
+    return account;
+  }
+  
+  public Iterable<SubOffer> suboffers() {
+    return ImmutableSet.copyOf(suboffers);
   }
 
   public Iterable<Banner> banners() {
@@ -114,17 +173,37 @@ public class NewOffer extends Offer {
     return payMethod;
   }
   
-  public BigDecimal cpa() {
-    return cpa;
+  public String name() {
+    return name;
   }
   
-  public BigDecimal ratio() {
-    return ratio;
+  public String description() {
+    return description;
+  }
+  
+  public String logoFileName() {
+    return logoFileName;
+  }
+  
+  public BigDecimal cost() {
+    return cost;
+  }
+  
+  public BigDecimal percent() {
+    return percent;
   }
   
   public Set<Region> regions() {
     if (regions == null)
       return emptySet();
-    return unmodifiableSet(regions());
+    return unmodifiableSet(regions);
+  }
+  
+  public boolean disabled() {
+    return disabled;
+  }
+  
+  public boolean paused() {
+    return paused;
   }
 }

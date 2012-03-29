@@ -4,5 +4,6 @@ public enum Role {
   CUSTOMER,
   DEVELOPER,
   ADMIN,
-  AFFILIATE
+  AFFILIATE,
+  ADVERTISER
 }

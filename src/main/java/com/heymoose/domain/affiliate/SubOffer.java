@@ -1,6 +1,8 @@
 package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.Offer;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
@@ -11,18 +13,16 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import org.hibernate.annotations.ManyToAny;
 import org.joda.time.DateTime;
-import sun.jvm.hotspot.bugspot.BugSpotAgent;
 
 @Entity
 @DiscriminatorValue("4")
 public class SubOffer extends Offer {
 
-  @Column(name = "parent_id", nullable = false)
+  @Column(name = "parent_id")
   private Long parentId;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private NewOffer parent;
   
@@ -31,18 +31,33 @@ public class SubOffer extends Offer {
   private CpaPolicy cpaPolicy;
 
   @Basic
-  private BigDecimal cpa;
+  private BigDecimal cost;
 
   @Basic
-  private BigDecimal ratio;
+  private BigDecimal percent;
+  
+  @Basic
+  private boolean paused = false;
 
   protected SubOffer() {}
   
-  public SubOffer(Long parentId, CpaPolicy cpaPolicy, String title, String url, boolean autoApprove, boolean reentrant) {
-    super(title, url, autoApprove, DateTime.now(), reentrant);
+  public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
+                  String title, boolean autoApprove, boolean reentrant) {
+    super(title, "", autoApprove, DateTime.now(), reentrant);
     checkNotNull(parentId, cpaPolicy);
+    
+    BigDecimal valueToCheck = cpaPolicy == CpaPolicy.FIXED ? cost : percent;
+    checkNotNull(valueToCheck);
+    checkArgument(valueToCheck.signum() == 1);
+    
     this.parentId = parentId;
     this.cpaPolicy = cpaPolicy;
+    this.cost = cost;
+    this.percent = percent;
+  }
+  
+  public Long parentId() {
+    return parentId;
   }
   
   public NewOffer parent() {
@@ -53,11 +68,15 @@ public class SubOffer extends Offer {
     return cpaPolicy;
   }
 
-  public BigDecimal cpa() {
-    return cpa;
+  public BigDecimal cost() {
+    return cost;
   }
   
-  public BigDecimal ratio() {
-    return ratio;
+  public BigDecimal percent() {
+    return percent;
+  }
+  
+  public boolean paused() {
+    return paused;
   }
 }
