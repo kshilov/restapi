@@ -6,11 +6,13 @@ import javax.inject.Singleton;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.hiber.RepositoryHiber;
 
 @Singleton

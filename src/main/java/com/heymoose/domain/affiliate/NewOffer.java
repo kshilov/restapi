@@ -43,6 +43,9 @@ public class NewOffer extends Offer {
   @JoinColumn(name = "account_id")
   private Account account;
   
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<SubOffer> suboffers;
+  
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.EAGER, orphanRemoval = true)
   private Set<Banner> banners;
 
@@ -56,6 +59,12 @@ public class NewOffer extends Offer {
   
   @Basic
   private String name;
+  
+  @Basic
+  private String description;
+  
+  @Column(name = "logo_file_name")
+  private String logoFileName;
 
   @Basic
   private BigDecimal cost;
@@ -80,13 +89,13 @@ public class NewOffer extends Offer {
 
   protected NewOffer() {}
 
-  public NewOffer(User advertiser, boolean allowNegativeBalance, String name,
+  public NewOffer(User advertiser, boolean allowNegativeBalance, String name, String description,
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, String url, boolean autoApprove, boolean reentrant,
-                  Iterable<Region> regions) {
+                  Iterable<Region> regions, String logoFileName) {
     
     super(title, url, autoApprove, DateTime.now(), reentrant);
-    checkNotNull(advertiser, name, payMethod);
+    checkNotNull(advertiser, name, description, payMethod);
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
     
@@ -102,11 +111,14 @@ public class NewOffer extends Offer {
     this.advertiser = advertiser;
     this.account = new Account(allowNegativeBalance);
     this.name = name;
+    this.description = description;
+    this.logoFileName = logoFileName;
     this.payMethod = payMethod;
     this.cpaPolicy = cpaPolicy;
     this.cost = cost;
     this.percent = percent;
     
+    this.suboffers = newHashSet();
     this.banners = newHashSet();
     this.regions = newHashSet(regions);
   }
@@ -117,6 +129,10 @@ public class NewOffer extends Offer {
   
   public Account account() {
     return account;
+  }
+  
+  public Iterable<SubOffer> suboffers() {
+    return ImmutableSet.copyOf(suboffers);
   }
 
   public Iterable<Banner> banners() {
@@ -151,6 +167,14 @@ public class NewOffer extends Offer {
   
   public String name() {
     return name;
+  }
+  
+  public String description() {
+    return description;
+  }
+  
+  public String logoFileName() {
+    return logoFileName;
   }
   
   public BigDecimal cost() {

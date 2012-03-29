@@ -35,6 +35,9 @@ public class SubOffer extends Offer {
 
   @Basic
   private BigDecimal percent;
+  
+  @Basic
+  private boolean paused = false;
 
   protected SubOffer() {}
   
@@ -71,5 +74,9 @@ public class SubOffer extends Offer {
   
   public BigDecimal percent() {
     return percent;
+  }
+  
+  public boolean paused() {
+    return paused;
   }
 }

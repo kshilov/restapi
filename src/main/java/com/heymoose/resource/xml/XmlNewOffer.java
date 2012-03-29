@@ -22,6 +22,10 @@ public class XmlNewOffer {
   @XmlElement(name = "account")
   public XmlAccount account;
   
+  @XmlElementWrapper(name = "suboffers")
+  @XmlElement(name = "suboffer")
+  public Set<XmlSubOffer> suboffers = Sets.newHashSet();
+  
   @XmlElement(name = "pay-method")
   public String payMethod;
   
@@ -30,6 +34,12 @@ public class XmlNewOffer {
   
   @XmlElement(name = "name")
   public String name;
+  
+  @XmlElement(name = "description")
+  public String description;
+  
+  @XmlElement(name = "logo-filename")
+  public String logoFileName;
   
   @XmlElement(name = "cost")
   public BigDecimal cost;

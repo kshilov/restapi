@@ -26,6 +26,7 @@ import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.Region;
+import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.util.HibernateUtil;
 
 public class Mappers {
@@ -549,6 +550,8 @@ public class Mappers {
     if (offer.cpaPolicy() != null)
       xmlNewOffer.cpaPolicy = offer.cpaPolicy().toString();
     xmlNewOffer.name = offer.name();
+    xmlNewOffer.description = offer.description();
+    xmlNewOffer.logoFileName = offer.logoFileName();
     xmlNewOffer.cost = offer.cost();
     xmlNewOffer.percent = offer.percent();
     xmlNewOffer.disabled = offer.disabled();
@@ -558,6 +561,9 @@ public class Mappers {
     xmlNewOffer.url = offer.url();
     xmlNewOffer.autoApprove = offer.autoApprove();
     xmlNewOffer.reentrant = offer.reentrant();
+    
+    for (SubOffer suboffer : offer.suboffers())
+      xmlNewOffer.suboffers.add(toXmlSubOffer(suboffer));
     
     for (Region region : offer.regions())
       xmlNewOffer.regions.add(region.toString());
@@ -570,5 +576,27 @@ public class Mappers {
     for (NewOffer offer : offers)
       xmlNewOffers.offers.add(toXmlNewOffer(offer));
     return xmlNewOffers;
+  }
+  
+  public static XmlSubOffer toXmlSubOffer(SubOffer offer) {
+    XmlSubOffer xmlSubOffer = new XmlSubOffer();
+    xmlSubOffer.id = offer.id();
+    xmlSubOffer.cpaPolicy = offer.cpaPolicy().toString();
+    xmlSubOffer.cost = offer.cost();
+    xmlSubOffer.percent = offer.percent();
+    xmlSubOffer.paused = offer.paused();
+    xmlSubOffer.creationTime = offer.creationTime().toString();
+    xmlSubOffer.title = offer.title();
+    xmlSubOffer.autoApprove = offer.autoApprove();
+    xmlSubOffer.reentrant = offer.reentrant();
+    return xmlSubOffer;
+  }
+  
+  public static XmlSubOffers toXmlSubOffers(Iterable<SubOffer> suboffers, Long count) {
+    XmlSubOffers xmlSubOffers = new XmlSubOffers();
+    xmlSubOffers.count = count;
+    for (SubOffer suboffer : suboffers)
+      xmlSubOffers.suboffers.add(toXmlSubOffer(suboffer));
+    return xmlSubOffers;
   }
 }
