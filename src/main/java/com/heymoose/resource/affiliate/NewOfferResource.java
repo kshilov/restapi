@@ -13,6 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 
+import com.google.common.collect.Lists;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -26,6 +27,7 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlNewOffers;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Path("offers")
 @Singleton
@@ -70,8 +72,9 @@ public class NewOfferResource {
                        @FormParam("allow_negative_balance") @DefaultValue("false") boolean allowNegativeBalance,
                        @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                        @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
-                       @FormParam("regions") List<Region> regions) {
+                       @FormParam("regions") List<String> strRegions) {
     checkNotNull(advertiserId, payMethod, strCost, name, url, title);
+    checkArgument(!strRegions.isEmpty());
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
     
@@ -83,22 +86,25 @@ public class NewOfferResource {
     BigDecimal balance = new BigDecimal(strBalance);
     if (cost.signum() != 1 || balance.signum() < 0)
       throw new WebApplicationException(400);
+    if (balance.signum() > 0 && advertiser.customerAccount().getBalance().compareTo(balance) == -1)
+      throw new WebApplicationException(409);
     
     if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT) {
       percent = cost;
       cost = null;
     }
     
+    List<Region> regions = Lists.newArrayList();
+    for (String strRegion : strRegions)
+      regions.add(Region.valueOf(strRegion));
+    
     NewOffer offer = new NewOffer(advertiser, allowNegativeBalance, name, payMethod, 
         cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions);
-    
-    if (balance.signum() > 0) {
-      if (advertiser.customerAccount().getBalance().compareTo(balance) == -1)
-        throw new WebApplicationException(409);
-      accounts.transfer(advertiser.customerAccount(), offer.account(), balance);
-    }
-    
     newOffers.put(offer);
+
+    if (balance.signum() > 0)
+      accounts.transfer(advertiser.customerAccount(), offer.account(), balance);
+    
     return offer.id().toString();
   }
 }

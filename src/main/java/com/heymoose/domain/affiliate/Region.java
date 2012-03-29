@@ -5,7 +5,7 @@ import java.util.Set;
 
 public enum Region {
 
-  RUSSIAN("RU"),
+  RUSSIA("RU"),
   UKRAINE("UA"),
   BELARUS("BY"),
   POLAND("PL"),

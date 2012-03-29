@@ -1,10 +1,14 @@
 package com.heymoose.resource.xml;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.google.common.collect.Sets;
 
 @XmlRootElement(name = "offer")
 public class XmlNewOffer {
@@ -53,4 +57,8 @@ public class XmlNewOffer {
   
   @XmlElement(name = "reentrant")
   public Boolean reentrant;
+  
+  @XmlElementWrapper(name = "regions")
+  @XmlElement(name = "region")
+  public Set<String> regions = Sets.newHashSet();
 }

@@ -19,10 +19,10 @@ import org.joda.time.DateTime;
 @DiscriminatorValue("4")
 public class SubOffer extends Offer {
 
-  @Column(name = "parent_id", nullable = false)
+  @Column(name = "parent_id")
   private Long parentId;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private NewOffer parent;
   

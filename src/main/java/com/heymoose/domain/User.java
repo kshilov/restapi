@@ -200,6 +200,14 @@ public class User extends IdEntity {
   public boolean isDeveloper() {
     return roles != null && roles.contains(Role.DEVELOPER);
   }
+  
+  public boolean isAdvertiser() {
+    return roles != null && roles.contains(Role.ADVERTISER);
+  }
+  
+  public boolean isAffiliate() {
+    return roles != null && roles.contains(Role.AFFILIATE);
+  }
 
   public String firstName() {
     return firstName;

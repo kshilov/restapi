@@ -25,6 +25,7 @@ import com.heymoose.domain.UserStat;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.affiliate.NewOffer;
+import com.heymoose.domain.affiliate.Region;
 import com.heymoose.util.HibernateUtil;
 
 public class Mappers {
@@ -554,8 +555,12 @@ public class Mappers {
     xmlNewOffer.paused = offer.paused();
     xmlNewOffer.creationTime = offer.creationTime().toString();
     xmlNewOffer.title = offer.title();
+    xmlNewOffer.url = offer.url();
     xmlNewOffer.autoApprove = offer.autoApprove();
     xmlNewOffer.reentrant = offer.reentrant();
+    
+    for (Region region : offer.regions())
+      xmlNewOffer.regions.add(region.toString());
     return xmlNewOffer;
   }
   

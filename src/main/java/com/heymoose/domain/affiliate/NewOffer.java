@@ -47,7 +47,7 @@ public class NewOffer extends Offer {
   private Set<Banner> banners;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "pay_method", nullable = false)
+  @Column(name = "pay_method")
   private PayMethod payMethod;
 
   @Enumerated(EnumType.STRING)
@@ -72,10 +72,10 @@ public class NewOffer extends Offer {
   @Column(name = "region")
   private Set<Region> regions;
   
-  @Basic(optional = false)
+  @Basic
   private boolean disabled = true;
   
-  @Basic(optional = false)
+  @Basic
   private boolean paused = false;
 
   protected NewOffer() {}
@@ -164,7 +164,7 @@ public class NewOffer extends Offer {
   public Set<Region> regions() {
     if (regions == null)
       return emptySet();
-    return unmodifiableSet(regions());
+    return unmodifiableSet(regions);
   }
   
   public boolean disabled() {
