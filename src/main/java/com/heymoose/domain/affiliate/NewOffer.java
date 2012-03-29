@@ -46,6 +46,9 @@ public class NewOffer extends Offer {
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<SubOffer> suboffers;
   
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<OfferGrant> grants;
+  
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.EAGER, orphanRemoval = true)
   private Set<Banner> banners;
 
@@ -133,6 +136,10 @@ public class NewOffer extends Offer {
   
   public Iterable<SubOffer> suboffers() {
     return ImmutableSet.copyOf(suboffers);
+  }
+  
+  public Iterable<OfferGrant> grants() {
+    return ImmutableSet.copyOf(grants);
   }
 
   public Iterable<Banner> banners() {

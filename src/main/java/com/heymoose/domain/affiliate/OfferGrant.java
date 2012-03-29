@@ -95,6 +95,14 @@ public class OfferGrant extends BaseEntity {
   public String message() {
     return message;
   }
+  
+  public boolean approved() {
+    return approved;
+  }
+  
+  public boolean active() {
+    return active;
+  }
 
   public boolean offerIsVisible() {
     return approved && active;

@@ -22,6 +22,8 @@ import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
@@ -30,6 +32,7 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlNewOffer;
 import com.heymoose.resource.xml.XmlNewOffers;
+import com.heymoose.resource.xml.XmlOfferGrants;
 import com.heymoose.resource.xml.XmlSubOffers;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -41,16 +44,19 @@ public class NewOfferResource {
   
   private final NewOfferRepository newOffers;
   private final SubOfferRepository subOffers;
+  private final OfferGrantRepository offerGrants;
   private final UserRepository users;
   private final Accounts accounts;
   
   @Inject
   public NewOfferResource(NewOfferRepository newOffers,
                           SubOfferRepository subOffers,
+                          OfferGrantRepository offerGrants,
                           UserRepository users,
                           Accounts accounts) {
     this.newOffers = newOffers;
     this.subOffers = subOffers;
+    this.offerGrants = offerGrants;
     this.users = users;
     this.accounts = accounts;
   }
@@ -161,10 +167,39 @@ public class NewOfferResource {
     return suboffer.id().toString();
   }
   
+  @POST
+  @Path("{id}/grants")
+  @Transactional
+  public String createGrant(@PathParam("id") long offerId,
+                            @FormParam("aff_id") long affiliateId,
+                            @FormParam("message") String message) {
+    checkNotNull(message);
+    NewOffer offer = existing(offerId);
+    User affiliate = existingAffiliate(affiliateId);
+    
+    OfferGrant grant = new OfferGrant(offer.id(), affiliate.id(), message);
+    offerGrants.put(grant);
+    return grant.id().toString();
+  }
+  
   private NewOffer existing(long id) {
     NewOffer offer = newOffers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;
+  }
+  
+  private User existingUser(long id) {
+    User user = users.byId(id);
+    if (user == null)
+      throw new WebApplicationException(404);
+    return user;
+  }
+  
+  private User existingAffiliate(long id) {
+    User user = existingUser(id);
+    if (!user.isAffiliate())
+      throw new WebApplicationException(400);
+    return user;
   }
 }

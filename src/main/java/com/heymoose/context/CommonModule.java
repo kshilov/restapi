@@ -21,6 +21,7 @@ import com.heymoose.domain.affiliate.BannerResource;
 import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository;
 import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.BannerSize;
@@ -50,6 +51,7 @@ import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.Site;
 import com.heymoose.domain.affiliate.hiber.HibernateRepo;
 import com.heymoose.domain.affiliate.hiber.NewOfferRepositoryHiber;
+import com.heymoose.domain.affiliate.hiber.OfferGrantRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.SubOfferRepositoryHiber;
 import com.heymoose.domain.hiber.ActionRepositoryHiber;
 import com.heymoose.domain.hiber.AppRepositoryHiber;
@@ -132,6 +134,7 @@ public class CommonModule extends AbstractModule {
     bind(Repo.class).to(HibernateRepo.class);
     bind(NewOfferRepository.class).to(NewOfferRepositoryHiber.class);
     bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
+    bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
 
     bindEntities(Account.class, AccountTx.class, Action.class, App.class, Targeting.class,
         Offer.class, Order.class, Performer.class, Platform.class, User.class, OfferShow.class,
