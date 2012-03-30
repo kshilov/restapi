@@ -51,7 +51,7 @@ public class NewOffer extends Offer {
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<OfferGrant> grants;
   
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.EAGER, orphanRemoval = true)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<Banner> banners;
 
   @Enumerated(EnumType.STRING)
@@ -87,10 +87,10 @@ public class NewOffer extends Offer {
   private Set<Region> regions;
   
   @Basic
-  private boolean disabled = true;
+  private boolean approved = false;
   
   @Basic
-  private boolean paused = false;
+  private boolean active = true;
 
   @ManyToMany
   @JoinTable(
@@ -208,11 +208,11 @@ public class NewOffer extends Offer {
     return unmodifiableSet(regions);
   }
   
-  public boolean disabled() {
-    return disabled;
+  public boolean approved() {
+    return approved;
   }
   
-  public boolean paused() {
-    return paused;
+  public boolean active() {
+    return active;
   }
 }

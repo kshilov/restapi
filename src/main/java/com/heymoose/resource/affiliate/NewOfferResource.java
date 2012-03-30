@@ -2,6 +2,7 @@ package com.heymoose.resource.affiliate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,11 +33,11 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlNewOffer;
 import com.heymoose.resource.xml.XmlNewOffers;
-import com.heymoose.resource.xml.XmlOfferGrants;
 import com.heymoose.resource.xml.XmlSubOffers;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 
 @Path("offers")
 @Singleton
@@ -67,18 +68,55 @@ public class NewOfferResource {
                            @QueryParam("limit") @DefaultValue("20") int limit,
                            @QueryParam("ord") @DefaultValue("ID") Ordering ord,
                            @QueryParam("asc") @DefaultValue("false") boolean asc,
-                           @QueryParam("advertiser_id") Long advertiserId) {
-    return Mappers.toXmlNewOffers(
-        newOffers.list(ord, asc, offset, limit, advertiserId),
-        newOffers.count(advertiserId)
+                           @QueryParam("advertiser_id") Long advertiserId,
+                           @QueryParam("aff_id") Long affiliateId) {
+    Iterable<NewOffer> offers = newOffers.list(ord, asc, offset, limit, advertiserId);
+    long count = newOffers.count(advertiserId);
+    if (affiliateId != null) {
+      List<Long> offerIds = newArrayList();
+      for (NewOffer offer : offers)
+        offerIds.add(offer.id());
+      Map<Long, OfferGrant> grants = offerGrants.byOffersAndAffiliate(offerIds, affiliateId);
+      return Mappers.toXmlNewOffers(offers, grants, count);
+    }
+    else
+      return Mappers.toXmlNewOffers(offers, count);
+  }
+  
+  @GET
+  @Path("requested")
+  @Transactional
+  public XmlNewOffers listRequested(@QueryParam("offset") @DefaultValue("0") int offset,
+                                    @QueryParam("limit") @DefaultValue("20") int limit,
+                                    @QueryParam("ord") @DefaultValue("ID") Ordering ord,
+                                    @QueryParam("asc") @DefaultValue("false") boolean asc,
+                                    @QueryParam("aff_id") long affiliateId,
+                                    @QueryParam("active") Boolean active) {
+    return Mappers.toXmlGrantedNewOffers(
+        offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active),
+        offerGrants.count(null, affiliateId, null, active)
     );
   }
   
   @GET
   @Path("{id}")
   @Transactional
-  public XmlNewOffer get(@PathParam("id") long offerId) {
-    return Mappers.toXmlNewOffer(existing(offerId));
+  public XmlNewOffer get(@PathParam("id") long offerId,
+                         @QueryParam("approved") @DefaultValue("false") boolean approved,
+                         @QueryParam("active") @DefaultValue("false") boolean active) {
+    NewOffer offer = existing(offerId);
+    if (approved && !offer.approved() || active && !offer.active())
+      throw new WebApplicationException(403);
+    return Mappers.toXmlNewOffer(offer);
+  }
+  
+  @GET
+  @Path("{id}/requested")
+  @Transactional
+  public XmlNewOffer getRequested(@PathParam("id") long offerId,
+                                  @QueryParam("aff_id") long affiliateId) {
+    OfferGrant grant = existingGrant(offerId, affiliateId);
+    return Mappers.toXmlGrantedNewOffer(grant);
   }
   
   @POST
@@ -167,21 +205,6 @@ public class NewOfferResource {
     return suboffer.id().toString();
   }
   
-  @POST
-  @Path("{id}/grants")
-  @Transactional
-  public String createGrant(@PathParam("id") long offerId,
-                            @FormParam("aff_id") long affiliateId,
-                            @FormParam("message") String message) {
-    checkNotNull(message);
-    NewOffer offer = existing(offerId);
-    User affiliate = existingAffiliate(affiliateId);
-    
-    OfferGrant grant = new OfferGrant(offer.id(), affiliate.id(), message);
-    offerGrants.put(grant);
-    return grant.id().toString();
-  }
-  
   private NewOffer existing(long id) {
     NewOffer offer = newOffers.byId(id);
     if (offer == null)
@@ -189,17 +212,10 @@ public class NewOfferResource {
     return offer;
   }
   
-  private User existingUser(long id) {
-    User user = users.byId(id);
-    if (user == null)
+  private OfferGrant existingGrant(long offerId, long affiliateId) {
+    OfferGrant grant = offerGrants.byOfferAndAffiliate(offerId, affiliateId);
+    if (grant == null)
       throw new WebApplicationException(404);
-    return user;
-  }
-  
-  private User existingAffiliate(long id) {
-    User user = existingUser(id);
-    if (!user.isAffiliate())
-      throw new WebApplicationException(400);
-    return user;
+    return grant;
   }
 }

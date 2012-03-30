@@ -3,11 +3,14 @@ package com.heymoose.domain.affiliate;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
+import com.heymoose.util.HibernateUtil;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,14 +31,14 @@ public class OfferGrant extends BaseEntity {
   @Column(name = "offer_id", nullable = false)
   private Long offerId;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "offer_id", insertable = false, updatable = false)
   private Offer offer;
 
   @Column(name = "aff_id", nullable = false)
   private Long affiliateId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "aff_id", insertable = false, updatable = false)
   private User affiliate;
 
@@ -59,6 +62,8 @@ public class OfferGrant extends BaseEntity {
     return id;
   }
   
+  protected OfferGrant() { }
+  
   public OfferGrant(Long offerId, Long affiliateId, String message) {
     checkNotNull(offerId, affiliateId, message);
     this.offerId = offerId;
@@ -73,7 +78,7 @@ public class OfferGrant extends BaseEntity {
   }
   
   public NewOffer offer() {
-    return (NewOffer) offer;
+    return (NewOffer) HibernateUtil.unproxy(offer);
   }
   
   public Long affiliateId() {

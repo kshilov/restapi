@@ -82,6 +82,7 @@ import com.heymoose.resource.StatsResource;
 import com.heymoose.resource.TaskResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.affiliate.NewOfferResource;
+import com.heymoose.resource.affiliate.OfferGrantResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
 import java.io.File;
@@ -120,6 +121,7 @@ public class CommonModule extends AbstractModule {
     bind(BannerStore.class);
     bind(BannerResource.class);
     bind(NewOfferResource.class);
+    bind(OfferGrantResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);

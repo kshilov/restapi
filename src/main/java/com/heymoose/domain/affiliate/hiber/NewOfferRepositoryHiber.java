@@ -48,6 +48,39 @@ public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implement
         .setProjection(Projections.rowCount())
         .uniqueResult().toString());
   }
+  
+  @Override
+  public Iterable<NewOffer> listRequested(Ordering ord, boolean asc, int offset, int limit,
+                                          long affiliateId, Boolean active) {
+    Criteria criteria = hiber()
+        .createCriteria(getEntityClass())
+        .createAlias("grants", "grants")
+        .add(Restrictions.eq("grants.affiliate.id", affiliateId));
+    
+    if (active != null)
+      criteria.add(Restrictions.eq("grants.active", active));
+    
+    setOrdering(criteria, ord, asc);
+    return criteria
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
+
+  @Override
+  public long countRequested(long affiliateId, Boolean active) {
+    Criteria criteria = hiber()
+        .createCriteria(getEntityClass())
+        .createAlias("grants", "grants")
+        .add(Restrictions.eq("grants.affiliate.id", affiliateId));
+    
+    if (active != null)
+      criteria.add(Restrictions.eq("grants.active", active));
+    
+    return Long.parseLong(criteria
+        .setProjection(Projections.rowCount())
+        .uniqueResult().toString());
+  }
 
   @Override
   protected Class<NewOffer> getEntityClass() {
