@@ -25,6 +25,7 @@ import com.heymoose.domain.UserStat;
 import com.heymoose.domain.VideoOffer;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.affiliate.NewOffer;
+import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.util.HibernateUtil;
@@ -598,5 +599,34 @@ public class Mappers {
     for (SubOffer suboffer : suboffers)
       xmlSubOffers.suboffers.add(toXmlSubOffer(suboffer));
     return xmlSubOffers;
+  }
+  
+  public static XmlOfferGrant toXmlOfferGrant(OfferGrant grant, boolean full) {
+    XmlOfferGrant xmlOfferGrant = new XmlOfferGrant();
+    xmlOfferGrant.id = grant.id();
+    xmlOfferGrant.message = grant.message();
+    xmlOfferGrant.backUrl = grant.backUrl();
+    xmlOfferGrant.postbackUrl = grant.postBackUrl();
+    xmlOfferGrant.approved = grant.approved();
+    xmlOfferGrant.active = grant.active();
+    
+    if (full) {
+      xmlOfferGrant.offer = toXmlNewOffer(grant.offer());
+      xmlOfferGrant.affiliate = toXmlUser(grant.affiliate());
+    } else {
+      xmlOfferGrant.offer = new XmlNewOffer();
+      xmlOfferGrant.offer.id = grant.offerId();
+      xmlOfferGrant.affiliate = new XmlUser();
+      xmlOfferGrant.affiliate.id = grant.affiliateId();
+    }
+    return xmlOfferGrant;
+  }
+  
+  public static XmlOfferGrants toXmlOfferGrants(Iterable<OfferGrant> grants, Long count, boolean full) {
+    XmlOfferGrants xmlOfferGrants = new XmlOfferGrants();
+    xmlOfferGrants.count = count;
+    for (OfferGrant grant : grants)
+      xmlOfferGrants.grants.add(toXmlOfferGrant(grant, full));
+    return xmlOfferGrants;
   }
 }
