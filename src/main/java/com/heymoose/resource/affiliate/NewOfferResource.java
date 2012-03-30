@@ -75,7 +75,7 @@ public class NewOfferResource {
     Iterable<NewOffer> offers = newOffers.list(ord, asc, offset, limit,
         approved, active, advertiserId);
     long count = newOffers.count(approved, active, advertiserId);
-    if (affiliateId != null) {
+    if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
       for (NewOffer offer : offers)
         offerIds.add(offer.id());
