@@ -1,10 +1,13 @@
 package com.heymoose.domain.affiliate;
 
+import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
@@ -28,13 +31,16 @@ public class SiteResource {
                        @FormParam("name") String name,
                        @FormParam("domain") String domain,
                        @FormParam("lang") Lang lang,
-                       @FormParam("comment") String comment) {
+                       @FormParam("comment") String comment,
+                       @FormParam("category") List<Long> categories,
+                       @FormParam("region") List<Region> regions) {
 
     checkNotNull(userId, name, domain, lang, comment);
     User user = repo.get(User.class, userId);
     if (user == null)
       throw notFound();
-    Site site = new Site(name, domain, lang, comment, user);
+    Map<Long, Category> categoryMap = repo.get(Category.class, newHashSet(categories));
+    Site site = new Site(name, domain, lang, comment, user, newHashSet(categoryMap.values()), newHashSet(regions));
     repo.put(site);
   }
 }
