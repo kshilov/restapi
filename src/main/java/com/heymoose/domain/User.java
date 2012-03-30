@@ -293,6 +293,10 @@ public class User extends IdEntity {
     this.blocked = blocked;
   }
   
+  public boolean active() {
+    return confirmed && !blocked;
+  }
+  
   public DateTime registerTime() {
     return registerTime;
   }

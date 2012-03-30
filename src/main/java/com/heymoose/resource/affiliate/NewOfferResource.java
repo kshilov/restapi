@@ -68,10 +68,13 @@ public class NewOfferResource {
                            @QueryParam("limit") @DefaultValue("20") int limit,
                            @QueryParam("ord") @DefaultValue("ID") Ordering ord,
                            @QueryParam("asc") @DefaultValue("false") boolean asc,
+                           @QueryParam("approved") Boolean approved,
+                           @QueryParam("active") Boolean active,
                            @QueryParam("advertiser_id") Long advertiserId,
                            @QueryParam("aff_id") Long affiliateId) {
-    Iterable<NewOffer> offers = newOffers.list(ord, asc, offset, limit, advertiserId);
-    long count = newOffers.count(advertiserId);
+    Iterable<NewOffer> offers = newOffers.list(ord, asc, offset, limit,
+        approved, active, advertiserId);
+    long count = newOffers.count(approved, active, advertiserId);
     if (affiliateId != null) {
       List<Long> offerIds = newArrayList();
       for (NewOffer offer : offers)
@@ -140,9 +143,7 @@ public class NewOfferResource {
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
     
-    User advertiser = users.byId(advertiserId);
-    if (advertiser == null)
-      throw new WebApplicationException(404);
+    User advertiser = activeAdvertiser(advertiserId);
     
     BigDecimal cost = new BigDecimal(strCost), percent = null;
     BigDecimal balance = new BigDecimal(strBalance);
@@ -217,5 +218,19 @@ public class NewOfferResource {
     if (grant == null)
       throw new WebApplicationException(404);
     return grant;
+  }
+  
+  private User existingUser(long id) {
+    User user = users.byId(id);
+    if (user == null)
+      throw new WebApplicationException(404);
+    return user;
+  }
+  
+  private User activeAdvertiser(long id) {
+    User user = existingUser(id);
+    if (!user.isAdvertiser() || !user.active())
+      throw new WebApplicationException(400);
+    return user;
   }
 }

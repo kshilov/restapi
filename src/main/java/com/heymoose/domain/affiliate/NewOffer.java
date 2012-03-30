@@ -215,4 +215,8 @@ public class NewOffer extends Offer {
   public boolean active() {
     return active;
   }
+  
+  public boolean visible() {
+    return approved && active;
+  }
 }

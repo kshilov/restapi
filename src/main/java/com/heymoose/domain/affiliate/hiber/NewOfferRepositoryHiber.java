@@ -6,13 +6,11 @@ import javax.inject.Singleton;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository;
-import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.hiber.RepositoryHiber;
 
 @Singleton
@@ -24,11 +22,16 @@ public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implement
   }
 
   @Override
-  public Iterable<NewOffer> list(Ordering ord, boolean asc, int offset, int limit, Long advertiserId) {
+  public Iterable<NewOffer> list(Ordering ord, boolean asc, int offset, int limit,
+                                 Boolean approved, Boolean active, Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (advertiserId != null)
       criteria.add(Restrictions.eq("advertiser.id", advertiserId));
+    if (approved != null)
+      criteria.add(Restrictions.eq("approved", approved));
+    if (active != null)
+      criteria.add(Restrictions.eq("active", active));
     
     setOrdering(criteria, ord, asc);
     return criteria
@@ -38,11 +41,15 @@ public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implement
   }
 
   @Override
-  public long count(Long advertiserId) {
+  public long count(Boolean approved, Boolean active, Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (advertiserId != null)
       criteria.add(Restrictions.eq("advertiser.id", advertiserId));
+    if (approved != null)
+      criteria.add(Restrictions.eq("approved", approved));
+    if (active != null)
+      criteria.add(Restrictions.eq("active", active));
     
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())

@@ -56,8 +56,7 @@ public class OfferGrantResource {
                              @QueryParam("full") @DefaultValue("false") boolean full) {
     return Mappers.toXmlOfferGrants(
         offerGrants.list(ord, asc, offset, limit, offerId, affiliateId, approved, active),
-        offerGrants.count(offerId, affiliateId, approved, active),
-        full
+        offerGrants.count(offerId, affiliateId, approved, active), full
     );
   }
   
@@ -67,8 +66,8 @@ public class OfferGrantResource {
                        @FormParam("aff_id") long affiliateId,
                        @FormParam("message") String message) {
     checkNotNull(message);
-    NewOffer offer = existingOffer(offerId);
-    User affiliate = existingAffiliate(affiliateId);
+    NewOffer offer = visibleOffer(offerId);
+    User affiliate = activeAffiliate(affiliateId);
     
     if (offerGrants.byOfferAndAffiliate(offerId, affiliateId) != null)
       throw new WebApplicationException(409);
@@ -105,10 +104,12 @@ public class OfferGrantResource {
     return grant;
   }
   
-  private NewOffer existingOffer(long id) {
+  private NewOffer visibleOffer(long id) {
     NewOffer offer = newOffers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
+    if (!offer.visible())
+      throw new WebApplicationException(409);
     return offer;
   }
   
@@ -119,9 +120,9 @@ public class OfferGrantResource {
     return user;
   }
   
-  private User existingAffiliate(long id) {
+  private User activeAffiliate(long id) {
     User user = existingUser(id);
-    if (!user.isAffiliate())
+    if (!user.isAffiliate() || !user.active())
       throw new WebApplicationException(400);
     return user;
   }
