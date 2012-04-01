@@ -1,5 +1,10 @@
 package com.heymoose.domain.affiliate.hiber;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -8,8 +13,10 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.domain.hiber.RepositoryHiber;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements OfferGrantRepository {
@@ -23,20 +30,42 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   protected Class<OfferGrant> getEntityClass() {
     return OfferGrant.class;
   }
+  
+  @Override
+  public OfferGrant byOfferAndAffiliate(long offerId, long affiliateId) {
+    return (OfferGrant) hiber().createCriteria(getEntityClass())
+        .add(Restrictions.eq("offer.id", offerId))
+        .add(Restrictions.eq("affiliate.id", affiliateId))
+        .uniqueResult();
+  }
+  
+  @Override
+  public Map<Long, OfferGrant> byOffersAndAffiliate(Iterable<Long> offerIds, long affiliateId) {
+    Iterable<OfferGrant> grants = (Iterable<OfferGrant>) hiber()
+        .createCriteria(getEntityClass())
+        .add(Restrictions.in("offer.id", newArrayList(offerIds)))
+        .add(Restrictions.eq("affiliate.id", affiliateId))
+        .list();
+    
+    Map<Long, OfferGrant> grantsMap = newHashMap();
+    for (OfferGrant grant : grants)
+      grantsMap.put(grant.offerId(), grant);
+    return grantsMap;
+  }
 
   @Override
   public Iterable<OfferGrant> list(Ordering ord, boolean asc, int offset, int limit,
-                                 Long offerId, Long affiliateId, Boolean approved, Boolean active) {
+                                 Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (offerId != null)
       criteria.add(Restrictions.eq("offer.id", offerId));
     if (affiliateId != null)
       criteria.add(Restrictions.eq("affiliate.id", affiliateId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
+    if (state != null)
+      criteria.add(Restrictions.eq("state", state.ordinal()));
+    if (blocked != null)
+      criteria.add(Restrictions.eq("blocked", blocked));
     
     setOrdering(criteria, ord, asc);
     return criteria
@@ -46,17 +75,17 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   @Override
-  public long count(Long offerId, Long affiliateId, Boolean approved, Boolean active) {
+  public long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (offerId != null)
       criteria.add(Restrictions.eq("offer.id", offerId));
     if (affiliateId != null)
       criteria.add(Restrictions.eq("affiliate.id", affiliateId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
+    if (state != null)
+      criteria.add(Restrictions.eq("state", state.ordinal()));
+    if (blocked != null)
+      criteria.add(Restrictions.eq("blocked", blocked));
     
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())
@@ -65,16 +94,17 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
 
   private static void setOrdering(Criteria criteria, Ordering ord, boolean asc) {
     switch (ord) {
-    case ID: criteria.addOrder(order("id", asc)); break;
-    case APPROVED: criteria.addOrder(order("approved", asc)); break;
-    case ACTIVE: criteria.addOrder(order("active", asc)); break;
-    case OFFER_NAME: criteria
+    case GRANT_ID: criteria.addOrder(order("id", asc)); break;
+    case GRANT_APPROVED: criteria.addOrder(order("approved", asc)); break;
+    case GRANT_ACTIVE: criteria.addOrder(order("active", asc)); break;
+    case NAME: criteria
       .createAlias("offer", "offer")
       .addOrder(order("offer.name", asc));
     break;
-    case AFFILIATE_LAST_NAME: criteria
+    case GRANT_AFFILIATE_LAST_NAME: criteria
       .createAlias("affiliate", "affiliate")
-      .addOrder(order("affiliate.lastName", asc)); break;
+      .addOrder(order("affiliate.lastName", asc));
+    break;
     }
     
     if (ord != Ordering.ID)

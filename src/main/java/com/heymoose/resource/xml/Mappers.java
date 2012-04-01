@@ -1,6 +1,9 @@
 package com.heymoose.resource.xml;
 
 import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.Map;
+
 import com.google.common.collect.Sets;
 import com.heymoose.domain.Account;
 import com.heymoose.domain.AccountTx;
@@ -555,8 +558,8 @@ public class Mappers {
     xmlNewOffer.logoFileName = offer.logoFileName();
     xmlNewOffer.cost = offer.cost();
     xmlNewOffer.percent = offer.percent();
-    xmlNewOffer.disabled = offer.disabled();
-    xmlNewOffer.paused = offer.paused();
+    xmlNewOffer.approved = offer.approved();
+    xmlNewOffer.active = offer.active();
     xmlNewOffer.creationTime = offer.creationTime().toString();
     xmlNewOffer.title = offer.title();
     xmlNewOffer.url = offer.url();
@@ -571,11 +574,34 @@ public class Mappers {
     return xmlNewOffer;
   }
   
+  public static XmlNewOffer toXmlGrantedNewOffer(OfferGrant grant) {
+    XmlNewOffer xmlNewOffer = toXmlNewOffer(grant.offer());
+    xmlNewOffer.grant = toXmlOfferGrant(grant, false);
+    return xmlNewOffer;
+  }
+  
   public static XmlNewOffers toXmlNewOffers(Iterable<NewOffer> offers, Long count) {
     XmlNewOffers xmlNewOffers = new XmlNewOffers();
     xmlNewOffers.count = count;
     for (NewOffer offer : offers)
       xmlNewOffers.offers.add(toXmlNewOffer(offer));
+    return xmlNewOffers;
+  }
+  
+  public static XmlNewOffers toXmlNewOffers(Iterable<NewOffer> offers,
+                                            Map<Long, OfferGrant> grants, Long count) {
+    XmlNewOffers xmlNewOffers = toXmlNewOffers(offers, count);
+    for (XmlNewOffer xmlNewOffer : xmlNewOffers.offers)
+      if (grants.containsKey(xmlNewOffer.id))
+        xmlNewOffer.grant = toXmlOfferGrant(grants.get(xmlNewOffer.id), false);
+    return xmlNewOffers;
+  }
+  
+  public static XmlNewOffers toXmlGrantedNewOffers(Iterable<OfferGrant> grants, Long count) {
+    XmlNewOffers xmlNewOffers = new XmlNewOffers();
+    xmlNewOffers.count = count;
+    for (OfferGrant grant : grants)
+      xmlNewOffers.offers.add(toXmlGrantedNewOffer(grant));
     return xmlNewOffers;
   }
   

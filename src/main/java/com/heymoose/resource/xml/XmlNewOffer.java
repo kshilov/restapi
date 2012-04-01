@@ -26,6 +26,9 @@ public class XmlNewOffer {
   @XmlElement(name = "suboffer")
   public Set<XmlSubOffer> suboffers = Sets.newHashSet();
   
+  @XmlElement(name = "grant")
+  public XmlOfferGrant grant;
+  
   @XmlElement(name = "pay-method")
   public String payMethod;
   
@@ -47,11 +50,11 @@ public class XmlNewOffer {
   @XmlElement(name = "percent")
   public BigDecimal percent;
   
-  @XmlElement(name = "disabled")
-  public Boolean disabled;
+  @XmlElement(name = "approved")
+  public Boolean approved;
 
-  @XmlElement(name = "paused")
-  public Boolean paused;
+  @XmlElement(name = "active")
+  public Boolean active;
   
   @XmlElement(name = "creation-time")
   public String creationTime;
