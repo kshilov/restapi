@@ -4,6 +4,7 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -82,18 +83,39 @@ public class OfferGrantResource {
   @Transactional
   public Response approve(@PathParam("id") long id) {
     OfferGrant grant = existing(id);
-    grant.moderateAsAdmin();
+    if (grant.blocked())
+      throw new WebApplicationException(409);
+    grant.approve();
+    return Response.ok().build();
+  }
+  
+  @DELETE
+  @Path("{id}/approved")
+  @Transactional
+  public Response reject(@PathParam("id") long id, @FormParam("reason") String reason) {
+    checkNotNull(reason);
+    OfferGrant grant = existing(id);
+    if (grant.blocked())
+      throw new WebApplicationException(409);
+    grant.reject(reason);
     return Response.ok().build();
   }
   
   @PUT
-  @Path("{id}/active")
+  @Path("{id}/blocked")
   @Transactional
-  public Response activate(@PathParam("id") long id) {
+  public Response block(@PathParam("id") long id, @FormParam("reason") String reason) {
     OfferGrant grant = existing(id);
-    if (!grant.approved())
-      throw new WebApplicationException(409);
-    grant.moderateAsAdvertiser();
+    grant.block(reason);
+    return Response.ok().build();
+  }
+  
+  @DELETE
+  @Path("{id}/blocked")
+  @Transactional
+  public Response unblock(@PathParam("id") long id) {
+    OfferGrant grant = existing(id);
+    grant.unblock();
     return Response.ok().build();
   }
   
