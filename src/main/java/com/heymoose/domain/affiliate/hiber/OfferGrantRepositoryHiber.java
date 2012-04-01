@@ -16,6 +16,7 @@ import org.hibernate.criterion.Restrictions;
 import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.domain.hiber.RepositoryHiber;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements OfferGrantRepository {
@@ -54,17 +55,17 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
 
   @Override
   public Iterable<OfferGrant> list(Ordering ord, boolean asc, int offset, int limit,
-                                 Long offerId, Long affiliateId, Boolean approved, Boolean active) {
+                                 Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (offerId != null)
       criteria.add(Restrictions.eq("offer.id", offerId));
     if (affiliateId != null)
       criteria.add(Restrictions.eq("affiliate.id", affiliateId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
+    if (state != null)
+      criteria.add(Restrictions.eq("state", state.ordinal()));
+    if (blocked != null)
+      criteria.add(Restrictions.eq("blocked", blocked));
     
     setOrdering(criteria, ord, asc);
     return criteria
@@ -74,17 +75,17 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   @Override
-  public long count(Long offerId, Long affiliateId, Boolean approved, Boolean active) {
+  public long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (offerId != null)
       criteria.add(Restrictions.eq("offer.id", offerId));
     if (affiliateId != null)
       criteria.add(Restrictions.eq("affiliate.id", affiliateId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
+    if (state != null)
+      criteria.add(Restrictions.eq("state", state.ordinal()));
+    if (blocked != null)
+      criteria.add(Restrictions.eq("blocked", blocked));
     
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())

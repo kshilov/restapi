@@ -23,6 +23,7 @@ import com.heymoose.domain.affiliate.NewOfferRepository;
 import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrants;
@@ -52,12 +53,12 @@ public class OfferGrantResource {
                              @QueryParam("asc") @DefaultValue("false") boolean asc,
                              @QueryParam("offer_id") Long offerId,
                              @QueryParam("affiliate_id") Long affiliateId,
-                             @QueryParam("approved") Boolean approved,
-                             @QueryParam("active") Boolean active,
+                             @QueryParam("approved") OfferGrantState state,
+                             @QueryParam("blocked") Boolean blocked,
                              @QueryParam("full") @DefaultValue("false") boolean full) {
     return Mappers.toXmlOfferGrants(
-        offerGrants.list(ord, asc, offset, limit, offerId, affiliateId, approved, active),
-        offerGrants.count(offerId, affiliateId, approved, active), full
+        offerGrants.list(ord, asc, offset, limit, offerId, affiliateId, state, blocked),
+        offerGrants.count(offerId, affiliateId, state, blocked), full
     );
   }
   
