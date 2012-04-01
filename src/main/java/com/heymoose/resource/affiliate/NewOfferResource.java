@@ -6,14 +6,17 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
 import com.heymoose.domain.Accounts;
@@ -170,6 +173,24 @@ public class NewOfferResource {
       accounts.transfer(advertiser.customerAccount(), offer.account(), balance);
     
     return offer.id().toString();
+  }
+  
+  @PUT
+  @Path("{id}/blocked")
+  @Transactional
+  public Response block(@PathParam("id") long id, @FormParam("reason") String reason) {
+    NewOffer offer = existing(id);
+    offer.block(reason);
+    return Response.ok().build();
+  }
+  
+  @DELETE
+  @Path("{id}/blocked")
+  @Transactional
+  public Response unblock(@PathParam("id") long id) {
+    NewOffer offer = existing(id);
+    offer.unblock();
+    return Response.ok().build();
   }
   
   @GET

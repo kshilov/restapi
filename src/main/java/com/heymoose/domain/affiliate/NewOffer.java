@@ -87,10 +87,13 @@ public class NewOffer extends Offer {
   private Set<Region> regions;
   
   @Basic
-  private boolean approved = false;
+  private boolean approved;
   
   @Basic
-  private boolean active = true;
+  private boolean active;
+  
+  @Column(name = "block_reason")
+  private String blockReason;
 
   @ManyToMany
   @JoinTable(
@@ -130,6 +133,8 @@ public class NewOffer extends Offer {
     this.cpaPolicy = cpaPolicy;
     this.cost = cost;
     this.percent = percent;
+    this.approved = false;
+    this.active = true;
     
     this.suboffers = newHashSet();
     this.banners = newHashSet();
@@ -212,8 +217,29 @@ public class NewOffer extends Offer {
     return approved;
   }
   
+  public void setApproved(boolean approved) {
+    this.approved = approved;
+  }
+  
+  public void block(String reason) {
+    this.approved = false;
+    this.blockReason = reason;
+  }
+  
+  public void unblock() {
+    this.approved = true;
+  }
+  
   public boolean active() {
     return active;
+  }
+  
+  public void setActive(boolean active) {
+    this.active = active;
+  }
+  
+  public String blockReason() {
+    return blockReason;
   }
   
   public boolean visible() {
