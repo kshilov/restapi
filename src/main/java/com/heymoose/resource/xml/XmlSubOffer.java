@@ -22,7 +22,7 @@ public class XmlSubOffer {
   public BigDecimal percent;
 
   @XmlElement(name = "paused")
-  public Boolean paused;
+  public Boolean active;
   
   @XmlElement(name = "creation-time")
   public String creationTime;

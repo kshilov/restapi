@@ -15,7 +15,9 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.affiliate.Click;
 import com.heymoose.domain.affiliate.GeoTargeting;
+import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.Tracking;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -158,7 +160,7 @@ public class ApiResource {
     }
     Click click = repo.get(Click.class, clickId);
     tracking.actionDone(click, txId, offers);
-    return null;
+    return Response.ok().build();
   }
 
   @Transactional
@@ -175,7 +177,9 @@ public class ApiResource {
       throw notFound(Offer.class, offerId);
     OfferGrant grant = tracking.granted(offer, affiliate);
     if (grant == null)
-      throw illegalState("Offer was not granted: " + offerId);
+      return Response.status(409).build();
+    if (!visible(offer))
+      return Response.status(302).location(URI.create(grant.backUrl())).build();
     String subId = params.get("sub_id");
     String sourceId = params.get("source_id");
     Long ipNum = getRealIp();
@@ -187,6 +191,18 @@ public class ApiResource {
     URI location = URI.create(offer.url());
     location = Api.appendQueryParam(location, "_hm_click_id", click);
     return Response.status(302).location(location).build();
+  }
+
+  private static boolean visible(Offer offer) {
+    if (offer instanceof NewOffer) {
+      NewOffer newOffer = (NewOffer) offer;
+      return newOffer.visible();
+    } else if (offer instanceof SubOffer) {
+      SubOffer subOffer = (SubOffer) offer;
+      return subOffer.active();
+    } else {
+      return false;
+    }
   }
 
   @Transactional

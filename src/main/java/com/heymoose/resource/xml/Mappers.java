@@ -611,7 +611,7 @@ public class Mappers {
     xmlSubOffer.cpaPolicy = offer.cpaPolicy().toString();
     xmlSubOffer.cost = offer.cost();
     xmlSubOffer.percent = offer.percent();
-    xmlSubOffer.paused = offer.paused();
+    xmlSubOffer.active = offer.active();
     xmlSubOffer.creationTime = offer.creationTime().toString();
     xmlSubOffer.title = offer.title();
     xmlSubOffer.autoApprove = offer.autoApprove();

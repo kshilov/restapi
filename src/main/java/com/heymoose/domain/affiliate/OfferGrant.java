@@ -9,6 +9,8 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -50,9 +52,16 @@ public class OfferGrant extends BaseEntity {
   @Basic(optional = false)
   private String message;
 
+  @Enumerated(EnumType.STRING)
   private OfferGrantState state;
+
+  @Basic
   private Boolean blocked;
+
+  @Column(name = "reject_reason")
   private String rejectReason;
+
+  @Column(name = "block_reason")
   private String blockReason;
 
   @Override

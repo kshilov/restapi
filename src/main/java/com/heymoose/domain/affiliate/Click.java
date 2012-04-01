@@ -72,4 +72,12 @@ public class Click extends BaseEntity {
   public User affiliate() {
     return affiliate;
   }
+
+  public String sourceId() {
+    return sourceId;
+  }
+
+  public String subId () {
+    return subId;
+  }
 }
