@@ -1,6 +1,7 @@
 package com.heymoose.domain;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,6 +66,8 @@ public class Accounts {
   }
 
   public AccountTx transferCompact(Account from, Account to, BigDecimal amount) {
+    from.setBalance(from.getBalance().subtract(amount));
+    to.setBalance(to.getBalance().add(amount));
     AccountTx accountTx = new AccountTx(from, to, amount, TxType.TRANSFER);
     hiber().save(accountTx);
     return accountTx;
@@ -169,9 +172,5 @@ public class Accounts {
     checkArgument(!isBlank(comment));
     addToBalance(withdraw.account(), withdraw.amount(), comment, TxType.WITHDRAW_DELETED);
     hiber().delete(withdraw);
-  }
-
-  public void cancel(AccountTx tx) {
-    hiber().save(tx.cancel());
   }
 }

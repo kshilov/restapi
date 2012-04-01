@@ -146,10 +146,11 @@ public class AccountTx extends IdEntity implements Comparable<AccountTx> {
     state = AccountTxState.APPROVED;
   }
 
-  public AccountTx cancel() {
+  public void cancel() {
     checkState(state == AccountTxState.NOT_APPROVED);
     state = AccountTxState.CANCELED;
-    return new AccountTx(to, from, amount, type);
+    from.setBalance(from.getBalance().add(amount));
+    to.setBalance(to.getBalance().subtract(amount));
   }
 
   public void addInPlace(BigDecimal amount, String description) {

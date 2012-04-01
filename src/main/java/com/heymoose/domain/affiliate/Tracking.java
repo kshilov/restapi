@@ -2,6 +2,7 @@ package com.heymoose.domain.affiliate;
 
 import com.google.common.base.Optional;
 import static com.google.common.collect.Lists.newArrayList;
+import com.heymoose.AdminAccountAccessor;
 import com.heymoose.domain.Account;
 import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
@@ -37,11 +38,13 @@ public class Tracking {
 
   private final Repo repo;
   private final Accounts accounts;
+  private final AdminAccountAccessor adminAccountAccessor;
 
   @Inject
-  public Tracking(Repo repo, Accounts accounts) {
+  public Tracking(Repo repo, Accounts accounts, AdminAccountAccessor adminAccountAccessor) {
     this.repo = repo;
     this.accounts = accounts;
+    this.adminAccountAccessor = adminAccountAccessor;
   }
 
   @Transactional
@@ -84,8 +87,11 @@ public class Tracking {
       accounts.lock(offerAccount(offer), click.affiliate().developerAccount());
       BigDecimal cost = cost(offer);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
-      AccountTx tx = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
-      tx.approve();
+      BigDecimal revenue = cost.subtract(amount);
+      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
+      tx1.approve();
+      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
+      tx2.approve();
     }
     return click;
   }
@@ -132,9 +138,11 @@ public class Tracking {
         cost = cost(offer);
       } else throw new IllegalStateException();
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
+      BigDecimal revenue = cost.subtract(amount);
       accounts.lock(offerAccount(offer), click.affiliate().developerAccount());
-      AccountTx tx = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
-      OfferAction action = new OfferAction(click, offer, transactionId, tx);
+      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
+      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
+      OfferAction action = new OfferAction(click, offer, transactionId, tx1, tx2);
       repo.put(action);
       try {
         getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));

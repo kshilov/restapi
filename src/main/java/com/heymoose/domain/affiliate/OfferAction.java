@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.affiliate.base.BaseEntity;
@@ -34,8 +35,14 @@ public class OfferAction extends BaseEntity {
   private String transactionId;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "account_tx_id")
-  private AccountTx accountTx;
+  @JoinColumn(name = "affiliate_tx_id")
+  private AccountTx affiliateTx;
+
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "admin_tx_id")
+  private AccountTx adminTx;
+
+  private OfferActionState state;
 
   @Override
   public Long id() {
@@ -44,10 +51,34 @@ public class OfferAction extends BaseEntity {
 
   protected OfferAction() {}
   
-  public OfferAction(Click click, Offer offer, String transactionId, AccountTx accountTx) {
+  public OfferAction(Click click, Offer offer, String transactionId, AccountTx affiliateTx, AccountTx adminTx) {
     this.click = click;
     this.transactionId = transactionId;
     this.offer = offer;
-    this.accountTx = accountTx;
+    this.affiliateTx = affiliateTx;
+    this.adminTx = adminTx;
+    this.state = OfferActionState.NOT_APPROVED;
+  }
+
+  public void approve() {
+    checkArgument(state == OfferActionState.NOT_APPROVED);
+    this.state = OfferActionState.APPROVED;
+  }
+
+  public void cancel() {
+    checkArgument(state == OfferActionState.NOT_APPROVED);
+    this.state = OfferActionState.CANCELED;
+  }
+
+  public OfferActionState state() {
+    return state;
+  }
+
+  public AccountTx affiliateTx() {
+    return affiliateTx;
+  }
+
+  public AccountTx adminTx() {
+    return adminTx;
   }
 }

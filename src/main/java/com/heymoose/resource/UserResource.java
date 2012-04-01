@@ -1,5 +1,7 @@
 package com.heymoose.resource;
 
+import com.heymoose.AdminAccountAccessor;
+import com.heymoose.domain.Account;
 import com.heymoose.domain.AccountTx;
 import com.heymoose.domain.Accounts;
 import com.heymoose.domain.MessengerType;
@@ -44,11 +46,13 @@ public class UserResource {
 
   private final UserRepository users;
   private final Accounts accounts;
+  private final AdminAccountAccessor adminAccountAccessor;
 
   @Inject
-  public UserResource(UserRepository users, Accounts accounts) {
+  public UserResource(UserRepository users, Accounts accounts, AdminAccountAccessor adminAccountAccessor) {
     this.users = users;
     this.accounts = accounts;
+    this.adminAccountAccessor = adminAccountAccessor;
   }
   
   @GET
@@ -138,6 +142,11 @@ public class UserResource {
     checkNotNull(id, role);
     User user = existing(id);
     user.addRole(role);
+    if (role == Role.ADMIN) {
+      Account account = adminAccountAccessor.getAdminAccount();
+      if (account == null)
+        throw new IllegalStateException();
+    }
   }
 
   @PUT
