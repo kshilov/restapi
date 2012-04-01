@@ -633,9 +633,11 @@ public class Mappers {
     xmlOfferGrant.message = grant.message();
     xmlOfferGrant.backUrl = grant.backUrl();
     xmlOfferGrant.postbackUrl = grant.postBackUrl();
-    xmlOfferGrant.approved = grant.approved();
-    xmlOfferGrant.active = grant.active();
-    
+    xmlOfferGrant.state = grant.state().name();
+    xmlOfferGrant.blocked = grant.blocked();
+    xmlOfferGrant.rejectReason = grant.rejectReason();
+    xmlOfferGrant.blockReason = grant.blockReason();
+
     if (full) {
       xmlOfferGrant.offer = toXmlNewOffer(grant.offer());
       xmlOfferGrant.affiliate = toXmlUser(grant.affiliate());

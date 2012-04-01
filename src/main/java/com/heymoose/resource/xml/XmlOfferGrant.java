@@ -24,10 +24,16 @@ public class XmlOfferGrant {
   
   @XmlElement(name = "postback-url")
   public String postbackUrl;
-  
-  @XmlElement(name = "approved")
-  public Boolean approved;
-  
-  @XmlElement(name = "active")
-  public Boolean active;
+
+  @XmlElement(name = "state")
+  public String state;
+
+  @XmlElement(name = "blocked")
+  public Boolean blocked;
+
+  @XmlElement(name = "reject-reason")
+  public String rejectReason;
+
+  @XmlElement(name = "block-reason")
+  public String blockReason;
 }
