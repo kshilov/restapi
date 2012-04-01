@@ -27,10 +27,9 @@ public class OfferFinder {
   public List<Offer> findOffers(Site site) {
     String sql = "select offer_id " +
         "from offer " +
-        "join offer_order ord on ord.offer_id = offer.id " +
         "where " +
-        "and (select allow_negative_balance = true or ord.cpa <= balance from account where id = ord.account_id) " +
-        "and ord.disabled = false and (ord.paused is null or ord.paused = false) " +
+        "and (select allow_negative_balance = true or cpa <= balance from account where id = account_id) " +
+        "and approved = true and active = true " +
         "and offer.type = 3 " +
         "and :categories in (select category_id from offer_category oc where oc.offer_id = offer.id) " +
         "and :regions in (select region from offer_region or where or.offer_id = offer.id)";
