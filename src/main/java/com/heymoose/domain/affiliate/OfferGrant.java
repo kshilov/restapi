@@ -4,7 +4,6 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -48,11 +47,10 @@ public class OfferGrant extends BaseEntity {
   @Basic(optional = false)
   private String message;
 
-  @Basic(optional = false)
-  private Boolean approved;
-
-  @Basic(optional = false)
-  private Boolean active;
+  private OfferGrantState state;
+  private Boolean blocked;
+  private String rejectReason;
+  private String blockReason;
 
   @Override
   public Long id() {
@@ -64,8 +62,8 @@ public class OfferGrant extends BaseEntity {
     this.offerId = offerId;
     this.affiliateId = affiliateId;
     this.message = message;
-    this.approved = false;
-    this.active = false;
+    this.state = OfferGrantState.MODERATION;
+    this.blocked = false;
   }
   
   public Long offerId() {
@@ -95,24 +93,42 @@ public class OfferGrant extends BaseEntity {
   public String message() {
     return message;
   }
-  
-  public boolean approved() {
-    return approved;
-  }
-  
-  public boolean active() {
-    return active;
-  }
 
   public boolean offerIsVisible() {
-    return approved && active;
-  }
-  
-  public void moderateAsAdmin() {
-    this.approved = true;
+    return state == OfferGrantState.APPROVED && !blocked;
   }
 
-  public void moderateAsAdvertiser() {
-    this.active = true;
+  public void approve() {
+    this.state = OfferGrantState.APPROVED;
+  }
+
+  public void reject(String reason) {
+    this.state = OfferGrantState.REJECTED;
+    this.rejectReason = reason;
+  }
+
+  public void block(String reason) {
+    this.blocked = true;
+    this.blockReason = reason;
+  }
+
+  public void unblock() {
+    this.blocked = false;
+  }
+
+  public OfferGrantState state() {
+    return state;
+  }
+
+  public boolean blocked() {
+    return blocked;
+  }
+
+  public String rejectReason() {
+    return rejectReason;
+  }
+
+  public String blockReason() {
+    return blockReason;
   }
 }
