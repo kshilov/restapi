@@ -19,6 +19,9 @@ public class Category extends IdEntity {
   private Long id;
 
   @Basic(optional = false)
+  private String grouping;
+
+  @Basic(optional = false)
   private String name;
 
   @Override
@@ -28,11 +31,16 @@ public class Category extends IdEntity {
   
   protected Category() {}
   
-  public Category(String name) {
+  public Category(String name, String grouping) {
     this.name = name;
+    this.grouping = grouping;
   }
   
   public String name() {
     return name;
+  }
+
+  public String grouping() {
+    return grouping;
   }
 }

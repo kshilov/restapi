@@ -19,10 +19,12 @@ import com.heymoose.domain.BannerOffer;
 import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.affiliate.BannerResource;
 import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.IpSegment;
 import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.SiteResource;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.BannerSize;
@@ -120,6 +122,7 @@ public class CommonModule extends AbstractModule {
     bind(BannerStore.class);
     bind(BannerResource.class);
     bind(NewOfferResource.class);
+    bind(SiteResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(AppRepository.class).to(AppRepositoryHiber.class);
@@ -142,7 +145,7 @@ public class CommonModule extends AbstractModule {
         RegularOffer.class, VideoOffer.class, BannerOffer.class, BannerSize.class, City.class,
         Banner.class, Withdraw.class, Setting.class, UserStat.class, AppStat.class, OfferStat.class,
         AppVisit.class, ShowStat.class, Site.class, NewOffer.class, SubOffer.class, OfferGrant.class,
-        Category.class);
+        Category.class, IpSegment.class);
   }
 
   protected void bindEntities(Class... classes) {
