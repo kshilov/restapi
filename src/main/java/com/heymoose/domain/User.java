@@ -1,9 +1,9 @@
 package com.heymoose.domain;
 
 import com.google.common.collect.Sets;
+import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
 import java.net.URI;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
@@ -21,7 +21,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -41,12 +40,6 @@ public class User extends IdEntity {
   public Long id() {
     return id;
   }
-
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<Order> orders;
-
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<App> apps;
 
   @ElementCollection(fetch = FetchType.LAZY)
   @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
@@ -105,9 +98,6 @@ public class User extends IdEntity {
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
-  
-  @OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-  private UserStat stat;
 
   @Basic
   private int fee;
@@ -159,12 +149,6 @@ public class User extends IdEntity {
     confirmed = false;
   }
 
-  public Set<App> apps() {
-    if (apps == null)
-      return emptySet();
-    return unmodifiableSet(apps);
-  }
-
   public void addRole(Role role) {
     if (roles == null)
       roles = Sets.newHashSet();
@@ -185,12 +169,6 @@ public class User extends IdEntity {
     if (roles == null)
       return emptySet();
     return unmodifiableSet(roles);
-  }
-
-  public Set<Order> orders() {
-    if (orders == null)
-      return emptySet();
-    return unmodifiableSet(orders);
   }
 
   public boolean isCustomer() {
@@ -299,10 +277,6 @@ public class User extends IdEntity {
   
   public DateTime registerTime() {
     return registerTime;
-  }
-  
-  public UserStat stat() {
-    return stat;
   }
   
   public int fee() {

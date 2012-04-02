@@ -1,9 +1,8 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.Account;
-import com.heymoose.domain.Accounts;
-import com.heymoose.domain.TxType;
 import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -18,7 +17,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +28,13 @@ public class RobokassaResource {
   
   private final String robokassaPass;
   private final UserRepository users;
-  private final Accounts accounts;
+  private final Accounting accounting;
 
   @Inject
-  public RobokassaResource(@Named("robokassaPass") String robokassaPass, UserRepository users, Accounts accounts) {
+  public RobokassaResource(@Named("robokassaPass") String robokassaPass, UserRepository users, Accounting accounting) {
     this.robokassaPass = robokassaPass;
     this.users = users;
-    this.accounts = accounts;
+    this.accounting = accounting;
   }
 
   @POST
@@ -68,13 +66,14 @@ public class RobokassaResource {
       throw unauthorized();
     }
     double sum = Double.parseDouble(_sum);
-    Account account = accounts.getAndLock(accountId);
+    Account account = accounting.getAndLock(accountId);
     if (account == null) {
       logError(_sum, invId, sig, accountId, "account not found");
       throw notFound();
     }
-    accounts.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"),
-        TxType.REPLENISHMENT_ROBOKASSA);
+    accounting.createEntry(account, new BigDecimal(sum));
+//    accounting.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"),
+//        TxType.REPLENISHMENT_ROBOKASSA);
     return "OK" + invId;
   }
   

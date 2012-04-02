@@ -1,5 +1,6 @@
 package com.heymoose.domain;
 
+import com.heymoose.domain.Banner;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,21 +13,21 @@ import sun.misc.BASE64Decoder;
 
 @Singleton
 public class BannerStore {
-  
+
   private final String bannersDir;
 
   @Inject
   public BannerStore(@Named("banners-dir") String bannersDir) {
     this.bannersDir = bannersDir;
   }
-  
+
   public File path(long bannerId) {
     File bannersDir = new File(this.bannersDir);
     if (!bannersDir.exists() || !bannersDir.isDirectory())
       throw new IllegalArgumentException("Bad directory: " + this.bannersDir);
     return new File(bannersDir, Long.toString(bannerId));
   }
-  
+
   public void saveBanner(Banner banner) throws IOException {
     saveBanner(banner.id(), decodeBase64(banner.imageBase64()));
   }

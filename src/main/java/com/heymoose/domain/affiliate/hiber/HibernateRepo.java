@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.hibernate.Criteria;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
@@ -47,8 +49,21 @@ public class HibernateRepo implements Repo {
   }
 
   @Override
+  public <T extends IdEntity> List<T> allByHQL(Class<T> clazz, String hql, Object... params) {
+    Query query = hiber().createQuery(hql);
+    for (int i = 0; i < params.length; i++)
+      query.setParameter(i, params[i]);
+    return query.list();
+  }
+
+  @Override
   public <T extends IdEntity> T byCriteria(DetachedCriteria criteria) {
     return (T) criteria.getExecutableCriteria(hiber()).uniqueResult();
+  }
+
+  @Override
+  public Criteria getExecutableCriteria(DetachedCriteria detachedCriteria) {
+    return detachedCriteria.getExecutableCriteria(hiber());
   }
 
   @Override
@@ -65,5 +80,17 @@ public class HibernateRepo implements Repo {
     for (T e : list)
       result.put(e.id(), e);
     return result;
+  }
+
+  @Override
+  public <T extends IdEntity> T lock(T entity) {
+    hiber().flush();
+    hiber().buildLockRequest(LockOptions.UPGRADE).lock(entity);
+    return entity;
+  }
+
+  @Override
+  public <T extends IdEntity> void remove(T entity) {
+    hiber().delete(entity);
   }
 }

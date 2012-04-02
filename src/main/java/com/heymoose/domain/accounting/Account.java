@@ -1,16 +1,56 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.domain.affiliate.base.ModifiableEntity;
 import java.math.BigDecimal;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Version;
 
-public class Account {
+@Entity
+@Table(name = "new_account")
+public class Account extends ModifiableEntity {
 
-  private BigDecimal balance;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new-account-seq")
+  @SequenceGenerator(name = "new-account-seq", sequenceName = "new_account_seq", allocationSize = 1)
+  private Long id;
 
-  public Account(BigDecimal balance) {
-    this.balance = balance;
+  @Basic(optional = false)
+  private BigDecimal balance = new BigDecimal(0);
+
+  @Version
+  private Integer version;
+
+  @Column(name = "allow_negative_balance")
+  private boolean allowNegativeBalance;
+
+  @Override
+  public Long id() {
+    return id;
+  }
+
+  public Account() {}
+
+  public Account(boolean allowNegativeBalance) {
+    this.allowNegativeBalance = allowNegativeBalance;
   }
 
   public BigDecimal balance() {
     return balance;
+  }
+
+  public boolean allowNegativeBalance() {
+    return allowNegativeBalance;
+  }
+
+  public void setBalance(BigDecimal balance) {
+    this.balance = balance;
+    touch();
   }
 }

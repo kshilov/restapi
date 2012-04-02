@@ -51,14 +51,6 @@ public class XmlUser {
   @XmlElement(name = "developer-account")
   public XmlAccount developerAccount;
 
-  @XmlElementWrapper(name = "apps")
-  @XmlElement(name = "app")
-  public Set<XmlApp> apps;
-  
-  @XmlElementWrapper(name = "orders")
-  @XmlElement(name = "order")
-  public Set<XmlOrder> orders;
-
   @XmlElementWrapper(name = "roles")
   @XmlElement(name = "role")
   public Set<String> roles;
@@ -78,7 +70,4 @@ public class XmlUser {
   
   @XmlElement(name = "register-time")
   public String registerTime;
-  
-  @XmlElement(name = "stats")
-  public XmlUserStat stats;
 }

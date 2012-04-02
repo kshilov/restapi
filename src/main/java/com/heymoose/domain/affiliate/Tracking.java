@@ -2,21 +2,18 @@ package com.heymoose.domain.affiliate;
 
 import com.google.common.base.Optional;
 import static com.google.common.collect.Lists.newArrayList;
-import com.heymoose.AdminAccountAccessor;
-import com.heymoose.domain.Account;
-import com.heymoose.domain.AccountTx;
-import com.heymoose.domain.Accounts;
+import com.heymoose.domain.AdminAccountAccessor;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.api.Api.appendQueryParam;
-import com.sun.corba.se.spi.orbutil.fsm.ActionBase;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -29,7 +26,6 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.pkcs11.wrapper.CK_LOCKMUTEX;
 
 @Singleton
 public class Tracking {
@@ -37,14 +33,14 @@ public class Tracking {
   private final static Logger log = LoggerFactory.getLogger(Tracking.class);
 
   private final Repo repo;
-  private final Accounts accounts;
   private final AdminAccountAccessor adminAccountAccessor;
+  private final Accounting accounting;
 
   @Inject
-  public Tracking(Repo repo, Accounts accounts, AdminAccountAccessor adminAccountAccessor) {
+  public Tracking(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting) {
     this.repo = repo;
-    this.accounts = accounts;
     this.adminAccountAccessor = adminAccountAccessor;
+    this.accounting = accounting;
   }
 
   @Transactional
@@ -84,21 +80,21 @@ public class Tracking {
     PayMethod payMethod = payMethod(repo.get(Offer.class, offerId));
     if (payMethod == PayMethod.CPC) {
       Offer offer = repo.get(Offer.class, offerId);
-      accounts.lock(offerAccount(offer), click.affiliate().developerAccount());
+      accounting.lock(offerAccount(offer), click.affiliate().developerAccount());
       BigDecimal cost = cost(offer);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
-      tx1.approve();
-      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
-      tx2.approve();
+//      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
+//      tx1.approve();
+//      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
+//      tx2.approve();
     }
     return click;
   }
 
   private static Account offerAccount(Offer offer) {
-    if (offer instanceof NewOffer)
-      return ((NewOffer) offer).account();
+    if (offer instanceof Offer)
+      return ((Offer) offer).account();
     else if (offer instanceof SubOffer)
       return ((SubOffer) offer).parent().account();
     else
@@ -139,17 +135,17 @@ public class Tracking {
       } else throw new IllegalStateException();
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-      accounts.lock(offerAccount(offer), click.affiliate().developerAccount());
-      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
-      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
-      OfferAction action = new OfferAction(click, offer, transactionId, tx1, tx2);
-      repo.put(action);
+//      accounts.lock(offerAccount(offer), click.affiliate().developerAccount());
+//      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
+//      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
+//      OfferAction action = new OfferAction(click, offer, transactionId, tx1, tx2);
+//      repo.put(action);
       try {
         getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));
       } catch (Exception e) {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
       }
-      actions.add(action);
+//      actions.add(action);
     }
     return actions;
   }
@@ -181,8 +177,8 @@ public class Tracking {
   }
   
   private static CpaPolicy cpaPolicy(Offer offer) {
-    if (offer instanceof NewOffer)
-      return ((NewOffer) offer).cpaPolicy();
+    if (offer instanceof Offer)
+      return ((Offer) offer).cpaPolicy();
     else if (offer instanceof SubOffer)
       return ((SubOffer) offer).cpaPolicy();
     else
@@ -190,8 +186,8 @@ public class Tracking {
   }
   
   private static PayMethod payMethod(Offer offer) {
-    if (offer instanceof NewOffer)
-      return ((NewOffer) offer).payMethod();
+    if (offer instanceof Offer)
+      return ((Offer) offer).payMethod();
     else if (offer instanceof SubOffer)
       return PayMethod.CPA;
     else
@@ -199,8 +195,8 @@ public class Tracking {
   }
 
   private static BigDecimal cost(Offer offer) {
-    if (offer instanceof NewOffer)
-      return ((NewOffer) offer).cost();
+    if (offer instanceof Offer)
+      return ((Offer) offer).cost();
     else if (offer instanceof SubOffer)
       return ((SubOffer) offer).cost();
     else
@@ -208,8 +204,8 @@ public class Tracking {
   }
   
   private static BigDecimal percent(Offer offer) {
-    if (offer instanceof NewOffer)
-      return ((NewOffer) offer).percent();
+    if (offer instanceof Offer)
+      return ((Offer) offer).percent();
     else if (offer instanceof SubOffer)
       return ((SubOffer) offer).percent();
     else

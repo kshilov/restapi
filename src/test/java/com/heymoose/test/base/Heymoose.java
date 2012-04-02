@@ -1,19 +1,12 @@
 package com.heymoose.test.base;
 
-import com.heymoose.domain.Platform;
 import com.heymoose.domain.Role;
-import com.heymoose.resource.xml.XmlActions;
-import com.heymoose.resource.xml.XmlApp;
-import com.heymoose.resource.xml.XmlBannerSizes;
-import com.heymoose.resource.xml.XmlOffer;
-import com.heymoose.resource.xml.XmlOffers;
-import com.heymoose.resource.xml.XmlOrder;
 import com.heymoose.resource.xml.XmlUser;
-import com.heymoose.security.Signer;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
+import java.security.Signer;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -72,20 +65,6 @@ public class Heymoose {
     Form form = new Form();
     form.add("amount", Double.toString(amount));
     client.path("users").path(Long.toString(userId)).path("customer-account").put(form);
-  }
-
-  public void createApp(String title, long userId, String url, String callback, Platform platform) {
-    Form form = new Form();
-    form.add("title", title);
-    form.add("userId", userId);
-    form.add("url", url);
-    form.add("callback", callback);
-    form.add("platform", platform.name());
-    client.path("apps").post(form);
-  }
-
-  public XmlApp getApp(long appId) {
-    return client.path("apps").path(Long.toString(appId)).get(XmlApp.class);
   }
 
   public void regenerateSecret(long appId) {
@@ -166,96 +145,12 @@ public class Heymoose {
     return Long.valueOf(client.path("banner-sizes").post(String.class, form));
   }
 
-  public XmlBannerSizes bannerSizes() {
-    return client.path("banner-sizes").get(XmlBannerSizes.class);
-  }
-
-  public XmlOrder getOrder(long orderId) {
-    return client.path("orders").path(Long.toString(orderId)).get(XmlOrder.class);
-  }
-
   public void approveOrder(long orderId) {
     client.path("orders").path(Long.toString(orderId)).path("enabled").put();
   }
 
   public void disableOrder(long orderId) {
     client.path("orders").path(Long.toString(orderId)).path("enabled").delete();
-  }
-
-  public XmlOffers getAvailableOffers(XmlApp app, String extId) {
-    Map<String, String> params = newHashMap();
-    params.put("method", "getOffers");
-    params.put("app_id", Long.toString(app.id));
-    params.put("uid", extId);
-    params.put("format", "JSON");
-    params.put("filter", "0:10");
-    String sig = Signer.sign(params, app.secret);
-    String response = client.path("api")
-        .queryParam("method", "getOffers")
-        .queryParam("app_id", Long.toString(app.id))
-        .queryParam("uid", extId)
-        .queryParam("format", "JSON")
-        .queryParam("filter", "0:10")
-        .queryParam("sig", sig)
-        .get(String.class);
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode jsResult;
-    try {
-      jsResult = (ObjectNode) mapper.readTree(response);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    ArrayNode jsOffers = (ArrayNode) jsResult.get("result");
-    XmlOffers xmlOffers = new XmlOffers();
-    for (JsonNode node : jsOffers) {
-      ObjectNode jsOffer = (ObjectNode) node;
-      XmlOffer xmlOffer = new XmlOffer();
-      xmlOffer.id = jsOffer.get("id").getLongValue();
-      xmlOffer.title = jsOffer.get("title").getTextValue();
-      xmlOffers.offers.add(xmlOffer);
-    }
-    return xmlOffers;
-  }
-
-  public URI doOffer(XmlApp app, long offerId, String extId, Platform platform) {
-    Map<String, String> params = newHashMap();
-    params.put("method", "doOffer");
-    params.put("app_id", Long.toString(app.id));
-    params.put("offer_id", Long.toString(offerId));
-    params.put("uid", extId);
-    params.put("platform", platform.name());
-    String sig = Signer.sign(params, app.secret);
-    ClientResponse response = client.path("api")
-        .queryParam("method", "doOffer")
-        .queryParam("app_id", Long.toString(app.id))
-        .queryParam("offer_id", Long.toString(offerId))
-        .queryParam("uid", extId)
-        .queryParam("platform", platform.name())
-        .queryParam("sig", sig)
-        .get(ClientResponse.class);
-    if (response.getStatus() != 302)
-      throw new UniformInterfaceException(response);
-    return response.getLocation();
-  }
-
-  public XmlActions getActions(int offset, int limit) {
-    return client.path("actions").queryParam("offset", Integer.toString(offset)).queryParam("limit", Integer.toString(limit)).get(XmlActions.class);
-  }
-
-  public void approveAction(XmlUser user, long actionId) {
-    Map<String, String> params = newHashMap();
-    params.put("method", "approveAction");
-    params.put("customer_id", Long.toString(user.id));
-    params.put("action_id", Long.toString(actionId));
-    String sig = Signer.sign(params, user.customerSecret);
-    ClientResponse response = client.path("api")
-        .queryParam("method", "approveAction")
-        .queryParam("customer_id", Long.toString(user.id))
-        .queryParam("action_id", Long.toString(actionId))
-        .queryParam("sig", sig)
-        .get(ClientResponse.class);
-    if (response.getStatus() != 200)
-      throw new UniformInterfaceException(response);
   }
 
   public void deleteAction(long actionId) {

@@ -1,7 +1,6 @@
 package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.Banner;
-import com.heymoose.domain.BannerRepository;
 import com.heymoose.domain.BannerStore;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -20,12 +19,10 @@ import javax.ws.rs.core.Response;
 public class BannerResource {
 
   private final BannerStore bannerStore;
-  private final BannerRepository bannerRepository;
   private final Repo repo;
 
   @Inject
-  public BannerResource(BannerRepository bannerRepository, BannerStore bannerStore, Repo repo) {
-    this.bannerRepository = bannerRepository;
+  public BannerResource(BannerStore bannerStore, Repo repo) {
     this.bannerStore = bannerStore;
     this.repo = repo;
   }
@@ -34,7 +31,7 @@ public class BannerResource {
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") long bannerId) throws IOException {
-    Banner banner = bannerRepository.byId(bannerId);
+    Banner banner = repo.get(Banner.class, bannerId);
     if (banner == null)
       throw notFound();
     File bannerFile = bannerStore.path(bannerId);
@@ -48,9 +45,5 @@ public class BannerResource {
           .header("Content-Type", banner.mimeType())
           .build();
     }
-  }
-
-  public Response findOffers(long siteId) {
-    return null;
   }
 }

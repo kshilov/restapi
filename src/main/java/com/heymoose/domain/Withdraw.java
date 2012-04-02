@@ -1,5 +1,6 @@
 package com.heymoose.domain;
 
+import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.IdEntity;
 import java.math.BigDecimal;
 import javax.persistence.Basic;

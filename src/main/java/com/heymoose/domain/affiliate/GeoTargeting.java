@@ -33,8 +33,8 @@ public class GeoTargeting {
   }
   
   private static Set<Region> regions(Offer offer) {
-    if (offer instanceof NewOffer)
-      return ((NewOffer) offer).regions();
+    if (offer instanceof Offer)
+      return ((Offer) offer).regions();
     else if (offer instanceof SubOffer)
       return ((SubOffer) offer).parent().regions();
     else

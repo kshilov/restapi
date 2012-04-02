@@ -1,16 +1,15 @@
 package com.heymoose.resource;
 
-import com.heymoose.AdminAccountAccessor;
-import com.heymoose.domain.Account;
-import com.heymoose.domain.AccountTx;
-import com.heymoose.domain.Accounts;
+import com.heymoose.domain.AdminAccountAccessor;
 import com.heymoose.domain.MessengerType;
 import com.heymoose.domain.Role;
-import com.heymoose.domain.TxType;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.UserRepository.Ordering;
 import com.heymoose.domain.Withdraw;
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -45,14 +44,16 @@ import javax.ws.rs.core.Response;
 public class UserResource {
 
   private final UserRepository users;
-  private final Accounts accounts;
   private final AdminAccountAccessor adminAccountAccessor;
+  private final Accounting accounting;
+  private final Repo repo;
 
   @Inject
-  public UserResource(UserRepository users, Accounts accounts, AdminAccountAccessor adminAccountAccessor) {
+  public UserResource(UserRepository users, AdminAccountAccessor adminAccountAccessor, Accounting accounting, Repo repo) {
     this.users = users;
-    this.accounts = accounts;
     this.adminAccountAccessor = adminAccountAccessor;
+    this.accounting = accounting;
+    this.repo = repo;
   }
   
   @GET
@@ -65,7 +66,7 @@ public class UserResource {
                        @QueryParam("full") @DefaultValue("false") boolean full,
                        @QueryParam("role") Role role) {
     Details d = full ? Details.WITH_RELATED_ENTITIES : Details.WITH_RELATED_IDS;
-    return Mappers.toXmlUsers(accounts, users.list(offset, limit, ord, asc, role), d);
+    return Mappers.toXmlUsers(users.list(offset, limit, ord, asc, role), d);
   }
   
   @GET
@@ -108,14 +109,7 @@ public class UserResource {
     checkNotNull(id);
     User user = existing(id);
     Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
-    XmlUser xmlUser = Mappers.toXmlUser(accounts, user, d);
-    if (user.isCustomer()) {
-      BigDecimal revenue = new BigDecimal(0);
-      for (AccountTx tx : user.customerAccount().transactions())
-        if ("MLM".equals(tx.description()))
-          revenue = revenue.add(tx.diff());
-      xmlUser.revenue = revenue.setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
-    }
+    XmlUser xmlUser = Mappers.toXmlUser(user, d);
     xmlUser.referrer = user.referrerId();
     Iterable<User> referrals = users.referrals(id);
     for (User r : referrals)
@@ -132,7 +126,7 @@ public class UserResource {
     if (user == null)
       return Response.status(404).build();
     Details d = full ? Details.WITH_RELATED_LISTS : Details.ONLY_ENTITY;
-    return Response.ok(Mappers.toXmlUser(accounts, user, d)).build();
+    return Response.ok(Mappers.toXmlUser(user, d)).build();
   }
 
   @POST
@@ -157,9 +151,8 @@ public class UserResource {
     User user = existing(id);
     if (!user.isCustomer() && !user.isAdvertiser())
       throw conflict();
-    accounts.lock(user.customerAccount());
-    accounts.addToBalance(user.customerAccount(), new BigDecimal(amount), "Adding to balance",
-        TxType.REPLENISHMENT_ADMIN);
+    repo.lock(user.customerAccount());
+    accounting.createEntry(user.customerAccount(), new BigDecimal(amount));
   }
 
   @PUT
@@ -244,7 +237,7 @@ public class UserResource {
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
-    Withdraw withdraw = accounts.withdraw(user.developerAccount(), amount);
+    Withdraw withdraw = accounting.withdraw(user.developerAccount(), amount);
     return Long.toString(withdraw.id());
   }
 
@@ -255,7 +248,7 @@ public class UserResource {
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
-    List<Withdraw> withdraws = accounts.withdraws(user.developerAccount());
+    List<Withdraw> withdraws = accounting.withdraws(user.developerAccount());
     return Mappers.toXmlWithdraws(user.developerAccount().id(), withdraws);
   }
 
@@ -266,7 +259,7 @@ public class UserResource {
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
-    Withdraw withdraw = accounts.withdrawOfAccount(user.developerAccount(), withdrawId);
+    Withdraw withdraw = accounting.withdrawOfAccount(user.developerAccount(), withdrawId);
     if (withdraw == null)
       throw notFound();
     withdraw.approve();
@@ -280,10 +273,10 @@ public class UserResource {
     User user = existing(id);
     if (!user.isDeveloper())
       throw conflict();
-    Withdraw withdraw = accounts.withdrawOfAccount(user.developerAccount(), withdrawId);
+    Withdraw withdraw = accounting.withdrawOfAccount(user.developerAccount(), withdrawId);
     if (withdraw == null)
       throw notFound();
-    accounts.deleteWithdraw(withdraw, comment);
+    accounting.deleteWithdraw(withdraw, comment);
   }
 
   private User existing(long id) {

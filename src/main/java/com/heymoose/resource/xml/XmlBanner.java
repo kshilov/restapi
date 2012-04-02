@@ -15,7 +15,4 @@ public class XmlBanner {
   
   @XmlElement(name = "mime-type")
   public String mimeType;
-
-  @XmlElement(name = "banner-size")
-  public XmlBannerSize bannerSize;
 }

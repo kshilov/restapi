@@ -1,5 +1,6 @@
 package com.heymoose.resource.affiliate;
 
+import com.heymoose.domain.Offer;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 import javax.inject.Inject;
@@ -18,7 +19,6 @@ import javax.ws.rs.core.Response;
 
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository;
 import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
@@ -68,7 +68,7 @@ public class OfferGrantResource {
                        @FormParam("aff_id") long affiliateId,
                        @FormParam("message") String message) {
     checkNotNull(message);
-    NewOffer offer = visibleOffer(offerId);
+    Offer offer = visibleOffer(offerId);
     User affiliate = activeAffiliate(affiliateId);
     
     if (offerGrants.byOfferAndAffiliate(offerId, affiliateId) != null)
@@ -127,8 +127,8 @@ public class OfferGrantResource {
     return grant;
   }
   
-  private NewOffer visibleOffer(long id) {
-    NewOffer offer = newOffers.byId(id);
+  private Offer visibleOffer(long id) {
+    Offer offer = newOffers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
     if (!offer.visible())

@@ -84,8 +84,8 @@ public class OfferGrant extends BaseEntity {
     return offerId;
   }
   
-  public NewOffer offer() {
-    return (NewOffer) HibernateUtil.unproxy(offer);
+  public Offer offer() {
+    return HibernateUtil.unproxy(offer);
   }
   
   public Long affiliateId() {

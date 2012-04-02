@@ -1,5 +1,7 @@
 package com.heymoose.resource.affiliate;
 
+import com.heymoose.domain.Offer;
+import com.heymoose.domain.accounting.Accounting;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +21,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
-import com.heymoose.domain.Accounts;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.NewOfferRepository;
@@ -50,19 +50,18 @@ public class NewOfferResource {
   private final SubOfferRepository subOffers;
   private final OfferGrantRepository offerGrants;
   private final UserRepository users;
-  private final Accounts accounts;
-  
+  private final Accounting accounting;
+
   @Inject
   public NewOfferResource(NewOfferRepository newOffers,
                           SubOfferRepository subOffers,
                           OfferGrantRepository offerGrants,
-                          UserRepository users,
-                          Accounts accounts) {
+                          UserRepository users, Accounting accounting) {
     this.newOffers = newOffers;
     this.subOffers = subOffers;
     this.offerGrants = offerGrants;
     this.users = users;
-    this.accounts = accounts;
+    this.accounting = accounting;
   }
   
   @GET
@@ -75,12 +74,12 @@ public class NewOfferResource {
                            @QueryParam("active") Boolean active,
                            @QueryParam("advertiser_id") Long advertiserId,
                            @QueryParam("aff_id") Long affiliateId) {
-    Iterable<NewOffer> offers = newOffers.list(ord, asc, offset, limit,
+    Iterable<Offer> offers = newOffers.list(ord, asc, offset, limit,
         approved, active, advertiserId);
     long count = newOffers.count(approved, active, advertiserId);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
-      for (NewOffer offer : offers)
+      for (Offer offer : offers)
         offerIds.add(offer.id());
       Map<Long, OfferGrant> grants = offerGrants.byOffersAndAffiliate(offerIds, affiliateId);
       return Mappers.toXmlNewOffers(offers, grants, count);
@@ -110,7 +109,7 @@ public class NewOfferResource {
   public XmlNewOffer get(@PathParam("id") long offerId,
                          @QueryParam("approved") @DefaultValue("false") boolean approved,
                          @QueryParam("active") @DefaultValue("false") boolean active) {
-    NewOffer offer = existing(offerId);
+    Offer offer = existing(offerId);
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
     return Mappers.toXmlNewOffer(offer);
@@ -152,7 +151,7 @@ public class NewOfferResource {
     BigDecimal balance = new BigDecimal(strBalance);
     if (cost.signum() != 1 || balance.signum() < 0)
       throw new WebApplicationException(400);
-    if (balance.signum() > 0 && advertiser.customerAccount().getBalance().compareTo(balance) == -1)
+    if (balance.signum() > 0 && advertiser.customerAccount().balance().compareTo(balance) == -1)
       throw new WebApplicationException(409);
     
     if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT) {
@@ -164,13 +163,13 @@ public class NewOfferResource {
     for (String strRegion : strRegions)
       regions.add(Region.valueOf(strRegion));
     
-    NewOffer offer = new NewOffer(advertiser, allowNegativeBalance, name, description,
+    Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions,
         logoFileName);
     newOffers.put(offer);
 
     if (balance.signum() > 0)
-      accounts.transfer(advertiser.customerAccount(), offer.account(), balance);
+      accounting.transferMoney(advertiser.customerAccount(), offer.account(), balance, null, null, null);
     
     return offer.id().toString();
   }
@@ -179,7 +178,7 @@ public class NewOfferResource {
   @Path("{id}/blocked")
   @Transactional
   public Response block(@PathParam("id") long id, @FormParam("reason") String reason) {
-    NewOffer offer = existing(id);
+    Offer offer = existing(id);
     offer.block(reason);
     return Response.ok().build();
   }
@@ -188,7 +187,7 @@ public class NewOfferResource {
   @Path("{id}/blocked")
   @Transactional
   public Response unblock(@PathParam("id") long id) {
-    NewOffer offer = existing(id);
+    Offer offer = existing(id);
     offer.unblock();
     return Response.ok().build();
   }
@@ -213,7 +212,7 @@ public class NewOfferResource {
                                @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                                @FormParam("reentrant") @DefaultValue("true") boolean reentrant) {
     checkNotNull(cpaPolicy, strCost, title);
-    NewOffer offer = existing(offerId);
+    Offer offer = existing(offerId);
     
     BigDecimal cost = new BigDecimal(strCost), percent = null;
     if (cpaPolicy == CpaPolicy.PERCENT) {
@@ -227,8 +226,8 @@ public class NewOfferResource {
     return suboffer.id().toString();
   }
   
-  private NewOffer existing(long id) {
-    NewOffer offer = newOffers.byId(id);
+  private Offer existing(long id) {
+    Offer offer = newOffers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;

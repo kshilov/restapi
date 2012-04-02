@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.heymoose.events.Event;
-import com.heymoose.events.EventBus;
 import java.io.File;
 import java.util.Properties;
 import java.util.Set;
@@ -18,12 +16,7 @@ public class TestModule extends AbstractModule {
   
   @Override
   protected void configure() {
-    bind(EventBus.class).toInstance(new EventBus() {
-      @Override
-      public void publish(Event event) {
-        // do nothing
-      }
-    });
+
   }
 
   @Provides

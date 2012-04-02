@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate.hiber;
 
+import com.heymoose.domain.Offer;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -9,12 +10,11 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.heymoose.domain.affiliate.NewOffer;
 import com.heymoose.domain.affiliate.NewOfferRepository;
 import com.heymoose.domain.hiber.RepositoryHiber;
 
 @Singleton
-public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implements NewOfferRepository {
+public class NewOfferRepositoryHiber extends RepositoryHiber<Offer> implements NewOfferRepository {
   
   @Inject
   public NewOfferRepositoryHiber(Provider<Session> sessionProvider) {
@@ -22,7 +22,7 @@ public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implement
   }
 
   @Override
-  public Iterable<NewOffer> list(Ordering ord, boolean asc, int offset, int limit,
+  public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
                                  Boolean approved, Boolean active, Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
@@ -57,7 +57,7 @@ public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implement
   }
   
   @Override
-  public Iterable<NewOffer> listRequested(Ordering ord, boolean asc, int offset, int limit,
+  public Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                           long affiliateId, Boolean active) {
     Criteria criteria = hiber()
         .createCriteria(getEntityClass())
@@ -90,8 +90,8 @@ public class NewOfferRepositoryHiber extends RepositoryHiber<NewOffer> implement
   }
 
   @Override
-  protected Class<NewOffer> getEntityClass() {
-    return NewOffer.class;
+  protected Class<Offer> getEntityClass() {
+    return Offer.class;
   }
   
   private static void setOrdering(Criteria criteria, Ordering ord, boolean asc) {

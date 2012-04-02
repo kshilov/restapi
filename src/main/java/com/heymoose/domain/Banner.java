@@ -22,16 +22,12 @@ public class Banner extends IdEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "banner-seq")
   @SequenceGenerator(name = "banner-seq", sequenceName = "banner_seq", allocationSize = 1)
   private Long id;
-  
+
   @Basic
   private String mimeType;
 
   @Basic
   private byte[] image;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "size")
-  private BannerSize size;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "offer_id")
@@ -39,26 +35,25 @@ public class Banner extends IdEntity {
 
   protected Banner() {}
 
-  public Banner(String imageBase64, String mimeType, BannerSize size) {
-    checkNotNull(imageBase64, mimeType, size);
+  public Banner(String imageBase64, String mimeType) {
+    checkNotNull(imageBase64, mimeType);
     try {
       this.image = imageBase64.getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
     this.mimeType = mimeType;
-    this.size = size;
   }
 
   @Override
   public Long id() {
     return id;
   }
-  
+
   public String mimeType() {
     return mimeType;
   }
-  
+
   public void setMimeType(String mimeType) {
     this.mimeType = mimeType;
   }
@@ -77,22 +72,5 @@ public class Banner extends IdEntity {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public BannerSize size() {
-    return size;
-  }
-
-  public void setSize(BannerSize size) {
-    checkNotNull(size);
-    this.size = size;
-  }
-
-  public void setOffer(Offer offer) {
-    this.offer = offer;
-  }
-
-  public Offer offer() {
-    return offer;
   }
 }
