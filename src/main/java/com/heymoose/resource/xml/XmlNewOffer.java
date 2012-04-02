@@ -56,6 +56,9 @@ public class XmlNewOffer {
   @XmlElement(name = "active")
   public Boolean active;
   
+  @XmlElement(name = "block-reason")
+  public String blockReason;
+  
   @XmlElement(name = "creation-time")
   public String creationTime;
   

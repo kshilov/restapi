@@ -560,6 +560,7 @@ public class Mappers {
     xmlNewOffer.percent = offer.percent();
     xmlNewOffer.approved = offer.approved();
     xmlNewOffer.active = offer.active();
+    xmlNewOffer.blockReason = offer.blockReason();
     xmlNewOffer.creationTime = offer.creationTime().toString();
     xmlNewOffer.title = offer.title();
     xmlNewOffer.url = offer.url();
