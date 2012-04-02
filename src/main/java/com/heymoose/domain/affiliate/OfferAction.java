@@ -6,6 +6,7 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,6 +43,7 @@ public class OfferAction extends BaseEntity {
   @JoinColumn(name = "admin_tx_id")
   private AccountTx adminTx;
 
+  @Enumerated
   private OfferActionState state;
 
   @Override

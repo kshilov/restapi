@@ -2,6 +2,7 @@ package com.heymoose.resource.xml;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import com.heymoose.domain.affiliate.Category;
 import java.util.Map;
 
 import com.google.common.collect.Sets;
@@ -657,5 +658,20 @@ public class Mappers {
     for (OfferGrant grant : grants)
       xmlOfferGrants.grants.add(toXmlOfferGrant(grant, full));
     return xmlOfferGrants;
+  }
+
+  public static XmlCategories toXmlCategories(Iterable<Category> categories) {
+    XmlCategories xmlCategories = new XmlCategories();
+    for (Category category : categories)
+      xmlCategories.categories.add(toXmlCategory(category));
+    return xmlCategories;
+  }
+
+  public static XmlCategory toXmlCategory(Category category) {
+    XmlCategory xmlCategory = new XmlCategory();
+    xmlCategory.id = category.id();
+    xmlCategory.grouping = category.grouping();
+    xmlCategory.name = category.name();
+    return xmlCategory;
   }
 }

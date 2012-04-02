@@ -52,6 +52,11 @@ public class HibernateRepo implements Repo {
   }
 
   @Override
+  public <T extends IdEntity> List<T> allByCriteria(DetachedCriteria criteria) {
+    return criteria.getExecutableCriteria(hiber()).list();
+  }
+
+  @Override
   public <T extends IdEntity> Map<Long, T> get(Class<T> clazz, Set<Long> ids) {
     List<T> list = (List<T>) hiber().createCriteria(clazz)
         .add(Restrictions.in("id", ids))

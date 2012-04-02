@@ -11,5 +11,6 @@ public interface Repo {
   public <T extends IdEntity> void put(T entity);
   public <T extends IdEntity> T byHQL(Class<T> clazz, String hql, Object... params);
   public <T extends IdEntity> T byCriteria(DetachedCriteria criteria);
+  public <T extends IdEntity> List<T> allByCriteria(DetachedCriteria criteria);
   public <T extends IdEntity> Map<Long, T> get(Class<T> clazz, Set<Long> ids);
 }
