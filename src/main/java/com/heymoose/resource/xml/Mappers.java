@@ -571,8 +571,12 @@ public class Mappers {
     for (SubOffer suboffer : offer.suboffers())
       xmlNewOffer.suboffers.add(toXmlSubOffer(suboffer));
     
+    for (Category category : offer.categories())
+      xmlNewOffer.categories.add(toXmlCategory(category));
+    
     for (Region region : offer.regions())
       xmlNewOffer.regions.add(region.toString());
+    
     return xmlNewOffer;
   }
   

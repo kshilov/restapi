@@ -160,6 +160,10 @@ public class NewOffer extends Offer {
   public Iterable<Banner> banners() {
     return ImmutableSet.copyOf(banners);
   }
+  
+  public Iterable<Category> categories() {
+    return ImmutableSet.copyOf(categories);
+  }
 
   public void addBanner(Banner banner) {
     checkNotNull(banner);
