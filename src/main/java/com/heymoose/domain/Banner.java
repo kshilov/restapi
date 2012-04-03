@@ -1,10 +1,8 @@
 package com.heymoose.domain;
 
-import ch.qos.logback.core.rolling.helper.IntegerTokenConverter;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-import java.io.UnsupportedEncodingException;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,9 +38,12 @@ public class Banner extends IdEntity {
 
   protected Banner() {}
 
-  public Banner(String mimeType, Integer width, Integer height) {
-    checkNotNull(mimeType);
+  public Banner(Offer offer, String mimeType, Integer width, Integer height) {
+    checkNotNull(offer, mimeType);
     checkArgument((width == null && height == null) || (width != null && height !=null));
+    this.offer = offer;
+    this.width = width;
+    this.height = height;
     this.mimeType = mimeType;
   }
 
@@ -57,5 +58,17 @@ public class Banner extends IdEntity {
 
   public void setMimeType(String mimeType) {
     this.mimeType = mimeType;
+  }
+  
+  public Offer offer() {
+    return offer;
+  }
+  
+  public Integer width() {
+    return width;
+  }
+  
+  public Integer height() {
+    return height;
   }
 }

@@ -1,6 +1,7 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
+import com.heymoose.domain.Banner;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
@@ -159,6 +160,9 @@ public class Mappers {
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
     
+    for (Banner banner : offer.banners())
+      xmlOffer.banners.add(toXmlBanner(banner));
+    
     for (Region region : offer.regions())
       xmlOffer.regions.add(region.toString());
     
@@ -262,5 +266,14 @@ public class Mappers {
     xmlCategory.grouping = category.grouping();
     xmlCategory.name = category.name();
     return xmlCategory;
+  }
+  
+  public static XmlBanner toXmlBanner(Banner banner) {
+    XmlBanner xmlBanner = new XmlBanner();
+    xmlBanner.id = banner.id();
+    xmlBanner.width = banner.width();
+    xmlBanner.height = banner.height();
+    xmlBanner.mimeType = banner.mimeType();
+    return xmlBanner;
   }
 }

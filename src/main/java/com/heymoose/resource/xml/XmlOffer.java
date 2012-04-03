@@ -27,6 +27,10 @@ public class XmlOffer {
   @XmlElementWrapper(name = "categories")
   @XmlElement(name = "category")
   public Set<XmlCategory> categories = Sets.newHashSet();
+  
+  @XmlElementWrapper(name = "banners")
+  @XmlElement(name = "banner")
+  public Set<XmlBanner> banners = Sets.newHashSet();
 
   @XmlElement(name = "grant")
   public XmlOfferGrant grant;

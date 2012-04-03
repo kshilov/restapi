@@ -10,8 +10,11 @@ public class XmlBanner {
   @XmlAttribute(name = "id")
   public Long id;
   
-  @XmlElement(name = "image")
-  public String imageBase64;
+  @XmlElement(name = "width")
+  public Integer width;
+  
+  @XmlElement(name = "height")
+  public Integer height;
   
   @XmlElement(name = "mime-type")
   public String mimeType;

@@ -33,6 +33,7 @@ import com.heymoose.domain.hiber.UserRepositoryHiber;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.resource.AccountResource;
+import com.heymoose.resource.BannerResource;
 import com.heymoose.resource.CategoryResource;
 import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
@@ -68,6 +69,7 @@ public class CommonModule extends AbstractModule {
     bind(SiteResource.class);
     bind(OfferGrantResource.class);
     bind(CategoryResource.class);
+    bind(BannerResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(Repo.class).to(HibernateRepo.class);

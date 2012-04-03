@@ -244,17 +244,18 @@ public class OfferResource {
   @POST
   @Path("{id}/banners")
   @Transactional
-  public void addBanner(@PathParam("id") long offerId,
+  public String addBanner(@PathParam("id") long offerId,
                         @FormParam("width") Integer width,
                         @FormParam("height") Integer height,
-                        @FormParam("mimeType") String mimeType,
+                        @FormParam("mime_type") String mimeType,
                         @FormParam("image") String image) throws IOException {
     checkNotNull(mimeType, image);
     Offer offer = existing(offerId);
-    Banner banner = new Banner(mimeType, width, height);
+    Banner banner = new Banner(offer, mimeType, width, height);
     offer.addBanner(banner);
     repo.put(banner);
     bannerStore.saveBanner(banner.id(), image);
+    return banner.id().toString();
   }
 
   @DELETE
