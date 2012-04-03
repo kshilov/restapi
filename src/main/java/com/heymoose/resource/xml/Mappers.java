@@ -159,9 +159,6 @@ public class Mappers {
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
     
-    for (Category category : offer.categories())
-      xmlOffer.categories.add(toXmlCategory(category));
-    
     for (Region region : offer.regions())
       xmlOffer.regions.add(region.toString());
     

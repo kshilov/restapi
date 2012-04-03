@@ -38,7 +38,7 @@ public abstract class BaseOffer extends BaseEntity {
   protected PayMethod payMethod;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "cpa_policy", nullable = false)
+  @Column(name = "cpa_policy")
   protected CpaPolicy cpaPolicy;
 
   @Basic
@@ -64,11 +64,7 @@ public abstract class BaseOffer extends BaseEntity {
   public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                    String title, boolean autoApprove, boolean reentrant) {
 
-    checkNotNull(payMethod, cpaPolicy);
-    BigDecimal valueToCheck = cpaPolicy == CpaPolicy.FIXED ? cost : percent;
-    checkNotNull(valueToCheck);
-    checkArgument(valueToCheck.signum() == 1);
-
+    checkNotNull(payMethod);
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
 

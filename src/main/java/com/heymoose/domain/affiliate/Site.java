@@ -24,7 +24,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "banner_site")
+@Table(name = "site")
 public class Site extends IdEntity {
 
   @Id

@@ -75,7 +75,7 @@ public class Offer extends BaseOffer {
 
   @ManyToMany
   @JoinTable(
-      name = "site_category",
+      name = "offer_category",
       joinColumns = @JoinColumn(name = "offer_id", referencedColumnName = "id"),
       inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id")
   )
