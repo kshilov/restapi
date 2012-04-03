@@ -1,7 +1,10 @@
 package com.heymoose.domain;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -29,6 +32,19 @@ public class BannerStore {
 
   public void saveBanner(long bannerId, String base64) throws IOException {
     saveBanner(bannerId, decodeBase64(base64));
+  }
+
+  public byte[] getBannerBody(long bannerId) throws IOException {
+    File bannerPath = path(bannerId);
+    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+    FileInputStream fileIn = new FileInputStream(bannerPath);
+    try {
+      IOUtils.copy(fileIn, byteOut);
+    } finally {
+      if (fileIn != null)
+        fileIn.close();
+    }
+    return byteOut.toByteArray();
   }
 
   public void saveBanner(long bannerId, byte[] data) throws IOException {

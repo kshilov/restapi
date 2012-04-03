@@ -1,6 +1,7 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.Banner;
+import com.heymoose.domain.BannerStore;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -17,13 +18,25 @@ import javax.ws.rs.core.Response;
 public class BannerResource {
 
   private final Repo repo;
+  private final BannerStore bannerStore;
 
   @Inject
-  public BannerResource(Repo repo) {
+  public BannerResource(Repo repo, BannerStore bannerStore) {
     this.repo = repo;
+    this.bannerStore = bannerStore;
   }
 
   @GET
+  @Path("{id}/local")
+  @Transactional
+  public Response getLocal(@PathParam("id") long bannerId) throws IOException {
+    Banner banner = repo.get(Banner.class, bannerId);
+    if (banner == null)
+      throw notFound();
+    return Response.ok(bannerStore.getBannerBody(bannerId), banner.mimeType()).build();
+  }
+
+    @GET
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") long bannerId) throws IOException {
