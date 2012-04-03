@@ -1,6 +1,6 @@
 package com.heymoose.domain.affiliate;
 
-import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
+import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.base.Repository;
 import java.util.Map;
 

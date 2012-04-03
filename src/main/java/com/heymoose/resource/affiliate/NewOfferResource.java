@@ -1,7 +1,6 @@
 package com.heymoose.resource.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import com.google.common.collect.Lists;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.Offer;
@@ -10,8 +9,8 @@ import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.NewOfferRepository;
-import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
+import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.PayMethod;
@@ -47,7 +46,7 @@ import javax.ws.rs.core.Response;
 @Singleton
 public class NewOfferResource {
   
-  private final NewOfferRepository newOffers;
+  private final OfferRepository offers;
   private final SubOfferRepository subOffers;
   private final OfferGrantRepository offerGrants;
   private final UserRepository users;
@@ -55,11 +54,11 @@ public class NewOfferResource {
   private final Repo repo;
 
   @Inject
-  public NewOfferResource(NewOfferRepository newOffers,
+  public NewOfferResource(OfferRepository offers,
                           SubOfferRepository subOffers,
                           OfferGrantRepository offerGrants,
                           UserRepository users, Accounting accounting, Repo repo) {
-    this.newOffers = newOffers;
+    this.offers = offers;
     this.subOffers = subOffers;
     this.offerGrants = offerGrants;
     this.users = users;
@@ -77,9 +76,9 @@ public class NewOfferResource {
                            @QueryParam("active") Boolean active,
                            @QueryParam("advertiser_id") Long advertiserId,
                            @QueryParam("aff_id") Long affiliateId) {
-    Iterable<Offer> offers = newOffers.list(ord, asc, offset, limit,
+    Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit,
         approved, active, advertiserId);
-    long count = newOffers.count(approved, active, advertiserId);
+    long count = this.offers.count(approved, active, advertiserId);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
       for (Offer offer : offers)
@@ -176,7 +175,7 @@ public class NewOfferResource {
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
         logoFileName);
-    newOffers.put(offer);
+    offers.put(offer);
 
     if (balance.signum() > 0)
       accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, null, null, null);
@@ -237,7 +236,7 @@ public class NewOfferResource {
   }
   
   private Offer existing(long id) {
-    Offer offer = newOffers.byId(id);
+    Offer offer = offers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;

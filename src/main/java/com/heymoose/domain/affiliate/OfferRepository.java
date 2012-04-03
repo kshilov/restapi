@@ -3,7 +3,7 @@ package com.heymoose.domain.affiliate;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.base.Repository;
 
-public interface NewOfferRepository extends Repository<Offer> {
+public interface OfferRepository extends Repository<Offer> {
   Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
                           Boolean approved, Boolean active, Long advertiserId);
   long count(Boolean approved, Boolean active, Long advertiserId);

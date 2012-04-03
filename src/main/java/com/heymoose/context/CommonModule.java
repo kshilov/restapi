@@ -16,7 +16,7 @@ import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.CategoryResource;
 import com.heymoose.domain.affiliate.IpSegment;
-import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.ShowStat;
@@ -26,7 +26,7 @@ import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.hiber.HibernateRepo;
-import com.heymoose.domain.affiliate.hiber.NewOfferRepositoryHiber;
+import com.heymoose.domain.affiliate.hiber.OfferRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.OfferGrantRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.SubOfferRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
@@ -69,7 +69,7 @@ public class CommonModule extends AbstractModule {
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(Repo.class).to(HibernateRepo.class);
-    bind(NewOfferRepository.class).to(NewOfferRepositoryHiber.class);
+    bind(OfferRepository.class).to(OfferRepositoryHiber.class);
     bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
 

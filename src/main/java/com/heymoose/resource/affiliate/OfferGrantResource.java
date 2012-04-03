@@ -3,8 +3,8 @@ package com.heymoose.resource.affiliate;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.NewOfferRepository;
-import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
+import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferGrantState;
@@ -32,15 +32,15 @@ import javax.ws.rs.core.Response;
 @Singleton
 public class OfferGrantResource {
   
-  private final NewOfferRepository newOffers;
+  private final OfferRepository offers;
   private final OfferGrantRepository offerGrants;
   private final UserRepository users;
   
   @Inject
-  public OfferGrantResource(NewOfferRepository newOffers,
+  public OfferGrantResource(OfferRepository offers,
                           OfferGrantRepository offerGrants,
                           UserRepository users) {
-    this.newOffers = newOffers;
+    this.offers = offers;
     this.offerGrants = offerGrants;
     this.users = users;
   }
@@ -137,7 +137,7 @@ public class OfferGrantResource {
   }
   
   private Offer visibleOffer(long id) {
-    Offer offer = newOffers.byId(id);
+    Offer offer = offers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
     if (!offer.visible())
