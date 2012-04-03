@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.heymoose.domain.AdminAccount;
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
@@ -74,7 +75,7 @@ public class CommonModule extends AbstractModule {
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
 
     bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, ShowStat.class, Site.class, BaseOffer.class, SubOffer.class, OfferGrant.class,
-        Category.class, IpSegment.class, Account.class, AccountingEntry.class, AccountingTransaction.class);
+        Category.class, IpSegment.class, Account.class, AdminAccount.class, AccountingEntry.class, AccountingTransaction.class);
   }
 
   protected void bindEntities(Class... classes) {
