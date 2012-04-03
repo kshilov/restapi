@@ -74,13 +74,11 @@ public class ApiResource {
   }
 
   @GET
-  public Response callMethod(@QueryParam("method") String method,
-                             @QueryParam("sig") String sig,
-                             @QueryParam("format") @DefaultValue("HTML") String format) {
+  public Response callMethod(@QueryParam("method") String method) {
     try {
       String requestId = randomString();
       MDC.put(REQUEST_ID_KEY, requestId);
-      return callMethodInternal(method, sig, format);
+      return callMethodInternal(method);
     } catch (WebApplicationException e) {
       return errorResponse(e.getMessage(), e, e.getResponse().getStatus(), false);
     } catch (ApiRequestException e) {
@@ -92,13 +90,8 @@ public class ApiResource {
     }
   }
 
-  private Response callMethodInternal(@QueryParam("method") String method,
-                             @QueryParam("sig") String sig,
-                             @QueryParam("format") @DefaultValue("HTML") String format) throws ApiRequestException {
+  private Response callMethodInternal(@QueryParam("method") String method) throws ApiRequestException {
     ensureNotNull("method", method);
-    ensureNotNull("sig", sig);
-    if (!asList("HTML", "JSON").contains(format))
-      throw badValue("format", format);
     Map<String, String> params = queryParams();
     if (method.equals("track"))
       return track(params);
@@ -111,7 +104,7 @@ public class ApiResource {
   }
 
   @Transactional
-  private Response reportAction(Map<String, String> params) throws ApiRequestException {
+  public Response reportAction(Map<String, String> params) throws ApiRequestException {
     Long clickId = safeGetLongParam(params, "click_id");
     String txId = safeGetParam(params, "transaction_id");
     String sOffer = safeGetParam(params, "offer");
@@ -133,7 +126,7 @@ public class ApiResource {
   }
 
   @Transactional
-  private Response click(Map<String, String> params) throws ApiRequestException {
+  public Response click(Map<String, String> params) throws ApiRequestException {
     String sBannerId = params.get("banner_id");
     Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
     long offerId = safeGetLongParam(params, "offer_id");
@@ -158,7 +151,7 @@ public class ApiResource {
       return Response.status(302).location(URI.create(grant.backUrl())).build();
     ClickStat click = tracking.click(bannerId, offerId, affId, subId, sourceId);
     URI location = URI.create(offer.url());
-    location = Api.appendQueryParam(location, "_hm_click_id", click);
+    location = Api.appendQueryParam(location, "_hm_click_id", click.id());
     return Response.status(302).location(location).build();
   }
 
@@ -175,7 +168,7 @@ public class ApiResource {
   }
 
   @Transactional
-  private Response track(Map<String, String> params) throws ApiRequestException {
+  public Response track(Map<String, String> params) throws ApiRequestException {
     String sBannerId = params.get("banner_id");
     Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
     long offerId = safeGetLongParam(params, "offer_id");

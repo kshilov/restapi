@@ -15,6 +15,7 @@ import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.ClickStat;
 import com.heymoose.domain.affiliate.IpSegment;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
@@ -74,8 +75,9 @@ public class CommonModule extends AbstractModule {
     bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
 
-    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, ShowStat.class, Site.class, BaseOffer.class, SubOffer.class, OfferGrant.class,
-        Category.class, IpSegment.class, Account.class, AdminAccount.class, AccountingEntry.class, AccountingTransaction.class);
+    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, ShowStat.class, Site.class,
+        BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
+        AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, ClickStat.class);
   }
 
   protected void bindEntities(Class... classes) {

@@ -56,7 +56,7 @@ public class ClickStat extends BaseEntity {
   @Nullable
   private String sourceId;
 
-  @Basic(optional = false)
+  @Column(name = "click_count", nullable = false)
   private long count = 1;
 
   @Override
