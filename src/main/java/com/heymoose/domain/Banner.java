@@ -1,5 +1,7 @@
 package com.heymoose.domain;
 
+import ch.qos.logback.core.rolling.helper.IntegerTokenConverter;
+import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.io.UnsupportedEncodingException;
@@ -26,22 +28,21 @@ public class Banner extends IdEntity {
   @Basic
   private String mimeType;
 
-  @Basic
-  private byte[] image;
-
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "offer_id")
   private Offer offer;
 
+  @Basic
+  private Integer width;
+
+  @Basic
+  private Integer height;
+
   protected Banner() {}
 
-  public Banner(String imageBase64, String mimeType) {
-    checkNotNull(imageBase64, mimeType);
-    try {
-      this.image = imageBase64.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+  public Banner(String mimeType, Integer width, Integer height) {
+    checkNotNull(mimeType);
+    checkArgument((width == null && height == null) || (width != null && height !=null));
     this.mimeType = mimeType;
   }
 
@@ -56,21 +57,5 @@ public class Banner extends IdEntity {
 
   public void setMimeType(String mimeType) {
     this.mimeType = mimeType;
-  }
-
-  public String imageBase64() {
-    try {
-      return new String(image, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public void setImageBase64(String imageBase64) {
-    try {
-      this.image = imageBase64.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

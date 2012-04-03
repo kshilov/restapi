@@ -37,7 +37,7 @@ import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.UserResource;
-import com.heymoose.resource.affiliate.NewOfferResource;
+import com.heymoose.resource.affiliate.OfferResource;
 import com.heymoose.resource.affiliate.OfferGrantResource;
 import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
@@ -63,7 +63,7 @@ public class CommonModule extends AbstractModule {
     bind(AccountResource.class);
     bind(Settings.class);
     bind(SettingResource.class);
-    bind(NewOfferResource.class);
+    bind(OfferResource.class);
     bind(SiteResource.class);
     bind(OfferGrantResource.class);
     bind(CategoryResource.class);

@@ -1,11 +1,9 @@
 package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.Banner;
-import com.heymoose.domain.BannerStore;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
-import java.io.File;
 import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,12 +16,10 @@ import javax.ws.rs.core.Response;
 @Path("banners")
 public class BannerResource {
 
-  private final BannerStore bannerStore;
   private final Repo repo;
 
   @Inject
-  public BannerResource(BannerStore bannerStore, Repo repo) {
-    this.bannerStore = bannerStore;
+  public BannerResource(Repo repo) {
     this.repo = repo;
   }
 
@@ -34,16 +30,9 @@ public class BannerResource {
     Banner banner = repo.get(Banner.class, bannerId);
     if (banner == null)
       throw notFound();
-    File bannerFile = bannerStore.path(bannerId);
-    if (bannerFile.exists()) {
-      return Response.ok()
-          .header("X-Accel-Redirect", "/banners/" + bannerId)
-          .header("Content-Type", banner.mimeType())
-          .build();
-    } else {
-      return Response.ok(bannerStore.decodeBase64(banner.imageBase64()))
-          .header("Content-Type", banner.mimeType())
-          .build();
-    }
+    return Response.ok()
+        .header("X-Accel-Redirect", "/banners/" + bannerId)
+        .header("Content-Type", banner.mimeType())
+        .build();
   }
 }

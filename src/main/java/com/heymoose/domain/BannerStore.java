@@ -27,8 +27,8 @@ public class BannerStore {
     return new File(bannersDir, Long.toString(bannerId));
   }
 
-  public void saveBanner(Banner banner) throws IOException {
-    saveBanner(banner.id(), decodeBase64(banner.imageBase64()));
+  public void saveBanner(long bannerId, String base64) throws IOException {
+    saveBanner(bannerId, decodeBase64(base64));
   }
 
   public void saveBanner(long bannerId, byte[] data) throws IOException {

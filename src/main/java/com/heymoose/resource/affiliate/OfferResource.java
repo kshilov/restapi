@@ -3,27 +3,31 @@ package com.heymoose.resource.affiliate;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import com.heymoose.domain.Banner;
+import com.heymoose.domain.BannerStore;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.OfferRepository;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
+import static com.heymoose.resource.Exceptions.badRequest;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlSubOffers;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
@@ -44,7 +48,7 @@ import javax.ws.rs.core.Response;
 
 @Path("offers")
 @Singleton
-public class NewOfferResource {
+public class OfferResource {
   
   private final OfferRepository offers;
   private final SubOfferRepository subOffers;
@@ -52,18 +56,20 @@ public class NewOfferResource {
   private final UserRepository users;
   private final Accounting accounting;
   private final Repo repo;
+  private final BannerStore bannerStore;
 
   @Inject
-  public NewOfferResource(OfferRepository offers,
-                          SubOfferRepository subOffers,
-                          OfferGrantRepository offerGrants,
-                          UserRepository users, Accounting accounting, Repo repo) {
+  public OfferResource(OfferRepository offers,
+                       SubOfferRepository subOffers,
+                       OfferGrantRepository offerGrants,
+                       UserRepository users, Accounting accounting, Repo repo, BannerStore bannerStore) {
     this.offers = offers;
     this.subOffers = subOffers;
     this.offerGrants = offerGrants;
     this.users = users;
     this.accounting = accounting;
     this.repo = repo;
+    this.bannerStore = bannerStore;
   }
   
   @GET
@@ -233,6 +239,38 @@ public class NewOfferResource {
                                      title, autoApprove, reentrant);
     subOffers.put(suboffer);
     return suboffer.id().toString();
+  }
+
+  @POST
+  @Path("{id}/banners")
+  @Transactional
+  public void addBanner(@PathParam("id") long offerId,
+                        @FormParam("width") Integer width,
+                        @FormParam("height") Integer height,
+                        @FormParam("mimeType") String mimeType,
+                        @FormParam("image") String image) throws IOException {
+    checkNotNull(mimeType, image);
+    Offer offer = existing(offerId);
+    Banner banner = new Banner(mimeType, width, height);
+    offer.addBanner(banner);
+    repo.put(banner);
+    bannerStore.saveBanner(banner.id(), image);
+  }
+
+  @DELETE
+  @Path("{id}/banners/{bannerId}")
+  @Transactional
+  public void deleteBanner(@PathParam("id") long offerId, @PathParam("bannerId") long bannerId) {
+    Offer offer = existing(offerId);
+    boolean found = false;
+    for (Banner banner : offer.banners()) {
+      if (banner.id().equals(bannerId)) {
+        found = true;
+        offer.deleteBanner(banner);
+      }
+    }
+    if (!found)
+      throw badRequest();
   }
   
   private Offer existing(long id) {
