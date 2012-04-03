@@ -1,11 +1,18 @@
 package com.heymoose.test.base;
 
 import com.heymoose.domain.Role;
+import com.heymoose.domain.affiliate.CpaPolicy;
+import com.heymoose.domain.affiliate.PayMethod;
+import com.heymoose.domain.affiliate.Region;
+import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlUser;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
 import org.junit.Ignore;
 
 @Ignore
@@ -56,93 +63,36 @@ public class Heymoose {
     client.path("users").path(Long.toString(userId)).path("customer-account").put(form);
   }
 
-  public void regenerateSecret(long appId) {
-    client.path("apps").path(Long.toString(appId)).path("secret").put();
+  public XmlCategories getCategories() {
+    return client.path("categories").get(XmlCategories.class);
   }
 
-  public void deleteApp(long appId) {
-    client.path("apps").path(Long.toString(appId)).delete();
+  public void confirmUser(long userId) {
+    client.path("users").path(Long.toString(userId)).path("confirmed").put();
   }
 
-  public long createRegularOrder(long userId,
-                                 String title,
-                                 String description,
-                                 String url,
-                                 String image,
-                                 double balance,
-                                 double cpa,
-                                 boolean allowNegativeBalance) {
+  public void createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
+                          double balance, String name, String descr, String logoFileName, URI uri,
+                          String title, boolean allowNegativeBalance, boolean autoApprove,
+                          boolean reentrant, Set<Region> regions, Set<Long> categories) {
     Form form = new Form();
-    form.add("userId", userId);
-    form.add("title", title);
-    form.add("description", description);
-    form.add("url", url);
-    form.add("image", image);
+    form.add("advertiser_id", advertiserId);
+    form.add("pay_method", payMethod);
+    form.add("cpa_policy", cpaPolicy);
+    form.add("cost", cost);
     form.add("balance", balance);
-    form.add("cpa", cpa);
-    form.add("allowNegativeBalance", allowNegativeBalance);
-    form.add("type", "REGULAR");
-    return Long.valueOf(client.path("orders").post(String.class, form));
-  }
-
-  public long createVideoOrder(long userId,
-                                 String title,
-                                 String videoUrl,
-                                 String url,
-                                 double balance,
-                                 double cpa,
-                                 boolean allowNegativeBalance) {
-    Form form = new Form();
-    form.add("userId", userId);
+    form.add("name", name);
+    form.add("description", descr);
+    form.add("logo_filename", logoFileName);
+    form.add("url", uri);
     form.add("title", title);
-    form.add("videoUrl", videoUrl);
-    form.add("url", url);
-    form.add("balance", balance);
-    form.add("cpa", cpa);
-    form.add("allowNegativeBalance", allowNegativeBalance);
-    form.add("type", "VIDEO");
-    return Long.valueOf(client.path("orders").post(String.class, form));
-  }
-
-  public long createBannerOrder(long userId,
-                                 String title,
-                                 String url,
-                                 String image,
-                                 String bannerMimeType,
-                                 long bannerSize,
-                                 double balance,
-                                 double cpa,
-                                 boolean allowNegativeBalance) {
-    Form form = new Form();
-    form.add("userId", userId);
-    form.add("title", title);
-    form.add("bannerMimeType", bannerMimeType);
-    form.add("bannerSize", bannerSize);
-    form.add("url", url);
-    form.add("image", image);
-    form.add("balance", balance);
-    form.add("cpa", cpa);
-    form.add("allowNegativeBalance", allowNegativeBalance);
-    form.add("type", "BANNER");
-    return Long.valueOf(client.path("orders").post(String.class, form));
-  }
-
-  public long bannerSize(int width, int height) {
-    Form form = new Form();
-    form.add("width", width);
-    form.add("height", height);
-    return Long.valueOf(client.path("banner-sizes").post(String.class, form));
-  }
-
-  public void approveOrder(long orderId) {
-    client.path("orders").path(Long.toString(orderId)).path("enabled").put();
-  }
-
-  public void disableOrder(long orderId) {
-    client.path("orders").path(Long.toString(orderId)).path("enabled").delete();
-  }
-
-  public void deleteAction(long actionId) {
-    client.path("actions").path(Long.toString(actionId)).delete();
+    form.add("allow_negative_balance", allowNegativeBalance);
+    form.add("auto_approve", autoApprove);
+    form.add("reentrant", reentrant);
+    for (Region region : regions)
+      form.add("regions", region);
+    for (long categoryId : categories)
+      form.add("categories", categoryId);
+    client.path("offers").post(form);
   }
 }

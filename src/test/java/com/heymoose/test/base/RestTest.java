@@ -47,13 +47,27 @@ public class RestTest {
     return TestContextListener.injector();
   }
 
+  protected void sqlUpdate(String sql) {
+    SessionFactory sessionFactory = injector().getInstance(SessionFactory.class);
+    Session session = sessionFactory.openSession();
+    Transaction tx =  session.beginTransaction();
+    try {
+      session.createSQLQuery(sql).executeUpdate();
+      tx.commit();
+    } catch (Exception e) {
+      e.printStackTrace();
+      tx.rollback();
+    }
+    session.close();
+  }
+
   @Before public void reset() throws InterruptedException {
     SessionFactory sessionFactory = injector().getInstance(SessionFactory.class);
     Session session = sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
       session.createQuery("delete from Banner").executeUpdate();
-      session.createQuery("delete from Offer").executeUpdate();
+      session.createQuery("delete from BaseOffer").executeUpdate();
       session.createSQLQuery("delete from user_role").executeUpdate();
       session.createQuery("delete from User").executeUpdate();
       tx.commit();
