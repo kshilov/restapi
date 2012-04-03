@@ -3,10 +3,11 @@ package com.heymoose.domain.affiliate;
 import com.google.common.base.Optional;
 import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.AdminAccountAccessor;
+import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
-import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.api.Api.appendQueryParam;
@@ -46,7 +47,7 @@ public class Tracking {
   @Transactional
   public ShowStat track(@Nullable Long bannerId, Offer offer, User affiliate,
                         @Nullable String subId, @Nullable String sourceId) {
-    ShowStat stat = findStat(bannerId, offer, affiliate, subId, sourceId);
+    ShowStat stat = findShow(bannerId, offer, affiliate, subId, sourceId);
     if (stat != null) {
       stat.inc();
       return stat;
@@ -56,7 +57,28 @@ public class Tracking {
     return stat;
   }
   
-  private ShowStat findStat(Long bannerId, Offer offer, User affiliate, @Nullable String subId, @Nullable String sourceId) {
+  @Transactional
+  public ClickStat click(@Nullable Long bannerId, long offerId, long affId,
+                     @Nullable String subId, @Nullable String sourceId) {
+    ClickStat click = findClick(bannerId, offerId, subId, sourceId);
+    if (click == null) {
+      click = new ClickStat(bannerId, offerId, affId, subId, sourceId);
+      repo.put(click);
+    }
+    Offer offer = repo.get(Offer.class, offerId);
+    PayMethod payMethod = offer.payMethod();
+    if (payMethod == PayMethod.CPC) {
+      accounting.lock(offer.account(), click.affiliate().affiliateAccount());
+      BigDecimal cost = offer.cost();
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
+      BigDecimal revenue = cost.subtract(amount);
+      accounting.transferMoney(offer.account(), click.affiliate().affiliateAccount(), amount, AccountingEvent.CLICK_CREATED, click.id(), null);
+      accounting.transferMoney(offer.account(), adminAccountAccessor.getAdminAccount(), revenue, AccountingEvent.CLICK_CREATED, click.id(), null);
+    }
+    return click;
+  }
+
+  private ShowStat findShow(Long bannerId, Offer offer, User affiliate, @Nullable String subId, @Nullable String sourceId) {
     DetachedCriteria criteria = DetachedCriteria.forClass(ShowStat.class)
         .add(Restrictions.eq("offer", offer))
         .add(Restrictions.eq("affiliate", affiliate));
@@ -69,40 +91,8 @@ public class Tracking {
     return repo.byCriteria(criteria);
   }
 
-  @Transactional
-  public Click click(@Nullable Long bannerId, long offerId, long affId,
-                     @Nullable String subId, @Nullable String sourceId) {
-    Click click = findClick(bannerId, offerId, subId, sourceId);
-    if (click == null) {
-      click = new Click(bannerId, offerId, affId, subId, sourceId);
-      repo.put(click);
-    }
-    PayMethod payMethod = payMethod(repo.get(Offer.class, offerId));
-    if (payMethod == PayMethod.CPC) {
-      Offer offer = repo.get(Offer.class, offerId);
-      accounting.lock(offerAccount(offer), click.affiliate().developerAccount());
-      BigDecimal cost = cost(offer);
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
-      BigDecimal revenue = cost.subtract(amount);
-//      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
-//      tx1.approve();
-//      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
-//      tx2.approve();
-    }
-    return click;
-  }
-
-  private static Account offerAccount(Offer offer) {
-    if (offer instanceof Offer)
-      return ((Offer) offer).account();
-    else if (offer instanceof SubOffer)
-      return ((SubOffer) offer).parent().account();
-    else
-      throw new IllegalStateException();
-  }
-
-  public Click findClick(@Nullable Long bannerId, long offerId, @Nullable String subId, @Nullable String sourceId) {
-    DetachedCriteria criteria = DetachedCriteria.forClass(Click.class)
+  private ClickStat findClick(@Nullable Long bannerId, long offerId, @Nullable String subId, @Nullable String sourceId) {
+    DetachedCriteria criteria = DetachedCriteria.forClass(ClickStat.class)
         .add(Restrictions.eq("offerId", offerId));
     if (bannerId != null)
       criteria.add(Restrictions.eq("bannerId", bannerId));
@@ -114,14 +104,14 @@ public class Tracking {
   }
 
   @Transactional
-  public List<OfferAction> actionDone(Click click, String transactionId, Map<Offer, Optional<Double>> offers) {
+  public List<OfferAction> actionDone(ClickStat click, String transactionId, Map<BaseOffer, Optional<Double>> offers) {
     List<OfferAction> actions = newArrayList();
-    for (Offer offer : offers.keySet()) {
+    for (BaseOffer offer : offers.keySet()) {
       OfferGrant grant = granted(offer, click.affiliate());
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
-      CpaPolicy cpaPolicy = cpaPolicy(offer);
-      PayMethod payMethod = payMethod(offer);
+      CpaPolicy cpaPolicy = offer.cpaPolicy();
+      PayMethod payMethod = offer.payMethod();
       if (payMethod != PayMethod.CPA)
         throw new IllegalArgumentException("Not CPA offer: " + offer.id());
       BigDecimal cost = null;
@@ -129,23 +119,23 @@ public class Tracking {
         Optional<Double> price = offers.get(offer);
         if (!price.isPresent())
           throw new IllegalArgumentException("No price for offer with id = " + offer.id());
-        cost = new BigDecimal(price.get()).multiply(percent(offer).divide(new BigDecimal(100.0)));
+        cost = new BigDecimal(price.get()).multiply(offer.percent().divide(new BigDecimal(100.0)));
       } else if (cpaPolicy == CpaPolicy.FIXED) {
-        cost = cost(offer);
+        cost = offer.cost();
       } else throw new IllegalStateException();
+      OfferAction action = new OfferAction(click, offer, transactionId);
+      repo.put(action);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-//      accounts.lock(offerAccount(offer), click.affiliate().developerAccount());
-//      AccountTx tx1 = accounts.transferCompact(offerAccount(offer), click.affiliate().developerAccount(), amount);
-//      AccountTx tx2 = accounts.transferCompact(offerAccount(offer), adminAccountAccessor.getAdminAccount(), revenue);
-//      OfferAction action = new OfferAction(click, offer, transactionId, tx1, tx2);
-//      repo.put(action);
+      accounting.lock(offer.account(), click.affiliate().affiliateAccount());
+      accounting.transferMoney(offer.account(), click.affiliate().affiliateAccount(), amount, AccountingEvent.ACTION_CREATED, action.id(), null);
+      accounting.transferMoney(offer.account(), adminAccountAccessor.getAdminAccount(), revenue, AccountingEvent.ACTION_CREATED, action.id(), null);
       try {
         getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));
       } catch (Exception e) {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
       }
-//      actions.add(action);
+      actions.add(action);
     }
     return actions;
   }
@@ -175,49 +165,20 @@ public class Tracking {
         }
     }
   }
-  
-  private static CpaPolicy cpaPolicy(Offer offer) {
-    if (offer instanceof Offer)
-      return ((Offer) offer).cpaPolicy();
-    else if (offer instanceof SubOffer)
-      return ((SubOffer) offer).cpaPolicy();
-    else
-      throw new IllegalArgumentException();
-  }
-  
-  private static PayMethod payMethod(Offer offer) {
-    if (offer instanceof Offer)
-      return ((Offer) offer).payMethod();
-    else if (offer instanceof SubOffer)
-      return PayMethod.CPA;
-    else
-      throw new IllegalArgumentException();
-  }
-
-  private static BigDecimal cost(Offer offer) {
-    if (offer instanceof Offer)
-      return ((Offer) offer).cost();
-    else if (offer instanceof SubOffer)
-      return ((SubOffer) offer).cost();
-    else
-      throw new IllegalArgumentException();
-  }
-  
-  private static BigDecimal percent(Offer offer) {
-    if (offer instanceof Offer)
-      return ((Offer) offer).percent();
-    else if (offer instanceof SubOffer)
-      return ((SubOffer) offer).percent();
-    else
-      throw new IllegalArgumentException();
-  }
 
   @Transactional
-  public OfferGrant granted(Offer offer, User affiliate) {
+  public OfferGrant granted(BaseOffer offer, User affiliate) {
+    BaseOffer grantTarget;
+    if (offer instanceof Offer)
+      grantTarget = offer;
+    else if (offer instanceof SubOffer)
+      grantTarget = ((SubOffer) offer).parent();
+    else
+      throw new IllegalStateException();
     OfferGrant grant = repo.byHQL(
         OfferGrant.class,
         "from OfferGrant where offer = ? and affiliate = ?",
-        offer, affiliate
+        grantTarget, affiliate
     );
     if (grant == null)
       return null;

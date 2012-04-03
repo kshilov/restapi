@@ -1,17 +1,15 @@
 package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.hiber.RepositoryHiber;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
-import com.heymoose.domain.affiliate.NewOfferRepository;
-import com.heymoose.domain.hiber.RepositoryHiber;
 
 @Singleton
 public class NewOfferRepositoryHiber extends RepositoryHiber<Offer> implements NewOfferRepository {

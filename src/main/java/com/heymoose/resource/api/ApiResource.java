@@ -4,10 +4,11 @@ import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
+import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.Click;
+import com.heymoose.domain.affiliate.ClickStat;
 import com.heymoose.domain.affiliate.GeoTargeting;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.SubOffer;
@@ -24,7 +25,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
-import java.net.UnknownHostException;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
@@ -116,18 +116,18 @@ public class ApiResource {
     String txId = safeGetParam(params, "transaction_id");
     String sOffer = safeGetParam(params, "offer");
     String[] pairs = sOffer.split(",");
-    Map<Offer, Optional<Double>> offers = newHashMap();
+    Map<BaseOffer, Optional<Double>> offers = newHashMap();
     for (String pair : pairs) {
       String[] parts = pair.split(":");
       String sOfferId = parts[0];
       long offerId = Long.valueOf(sOfferId);
-      Offer offer = repo.get(Offer.class, offerId);
+      BaseOffer offer = repo.get(BaseOffer.class, offerId);
       Optional<Double> price = (parts.length == 2)
           ? Optional.of(Double.parseDouble(parts[1]))
           : Optional.<Double>absent();
       offers.put(offer, price);
     }
-    Click click = repo.get(Click.class, clickId);
+    ClickStat click = repo.get(ClickStat.class, clickId);
     tracking.actionDone(click, txId, offers);
     return Response.ok().build();
   }
@@ -156,15 +156,15 @@ public class ApiResource {
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum))
       return Response.status(302).location(URI.create(grant.backUrl())).build();
-    Click click = tracking.click(bannerId, offerId, affId, subId, sourceId);
+    ClickStat click = tracking.click(bannerId, offerId, affId, subId, sourceId);
     URI location = URI.create(offer.url());
     location = Api.appendQueryParam(location, "_hm_click_id", click);
     return Response.status(302).location(location).build();
   }
 
-  private static boolean visible(Offer offer) {
+  private static boolean visible(BaseOffer offer) {
     if (offer instanceof Offer) {
-      Offer newOffer = offer;
+      Offer newOffer = (Offer) offer;
       return newOffer.visible();
     } else if (offer instanceof SubOffer) {
       SubOffer subOffer = (SubOffer) offer;
@@ -212,17 +212,6 @@ public class ApiResource {
     long c = Long.valueOf(parts[2]);
     long d = Long.valueOf(parts[3]);
     return (a << 24) | (b << 16) | (c << 8) | d;
-  }
-
-  public static void main(String[] args) throws UnknownHostException {
-    String sIP = "176.14.151.53";
-    String[] parts = sIP.split("\\.");
-    long a = Long.valueOf(parts[0]);
-    long b = Long.valueOf(parts[1]);
-    long c = Long.valueOf(parts[2]);
-    long d = Long.valueOf(parts[3]);
-    long ip = (a << 24) | (b << 16) | (c << 8) | d;
-    System.out.println(ip);
   }
 
   private Multimap<String, String> queryParamsMulti() {

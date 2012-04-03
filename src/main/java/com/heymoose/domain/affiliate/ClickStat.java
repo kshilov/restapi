@@ -5,6 +5,7 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import javax.annotation.Nullable;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,7 +18,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "click")
-public class Click extends BaseEntity {
+public class ClickStat extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "click-seq")
@@ -55,13 +56,16 @@ public class Click extends BaseEntity {
   @Nullable
   private String sourceId;
 
+  @Basic(optional = false)
+  private long count = 1;
+
   @Override
   public Long id() {
     return id;
   }
 
-  protected Click(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
-                  @Nullable String sourceId) {
+  protected ClickStat(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
+                      @Nullable String sourceId) {
     this.bannerId = bannerId;
     this.offerId = offerId;
     this.affiliateId = affId;
@@ -79,5 +83,9 @@ public class Click extends BaseEntity {
 
   public String subId () {
     return subId;
+  }
+
+  public void inc() {
+    count++;
   }
 }

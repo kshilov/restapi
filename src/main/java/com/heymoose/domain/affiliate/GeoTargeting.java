@@ -1,6 +1,7 @@
 package com.heymoose.domain.affiliate;
 
 import com.google.common.collect.Sets;
+import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -28,11 +29,11 @@ public class GeoTargeting {
   }
 
   @Transactional
-  public boolean isAllowed(Offer offer, long ipNum) {
+  public boolean isAllowed(BaseOffer offer, long ipNum) {
     return !Sets.intersection(regions(offer), regionsByIpNum(ipNum)).isEmpty();
   }
   
-  private static Set<Region> regions(Offer offer) {
+  private static Set<Region> regions(BaseOffer offer) {
     if (offer instanceof Offer)
       return ((Offer) offer).regions();
     else if (offer instanceof SubOffer)

@@ -88,11 +88,10 @@ public class Mappers {
       xmlUser.blocked = user.blocked();
       xmlUser.registerTime = user.registerTime().toString();
       
-      if (user.customerAccount() != null)
-        xmlUser.customerAccount = toXmlAccount(user.customerAccount());
-      xmlUser.customerSecret = user.customerSecret();
-      if (user.developerAccount() != null)
-        xmlUser.developerAccount = toXmlAccount(user.developerAccount());
+      if (user.advertiserAccount() != null)
+        xmlUser.customerAccount = toXmlAccount(user.advertiserAccount());
+      if (user.affiliateAccount() != null)
+        xmlUser.developerAccount = toXmlAccount(user.affiliateAccount());
       xmlUser.roles = Sets.newHashSet();
       for (Role role : user.roles())
         xmlUser.roles.add(role.toString());
@@ -155,6 +154,9 @@ public class Mappers {
     
     for (SubOffer suboffer : offer.suboffers())
       xmlNewOffer.suboffers.add(toXmlSubOffer(suboffer));
+
+    for (Category category : offer.categories())
+      xmlNewOffer.categories.add(toXmlCategory(category));
     
     for (Region region : offer.regions())
       xmlNewOffer.regions.add(region.toString());

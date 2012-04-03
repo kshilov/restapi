@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import com.heymoose.server.Launcher;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import java.io.IOException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -11,8 +12,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 @Ignore
 public class RestTest {

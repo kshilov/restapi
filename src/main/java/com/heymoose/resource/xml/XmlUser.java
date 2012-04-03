@@ -45,9 +45,6 @@ public class XmlUser {
   @XmlElement(name = "revenue")
   public String revenue;
 
-  @XmlElement(name = "customer-secret")
-  public String customerSecret;
-
   @XmlElement(name = "developer-account")
   public XmlAccount developerAccount;
 

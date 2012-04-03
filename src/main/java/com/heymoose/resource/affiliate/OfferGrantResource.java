@@ -1,8 +1,17 @@
 package com.heymoose.resource.affiliate;
 
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.User;
+import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
+import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.OfferGrantState;
+import com.heymoose.hibernate.Transactional;
+import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.XmlOfferGrants;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -16,17 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-
-import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.NewOfferRepository;
-import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
-import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferGrantState;
-import com.heymoose.hibernate.Transactional;
-import com.heymoose.resource.xml.Mappers;
-import com.heymoose.resource.xml.XmlOfferGrants;
 
 @Path("grants")
 @Singleton

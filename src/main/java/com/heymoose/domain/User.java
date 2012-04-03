@@ -8,7 +8,6 @@ import java.net.URI;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
-import java.util.UUID;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -48,15 +47,12 @@ public class User extends IdEntity {
   private Set<Role> roles;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "customer_account_id")
-  private Account customerAccount;
-
-  @Column(name = "customer_secret", nullable = true)
-  private String customerSecret;
+  @JoinColumn(name = "advertiser_account_id")
+  private Account advertiserAccount;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "developer_account_id")
-  private Account developerAccount;
+  @JoinColumn(name = "affiliate_account_id")
+  private Account affiliateAccount;
 
   @Basic(optional = false)
   private String email;
@@ -123,16 +119,12 @@ public class User extends IdEntity {
     this.registerTime = DateTime.now();
   }
 
-  public Account developerAccount() {
-    return developerAccount;
+  public Account affiliateAccount() {
+    return affiliateAccount;
   }
 
-  public Account customerAccount() {
-    return customerAccount;
-  }
-
-  public String customerSecret() {
-    return customerSecret;
+  public Account advertiserAccount() {
+    return advertiserAccount;
   }
 
   public String email() {
@@ -153,16 +145,10 @@ public class User extends IdEntity {
     if (roles == null)
       roles = Sets.newHashSet();
     roles.add(role);
-    if (role.equals(Role.CUSTOMER) && customerAccount == null) {
-      customerAccount = new Account(false);
-      customerSecret = UUID.randomUUID().toString();
-    }
-    if (role.equals(Role.ADVERTISER) && customerAccount == null)
-      customerAccount = new Account(false);
-    if (role.equals(Role.DEVELOPER) && developerAccount == null)
-      developerAccount = new Account(false);
-    if (role.equals(Role.AFFILIATE) && developerAccount == null)
-      developerAccount = new Account(false);
+    if (role.equals(Role.ADVERTISER) && advertiserAccount == null)
+      advertiserAccount = new Account(false);
+    if (role.equals(Role.AFFILIATE) && affiliateAccount == null)
+      affiliateAccount = new Account(false);
   }
 
   public Set<Role> roles() {
@@ -171,14 +157,6 @@ public class User extends IdEntity {
     return unmodifiableSet(roles);
   }
 
-  public boolean isCustomer() {
-    return roles != null && roles.contains(Role.CUSTOMER);
-  }
-
-  public boolean isDeveloper() {
-    return roles != null && roles.contains(Role.DEVELOPER);
-  }
-  
   public boolean isAdvertiser() {
     return roles != null && roles.contains(Role.ADVERTISER);
   }

@@ -1,10 +1,8 @@
 package com.heymoose.domain.accounting;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import com.google.common.base.Predicate;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,7 +11,6 @@ import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @Singleton
@@ -26,15 +23,13 @@ public class Accounting {
     this.repo = repo;
   }
 
-  @Transactional
   public Account createAccount(BigDecimal balance) {
     Account account = new Account();
-    AccountingEntry entry = createEntry(account, balance);
+    AccountingEntry entry = new AccountingEntry(account, balance);
     repo.put(entry);
     return account;
   }
 
-  @Transactional
   public void lock(Account a1, Account a2) {
     if (a1.id() > a2.id()) {
       repo.lock(a1);
@@ -45,44 +40,50 @@ public class Accounting {
     }
   }
 
-  @Transactional
-  public void transferMoney(Account src, Account dst, BigDecimal amount, AccountingTransactionType type, Long event, String descr) {
-    AccountingEntry srcEntry = createEntry(src, amount);
-    AccountingEntry dstEntry = createEntry(dst, amount);
-    createTransaction(srcEntry, dstEntry, type, event, descr);
+  public void transferMoney(Account src, Account dst, BigDecimal amount, AccountingEvent event, Long sourceId, String descr) {
+    checkArgument(amount.signum() == 1);
+    AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, descr);
+    AccountingEntry dstEntry = new AccountingEntry(dst, amount, event, sourceId, descr);
+    createTransaction(srcEntry, dstEntry);
   }
 
-  @Transactional
-  private void createTransaction(AccountingEntry srcEntry, AccountingEntry dstEntry, AccountingTransactionType type, Long event, String descr) {
-    AccountingTransaction transaction = new AccountingTransaction(srcEntry, dstEntry, type,  event, descr);
+  public void transferMoney(Account src, AccountingEntry dstEntry, BigDecimal amount, AccountingEvent event, Long sourceId, String desc) {
+    checkArgument(amount.signum() == 1);
+    dstEntry.amend(amount);
+    AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, desc);
+    srcEntry.setTransaction(dstEntry.transaction());
+  }
+
+  public void cancel(AccountingTransaction transaction) {
+    List<AccountingEntry> entries = repo.allByHQL(
+        AccountingEntry.class,
+        "from AccountingEntry where transaction = ?",
+        transaction
+    );
+    AccountingTransaction reverseTx = new AccountingTransaction();
+    for (AccountingEntry entry : entries) {
+      AccountingEntry reverseEntry = new AccountingEntry(entry.account(), entry.amount().negate());
+      reverseEntry.setTransaction(reverseTx);
+      repo.put(reverseEntry);
+    }
+  }
+
+  private void createTransaction(AccountingEntry srcEntry, AccountingEntry dstEntry) {
+    AccountingTransaction transaction = new AccountingTransaction();
     repo.put(transaction);
+    srcEntry.setTransaction(transaction);
+    dstEntry.setTransaction(transaction);
   }
 
-  @Transactional
-  public AccountingEntry createEntry(Account account, BigDecimal amount) {
-    return new AccountingEntry(account, amount);
-  }
-
-  @Transactional
-  private AccountingEntry lastEntry(Account account) {
-    DetachedCriteria criteria = DetachedCriteria
-        .forClass(AccountingEntry.class)
-        .add(Restrictions.eq("account", account))
-        .addOrder(Order.desc("id"));
+  public AccountingEntry getLastEntry(Account account) {
+    DetachedCriteria criteria = DetachedCriteria.forClass(AccountingEntry.class);
+    criteria.add(Restrictions.eq("account", account));
+    criteria.addOrder(Order.desc("id"));
     return (AccountingEntry) repo.getExecutableCriteria(criteria).setMaxResults(1).uniqueResult();
   }
 
-  @Transactional
-  public AccountingEntry amendLastEntry(Account account, BigDecimal amount, Predicate<AccountingEntry> amendCondition) {
-    AccountingEntry lastEntry = lastEntry(account);
-    if (amendCondition.apply(lastEntry))
-      return lastEntry.amend(amount);
-    else
-      return createEntry(account, amount);
-  }
-
   public Withdraw withdraw(Account account, BigDecimal amount) {
-    createEntry(account, amount.negate());
+    new AccountingEntry(account, amount.negate());
     Withdraw withdraw = new Withdraw(account, amount);
     repo.put(withdraw);
     return withdraw;
@@ -98,7 +99,7 @@ public class Accounting {
 
   public void deleteWithdraw(Withdraw withdraw, String comment) {
     checkArgument(!isBlank(comment));
-    createEntry(withdraw.account(), withdraw.amount());
+    new AccountingEntry(withdraw.account(), withdraw.amount());
     repo.remove(withdraw);
   }
 

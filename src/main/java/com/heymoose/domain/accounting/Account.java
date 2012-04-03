@@ -1,5 +1,6 @@
 package com.heymoose.domain.accounting;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.affiliate.base.ModifiableEntity;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
@@ -52,5 +53,15 @@ public class Account extends ModifiableEntity {
   public void setBalance(BigDecimal balance) {
     this.balance = balance;
     touch();
+  }
+
+  public AccountingEntry add(BigDecimal amount) {
+    checkArgument(amount.signum() == 1);
+    return new AccountingEntry(this, amount);
+  }
+
+  public AccountingEntry subtract(BigDecimal amount) {
+    checkArgument(amount.signum() == 1);
+    return new AccountingEntry(this, amount.negate());
   }
 }

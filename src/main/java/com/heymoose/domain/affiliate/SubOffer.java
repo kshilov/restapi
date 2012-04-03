@@ -1,19 +1,17 @@
 package com.heymoose.domain.affiliate;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.accounting.Account;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class SubOffer extends Offer {
+public class SubOffer extends BaseOffer {
 
   @Column(name = "parent_id")
   private Long parentId;
@@ -21,47 +19,19 @@ public class SubOffer extends Offer {
   @ManyToOne()
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private Offer parent;
-  
-  @Enumerated(EnumType.STRING)
-  @Column(name = "cpa_policy", nullable = false)
-  private CpaPolicy cpaPolicy;
-
-  @Basic
-  private BigDecimal cost;
-
-  @Basic
-  private BigDecimal percent;
-  
-  @Basic
-  private boolean active = false;
-
-  @Basic(optional = false)
-  private String title;
-
-  @Column(name = "auto_approve", nullable = false)
-  private boolean autoApprove;
-
-  @Basic(optional = false)
-  private boolean reentrant;
 
   protected SubOffer() {}
-  
+
+  @Override
+  public Account account() {
+    return parent.account();
+  }
+
   public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, boolean autoApprove, boolean reentrant) {
-
-    checkNotNull(parentId, cpaPolicy);
-    BigDecimal valueToCheck = cpaPolicy == CpaPolicy.FIXED ? cost : percent;
-    checkNotNull(valueToCheck);
-    checkArgument(valueToCheck.signum() == 1);
-    
+    super(PayMethod.CPA, cpaPolicy, cost, percent, title, autoApprove, reentrant);
+    checkNotNull(parentId);
     this.parentId = parentId;
-    this.cpaPolicy = cpaPolicy;
-    this.cost = cost;
-    this.percent = percent;
-
-    this.title = title;
-    this.autoApprove = autoApprove;
-    this.reentrant = reentrant;
   }
   
   public Long parentId() {
@@ -70,21 +40,5 @@ public class SubOffer extends Offer {
   
   public Offer parent() {
     return parent;
-  }
-
-  public CpaPolicy cpaPolicy() {
-    return cpaPolicy;
-  }
-
-  public BigDecimal cost() {
-    return cost;
-  }
-  
-  public BigDecimal percent() {
-    return percent;
-  }
-  
-  public boolean active() {
-    return active;
   }
 }

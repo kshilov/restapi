@@ -58,7 +58,7 @@ public class HibernateRepo implements Repo {
 
   @Override
   public <T extends IdEntity> T byCriteria(DetachedCriteria criteria) {
-    return (T) criteria.getExecutableCriteria(hiber()).uniqueResult();
+    return (T) criteria.getExecutableCriteria(hiber()).setMaxResults(1).uniqueResult();
   }
 
   @Override

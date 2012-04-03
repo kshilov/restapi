@@ -25,6 +25,26 @@ public class AccountingEntry extends ModifiableEntity {
   @Basic(optional = false)
   private BigDecimal amount;
 
+  @Basic
+  private AccountingEvent event;
+
+  @Basic
+  private Long sourceId;
+
+  @Basic
+  private String descr;
+
+  @ManyToOne
+  @JoinColumn(name = "transaction")
+  private AccountingTransaction transaction;
+
+  public AccountingEntry(Account account, BigDecimal amount, AccountingEvent event, Long sourceId, String descr) {
+    this(account, amount);
+    this.event = event;
+    this.sourceId = sourceId;
+    this.descr = descr;
+  }
+
   public AccountingEntry(Account account, BigDecimal amount) {
     this.account = account;
     this.amount = amount;
@@ -40,5 +60,21 @@ public class AccountingEntry extends ModifiableEntity {
     this.amount = this.amount.add(amount);
     touch();
     return this;
+  }
+
+  public void setTransaction(AccountingTransaction transaction) {
+    this.transaction = transaction;
+  }
+
+  public AccountingTransaction transaction() {
+    return transaction;
+  }
+
+  public Account account() {
+    return account;
+  }
+
+  public BigDecimal amount() {
+    return amount;
   }
 }

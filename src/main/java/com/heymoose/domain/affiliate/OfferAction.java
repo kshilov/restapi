@@ -1,7 +1,7 @@
 package com.heymoose.domain.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import com.heymoose.domain.Offer;
+import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,11 +25,11 @@ public class OfferAction extends BaseEntity {
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "click_id")
-  private Click click;
+  private ClickStat click;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "offer_id")
-  private Offer offer;
+  private BaseOffer offer;
 
   @Column(name = "transaction_id", nullable = false)
   private String transactionId;
@@ -44,7 +44,7 @@ public class OfferAction extends BaseEntity {
 
   protected OfferAction() {}
   
-  public OfferAction(Click click, Offer offer, String transactionId) {
+  public OfferAction(ClickStat click, BaseOffer offer, String transactionId) {
     this.click = click;
     this.transactionId = transactionId;
     this.offer = offer;

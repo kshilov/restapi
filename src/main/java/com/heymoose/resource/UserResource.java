@@ -9,6 +9,7 @@ import com.heymoose.domain.UserRepository.Ordering;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
@@ -149,10 +150,10 @@ public class UserResource {
   public void addToCustomerAccount(@PathParam("id") Long id, @FormParam("amount") String amount) {
     checkNotNull(id, amount);
     User user = existing(id);
-    if (!user.isCustomer() && !user.isAdvertiser())
+    if (!user.isAdvertiser())
       throw conflict();
-    repo.lock(user.customerAccount());
-    accounting.createEntry(user.customerAccount(), new BigDecimal(amount));
+    repo.lock(user.advertiserAccount());
+    new AccountingEntry(user.advertiserAccount(), new BigDecimal(amount));
   }
 
   @PUT
@@ -235,9 +236,9 @@ public class UserResource {
     checkNotNull(_amount);
     BigDecimal amount = new BigDecimal(_amount);
     User user = existing(id);
-    if (!user.isDeveloper())
+    if (!user.isAffiliate())
       throw conflict();
-    Withdraw withdraw = accounting.withdraw(user.developerAccount(), amount);
+    Withdraw withdraw = accounting.withdraw(user.affiliateAccount(), amount);
     return Long.toString(withdraw.id());
   }
 
@@ -246,10 +247,10 @@ public class UserResource {
   @Path("{id}/developer-account/withdraws")
   public XmlWithdraws developerWithdraws(@PathParam("id") long id) {
     User user = existing(id);
-    if (!user.isDeveloper())
+    if (!user.isAffiliate())
       throw conflict();
-    List<Withdraw> withdraws = accounting.withdraws(user.developerAccount());
-    return Mappers.toXmlWithdraws(user.developerAccount().id(), withdraws);
+    List<Withdraw> withdraws = accounting.withdraws(user.affiliateAccount());
+    return Mappers.toXmlWithdraws(user.affiliateAccount().id(), withdraws);
   }
 
   @PUT
@@ -257,9 +258,9 @@ public class UserResource {
   @Path("{id}/developer-account/withdraws/{withdrawId}")
   public void approveDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
     User user = existing(id);
-    if (!user.isDeveloper())
+    if (!user.isAffiliate())
       throw conflict();
-    Withdraw withdraw = accounting.withdrawOfAccount(user.developerAccount(), withdrawId);
+    Withdraw withdraw = accounting.withdrawOfAccount(user.affiliateAccount(), withdrawId);
     if (withdraw == null)
       throw notFound();
     withdraw.approve();
@@ -271,9 +272,9 @@ public class UserResource {
   public void deleteDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId, @FormParam("comment") String comment) {
     checkNotNull(comment);
     User user = existing(id);
-    if (!user.isDeveloper())
+    if (!user.isAffiliate())
       throw conflict();
-    Withdraw withdraw = accounting.withdrawOfAccount(user.developerAccount(), withdrawId);
+    Withdraw withdraw = accounting.withdrawOfAccount(user.affiliateAccount(), withdrawId);
     if (withdraw == null)
       throw notFound();
     accounting.deleteWithdraw(withdraw, comment);

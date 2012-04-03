@@ -1,6 +1,5 @@
 package com.heymoose.domain;
 
-import com.heymoose.domain.AdminAccount;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;

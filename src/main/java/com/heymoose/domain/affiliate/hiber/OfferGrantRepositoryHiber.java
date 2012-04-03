@@ -2,22 +2,18 @@ package com.heymoose.domain.affiliate.hiber;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-
 import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.domain.hiber.RepositoryHiber;
+import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements OfferGrantRepository {
 

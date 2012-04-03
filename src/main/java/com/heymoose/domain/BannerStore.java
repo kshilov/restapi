@@ -1,6 +1,5 @@
 package com.heymoose.domain;
 
-import com.heymoose.domain.Banner;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;

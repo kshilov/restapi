@@ -1,14 +1,12 @@
 package com.heymoose.resource.xml;
 
+import com.google.common.collect.Sets;
 import java.math.BigDecimal;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.google.common.collect.Sets;
 
 @XmlRootElement(name = "offer")
 public class XmlNewOffer {
@@ -25,6 +23,10 @@ public class XmlNewOffer {
   @XmlElementWrapper(name = "suboffers")
   @XmlElement(name = "suboffer")
   public Set<XmlSubOffer> suboffers = Sets.newHashSet();
+
+  @XmlElementWrapper(name = "categories")
+  @XmlElement(name = "category")
+  public Set<XmlCategory> categories = Sets.newHashSet();
   
   @XmlElement(name = "grant")
   public XmlOfferGrant grant;

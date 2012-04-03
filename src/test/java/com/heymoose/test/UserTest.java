@@ -4,10 +4,9 @@ import com.heymoose.domain.Role;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
 import com.sun.jersey.api.client.UniformInterfaceException;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import org.junit.Test;
 
 public class UserTest extends RestTest {
 
@@ -69,15 +68,15 @@ public class UserTest extends RestTest {
     long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
     XmlUser user = heymoose().getUser(userId);
     assertEquals(0, user.roles.size());
-    heymoose().addRoleToUser(userId, Role.CUSTOMER);
+    heymoose().addRoleToUser(userId, Role.ADVERTISER);
     user = heymoose().getUser(userId);
     assertEquals(1, user.roles.size());
-    assertEquals(Role.CUSTOMER, Role.valueOf(user.roles.iterator().next()));
+    assertEquals(Role.ADVERTISER, Role.valueOf(user.roles.iterator().next()));
   }
 
   @Test public void addToCustomerAccount() {
     long userId = heymoose().registerUser(EMAIL, PASSWORD_HASH, FIRST_NAME, LAST_NAME, PHONE);
-    heymoose().addRoleToUser(userId, Role.CUSTOMER);
+    heymoose().addRoleToUser(userId, Role.ADVERTISER);
     double amount = 1.2;
     heymoose().addToCustomerAccount(userId, amount);
     XmlUser user = heymoose().getUser(userId);

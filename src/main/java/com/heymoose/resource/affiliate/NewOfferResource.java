@@ -1,11 +1,34 @@
 package com.heymoose.resource.affiliate;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.Lists;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.Offer;
+import com.heymoose.domain.User;
+import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.CpaPolicy;
+import com.heymoose.domain.affiliate.NewOfferRepository;
+import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
+import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.OfferGrantRepository;
+import com.heymoose.domain.affiliate.PayMethod;
+import com.heymoose.domain.affiliate.Region;
+import com.heymoose.domain.affiliate.SubOffer;
+import com.heymoose.domain.affiliate.SubOfferRepository;
+import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.hibernate.Transactional;
+import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.XmlNewOffer;
+import com.heymoose.resource.xml.XmlNewOffers;
+import com.heymoose.resource.xml.XmlSubOffers;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -20,28 +43,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import com.google.common.collect.Lists;
-import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.NewOfferRepository.Ordering;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.NewOfferRepository;
-import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Region;
-import com.heymoose.domain.affiliate.SubOffer;
-import com.heymoose.domain.affiliate.SubOfferRepository;
-import com.heymoose.hibernate.Transactional;
-import com.heymoose.resource.xml.Mappers;
-import com.heymoose.resource.xml.XmlNewOffer;
-import com.heymoose.resource.xml.XmlNewOffers;
-import com.heymoose.resource.xml.XmlSubOffers;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
-
 @Path("offers")
 @Singleton
 public class NewOfferResource {
@@ -51,17 +52,19 @@ public class NewOfferResource {
   private final OfferGrantRepository offerGrants;
   private final UserRepository users;
   private final Accounting accounting;
+  private final Repo repo;
 
   @Inject
   public NewOfferResource(NewOfferRepository newOffers,
                           SubOfferRepository subOffers,
                           OfferGrantRepository offerGrants,
-                          UserRepository users, Accounting accounting) {
+                          UserRepository users, Accounting accounting, Repo repo) {
     this.newOffers = newOffers;
     this.subOffers = subOffers;
     this.offerGrants = offerGrants;
     this.users = users;
     this.accounting = accounting;
+    this.repo = repo;
   }
   
   @GET
@@ -139,8 +142,11 @@ public class NewOfferResource {
                        @FormParam("allow_negative_balance") @DefaultValue("false") boolean allowNegativeBalance,
                        @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                        @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
-                       @FormParam("regions") List<String> strRegions) {
+                       @FormParam("regions") List<String> strRegions,
+                       @FormParam("categories") List<Long> longCategories) {
     checkNotNull(advertiserId, payMethod, strCost, name, description, url, title);
+    checkNotNull(URI.create(url));
+
     checkArgument(!strRegions.isEmpty());
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
@@ -151,7 +157,7 @@ public class NewOfferResource {
     BigDecimal balance = new BigDecimal(strBalance);
     if (cost.signum() != 1 || balance.signum() < 0)
       throw new WebApplicationException(400);
-    if (balance.signum() > 0 && advertiser.customerAccount().balance().compareTo(balance) == -1)
+    if (balance.signum() > 0 && advertiser.advertiserAccount().balance().compareTo(balance) == -1)
       throw new WebApplicationException(409);
     
     if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT) {
@@ -159,17 +165,21 @@ public class NewOfferResource {
       cost = null;
     }
     
-    List<Region> regions = Lists.newArrayList();
+    List<Region> regions = newArrayList();
     for (String strRegion : strRegions)
       regions.add(Region.valueOf(strRegion));
-    
+
+    if (longCategories == null)
+      longCategories = newArrayList();
+    Iterable<Category> categories = repo.get(Category.class, newHashSet(longCategories)).values();
+
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
-        payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions,
+        payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
         logoFileName);
     newOffers.put(offer);
 
     if (balance.signum() > 0)
-      accounting.transferMoney(advertiser.customerAccount(), offer.account(), balance, null, null, null);
+      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, null, null, null);
     
     return offer.id().toString();
   }
@@ -220,7 +230,7 @@ public class NewOfferResource {
       cost = null;
     }
     
-    SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, percent, 
+    SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, percent,
                                      title, autoApprove, reentrant);
     subOffers.put(suboffer);
     return suboffer.id().toString();

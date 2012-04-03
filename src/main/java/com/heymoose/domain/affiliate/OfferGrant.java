@@ -3,8 +3,6 @@ package com.heymoose.domain.affiliate;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
-import com.heymoose.util.HibernateUtil;
-
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -85,7 +83,7 @@ public class OfferGrant extends BaseEntity {
   }
   
   public Offer offer() {
-    return HibernateUtil.unproxy(offer);
+    return offer;
   }
   
   public Long affiliateId() {

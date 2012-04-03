@@ -6,18 +6,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
-import java.security.Signer;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.ObjectNode;
 import org.junit.Ignore;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 @Ignore
 public class Heymoose {
