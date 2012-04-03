@@ -59,7 +59,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     if (affiliateId != null)
       criteria.add(Restrictions.eq("affiliate.id", affiliateId));
     if (state != null)
-      criteria.add(Restrictions.eq("state", state.ordinal()));
+      criteria.add(Restrictions.eq("state", state));
     if (blocked != null)
       criteria.add(Restrictions.eq("blocked", blocked));
     
@@ -79,7 +79,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     if (affiliateId != null)
       criteria.add(Restrictions.eq("affiliate.id", affiliateId));
     if (state != null)
-      criteria.add(Restrictions.eq("state", state.ordinal()));
+      criteria.add(Restrictions.eq("state", state));
     if (blocked != null)
       criteria.add(Restrictions.eq("blocked", blocked));
     
