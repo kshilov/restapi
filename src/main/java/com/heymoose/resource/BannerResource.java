@@ -27,7 +27,7 @@ public class BannerResource {
   }
 
   @GET
-  @Path("{id}/local")
+  @Path("local/{id}")
   @Transactional
   public Response getLocal(@PathParam("id") long bannerId) throws IOException {
     Banner banner = repo.get(Banner.class, bannerId);
