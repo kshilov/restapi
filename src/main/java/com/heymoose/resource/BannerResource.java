@@ -36,7 +36,7 @@ public class BannerResource {
     return Response.ok(bannerStore.getBannerBody(bannerId), banner.mimeType()).build();
   }
 
-    @GET
+  @GET
   @Path("{id}")
   @Transactional
   public Response get(@PathParam("id") long bannerId) throws IOException {

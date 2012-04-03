@@ -161,8 +161,6 @@ public class Offer extends BaseOffer {
 
   public void deleteBanner(Banner banner) {
     checkNotNull(banner);
-    if (banners.size() == 1)
-      throw new IllegalArgumentException("Banner collection must contains at least two elements");
     banners.remove(banner);
   }
 

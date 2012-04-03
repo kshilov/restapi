@@ -268,6 +268,7 @@ public class OfferResource {
       if (banner.id().equals(bannerId)) {
         found = true;
         offer.deleteBanner(banner);
+        break;
       }
     }
     if (!found)
