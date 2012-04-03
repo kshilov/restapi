@@ -75,6 +75,7 @@ public class RestTest {
       session.createQuery("delete from BaseOffer").executeUpdate();
       session.createSQLQuery("delete from user_role").executeUpdate();
       session.createQuery("delete from User").executeUpdate();
+      session.createQuery("delete from Category").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       e.printStackTrace();
