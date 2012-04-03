@@ -14,12 +14,12 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 @Entity
-@Table(name = "new_account")
+@Table(name = "account")
 public class Account extends ModifiableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new-account-seq")
-  @SequenceGenerator(name = "new-account-seq", sequenceName = "new_account_seq", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account-seq")
+  @SequenceGenerator(name = "account-seq", sequenceName = "account_seq", allocationSize = 1)
   private Long id;
 
   @Basic(optional = false)

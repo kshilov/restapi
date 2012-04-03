@@ -1,4 +1,4 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.resource;
 
 import com.heymoose.domain.Banner;
 import com.heymoose.domain.affiliate.base.Repo;

@@ -131,7 +131,7 @@ public class Mappers {
   }
   
   
-  public static XmlOffer toXmlNewOffer(Offer offer) {
+  public static XmlOffer toXmlOffer(Offer offer) {
     XmlOffer xmlOffer = new XmlOffer();
     xmlOffer.id = offer.id();
     xmlOffer.advertiser = toXmlUser(offer.advertiser());
@@ -166,29 +166,29 @@ public class Mappers {
   }
   
   public static XmlOffer toXmlGrantedNewOffer(OfferGrant grant) {
-    XmlOffer xmlOffer = toXmlNewOffer(grant.offer());
+    XmlOffer xmlOffer = toXmlOffer(grant.offer());
     xmlOffer.grant = toXmlOfferGrant(grant, false);
     return xmlOffer;
   }
   
-  public static XmlOffers toXmlNewOffers(Iterable<Offer> offers, Long count) {
+  public static XmlOffers toXmlOffers(Iterable<Offer> offers, Long count) {
     XmlOffers xmlOffers = new XmlOffers();
     xmlOffers.count = count;
     for (Offer offer : offers)
-      xmlOffers.offers.add(toXmlNewOffer(offer));
+      xmlOffers.offers.add(toXmlOffer(offer));
     return xmlOffers;
   }
   
-  public static XmlOffers toXmlNewOffers(Iterable<Offer> offers,
-                                            Map<Long, OfferGrant> grants, Long count) {
-    XmlOffers xmlOffers = toXmlNewOffers(offers, count);
+  public static XmlOffers toXmlOffers(Iterable<Offer> offers,
+                                      Map<Long, OfferGrant> grants, Long count) {
+    XmlOffers xmlOffers = toXmlOffers(offers, count);
     for (XmlOffer xmlOffer : xmlOffers.offers)
       if (grants.containsKey(xmlOffer.id))
         xmlOffer.grant = toXmlOfferGrant(grants.get(xmlOffer.id), false);
     return xmlOffers;
   }
   
-  public static XmlOffers toXmlGrantedNewOffers(Iterable<OfferGrant> grants, Long count) {
+  public static XmlOffers toXmlGrantedOffers(Iterable<OfferGrant> grants, Long count) {
     XmlOffers xmlOffers = new XmlOffers();
     xmlOffers.count = count;
     for (OfferGrant grant : grants)
@@ -230,7 +230,7 @@ public class Mappers {
     xmlOfferGrant.blockReason = grant.blockReason();
 
     if (full) {
-      xmlOfferGrant.offer = toXmlNewOffer(grant.offer());
+      xmlOfferGrant.offer = toXmlOffer(grant.offer());
       xmlOfferGrant.affiliate = toXmlUser(grant.affiliate());
     } else {
       xmlOfferGrant.offer = new XmlOffer();

@@ -90,10 +90,10 @@ public class OfferResource {
       for (Offer offer : offers)
         offerIds.add(offer.id());
       Map<Long, OfferGrant> grants = offerGrants.byOffersAndAffiliate(offerIds, affiliateId);
-      return Mappers.toXmlNewOffers(offers, grants, count);
+      return Mappers.toXmlOffers(offers, grants, count);
     }
     else
-      return Mappers.toXmlNewOffers(offers, count);
+      return Mappers.toXmlOffers(offers, count);
   }
   
   @GET
@@ -105,7 +105,7 @@ public class OfferResource {
                                     @QueryParam("asc") @DefaultValue("false") boolean asc,
                                     @QueryParam("aff_id") long affiliateId,
                                     @QueryParam("active") Boolean active) {
-    return Mappers.toXmlGrantedNewOffers(
+    return Mappers.toXmlGrantedOffers(
         offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active),
         offerGrants.count(null, affiliateId, null, active)
     );
@@ -120,7 +120,7 @@ public class OfferResource {
     Offer offer = existing(offerId);
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
-    return Mappers.toXmlNewOffer(offer);
+    return Mappers.toXmlOffer(offer);
   }
   
   @GET

@@ -1,5 +1,6 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.resource;
 
+import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;

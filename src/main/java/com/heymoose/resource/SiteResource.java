@@ -1,7 +1,11 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.resource;
 
 import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.User;
+import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.Lang;
+import com.heymoose.domain.affiliate.Region;
+import com.heymoose.domain.affiliate.Site;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
