@@ -131,72 +131,72 @@ public class Mappers {
   }
   
   
-  public static XmlNewOffer toXmlNewOffer(Offer offer) {
-    XmlNewOffer xmlNewOffer = new XmlNewOffer();
-    xmlNewOffer.id = offer.id();
-    xmlNewOffer.advertiser = toXmlUser(offer.advertiser());
-    xmlNewOffer.account = toXmlAccount(offer.account());
-    xmlNewOffer.payMethod = offer.payMethod().toString();
+  public static XmlOffer toXmlNewOffer(Offer offer) {
+    XmlOffer xmlOffer = new XmlOffer();
+    xmlOffer.id = offer.id();
+    xmlOffer.advertiser = toXmlUser(offer.advertiser());
+    xmlOffer.account = toXmlAccount(offer.account());
+    xmlOffer.payMethod = offer.payMethod().toString();
     if (offer.cpaPolicy() != null)
-      xmlNewOffer.cpaPolicy = offer.cpaPolicy().toString();
-    xmlNewOffer.name = offer.name();
-    xmlNewOffer.description = offer.description();
-    xmlNewOffer.logoFileName = offer.logoFileName();
-    xmlNewOffer.cost = offer.cost();
-    xmlNewOffer.percent = offer.percent();
-    xmlNewOffer.approved = offer.approved();
-    xmlNewOffer.active = offer.active();
-    xmlNewOffer.blockReason = offer.blockReason();
-    xmlNewOffer.creationTime = offer.creationTime().toString();
-    xmlNewOffer.title = offer.title();
-    xmlNewOffer.url = offer.url();
-    xmlNewOffer.autoApprove = offer.autoApprove();
-    xmlNewOffer.reentrant = offer.reentrant();
+      xmlOffer.cpaPolicy = offer.cpaPolicy().toString();
+    xmlOffer.name = offer.name();
+    xmlOffer.description = offer.description();
+    xmlOffer.logoFileName = offer.logoFileName();
+    xmlOffer.cost = offer.cost();
+    xmlOffer.percent = offer.percent();
+    xmlOffer.approved = offer.approved();
+    xmlOffer.active = offer.active();
+    xmlOffer.blockReason = offer.blockReason();
+    xmlOffer.creationTime = offer.creationTime().toString();
+    xmlOffer.title = offer.title();
+    xmlOffer.url = offer.url();
+    xmlOffer.autoApprove = offer.autoApprove();
+    xmlOffer.reentrant = offer.reentrant();
     
     for (SubOffer suboffer : offer.suboffers())
-      xmlNewOffer.suboffers.add(toXmlSubOffer(suboffer));
+      xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
 
     for (Category category : offer.categories())
-      xmlNewOffer.categories.add(toXmlCategory(category));
+      xmlOffer.categories.add(toXmlCategory(category));
     
     for (Category category : offer.categories())
-      xmlNewOffer.categories.add(toXmlCategory(category));
+      xmlOffer.categories.add(toXmlCategory(category));
     
     for (Region region : offer.regions())
-      xmlNewOffer.regions.add(region.toString());
+      xmlOffer.regions.add(region.toString());
     
-    return xmlNewOffer;
+    return xmlOffer;
   }
   
-  public static XmlNewOffer toXmlGrantedNewOffer(OfferGrant grant) {
-    XmlNewOffer xmlNewOffer = toXmlNewOffer(grant.offer());
-    xmlNewOffer.grant = toXmlOfferGrant(grant, false);
-    return xmlNewOffer;
+  public static XmlOffer toXmlGrantedNewOffer(OfferGrant grant) {
+    XmlOffer xmlOffer = toXmlNewOffer(grant.offer());
+    xmlOffer.grant = toXmlOfferGrant(grant, false);
+    return xmlOffer;
   }
   
-  public static XmlNewOffers toXmlNewOffers(Iterable<Offer> offers, Long count) {
-    XmlNewOffers xmlNewOffers = new XmlNewOffers();
-    xmlNewOffers.count = count;
+  public static XmlOffers toXmlNewOffers(Iterable<Offer> offers, Long count) {
+    XmlOffers xmlOffers = new XmlOffers();
+    xmlOffers.count = count;
     for (Offer offer : offers)
-      xmlNewOffers.offers.add(toXmlNewOffer(offer));
-    return xmlNewOffers;
+      xmlOffers.offers.add(toXmlNewOffer(offer));
+    return xmlOffers;
   }
   
-  public static XmlNewOffers toXmlNewOffers(Iterable<Offer> offers,
+  public static XmlOffers toXmlNewOffers(Iterable<Offer> offers,
                                             Map<Long, OfferGrant> grants, Long count) {
-    XmlNewOffers xmlNewOffers = toXmlNewOffers(offers, count);
-    for (XmlNewOffer xmlNewOffer : xmlNewOffers.offers)
-      if (grants.containsKey(xmlNewOffer.id))
-        xmlNewOffer.grant = toXmlOfferGrant(grants.get(xmlNewOffer.id), false);
-    return xmlNewOffers;
+    XmlOffers xmlOffers = toXmlNewOffers(offers, count);
+    for (XmlOffer xmlOffer : xmlOffers.offers)
+      if (grants.containsKey(xmlOffer.id))
+        xmlOffer.grant = toXmlOfferGrant(grants.get(xmlOffer.id), false);
+    return xmlOffers;
   }
   
-  public static XmlNewOffers toXmlGrantedNewOffers(Iterable<OfferGrant> grants, Long count) {
-    XmlNewOffers xmlNewOffers = new XmlNewOffers();
-    xmlNewOffers.count = count;
+  public static XmlOffers toXmlGrantedNewOffers(Iterable<OfferGrant> grants, Long count) {
+    XmlOffers xmlOffers = new XmlOffers();
+    xmlOffers.count = count;
     for (OfferGrant grant : grants)
-      xmlNewOffers.offers.add(toXmlGrantedNewOffer(grant));
-    return xmlNewOffers;
+      xmlOffers.offers.add(toXmlGrantedNewOffer(grant));
+    return xmlOffers;
   }
   
   public static XmlSubOffer toXmlSubOffer(SubOffer offer) {
@@ -236,7 +236,7 @@ public class Mappers {
       xmlOfferGrant.offer = toXmlNewOffer(grant.offer());
       xmlOfferGrant.affiliate = toXmlUser(grant.affiliate());
     } else {
-      xmlOfferGrant.offer = new XmlNewOffer();
+      xmlOfferGrant.offer = new XmlOffer();
       xmlOfferGrant.offer.id = grant.offerId();
       xmlOfferGrant.affiliate = new XmlUser();
       xmlOfferGrant.affiliate.id = grant.affiliateId();

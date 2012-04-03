@@ -11,7 +11,7 @@ public class XmlOfferGrant {
   public Long id;
   
   @XmlElement(name = "offer")
-  public XmlNewOffer offer;
+  public XmlOffer offer;
   
   @XmlElement(name = "affiliate")
   public XmlUser affiliate;

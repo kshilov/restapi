@@ -7,11 +7,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "offers")
-public class XmlNewOffers {
+public class XmlOffers {
   
   @XmlAttribute(name = "count")
   public Long count;
   
   @XmlElement(name = "offer")
-  public List<XmlNewOffer> offers = Lists.newArrayList();
+  public List<XmlOffer> offers = Lists.newArrayList();
 }

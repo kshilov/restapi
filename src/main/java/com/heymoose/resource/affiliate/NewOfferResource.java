@@ -20,8 +20,8 @@ import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
-import com.heymoose.resource.xml.XmlNewOffer;
-import com.heymoose.resource.xml.XmlNewOffers;
+import com.heymoose.resource.xml.XmlOffer;
+import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlSubOffers;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
@@ -68,7 +68,7 @@ public class NewOfferResource {
   
   @GET
   @Transactional
-  public XmlNewOffers list(@QueryParam("offset") @DefaultValue("0") int offset,
+  public XmlOffers list(@QueryParam("offset") @DefaultValue("0") int offset,
                            @QueryParam("limit") @DefaultValue("20") int limit,
                            @QueryParam("ord") @DefaultValue("ID") Ordering ord,
                            @QueryParam("asc") @DefaultValue("false") boolean asc,
@@ -93,7 +93,7 @@ public class NewOfferResource {
   @GET
   @Path("requested")
   @Transactional
-  public XmlNewOffers listRequested(@QueryParam("offset") @DefaultValue("0") int offset,
+  public XmlOffers listRequested(@QueryParam("offset") @DefaultValue("0") int offset,
                                     @QueryParam("limit") @DefaultValue("20") int limit,
                                     @QueryParam("ord") @DefaultValue("ID") Ordering ord,
                                     @QueryParam("asc") @DefaultValue("false") boolean asc,
@@ -108,7 +108,7 @@ public class NewOfferResource {
   @GET
   @Path("{id}")
   @Transactional
-  public XmlNewOffer get(@PathParam("id") long offerId,
+  public XmlOffer get(@PathParam("id") long offerId,
                          @QueryParam("approved") @DefaultValue("false") boolean approved,
                          @QueryParam("active") @DefaultValue("false") boolean active) {
     Offer offer = existing(offerId);
@@ -120,7 +120,7 @@ public class NewOfferResource {
   @GET
   @Path("{id}/requested")
   @Transactional
-  public XmlNewOffer getRequested(@PathParam("id") long offerId,
+  public XmlOffer getRequested(@PathParam("id") long offerId,
                                   @QueryParam("aff_id") long affiliateId) {
     OfferGrant grant = existingGrant(offerId, affiliateId);
     return Mappers.toXmlGrantedNewOffer(grant);

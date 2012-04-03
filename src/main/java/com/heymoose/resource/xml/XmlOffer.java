@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "offer")
-public class XmlNewOffer {
+public class XmlOffer {
 
   @XmlAttribute(name = "id")
   public Long id;
