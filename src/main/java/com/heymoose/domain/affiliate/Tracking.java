@@ -131,7 +131,8 @@ public class Tracking {
       accounting.transferMoney(offer.account(), click.affiliate().affiliateAccount(), amount, AccountingEvent.ACTION_CREATED, action.id(), null);
       accounting.transferMoney(offer.account(), adminAccountAccessor.getAdminAccount(), revenue, AccountingEvent.ACTION_CREATED, action.id(), null);
       try {
-        getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));
+        if (grant.postBackUrl() != null)
+          getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));
       } catch (Exception e) {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
       }
