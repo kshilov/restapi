@@ -18,6 +18,7 @@ import static com.heymoose.resource.api.ApiExceptions.badValue;
 import static com.heymoose.resource.api.ApiExceptions.illegalState;
 import static com.heymoose.resource.api.ApiExceptions.notFound;
 import static com.heymoose.resource.api.ApiExceptions.nullParam;
+import static com.heymoose.util.QueryUtil.appendQueryParam;
 import com.sun.jersey.api.core.HttpRequestContext;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -100,15 +101,15 @@ public class ApiResource {
   @Transactional
   public Response reportAction(Map<String, String> params) throws ApiRequestException {
     Long clickId = safeGetLongParam(params, "click_id");
+    long advertiserId = safeGetLongParam(params, "advertiser_id");
     String txId = safeGetParam(params, "transaction_id");
     String sOffer = safeGetParam(params, "offer");
     String[] pairs = sOffer.split(",");
     Map<BaseOffer, Optional<Double>> offers = newHashMap();
     for (String pair : pairs) {
       String[] parts = pair.split(":");
-      String sOfferId = parts[0];
-      long offerId = Long.valueOf(sOfferId);
-      BaseOffer offer = repo.get(BaseOffer.class, offerId);
+      String code = parts[0];
+      BaseOffer offer = findOffer(advertiserId, code);
       Optional<Double> price = (parts.length == 2)
           ? Optional.of(Double.parseDouble(parts[1]))
           : Optional.<Double>absent();
@@ -117,6 +118,25 @@ public class ApiResource {
     ClickStat click = repo.get(ClickStat.class, clickId);
     tracking.actionDone(click, txId, offers);
     return Response.ok().build();
+  }
+
+  private BaseOffer findOffer(long advertiserId, String code) {
+    SubOffer existentSub = repo.byHQL(
+        SubOffer.class,
+        "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
+        code, advertiserId
+    );
+
+    if (existentSub != null)
+      return existentSub;
+
+    Offer existentOffer = repo.byHQL(
+        Offer.class,
+        "from Offer o where o.code = ? and o.advertiser.id = ?",
+        code, advertiserId
+    );
+
+    return existentOffer;
   }
 
   @Transactional
@@ -145,7 +165,8 @@ public class ApiResource {
       return forbidden(grant);
     ClickStat click = tracking.click(bannerId, offerId, affId, subId, sourceId);
     URI location = URI.create(offer.url());
-    location = Api.appendQueryParam(location, "_hm_click_id", click.id());
+    location = appendQueryParam(location, "_hm_click_id", click.id());
+    location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     return Response.status(302).location(location).build();
   }
 

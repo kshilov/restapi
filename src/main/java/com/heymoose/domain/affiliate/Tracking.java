@@ -10,7 +10,7 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
-import static com.heymoose.resource.api.Api.appendQueryParam;
+import com.heymoose.util.QueryUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,9 +173,9 @@ public class Tracking {
   }
 
   private static URI makeFullPostBackUri(URI uri, String sourceId, String subId, long offerId) {
-    uri = appendQueryParam(uri, "source_id", sourceId);
-    uri = appendQueryParam(uri, "sub_id", subId);
-    uri = appendQueryParam(uri, "offer_id", offerId);
+    uri = QueryUtil.appendQueryParam(uri, "source_id", sourceId);
+    uri = QueryUtil.appendQueryParam(uri, "sub_id", subId);
+    uri = QueryUtil.appendQueryParam(uri, "offer_id", offerId);
     return uri;
   }
 

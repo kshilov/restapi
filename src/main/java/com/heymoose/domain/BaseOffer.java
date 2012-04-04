@@ -59,10 +59,13 @@ public abstract class BaseOffer extends BaseEntity {
   @Basic(optional = false)
   protected boolean reentrant;
 
+  @Basic(optional = false)
+  private String code;
+
   protected BaseOffer() {}
 
   public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
-                   String title, boolean autoApprove, boolean reentrant) {
+                   String title, boolean autoApprove, boolean reentrant, String code) {
 
     checkNotNull(payMethod);
     if (payMethod == PayMethod.CPA)
@@ -85,6 +88,7 @@ public abstract class BaseOffer extends BaseEntity {
     this.title = title;
     this.autoApprove = autoApprove;
     this.reentrant = reentrant;
+    this.code = code;
   }
 
   @Override

@@ -86,7 +86,7 @@ public class Heymoose {
   public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
                           double balance, String name, String descr, String logoFileName, URI uri,
                           String title, boolean allowNegativeBalance, boolean autoApprove,
-                          boolean reentrant, Set<Region> regions, Set<Long> categories) {
+                          boolean reentrant, Set<Region> regions, Set<Long> categories, String code) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
     form.add("pay_method", payMethod);
@@ -105,6 +105,7 @@ public class Heymoose {
       form.add("regions", region);
     for (long categoryId : categories)
       form.add("categories", categoryId);
+    form.add("code", code);
     return Long.valueOf(client.path("offers").post(String.class, form));
   }
 
@@ -130,13 +131,14 @@ public class Heymoose {
     return response.getLocation();
   }
 
-  public int action(long clickId, String txId, Long... offers) {
+  public int action(long clickId, String txId, long advertiserId, String... codes) {
     WebResource resource = client.path("api")
         .queryParam("method", "reportAction")
         .queryParam("click_id", Long.toString(clickId))
+        .queryParam("advertiser_id", Long.toString(advertiserId))
         .queryParam("transaction_id", txId);
-    for (Long offer : offers)
-      resource = resource.queryParam("offer", Long.toString(offer));
+    for (String code : codes)
+      resource = resource.queryParam("offer", code);
     return resource.get(ClientResponse.class).getStatus();
   }
 

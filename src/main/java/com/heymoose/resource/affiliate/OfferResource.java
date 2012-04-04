@@ -23,6 +23,7 @@ import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
+import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -149,8 +150,9 @@ public class OfferResource {
                        @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                        @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
                        @FormParam("regions") List<String> strRegions,
-                       @FormParam("categories") List<Long> longCategories) {
-    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title);
+                       @FormParam("categories") List<Long> longCategories,
+                       @FormParam("code") String code) {
+    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code);
     checkNotNull(URI.create(url));
 
     checkArgument(!strRegions.isEmpty());
@@ -179,9 +181,11 @@ public class OfferResource {
       longCategories = newArrayList();
     Iterable<Category> categories = repo.get(Category.class, newHashSet(longCategories)).values();
 
+    checkCode(code, advertiser.id());
+
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
-        logoFileName);
+        logoFileName, code);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -189,7 +193,30 @@ public class OfferResource {
     
     return offer.id().toString();
   }
-  
+
+  @PUT
+  @Path("code")
+  @Transactional
+  public void checkCode(String code, long advertiserId) {
+    SubOffer existentSub = repo.byHQL(
+        SubOffer.class,
+        "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
+        code, advertiserId
+    );
+
+    if (existentSub != null)
+      throw conflict();
+
+    Offer existentOffer = repo.byHQL(
+        Offer.class,
+        "from Offer o where o.code = ? and o.advertiser.id = ?",
+        code, advertiserId
+    );
+
+    if (existentOffer != null)
+      throw conflict();
+  }
+
   @PUT
   @Path("{id}/blocked")
   @Transactional
@@ -198,7 +225,7 @@ public class OfferResource {
     offer.block(reason);
     return Response.ok().build();
   }
-  
+
   @DELETE
   @Path("{id}/blocked")
   @Transactional
@@ -226,8 +253,9 @@ public class OfferResource {
                                @FormParam("cost") String strCost,
                                @FormParam("title") String title,
                                @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
-                               @FormParam("reentrant") @DefaultValue("true") boolean reentrant) {
-    checkNotNull(cpaPolicy, strCost, title);
+                               @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
+                               @FormParam("code") String code) {
+    checkNotNull(cpaPolicy, strCost, title, code);
     Offer offer = existing(offerId);
     
     BigDecimal cost = new BigDecimal(strCost), percent = null;
@@ -235,9 +263,11 @@ public class OfferResource {
       percent = cost;
       cost = null;
     }
-    
+
+    checkCode(code, offer.advertiser().id());
+
     SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, percent,
-                                     title, autoApprove, reentrant);
+                                     title, autoApprove, reentrant, code);
     subOffers.put(suboffer);
     return suboffer.id().toString();
   }

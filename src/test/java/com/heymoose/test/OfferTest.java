@@ -17,6 +17,7 @@ import org.junit.Test;
 
 public class OfferTest extends RestTest {
 
+  private final static String OFFER_CODE = "offer324234";
   private final static String OFFER_URL = "http://ya.ru";
   private final static String OFFER_NAME = "Offer1";
   private final static double ADV_BALANCE = 100.0;
@@ -43,7 +44,7 @@ public class OfferTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId =  heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "logo", URI.create(OFFER_URL), "title", false, false,
-        true, newHashSet(Region.RUSSIA), newHashSet(categoryId));
+        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE);
     heymoose().approveOffer(offerId);
     return offerId;
   }
@@ -88,7 +89,7 @@ public class OfferTest extends RestTest {
     long affId = doRegisterAffiliate();
     URI location = doClick(offerId, affId);
     long clickId = Long.valueOf(extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_click_id"));
-    assertEquals(200, heymoose().action(clickId, "tx1", offerId));
+    assertEquals(200, heymoose().action(clickId, "tx1", advertiserId, OFFER_CODE));
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
     XmlUser aff = heymoose().getUser(affId);
     int fee = aff.fee;

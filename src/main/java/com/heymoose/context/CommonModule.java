@@ -43,7 +43,6 @@ import com.heymoose.resource.SiteResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.affiliate.OfferGrantResource;
 import com.heymoose.resource.affiliate.OfferResource;
-import com.heymoose.resource.api.Api;
 import com.heymoose.resource.api.ApiResource;
 import java.io.File;
 import java.util.Properties;
@@ -62,7 +61,6 @@ public class CommonModule extends AbstractModule {
     install(new HibernateModule());
     bind(UserResource.class);
     bind(ApiResource.class);
-    bind(Api.class);
     bind(RobokassaResource.class);
     bind(AccountResource.class);
     bind(Settings.class);
