@@ -5,7 +5,6 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import javax.annotation.Nullable;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,12 +17,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "show_stat")
-public class ShowStat extends BaseEntity {
+@Table(name = "offer_stat")
+public class OfferStat extends BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "show-stat-seq")
-  @SequenceGenerator(name = "show-stat-seq", sequenceName = "show_stat_seq", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "offer-stat-seq")
+  @SequenceGenerator(name = "offer-stat-seq", sequenceName = "offer_stat_seq", allocationSize = 1)
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -58,17 +57,20 @@ public class ShowStat extends BaseEntity {
   private String sourceId;
 
   @Column(name = "show_count", nullable = false)
-  private long count = 1;
+  private long showCount = 0;
+
+  @Column(name = "click_count", nullable = false)
+  private long clickCount = 0;
 
   @Override
   public Long id() {
     return id;
   }
 
-  protected ShowStat() {}
+  protected OfferStat() {}
 
-  public ShowStat(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
-                  @Nullable String sourceId) {
+  public OfferStat(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
+                   @Nullable String sourceId) {
     this.bannerId = bannerId;
     this.offerId = offerId;
     this.affiliateId = affId;
@@ -76,7 +78,27 @@ public class ShowStat extends BaseEntity {
     this.sourceId = sourceId;
   }
 
-  public void inc() {
-    count++;
+  public Offer offer() {
+    return offer;
+  }
+
+  public User affiliate() {
+    return affiliate;
+  }
+
+  public String sourceId() {
+    return sourceId;
+  }
+
+  public String subId () {
+    return subId;
+  }
+
+  public void incClicks() {
+    clickCount++;
+  }
+
+  public void incShows() {
+    showCount++;
   }
 }

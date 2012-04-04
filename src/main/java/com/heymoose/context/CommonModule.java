@@ -16,16 +16,16 @@ import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.affiliate.Category;
-import com.heymoose.domain.affiliate.ClickStat;
 import com.heymoose.domain.affiliate.IpSegment;
 import com.heymoose.domain.affiliate.OfferAction;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferRepository;
-import com.heymoose.domain.affiliate.ShowStat;
+import com.heymoose.domain.affiliate.OfferStat;
 import com.heymoose.domain.affiliate.Site;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
+import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.hiber.HibernateRepo;
 import com.heymoose.domain.affiliate.hiber.OfferGrantRepositoryHiber;
@@ -77,10 +77,10 @@ public class CommonModule extends AbstractModule {
     bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
 
-    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, ShowStat.class, Site.class,
+    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, Site.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
-        AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, ClickStat.class, OfferAction.class,
-        AdminAccountNotConfirmed.class);
+        AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, OfferStat.class, OfferAction.class,
+        AdminAccountNotConfirmed.class, Token.class);
   }
 
   protected void bindEntities(Class... classes) {

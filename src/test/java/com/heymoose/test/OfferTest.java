@@ -44,18 +44,21 @@ public class OfferTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId =  heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "logo", URI.create(OFFER_URL), "title", false, false,
-        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30);
+        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180);
     heymoose().approveOffer(offerId);
     return offerId;
   }
 
   private URI doClick(long offerId, long affId) {
     sqlUpdate("insert into ip_segment(id, start_ip_addr, end_ip_addr, start_ip_num, end_ip_num, country_code, country_name) values(1, '127.0.0.1', '127.0.0.1', 2130706433, 2130706433, 'RU', 'Russian')");
+    URI location = heymoose().click(offerId, affId);
+    return location;
+  }
+
+  private void doCreateGrant(long offerId, long affId) {
     long grantId = heymoose().createGrant(offerId, affId, "msg");
     heymoose().unblockGrant(grantId);
     heymoose().approveGrant(grantId);
-    URI location = heymoose().click(offerId, affId);
-    return location;
   }
 
   @Test public void createOffer() {
@@ -69,9 +72,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    long grantId = heymoose().createGrant(offerId, affId, "msg");
-    heymoose().unblockGrant(grantId);
-    heymoose().approveGrant(grantId);
+    doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId));
   }
 
@@ -79,6 +80,8 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
+    doCreateGrant(offerId, affId);
+    assertEquals(200, heymoose().track(offerId, affId));
     URI location = doClick(offerId, affId);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
   }
@@ -87,9 +90,10 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
+    doCreateGrant(offerId, affId);
     URI location = doClick(offerId, affId);
-    long clickId = Long.valueOf(extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_click_id"));
-    assertEquals(200, heymoose().action(clickId, "tx1", advertiserId, OFFER_CODE));
+    String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
+    assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
     XmlUser aff = heymoose().getUser(affId);
     int fee = aff.fee;

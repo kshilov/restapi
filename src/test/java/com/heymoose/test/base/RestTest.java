@@ -66,9 +66,9 @@ public class RestTest {
     Session session = sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
+      session.createQuery("delete from Token").executeUpdate();
       session.createQuery("delete from OfferAction").executeUpdate();
-      session.createQuery("delete from ClickStat").executeUpdate();
-      session.createQuery("delete from ShowStat").executeUpdate();
+      session.createQuery("delete from OfferStat").executeUpdate();
       session.createQuery("delete from OfferGrant").executeUpdate();
       session.createQuery("delete from Banner").executeUpdate();
       session.createSQLQuery("delete from offer_category").executeUpdate();

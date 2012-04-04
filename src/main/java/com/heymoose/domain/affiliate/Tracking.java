@@ -45,99 +45,85 @@ public class Tracking {
   }
 
   @Transactional
-  public ShowStat track(@Nullable Long bannerId, Offer offer, User affiliate,
+  public OfferStat track(@Nullable Long bannerId, long offerId, long affId,
                         @Nullable String subId, @Nullable String sourceId) {
-    ShowStat stat = findShow(bannerId, offer, affiliate, subId, sourceId);
+    OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat != null) {
-      stat.inc();
+      stat.incShows();
       return stat;
     }
-    stat = new ShowStat(bannerId, offer.id(), affiliate.id(), subId, sourceId);
+    stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
+    stat.incShows();
     repo.put(stat);
     return stat;
   }
   
   @Transactional
-  public ClickStat click(@Nullable Long bannerId, long offerId, long affId,
+  public String click(@Nullable Long bannerId, long offerId, long affId,
                      @Nullable String subId, @Nullable String sourceId) {
-    ClickStat click = findClick(bannerId, offerId, subId, sourceId);
-    if (click == null) {
-      click = new ClickStat(bannerId, offerId, affId, subId, sourceId);
-      repo.put(click);
+    OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
+    if (stat == null) {
+      stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
+      stat.incClicks();
+      repo.put(stat);
+    } else {
+      stat.incClicks();
     }
     Offer offer = repo.get(Offer.class, offerId);
     PayMethod payMethod = offer.payMethod();
     if (payMethod == PayMethod.CPC) {
       repo.lockAll(
-          offer.account(), click.affiliate().affiliateAccount(),
+          offer.account(), stat.affiliate().affiliateAccount(),
           adminAccountAccessor.getAdminAccount()
       );
       BigDecimal cost = offer.cost();
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       accounting.transferMoney(
           offer.account(),
-          click.affiliate().affiliateAccount(),
+          stat.affiliate().affiliateAccount(),
           amount,
           AccountingEvent.CLICK_CREATED,
-          click.id()
+          stat.id()
       );
       accounting.transferMoney(
           offer.account(),
           adminAccountAccessor.getAdminAccount(),
           revenue,
           AccountingEvent.CLICK_CREATED,
-          click.id()
+          stat.id()
       );
     }
-    return click;
+    Token token = new Token(stat);
+    repo.put(token);
+    return token.value();
   }
 
-  private ShowStat findShow(Long bannerId, Offer offer, User affiliate, @Nullable String subId, @Nullable String sourceId) {
-    DetachedCriteria criteria = DetachedCriteria.forClass(ShowStat.class)
-        .add(Restrictions.eq("offer", offer))
-        .add(Restrictions.eq("affiliate", affiliate));
+  private OfferStat findStat(@Nullable Long bannerId, long offerId, long affId, @Nullable String subId, @Nullable String sourceId) {
+    DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
+        .add(Restrictions.eq("offer.id", offerId))
+        .add(Restrictions.eq("affiliate.id", affId));
     if (bannerId != null)
       criteria.add(Restrictions.eq("bannerId", bannerId));
     if (subId != null)
       criteria.add(Restrictions.eq("subId", subId));
     if (sourceId != null)
       criteria.add(Restrictions.eq("sourceId", sourceId));
-    return repo.byCriteria(criteria);
-  }
-
-  private ClickStat findClick(@Nullable Long bannerId, long offerId, @Nullable String subId, @Nullable String sourceId) {
-    DetachedCriteria criteria = DetachedCriteria.forClass(ClickStat.class)
-        .add(Restrictions.eq("offerId", offerId));
-    if (bannerId != null)
-      criteria.add(Restrictions.eq("bannerId", bannerId));
-    if (subId != null)
-      criteria.add(Restrictions.eq("subId", subId));
-    if (sourceId != null)
-      criteria.add(Restrictions.eq("sourceId", sourceId));
-    return repo.byCriteria(criteria);
-  }
-
-  private OfferAction findAction(ClickStat click) {
-    DetachedCriteria criteria = DetachedCriteria.forClass(OfferAction.class)
-        .add(Restrictions.eq("click", click));
     return repo.byCriteria(criteria);
   }
 
   @Transactional
-  public List<OfferAction> actionDone(ClickStat click, String transactionId, Map<BaseOffer, Optional<Double>> offers) {
+  public List<OfferAction> actionDone(Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers) {
+    OfferStat stat = token.stat();
     List<OfferAction> actions = newArrayList();
     for (BaseOffer offer : offers.keySet()) {
-      OfferGrant grant = granted(offer, click.affiliate());
+      OfferGrant grant = granted(offer, stat.affiliate());
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
-      if (!offer.reentrant()) {
-        OfferAction existent = findAction(click);
-        if (existent != null)
-          continue;
-      }
-      CpaPolicy cpaPolicy = offer.cpaPolicy();
+      if (!offer.reentrant() && token.used())
+        continue;
       PayMethod payMethod = offer.payMethod();
+      CpaPolicy cpaPolicy = offer.cpaPolicy();
       if (payMethod != PayMethod.CPA)
         throw new IllegalArgumentException("Not CPA offer: " + offer.id());
       BigDecimal cost;
@@ -149,18 +135,18 @@ public class Tracking {
       } else if (cpaPolicy == CpaPolicy.FIXED) {
         cost = offer.cost();
       } else throw new IllegalStateException();
-      OfferAction action = new OfferAction(click, offer, transactionId);
+      OfferAction action = new OfferAction(stat, offer, transactionId);
       repo.put(action);
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       repo.lockAll(
           offer.account(),
-          click.affiliate().affiliateAccountNotConfirmed(),
+          stat.affiliate().affiliateAccountNotConfirmed(),
           adminAccountAccessor.getAdminAccountNotConfirmed()
       );
       accounting.transferMoney(
           offer.account(),
-          click.affiliate().affiliateAccountNotConfirmed(),
+          stat.affiliate().affiliateAccountNotConfirmed(),
           amount,
           AccountingEvent.ACTION_CREATED,
           action.id()
@@ -174,11 +160,12 @@ public class Tracking {
       );
       try {
         if (grant.postBackUrl() != null)
-          getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));
+          getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), stat.sourceId(), stat.subId(), offer.id()));
       } catch (Exception e) {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
       }
       actions.add(action);
+      token.markAsUsed();
     }
     return actions;
   }

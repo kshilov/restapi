@@ -87,7 +87,7 @@ public class Heymoose {
                           double balance, String name, String descr, String logoFileName, URI uri,
                           String title, boolean allowNegativeBalance, boolean autoApprove,
                           boolean reentrant, Set<Region> regions, Set<Long> categories,
-                          String code, int holdDays) {
+                          String code, int holdDays, int cookieTtl) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
     form.add("pay_method", payMethod);
@@ -108,6 +108,7 @@ public class Heymoose {
       form.add("categories", categoryId);
     form.add("code", code);
     form.add("hold_days", holdDays);
+    form.add("cookie_ttl", cookieTtl);
     return Long.valueOf(client.path("offers").post(String.class, form));
   }
 
@@ -133,10 +134,10 @@ public class Heymoose {
     return response.getLocation();
   }
 
-  public int action(long clickId, String txId, long advertiserId, String... codes) {
+  public int action(String token, String txId, long advertiserId, String... codes) {
     WebResource resource = client.path("api")
         .queryParam("method", "reportAction")
-        .queryParam("click_id", Long.toString(clickId))
+        .queryParam("token", token)
         .queryParam("advertiser_id", Long.toString(advertiserId))
         .queryParam("transaction_id", txId);
     for (String code : codes)

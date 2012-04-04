@@ -7,10 +7,10 @@ import com.google.common.collect.Multimap;
 import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
-import com.heymoose.domain.affiliate.ClickStat;
 import com.heymoose.domain.affiliate.GeoTargeting;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.SubOffer;
+import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.Tracking;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -100,10 +100,13 @@ public class ApiResource {
 
   @Transactional
   public Response reportAction(Map<String, String> params) throws ApiRequestException {
-    Long clickId = safeGetLongParam(params, "click_id");
+    String sToken = safeGetParam(params, "token");
     long advertiserId = safeGetLongParam(params, "advertiser_id");
     String txId = safeGetParam(params, "transaction_id");
     String sOffer = safeGetParam(params, "offer");
+    Token token = repo.byHQL(Token.class, "from Token where value = ?", sToken);
+    if (token == null)
+      throw notFound(Token.class, token);
     String[] pairs = sOffer.split(",");
     Map<BaseOffer, Optional<Double>> offers = newHashMap();
     for (String pair : pairs) {
@@ -115,8 +118,7 @@ public class ApiResource {
           : Optional.<Double>absent();
       offers.put(offer, price);
     }
-    ClickStat click = repo.get(ClickStat.class, clickId);
-    tracking.actionDone(click, txId, offers);
+    tracking.actionDone(token, txId, offers);
     return Response.ok().build();
   }
 
@@ -163,9 +165,9 @@ public class ApiResource {
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum))
       return forbidden(grant);
-    ClickStat click = tracking.click(bannerId, offerId, affId, subId, sourceId);
+    String token  = tracking.click(bannerId, offerId, affId, subId, sourceId);
     URI location = URI.create(offer.url());
-    location = appendQueryParam(location, "_hm_click_id", click.id());
+    location = appendQueryParam(location, "_hm_token", token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     return Response.status(302).location(location).build();
   }
@@ -198,7 +200,7 @@ public class ApiResource {
       throw illegalState("Offer was not granted: " + offerId);
     String subId = params.get("sub_id");
     String sourceId = params.get("source_id");
-    tracking.track(bannerId, offer, affiliate, subId, sourceId);
+    tracking.track(bannerId, offerId, affId, subId, sourceId);
     return Response.ok().build();
   }
 

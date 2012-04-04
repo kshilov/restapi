@@ -25,8 +25,8 @@ public class OfferAction extends BaseEntity {
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "click_id")
-  private ClickStat click;
+  @JoinColumn(name = "stat_id")
+  private OfferStat stat;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "offer_id")
@@ -45,15 +45,15 @@ public class OfferAction extends BaseEntity {
 
   protected OfferAction() {}
   
-  public OfferAction(ClickStat click, BaseOffer offer, String transactionId) {
-    this.click = click;
+  public OfferAction(OfferStat stat, BaseOffer offer, String transactionId) {
+    this.stat = stat;
     this.transactionId = transactionId;
     this.offer = offer;
     this.state = OfferActionState.NOT_APPROVED;
   }
 
-  public ClickStat click() {
-    return click;
+  public OfferStat stat() {
+    return stat;
   }
 
   public void approve() {

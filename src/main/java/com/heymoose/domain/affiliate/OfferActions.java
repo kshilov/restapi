@@ -37,10 +37,10 @@ public class OfferActions {
     );
     for (AccountingEntry entry : entries) {
       Account dst = accounting.destination(entry.transaction());
-      if (dst.equals(action.click().affiliate().affiliateAccountNotConfirmed())) {
+      if (dst.equals(action.stat().affiliate().affiliateAccountNotConfirmed())) {
         accounting.transferMoney(
-            action.click().affiliate().affiliateAccountNotConfirmed(),
-            action.click().affiliate().affiliateAccount(),
+            action.stat().affiliate().affiliateAccountNotConfirmed(),
+            action.stat().affiliate().affiliateAccount(),
             entry.amount().negate(),
             AccountingEvent.ACTION_APPROVED,
             action.id()
@@ -69,10 +69,10 @@ public class OfferActions {
     );
     for (AccountingEntry entry : entries) {
       Account dst = accounting.destination(entry.transaction());
-      if (dst.equals(action.click().affiliate().affiliateAccountNotConfirmed())) {
+      if (dst.equals(action.stat().affiliate().affiliateAccountNotConfirmed())) {
         accounting.transferMoney(
-            action.click().affiliate().affiliateAccountNotConfirmed(),
-            action.click().offer().account(),
+            action.stat().affiliate().affiliateAccountNotConfirmed(),
+            action.stat().offer().account(),
             entry.amount().negate(),
             AccountingEvent.ACTION_CANCELED,
             action.id()
@@ -80,7 +80,7 @@ public class OfferActions {
       } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
         accounting.transferMoney(
             adminAccountAccessor.getAdminAccountNotConfirmed(),
-            action.click().offer().account(),
+            action.stat().offer().account(),
             entry.amount().negate(),
             AccountingEvent.ACTION_CANCELED,
             action.id()
