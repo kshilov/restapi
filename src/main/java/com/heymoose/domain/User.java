@@ -1,5 +1,6 @@
 package com.heymoose.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.IdEntity;
@@ -54,6 +55,10 @@ public class User extends IdEntity {
   @JoinColumn(name = "affiliate_account_id")
   private Account affiliateAccount;
 
+  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "affiliate_account_not_confirmed_id")
+  private Account affiliateAccountNotConfirmed;
+
   @Basic(optional = false)
   private String email;
 
@@ -95,8 +100,8 @@ public class User extends IdEntity {
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
 
-  @Basic
-  private int fee;
+  @Basic(optional = false)
+  private int fee = 30;
 
   protected User() {}
 
@@ -123,6 +128,10 @@ public class User extends IdEntity {
     return affiliateAccount;
   }
 
+  public Account affiliateAccountNotConfirmed() {
+    return affiliateAccountNotConfirmed;
+  }
+
   public Account advertiserAccount() {
     return advertiserAccount;
   }
@@ -147,8 +156,10 @@ public class User extends IdEntity {
     roles.add(role);
     if (role.equals(Role.ADVERTISER) && advertiserAccount == null)
       advertiserAccount = new Account(false);
-    if (role.equals(Role.AFFILIATE) && affiliateAccount == null)
+    if (role.equals(Role.AFFILIATE) && affiliateAccount == null) {
       affiliateAccount = new Account(false);
+      affiliateAccountNotConfirmed = new Account(false);
+    }
   }
 
   public Set<Role> roles() {
@@ -259,5 +270,10 @@ public class User extends IdEntity {
   
   public int fee() {
     return fee;
+  }
+
+  public void setFee(int fee) {
+    checkArgument(fee > 0 && fee < 100);
+    this.fee = fee;
   }
 }

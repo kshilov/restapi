@@ -36,7 +36,7 @@ public class AccountResource {
     checkNotNull(fromAccountId, toAccountId, _amount);
     BigDecimal amount = new BigDecimal(_amount);
     Pair<Account, Account> pair = accounting.getAndLock(fromAccountId, toAccountId);
-    accounting.transferMoney(pair.fst, pair.snd, amount, null, null, null);
+    accounting.transferMoney(pair.fst, pair.snd, amount, null, null);
   }
   
   private Account existing(long id) {

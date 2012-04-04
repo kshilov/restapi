@@ -1,7 +1,6 @@
 package com.heymoose.domain.accounting;
 
 import com.heymoose.domain.base.IdEntity;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

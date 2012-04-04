@@ -51,6 +51,10 @@ public class OfferAction extends BaseEntity {
     this.state = OfferActionState.NOT_APPROVED;
   }
 
+  public ClickStat click() {
+    return click;
+  }
+
   public void approve() {
     checkArgument(state == OfferActionState.NOT_APPROVED);
     this.state = OfferActionState.APPROVED;

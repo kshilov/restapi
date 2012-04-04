@@ -68,12 +68,27 @@ public class Tracking {
     Offer offer = repo.get(Offer.class, offerId);
     PayMethod payMethod = offer.payMethod();
     if (payMethod == PayMethod.CPC) {
-      accounting.lock(offer.account(), click.affiliate().affiliateAccount());
+      repo.lockAll(
+          offer.account(), click.affiliate().affiliateAccount(),
+          adminAccountAccessor.getAdminAccount()
+      );
       BigDecimal cost = offer.cost();
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-      accounting.transferMoney(offer.account(), click.affiliate().affiliateAccount(), amount, AccountingEvent.CLICK_CREATED, click.id(), null);
-      accounting.transferMoney(offer.account(), adminAccountAccessor.getAdminAccount(), revenue, AccountingEvent.CLICK_CREATED, click.id(), null);
+      accounting.transferMoney(
+          offer.account(),
+          click.affiliate().affiliateAccount(),
+          amount,
+          AccountingEvent.CLICK_CREATED,
+          click.id()
+      );
+      accounting.transferMoney(
+          offer.account(),
+          adminAccountAccessor.getAdminAccount(),
+          revenue,
+          AccountingEvent.CLICK_CREATED,
+          click.id()
+      );
     }
     return click;
   }
@@ -127,9 +142,25 @@ public class Tracking {
       repo.put(action);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - click.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-      accounting.lock(offer.account(), click.affiliate().affiliateAccount());
-      accounting.transferMoney(offer.account(), click.affiliate().affiliateAccount(), amount, AccountingEvent.ACTION_CREATED, action.id(), null);
-      accounting.transferMoney(offer.account(), adminAccountAccessor.getAdminAccount(), revenue, AccountingEvent.ACTION_CREATED, action.id(), null);
+      repo.lockAll(
+          offer.account(),
+          click.affiliate().affiliateAccountNotConfirmed(),
+          adminAccountAccessor.getAdminAccountNotConfirmed()
+      );
+      accounting.transferMoney(
+          offer.account(),
+          click.affiliate().affiliateAccountNotConfirmed(),
+          amount,
+          AccountingEvent.ACTION_CREATED,
+          action.id()
+      );
+      accounting.transferMoney(
+          offer.account(),
+          adminAccountAccessor.getAdminAccountNotConfirmed(),
+          revenue,
+          AccountingEvent.ACTION_CREATED,
+          action.id()
+      );
       try {
         if (grant.postBackUrl() != null)
           getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), click.sourceId(), click.subId(), offer.id()));

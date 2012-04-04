@@ -17,5 +17,6 @@ public interface Repo {
   <T extends IdEntity> List<T> allByCriteria(DetachedCriteria criteria);
   <T extends IdEntity> Map<Long, T> get(Class<T> clazz, Set<Long> ids);
   <T extends IdEntity> T lock(T entity);
+  <T extends IdEntity> void lockAll(T... entities);
   <T extends IdEntity> void remove(T entity);
 }

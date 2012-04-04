@@ -9,6 +9,7 @@ import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.OfferGrant;
@@ -184,7 +185,7 @@ public class OfferResource {
     offers.put(offer);
 
     if (balance.signum() > 0)
-      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, null, null, null);
+      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
     
     return offer.id().toString();
   }

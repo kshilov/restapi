@@ -27,4 +27,15 @@ public class AdminAccountAccessor {
     }
     return adminAccount.account();
   }
+
+  @Transactional
+  public Account getAdminAccountNotConfirmed() {
+    DetachedCriteria criteria = DetachedCriteria.forClass(AdminAccountNotConfirmed.class);
+    AdminAccountNotConfirmed adminAccount = repo.byCriteria(criteria);
+    if (adminAccount == null) {
+      adminAccount = new AdminAccountNotConfirmed();
+      repo.put(adminAccount);
+    }
+    return adminAccount.account();
+  }
 }

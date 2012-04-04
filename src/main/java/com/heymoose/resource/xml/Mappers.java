@@ -73,6 +73,7 @@ public class Mappers {
     xmlUser.id = user.id();
     
     if (needFields(d)) {
+      xmlUser.fee = user.fee();
       xmlUser.email = user.email();
       xmlUser.passwordHash = user.passwordHash();
       xmlUser.firstName = user.firstName();
@@ -91,8 +92,12 @@ public class Mappers {
       
       if (user.advertiserAccount() != null)
         xmlUser.customerAccount = toXmlAccount(user.advertiserAccount());
-      if (user.affiliateAccount() != null)
+      if (user.affiliateAccount() != null) {
         xmlUser.developerAccount = toXmlAccount(user.affiliateAccount());
+        xmlUser.affiliateAccount = toXmlAccount(user.affiliateAccount());
+      }
+      if (user.affiliateAccountNotConfirmed() != null)
+        xmlUser.affiliateAccountNotConfirmed = toXmlAccount(user.affiliateAccountNotConfirmed());
       xmlUser.roles = Sets.newHashSet();
       for (Role role : user.roles())
         xmlUser.roles.add(role.toString());

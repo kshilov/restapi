@@ -30,14 +30,8 @@ public class Accounting {
     return account;
   }
 
-  public void lock(Account a1, Account a2) {
-    if (a1.id() > a2.id()) {
-      repo.lock(a1);
-      repo.lock(a2);
-    } else {
-      repo.lock(a2);
-      repo.lock(a1);
-    }
+  public void transferMoney(Account src, Account dst, BigDecimal amount, AccountingEvent event, Long sourceId) {
+    transferMoney(src, dst, amount, event, sourceId, null);
   }
 
   public void transferMoney(Account src, Account dst, BigDecimal amount, AccountingEvent event, Long sourceId, String descr) {
@@ -117,5 +111,13 @@ public class Accounting {
       Account account1 = getAndLock(accountId1);
       return Pair.of(account1, account2);
     }
+  }
+
+  public Account destination(AccountingTransaction transaction) {
+    return repo.byHQL(
+        Account.class,
+        "select e.account from from AccountingEntry e where e.transaction = ? and e.amount > 0",
+        transaction
+    );
   }
 }

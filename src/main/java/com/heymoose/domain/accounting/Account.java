@@ -36,7 +36,9 @@ public class Account extends ModifiableEntity {
     return id;
   }
 
-  public Account() {}
+  public Account() {
+    this(false);
+  }
 
   public Account(boolean allowNegativeBalance) {
     this.allowNegativeBalance = allowNegativeBalance;

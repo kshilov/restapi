@@ -48,6 +48,12 @@ public class XmlUser {
   @XmlElement(name = "developer-account")
   public XmlAccount developerAccount;
 
+  @XmlElement(name = "affiliate-account")
+  public XmlAccount affiliateAccount;
+
+  @XmlElement(name = "affiliate-account-not-confirmed")
+  public XmlAccount affiliateAccountNotConfirmed;
+
   @XmlElementWrapper(name = "roles")
   @XmlElement(name = "role")
   public Set<String> roles;
@@ -67,4 +73,7 @@ public class XmlUser {
   
   @XmlElement(name = "register-time")
   public String registerTime;
+
+  @XmlElement(name = "fee")
+  public Integer fee;
 }

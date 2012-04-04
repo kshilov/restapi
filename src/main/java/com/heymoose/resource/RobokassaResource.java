@@ -1,9 +1,10 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -18,6 +19,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +30,14 @@ public class RobokassaResource {
   private final static Logger log = LoggerFactory.getLogger(RobokassaResource.class);
   
   private final String robokassaPass;
-  private final UserRepository users;
   private final Accounting accounting;
+  private final Repo repo;
 
   @Inject
-  public RobokassaResource(@Named("robokassaPass") String robokassaPass, UserRepository users, Accounting accounting) {
+  public RobokassaResource(@Named("robokassaPass") String robokassaPass, Accounting accounting, Repo repo) {
     this.robokassaPass = robokassaPass;
-    this.users = users;
     this.accounting = accounting;
+    this.repo = repo;
   }
 
   @POST
@@ -72,9 +74,14 @@ public class RobokassaResource {
       logError(_sum, invId, sig, accountId, "account not found");
       throw notFound();
     }
-    new AccountingEntry(account, new BigDecimal(sum));
-    //    accounting.addToBalance(account, new BigDecimal(sum), "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm"),
-//        TxType.REPLENISHMENT_ROBOKASSA);
+    AccountingEntry add = new AccountingEntry(
+        account,
+        new BigDecimal(sum),
+        AccountingEvent.ROBOKASSA_ADD,
+        invId,
+        "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm")
+    );
+    repo.put(add);
     return "OK" + invId;
   }
   

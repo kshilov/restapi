@@ -112,12 +112,13 @@ public class Heymoose {
     return client.path("offers").path(Long.toString(offerId)).get(XmlOffer.class);
   }
 
-  public void track(long offerId, long affId) {
-    client.path("api")
+  public int track(long offerId, long affId) {
+    ClientResponse response = client.path("api")
         .queryParam("method", "track")
         .queryParam("offer_id", Long.toString(offerId))
         .queryParam("aff_id", Long.toString(affId))
-        .get(String.class);
+        .get(ClientResponse.class);
+    return response.getStatus();
   }
 
   public URI click(long offerId, long affId) {
@@ -127,6 +128,16 @@ public class Heymoose {
         .queryParam("aff_id", Long.toString(affId))
         .get(ClientResponse.class);
     return response.getLocation();
+  }
+
+  public int action(long clickId, String txId, Long... offers) {
+    WebResource resource = client.path("api")
+        .queryParam("method", "reportAction")
+        .queryParam("click_id", Long.toString(clickId))
+        .queryParam("transaction_id", txId);
+    for (Long offer : offers)
+      resource = resource.queryParam("offer", Long.toString(offer));
+    return resource.get(ClientResponse.class).getStatus();
   }
 
   public void approveOffer(long offerId) {

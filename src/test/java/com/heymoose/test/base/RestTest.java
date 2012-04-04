@@ -66,6 +66,7 @@ public class RestTest {
     Session session = sessionFactory.openSession();
     Transaction tx =  session.beginTransaction();
     try {
+      session.createQuery("delete from OfferAction").executeUpdate();
       session.createQuery("delete from ClickStat").executeUpdate();
       session.createQuery("delete from ShowStat").executeUpdate();
       session.createQuery("delete from OfferGrant").executeUpdate();
@@ -76,6 +77,7 @@ public class RestTest {
       session.createSQLQuery("delete from user_role").executeUpdate();
       session.createQuery("delete from User").executeUpdate();
       session.createQuery("delete from Category").executeUpdate();
+      session.createSQLQuery("delete from ip_segment").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       e.printStackTrace();

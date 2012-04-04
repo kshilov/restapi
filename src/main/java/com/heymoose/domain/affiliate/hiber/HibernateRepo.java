@@ -1,8 +1,11 @@
 package com.heymoose.domain.affiliate.hiber;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.base.IdEntity;
+import static java.util.Collections.sort;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,6 +90,19 @@ public class HibernateRepo implements Repo {
     hiber().flush();
     hiber().buildLockRequest(LockOptions.UPGRADE).lock(entity);
     return entity;
+  }
+
+  @Override
+  public <T extends IdEntity> void lockAll(T... entities) {
+    List<T> list = newArrayList(entities);
+    sort(list, new Comparator<T>() {
+      @Override
+      public int compare(T o1, T o2) {
+        return o1.id().compareTo(o2.id());
+      }
+    });
+    for (T entity : list)
+      lock(entity);
   }
 
   @Override

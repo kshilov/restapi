@@ -64,13 +64,19 @@ public class ClickStat extends BaseEntity {
     return id;
   }
 
-  protected ClickStat(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
+  protected ClickStat() {}
+
+  public ClickStat(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
                       @Nullable String sourceId) {
     this.bannerId = bannerId;
     this.offerId = offerId;
     this.affiliateId = affId;
     this.subId = subId;
     this.sourceId = sourceId;
+  }
+
+  public Offer offer() {
+    return offer;
   }
   
   public User affiliate() {

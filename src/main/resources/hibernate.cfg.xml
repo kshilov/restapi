@@ -4,28 +4,24 @@
 
 <hibernate-configuration>
   <session-factory>
-    <mapping class="com.heymoose.domain.Account"/>
-    <mapping class="com.heymoose.domain.AccountTx"/>
-    <mapping class="com.heymoose.domain.Action"/>
-    <mapping class="com.heymoose.domain.App"/>
-    <mapping class="com.heymoose.domain.Targeting"/>
     <mapping class="com.heymoose.domain.Offer"/>
-    <mapping class="com.heymoose.domain.Order"/>
-    <mapping class="com.heymoose.domain.Performer"/>
-    <mapping class="com.heymoose.domain.Platform"/>
     <mapping class="com.heymoose.domain.User"/>
-    <mapping class="com.heymoose.domain.OfferShow"/>
-    <mapping class="com.heymoose.domain.RegularOffer"/>
-    <mapping class="com.heymoose.domain.VideoOffer"/>
-    <mapping class="com.heymoose.domain.BannerOffer"/>
-    <mapping class="com.heymoose.domain.BannerSize"/>
-    <mapping class="com.heymoose.domain.City"/>
     <mapping class="com.heymoose.domain.Banner"/>
     <mapping class="com.heymoose.domain.Withdraw"/>
     <mapping class="com.heymoose.domain.settings.Setting"/>
-    <mapping class="com.heymoose.domain.UserStat"/>
-    <mapping class="com.heymoose.domain.AppStat"/>
-    <mapping class="com.heymoose.domain.OfferStat"/>
-    <mapping class="com.heymoose.domain.AppVisit"/>
+    <mapping class="com.heymoose.domain.affiliate.ShowStat"/>
+    <mapping class="com.heymoose.domain.affiliate.Site"/>
+    <mapping class="com.heymoose.domain.BaseOffer"/>
+    <mapping class="com.heymoose.domain.affiliate.SubOffer"/>
+    <mapping class="com.heymoose.domain.affiliate.OfferGrant"/>
+    <mapping class="com.heymoose.domain.affiliate.Category"/>
+    <mapping class="com.heymoose.domain.affiliate.IpSegment"/>
+    <mapping class="com.heymoose.domain.accounting.Account"/>
+    <mapping class="com.heymoose.domain.AdminAccount"/>
+    <mapping class="com.heymoose.domain.AdminAccountNotConfirmed"/>
+    <mapping class="com.heymoose.domain.accounting.AccountingEntry"/>
+    <mapping class="com.heymoose.domain.accounting.AccountingTransaction"/>
+    <mapping class="com.heymoose.domain.affiliate.ClickStat"/>
+    <mapping class="com.heymoose.domain.affiliate.OfferAction"/>
   </session-factory>
 </hibernate-configuration>

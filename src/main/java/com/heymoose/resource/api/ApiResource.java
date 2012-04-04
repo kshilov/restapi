@@ -7,7 +7,6 @@ import com.google.common.collect.Multimap;
 import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.affiliate.ClickStat;
 import com.heymoose.domain.affiliate.GeoTargeting;
 import com.heymoose.domain.affiliate.OfferGrant;
@@ -25,13 +24,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
-import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -52,8 +49,6 @@ public class ApiResource {
   private final static Logger log = LoggerFactory.getLogger(ApiResource.class);
 
   private final Provider<HttpRequestContext> requestContextProvider;
-  private final UserRepository users;
-  private final Api api;
   private final Provider<UriInfo> uriInfoProvider;
   private final Tracking tracking;
   private final Repo repo;
@@ -62,11 +57,10 @@ public class ApiResource {
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
-  public ApiResource(Provider<HttpRequestContext> requestContextProvider, Api api,
-                     UserRepository users, Provider<UriInfo> uriInfoProvider, Tracking tracking, Repo repo, GeoTargeting geoTargeting) {
+  public ApiResource(Provider<HttpRequestContext> requestContextProvider,
+                     Provider<UriInfo> uriInfoProvider, Tracking tracking, Repo repo,
+                     GeoTargeting geoTargeting) {
     this.requestContextProvider = requestContextProvider;
-    this.api = api;
-    this.users = users;
     this.uriInfoProvider = uriInfoProvider;
     this.tracking = tracking;
     this.repo = repo;
