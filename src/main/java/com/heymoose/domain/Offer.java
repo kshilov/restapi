@@ -1,6 +1,7 @@
 package com.heymoose.domain;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newTreeSet;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.CpaPolicy;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
+import java.util.SortedSet;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -28,6 +30,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 
 @Entity
 public class Offer extends BaseOffer {
@@ -79,7 +83,8 @@ public class Offer extends BaseOffer {
       joinColumns = @JoinColumn(name = "offer_id", referencedColumnName = "id"),
       inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id")
   )
-  private Set<Category> categories;
+  @Sort(type = SortType.NATURAL)
+  private SortedSet<Category> categories;
 
   @Basic(optional = false)
   private String url;
@@ -102,7 +107,7 @@ public class Offer extends BaseOffer {
     this.logoFileName = logoFileName;
 
     this.regions = newHashSet(regions);
-    this.categories = newHashSet(categories);
+    this.categories = newTreeSet(categories);
     this.account = new Account(allowNegativeBalance);
   }
 

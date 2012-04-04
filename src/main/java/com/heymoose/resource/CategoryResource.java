@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 
 @Path("categories")
 @Singleton
@@ -26,7 +27,9 @@ public class CategoryResource {
   @GET
   @Transactional
   public XmlCategories list() {
-    List<Category> categories = repo.allByCriteria(DetachedCriteria.forClass(Category.class));
+    DetachedCriteria criteria = DetachedCriteria.forClass(Category.class)
+        .addOrder(Order.asc("id"));
+    List<Category> categories = repo.allByCriteria(criteria);
     return Mappers.toXmlCategories(categories);
   }
 }
