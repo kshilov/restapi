@@ -7,6 +7,7 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -16,7 +17,7 @@ public class SubOffer extends BaseOffer {
   @Column(name = "parent_id")
   private Long parentId;
 
-  @ManyToOne()
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private Offer parent;
 

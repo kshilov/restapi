@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,7 +26,7 @@ public class ClickStat extends BaseEntity {
   @SequenceGenerator(name = "click-seq", sequenceName = "click_seq", allocationSize = 1)
   private Long id;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "banner_id", insertable = false, updatable = false)
   @Nullable
   private Banner banner;
@@ -34,14 +35,14 @@ public class ClickStat extends BaseEntity {
   @Nullable
   private Long bannerId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "offer_id", insertable = false, updatable = false)
   private Offer offer;
 
   @Column(name = "offer_id")
   private Long offerId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "aff_id", insertable = false, updatable = false)
   private User affiliate;
 

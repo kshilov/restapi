@@ -5,6 +5,7 @@ import com.heymoose.domain.affiliate.base.ModifiableEntity;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,7 +20,7 @@ public class AccountingEntry extends ModifiableEntity {
   @SequenceGenerator(name = "accounting-entry-seq", sequenceName = "accounting_entry_seq", allocationSize = 1)
   private Long id;
 
-  @ManyToOne(optional = false, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY,optional = false, cascade = CascadeType.ALL)
   @JoinColumn(name = "account_id")
   private Account account;
 
@@ -35,7 +36,7 @@ public class AccountingEntry extends ModifiableEntity {
   @Basic
   private String descr;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "transaction")
   private AccountingTransaction transaction;
 
