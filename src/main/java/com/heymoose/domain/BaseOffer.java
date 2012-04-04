@@ -62,10 +62,13 @@ public abstract class BaseOffer extends BaseEntity {
   @Basic(optional = false)
   private String code;
 
+  @Column(name = "hold_days")
+  private int holdDays;
+
   protected BaseOffer() {}
 
   public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
-                   String title, boolean autoApprove, boolean reentrant, String code) {
+                   String title, boolean autoApprove, boolean reentrant, String code, int holdDays) {
 
     checkNotNull(payMethod);
     if (payMethod == PayMethod.CPA)
@@ -89,6 +92,7 @@ public abstract class BaseOffer extends BaseEntity {
     this.autoApprove = autoApprove;
     this.reentrant = reentrant;
     this.code = code;
+    this.holdDays = holdDays;
   }
 
   @Override
@@ -138,6 +142,15 @@ public abstract class BaseOffer extends BaseEntity {
 
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  public int holdDays() {
+    return holdDays;
+  }
+
+  public void setHoldDays(int holdDays) {
+    checkArgument(holdDays >= 0 && holdDays <= 180);
+    this.holdDays = holdDays;
   }
 
   public abstract Account account();

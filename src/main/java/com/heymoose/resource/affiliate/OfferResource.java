@@ -151,8 +151,9 @@ public class OfferResource {
                        @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
                        @FormParam("regions") List<String> strRegions,
                        @FormParam("categories") List<Long> longCategories,
-                       @FormParam("code") String code) {
-    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code);
+                       @FormParam("code") String code,
+                       @FormParam("hold_days") Integer holdDays) {
+    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code, holdDays);
     checkNotNull(URI.create(url));
 
     checkArgument(!strRegions.isEmpty());
@@ -185,7 +186,7 @@ public class OfferResource {
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
-        logoFileName, code);
+        logoFileName, code, holdDays);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -254,8 +255,9 @@ public class OfferResource {
                                @FormParam("title") String title,
                                @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                                @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
-                               @FormParam("code") String code) {
-    checkNotNull(cpaPolicy, strCost, title, code);
+                               @FormParam("code") String code,
+                               @FormParam("hold_days") Integer holdDays) {
+    checkNotNull(cpaPolicy, strCost, title, code, holdDays);
     Offer offer = existing(offerId);
     
     BigDecimal cost = new BigDecimal(strCost), percent = null;
@@ -267,7 +269,7 @@ public class OfferResource {
     checkCode(code, offer.advertiser().id());
 
     SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, percent,
-                                     title, autoApprove, reentrant, code);
+                                     title, autoApprove, reentrant, code, holdDays);
     subOffers.put(suboffer);
     return suboffer.id().toString();
   }

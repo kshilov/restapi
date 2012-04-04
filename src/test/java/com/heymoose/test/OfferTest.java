@@ -44,7 +44,7 @@ public class OfferTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId =  heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "logo", URI.create(OFFER_URL), "title", false, false,
-        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE);
+        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30);
     heymoose().approveOffer(offerId);
     return offerId;
   }

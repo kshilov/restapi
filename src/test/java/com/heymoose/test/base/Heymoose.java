@@ -86,7 +86,8 @@ public class Heymoose {
   public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
                           double balance, String name, String descr, String logoFileName, URI uri,
                           String title, boolean allowNegativeBalance, boolean autoApprove,
-                          boolean reentrant, Set<Region> regions, Set<Long> categories, String code) {
+                          boolean reentrant, Set<Region> regions, Set<Long> categories,
+                          String code, int holdDays) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
     form.add("pay_method", payMethod);
@@ -106,6 +107,7 @@ public class Heymoose {
     for (long categoryId : categories)
       form.add("categories", categoryId);
     form.add("code", code);
+    form.add("hold_days", holdDays);
     return Long.valueOf(client.path("offers").post(String.class, form));
   }
 

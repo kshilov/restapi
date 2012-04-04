@@ -1,5 +1,6 @@
 package com.heymoose.domain;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import com.heymoose.domain.accounting.Account;
@@ -97,9 +98,10 @@ public class Offer extends BaseOffer {
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description,
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, String url, boolean autoApprove, boolean reentrant,
-                  Iterable<Region> regions, Iterable<Category> categories, String logoFileName, String code) {
+                  Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
+                  String code, int holdDays) {
 
-    super(payMethod, cpaPolicy, cost, percent, title, autoApprove, reentrant, code);
+    super(payMethod, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
     checkNotNull(url, advertiser, name, description, payMethod);
     this.url = url;
     this.advertiser = advertiser;
