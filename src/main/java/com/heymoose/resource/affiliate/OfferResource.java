@@ -198,7 +198,9 @@ public class OfferResource {
   @PUT
   @Path("code")
   @Transactional
-  public void checkCode(String code, long advertiserId) {
+  public void checkCode(@FormParam("code") String code, @FormParam("advertiser_id") Long advertiserId) {
+    checkNotNull(code, advertiserId);
+    
     SubOffer existentSub = repo.byHQL(
         SubOffer.class,
         "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
