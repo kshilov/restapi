@@ -118,6 +118,12 @@ public class Tracking {
     return repo.byCriteria(criteria);
   }
 
+  private OfferAction findAction(ClickStat click) {
+    DetachedCriteria criteria = DetachedCriteria.forClass(OfferAction.class)
+        .add(Restrictions.eq("click", click));
+    return repo.byCriteria(criteria);
+  }
+
   @Transactional
   public List<OfferAction> actionDone(ClickStat click, String transactionId, Map<BaseOffer, Optional<Double>> offers) {
     List<OfferAction> actions = newArrayList();
@@ -125,11 +131,16 @@ public class Tracking {
       OfferGrant grant = granted(offer, click.affiliate());
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
+      if (!offer.reentrant()) {
+        OfferAction existent = findAction(click);
+        if (existent != null)
+          continue;
+      }
       CpaPolicy cpaPolicy = offer.cpaPolicy();
       PayMethod payMethod = offer.payMethod();
       if (payMethod != PayMethod.CPA)
         throw new IllegalArgumentException("Not CPA offer: " + offer.id());
-      BigDecimal cost = null;
+      BigDecimal cost;
       if (cpaPolicy == CpaPolicy.PERCENT) {
         Optional<Double> price = offers.get(offer);
         if (!price.isPresent())
