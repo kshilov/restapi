@@ -152,8 +152,9 @@ public class OfferResource {
                        @FormParam("regions") List<String> strRegions,
                        @FormParam("categories") List<Long> longCategories,
                        @FormParam("code") String code,
-                       @FormParam("hold_days") Integer holdDays) {
-    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code, holdDays);
+                       @FormParam("hold_days") Integer holdDays,
+                       @FormParam("cookie_ttl") Integer cookieTtl) {
+    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code, holdDays, cookieTtl);
     checkNotNull(URI.create(url));
 
     checkArgument(!strRegions.isEmpty());
@@ -186,7 +187,7 @@ public class OfferResource {
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
-        logoFileName, code, holdDays);
+        logoFileName, code, holdDays, cookieTtl);
     offers.put(offer);
 
     if (balance.signum() > 0)

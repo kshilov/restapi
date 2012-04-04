@@ -1,6 +1,5 @@
 package com.heymoose.domain;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import com.heymoose.domain.accounting.Account;
@@ -87,10 +86,10 @@ public class Offer extends BaseOffer {
   @Sort(type = SortType.NATURAL)
   private SortedSet<Category> categories;
 
-  @Basic(optional = false)
+  @Basic
   private String url;
 
-  @Column(name = "cookie_ttl", nullable = false)
+  @Column(name = "cookie_ttl")
   private int cookieTtl = 30;
 
   protected Offer() {}
@@ -99,10 +98,10 @@ public class Offer extends BaseOffer {
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, String url, boolean autoApprove, boolean reentrant,
                   Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
-                  String code, int holdDays) {
+                  String code, int holdDays, int cookieTtl) {
 
     super(payMethod, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
-    checkNotNull(url, advertiser, name, description, payMethod);
+    checkNotNull(url, advertiser, name, description, payMethod, cookieTtl);
     this.url = url;
     this.advertiser = advertiser;
     this.name = name;
@@ -110,6 +109,7 @@ public class Offer extends BaseOffer {
     this.description = description;
     this.active = true;
     this.logoFileName = logoFileName;
+    this.cookieTtl = cookieTtl;
 
     this.regions = newHashSet(regions);
     this.categories = newTreeSet(categories);

@@ -34,4 +34,10 @@ public class XmlSubOffer {
   
   @XmlElement(name = "reentrant")
   public Boolean reentrant;
+  
+  @XmlElement(name = "code")
+  public String code;
+  
+  @XmlElement(name = "hold-days")
+  public Integer holdDays;
 }

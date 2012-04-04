@@ -143,6 +143,10 @@ public abstract class BaseOffer extends BaseEntity {
   public void setActive(boolean active) {
     this.active = active;
   }
+  
+  public String code() {
+    return code;
+  }
 
   public int holdDays() {
     return holdDays;

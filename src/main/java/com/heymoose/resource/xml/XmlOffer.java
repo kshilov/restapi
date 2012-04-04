@@ -80,6 +80,15 @@ public class XmlOffer {
   @XmlElement(name = "reentrant")
   public Boolean reentrant;
   
+  @XmlElement(name = "code")
+  public String code;
+  
+  @XmlElement(name = "hold-days")
+  public Integer holdDays;
+  
+  @XmlElement(name = "cookie-ttl")
+  public Integer cookieTtl;
+  
   @XmlElementWrapper(name = "regions")
   @XmlElement(name = "region")
   public Set<String> regions = Sets.newHashSet();

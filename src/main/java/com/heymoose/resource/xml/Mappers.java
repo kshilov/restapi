@@ -158,6 +158,9 @@ public class Mappers {
     xmlOffer.url = offer.url();
     xmlOffer.autoApprove = offer.autoApprove();
     xmlOffer.reentrant = offer.reentrant();
+    xmlOffer.code = offer.code();
+    xmlOffer.holdDays = offer.holdDays();
+    xmlOffer.cookieTtl = offer.cookieTtl();
     
     for (SubOffer suboffer : offer.suboffers())
       xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
@@ -216,6 +219,8 @@ public class Mappers {
     xmlSubOffer.title = offer.title();
     xmlSubOffer.autoApprove = offer.autoApprove();
     xmlSubOffer.reentrant = offer.reentrant();
+    xmlSubOffer.code = offer.code();
+    xmlSubOffer.holdDays = offer.holdDays();
     return xmlSubOffer;
   }
   
