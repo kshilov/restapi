@@ -1,5 +1,7 @@
 package com.heymoose.domain.affiliate;
 
+import java.net.URI;
+
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
@@ -17,6 +19,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import sun.swing.BakedArrayList;
 
 @Entity
 @Table(name = "offer_grant")
@@ -98,8 +102,16 @@ public class OfferGrant extends BaseEntity {
     return backUrl;
   }
   
+  public void setBackUrl(URI backUrl) {
+    this.backUrl = backUrl.toString();
+  }
+  
   public String postBackUrl() {
     return postbackUrl;
+  }
+  
+  public void setPostbackUrl(URI postbackUrl) {
+    this.postbackUrl = postbackUrl.toString();
   }
   
   public String message() {

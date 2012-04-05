@@ -1,5 +1,7 @@
 package com.heymoose.resource.affiliate;
 
+import java.net.URI;
+
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
@@ -12,6 +14,9 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;
+import com.sun.jersey.api.core.HttpContext;
+import com.sun.jersey.api.representation.Form;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 
@@ -86,6 +92,19 @@ public class OfferGrantResource {
     OfferGrant grant = new OfferGrant(offer.id(), affiliate.id(), message);
     offerGrants.put(grant);
     return grant.id().toString();
+  }
+  
+  @PUT
+  @Path("{id}")
+  @Transactional
+  public void update(@Context HttpContext context, @PathParam("id") long id) {
+    OfferGrant grant = existing(id);
+    Form form = context.getRequest().getEntity(Form.class);
+    
+    if (form.containsKey("back_url"))
+      grant.setBackUrl(URI.create(form.getFirst("back_url")));
+    if (form.containsKey("postback_url"))
+      grant.setPostbackUrl(URI.create(form.getFirst("postback_url")));
   }
   
   @PUT
