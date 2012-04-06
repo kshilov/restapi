@@ -28,6 +28,9 @@ import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlSubOffers;
+import com.sun.jersey.api.core.HttpContext;
+import com.sun.jersey.api.representation.Form;
+
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -46,6 +49,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 @Path("offers")
@@ -194,6 +198,44 @@ public class OfferResource {
       accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
     
     return offer.id().toString();
+  }
+  
+  @PUT
+  @Path("{id}")
+  @Transactional
+  public void update(@Context HttpContext context, @PathParam("id") long id) {
+    Offer offer = existing(id);
+    Form form = context.getRequest().getEntity(Form.class);
+    
+    if (form.containsKey("name"))
+      offer.setName(form.getFirst("name"));
+    if (form.containsKey("description"))
+      offer.setDescription(form.getFirst("description"));
+    if (form.containsKey("url"))
+      offer.setUrl(URI.create(form.getFirst("url")));
+    if (form.containsKey("cookie_ttl"))
+      offer.setCookieTtl(Integer.parseInt(form.getFirst("cookie_ttl")));
+    if (form.containsKey("categories")) {
+      List<Long> categIds = newArrayList();
+      for (String strId : form.get("categories"))
+        categIds.add(Long.parseLong(strId));
+      Iterable<Category> categories = repo.get(Category.class, newHashSet(categIds)).values();
+      offer.setCategories(categories);
+    }
+    if (form.containsKey("regions")) {
+      List<Region> regions = newArrayList();
+      for (String strRegion : form.get("regions"))
+        regions.add(Region.valueOf(strRegion));
+      offer.setRegions(regions);
+    }
+    if (form.containsKey("allow_negative_balance"))
+      offer.account().setAllowNegativeBalance(Boolean.parseBoolean(form.getFirst("allow_negative_balance")));
+    if (form.containsKey("auto_approve"))
+      offer.setAutoApprove(Boolean.parseBoolean(form.getFirst("auto_approve")));
+    if (form.containsKey("reentrant"))
+      offer.setReentrant(Boolean.parseBoolean(form.getFirst("reentrant")));
+    if (form.containsKey("logo_filename"))
+      offer.setLogoFileName(form.getFirst("logo_filename"));
   }
 
   @PUT

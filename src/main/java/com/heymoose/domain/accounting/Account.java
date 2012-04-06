@@ -51,6 +51,10 @@ public class Account extends ModifiableEntity {
   public boolean allowNegativeBalance() {
     return allowNegativeBalance;
   }
+  
+  public void setAllowNegativeBalance(boolean allow) {
+    this.allowNegativeBalance = allow;
+  }
 
   public void setBalance(BigDecimal balance) {
     this.balance = balance;

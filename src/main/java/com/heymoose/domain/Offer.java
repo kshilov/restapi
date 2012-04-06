@@ -11,6 +11,8 @@ import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
+import java.net.URI;
+
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
@@ -124,8 +126,8 @@ public class Offer extends BaseOffer {
     return url;
   }
   
-  public void setUrl(String url) {
-    this.url = url;
+  public void setUrl(URI url) {
+    this.url = url.toString();
   }
 
   public User advertiser() {
@@ -155,11 +157,19 @@ public class Offer extends BaseOffer {
       return emptySet();
     return unmodifiableSet(regions);
   }
+  
+  public void setRegions(Iterable<Region> regions) {
+    this.regions = newHashSet(regions);
+  }
 
   public Set<Category> categories() {
     if (categories == null)
       return emptySet();
     return unmodifiableSet(categories);
+  }
+  
+  public void setCategories(Iterable<Category> categories) {
+    this.categories = newTreeSet(categories);
   }
 
   public void addBanner(Banner banner) {
@@ -177,13 +187,27 @@ public class Offer extends BaseOffer {
   public String name() {
     return name;
   }
+  
+  public void setName(String name) {
+    checkNotNull(name);
+    this.name = name;
+  }
 
   public String description() {
     return description;
   }
+  
+  public void setDescription(String description) {
+    checkNotNull(description);
+    this.description = description;
+  }
 
   public String logoFileName() {
     return logoFileName;
+  }
+  
+  public void setLogoFileName(String logoFileName) {
+    this.logoFileName = logoFileName;
   }
 
   public boolean approved() {

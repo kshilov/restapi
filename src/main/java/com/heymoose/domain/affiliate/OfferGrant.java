@@ -20,8 +20,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import sun.swing.BakedArrayList;
-
 @Entity
 @Table(name = "offer_grant")
 public class OfferGrant extends BaseEntity {
