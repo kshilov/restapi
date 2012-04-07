@@ -116,19 +116,19 @@ public class OfferStats {
         "\t\tcanceled_revenue.canceled_revenue,\n" +
         "\t\tcase \n" +
         "\t\t\twhen stats.shows = 0 then null\n" +
-        "\t\t\telse stats.clicks / stats.shows * 100.0\n" +
+        "\t\t\telse stats.clicks * 100.0 / stats.shows\n" +
         "\t\tend ctr,\n" +
         "\t\tcase\n" +
         "\t\t\twhen stats.clicks = 0 then null\n" +
-        "\t\t\telse (leads.leads + sales.sales) / stats.clicks * 100.0\n" +
+        "\t\t\telse (leads.leads + sales.sales) * 100.0 / stats.clicks\n" +
         "\t\tend cr,\n" +
         "\t\tcase\n" +
         "\t\t\twhen stats.clicks = 0 then null\n" +
-        "\t\t\telse (confirmed_revenue.confirmed_revenue + not_confirmed_revenue.not_confirmed_revenue) / stats.clicks\n" +
+        "\t\t\telse (confirmed_revenue.confirmed_revenue + not_confirmed_revenue.not_confirmed_revenue) * 1.0 / stats.clicks\n" +
         "\t\tend ecpc,\n" +
         "\t\tcase\n" +
         "\t\t\twhen stats.shows = 0 then null\n" +
-        "\t\t\telse (confirmed_revenue.confirmed_revenue + not_confirmed_revenue.not_confirmed_revenue) / stats.shows * 1000\n" +
+        "\t\t\telse (confirmed_revenue.confirmed_revenue + not_confirmed_revenue.not_confirmed_revenue) * 1000 / stats.shows\n" +
         "\t\tend ecpm\n" +
         "from stats\n" +
         "left join leads using(offer_id)\n" +
