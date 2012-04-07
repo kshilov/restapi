@@ -30,9 +30,6 @@ public class Token extends BaseEntity {
   @JoinColumn(name = "stat_id")
   private OfferStat stat;
 
-  @Basic(optional = false)
-  private boolean used;
-
   @Override
   public Long id() {
     return id;
@@ -52,13 +49,5 @@ public class Token extends BaseEntity {
 
   public String value() {
     return value;
-  }
-
-  public boolean used() {
-    return used;
-  }
-
-  public void markAsUsed() {
-    used = true;
   }
 }

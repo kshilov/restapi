@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -38,6 +39,10 @@ public class OfferAction extends BaseEntity {
   @Enumerated
   private OfferActionState state;
 
+  @OneToOne
+  @JoinColumn(name = "token_id")
+  private Token token;
+
   @Override
   public Long id() {
     return id;
@@ -45,7 +50,8 @@ public class OfferAction extends BaseEntity {
 
   protected OfferAction() {}
   
-  public OfferAction(OfferStat stat, BaseOffer offer, String transactionId) {
+  public OfferAction(Token token, OfferStat stat, BaseOffer offer, String transactionId) {
+    this.token = token;
     this.stat = stat;
     this.transactionId = transactionId;
     this.offer = offer;

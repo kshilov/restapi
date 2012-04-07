@@ -5,6 +5,8 @@ import com.heymoose.domain.affiliate.base.ModifiableEntity;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,7 +14,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "accounting_entry")
 public class AccountingEntry extends ModifiableEntity {
 
   @Id
@@ -30,15 +35,17 @@ public class AccountingEntry extends ModifiableEntity {
   @Basic
   private AccountingEvent event;
 
-  @Basic
+  @Column(name = "source_id")
   private Long sourceId;
 
   @Basic
   private String descr;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "transaction")
   private AccountingTransaction transaction;
+
+  protected AccountingEntry() {}
 
   public AccountingEntry(Account account, BigDecimal amount, AccountingEvent event, Long sourceId, String descr) {
     this(account, amount);

@@ -64,9 +64,10 @@ public class Accounting {
 
   private void createTransaction(AccountingEntry srcEntry, AccountingEntry dstEntry) {
     AccountingTransaction transaction = new AccountingTransaction();
-    repo.put(transaction);
     srcEntry.setTransaction(transaction);
     dstEntry.setTransaction(transaction);
+    repo.put(srcEntry);
+    repo.put(dstEntry);
   }
 
   public AccountingEntry getLastEntry(Account account) {

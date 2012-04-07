@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.io.IOUtils;
+import org.hibernate.LockMode;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -103,13 +104,23 @@ public class Tracking {
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
         .add(Restrictions.eq("offer.id", offerId))
         .add(Restrictions.eq("affiliate.id", affId));
-    if (bannerId != null)
-      criteria.add(Restrictions.eq("bannerId", bannerId));
-    if (subId != null)
-      criteria.add(Restrictions.eq("subId", subId));
-    if (sourceId != null)
-      criteria.add(Restrictions.eq("sourceId", sourceId));
+    addEqOrIsNull(criteria, "bannerId", bannerId);
+    addEqOrIsNull(criteria, "sourceId", bannerId);
+    addEqOrIsNull(criteria, "subId", bannerId);
+    criteria.setLockMode(LockMode.PESSIMISTIC_WRITE);
     return repo.byCriteria(criteria);
+  }
+
+  private OfferAction findAction(BaseOffer offer, Token token) {
+    return repo.byHQL(OfferAction.class, "from OfferAction where offer = ? and token = ?", offer, token);
+  }
+
+  private static DetachedCriteria addEqOrIsNull(DetachedCriteria criteria, String property, Object value) {
+    if (value == null)
+      criteria.add(Restrictions.isNull(property));
+    else
+      criteria.add(Restrictions.eq(property, value));
+    return criteria;
   }
 
   @Transactional
@@ -120,7 +131,8 @@ public class Tracking {
       OfferGrant grant = granted(offer, stat.affiliate());
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
-      if (!offer.reentrant() && token.used())
+      OfferAction existent = findAction(offer, token);
+      if (!offer.reentrant() && existent != null)
         continue;
       PayMethod payMethod = offer.payMethod();
       CpaPolicy cpaPolicy = offer.cpaPolicy();
@@ -135,7 +147,7 @@ public class Tracking {
       } else if (cpaPolicy == CpaPolicy.FIXED) {
         cost = offer.cost();
       } else throw new IllegalStateException();
-      OfferAction action = new OfferAction(stat, offer, transactionId);
+      OfferAction action = new OfferAction(token, stat, offer, transactionId);
       repo.put(action);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
@@ -165,7 +177,6 @@ public class Tracking {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
       }
       actions.add(action);
-      token.markAsUsed();
     }
     return actions;
   }

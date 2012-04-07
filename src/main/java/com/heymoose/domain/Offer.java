@@ -21,6 +21,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -36,6 +37,7 @@ import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
 @Entity
+@DiscriminatorValue("1")
 public class Offer extends BaseOffer {
 
   @ManyToOne(fetch = FetchType.LAZY)
