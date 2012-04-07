@@ -11,6 +11,9 @@ public class XmlSubOffer {
   @XmlAttribute(name = "id")
   public Long id;
   
+  @XmlElement(name = "pay-method")
+  public String payMethod;
+  
   @XmlElement(name = "cpa-policy")
   public String cpaPolicy;
   
@@ -20,7 +23,7 @@ public class XmlSubOffer {
   @XmlElement(name = "percent")
   public BigDecimal percent;
 
-  @XmlElement(name = "paused")
+  @XmlElement(name = "active")
   public Boolean active;
   
   @XmlElement(name = "creation-time")

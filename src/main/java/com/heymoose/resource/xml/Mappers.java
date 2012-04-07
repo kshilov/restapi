@@ -211,6 +211,7 @@ public class Mappers {
   public static XmlSubOffer toXmlSubOffer(SubOffer offer) {
     XmlSubOffer xmlSubOffer = new XmlSubOffer();
     xmlSubOffer.id = offer.id();
+    xmlSubOffer.payMethod = offer.payMethod().toString();
     xmlSubOffer.cpaPolicy = offer.cpaPolicy().toString();
     xmlSubOffer.cost = offer.cost();
     xmlSubOffer.percent = offer.percent();

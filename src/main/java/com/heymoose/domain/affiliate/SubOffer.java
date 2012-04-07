@@ -33,6 +33,7 @@ public class SubOffer extends BaseOffer {
     super(PayMethod.CPA, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
     checkNotNull(parentId, cpaPolicy);
     this.parentId = parentId;
+    this.active = true;
   }
   
   public Long parentId() {

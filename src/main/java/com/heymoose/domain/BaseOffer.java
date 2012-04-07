@@ -103,13 +103,27 @@ public abstract class BaseOffer extends BaseEntity {
   public CpaPolicy cpaPolicy() {
     return cpaPolicy;
   }
+  
+  public void setCpaPolicy(CpaPolicy cpaPolicy) {
+    this.cpaPolicy = cpaPolicy;
+  }
 
   public BigDecimal cost() {
     return cost;
   }
+  
+  public void setCost(BigDecimal cost) {
+    this.cost = cost;
+    this.percent = null;
+  }
 
   public BigDecimal percent() {
     return percent;
+  }
+  
+  public void setPercent(BigDecimal percent) {
+    this.percent = percent;
+    this.cost = null;
   }
 
   public boolean active() {
@@ -119,9 +133,17 @@ public abstract class BaseOffer extends BaseEntity {
   public PayMethod payMethod() {
     return payMethod;
   }
+  
+  public void setPayMethod(PayMethod payMethod) {
+    this.payMethod = payMethod;
+  }
 
   public String title() {
     return title;
+  }
+  
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   public boolean autoApprove() {
@@ -146,6 +168,10 @@ public abstract class BaseOffer extends BaseEntity {
   
   public String code() {
     return code;
+  }
+  
+  public void setCode(String code) {
+    this.code = code;
   }
 
   public int holdDays() {

@@ -118,10 +118,6 @@ public class Offer extends BaseOffer {
     this.account = new Account(allowNegativeBalance);
   }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
   public String url() {
     return url;
   }

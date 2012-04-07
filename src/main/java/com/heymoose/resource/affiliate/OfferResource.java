@@ -187,7 +187,7 @@ public class OfferResource {
       longCategories = newArrayList();
     Iterable<Category> categories = repo.get(Category.class, newHashSet(longCategories)).values();
 
-    checkCode(code, advertiser.id());
+    checkCode(code, advertiser.id(), null);
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
@@ -206,6 +206,28 @@ public class OfferResource {
   public void update(@Context HttpContext context, @PathParam("id") long id) {
     Offer offer = existing(id);
     Form form = context.getRequest().getEntity(Form.class);
+    
+    if (form.containsKey("pay_method"))
+      offer.setPayMethod(PayMethod.valueOf(form.getFirst("pay_method")));
+    if (form.containsKey("cpa_policy"))
+      offer.setCpaPolicy(CpaPolicy.valueOf(form.getFirst("cpa_policy")));
+    if (form.containsKey("cost")) {
+      BigDecimal value = new BigDecimal(form.getFirst("cost"));
+      if (offer.payMethod() == PayMethod.CPA && offer.cpaPolicy() == CpaPolicy.PERCENT)
+        offer.setPercent(value);
+      else
+        offer.setCost(value);
+    }
+    if (form.containsKey("title"))
+      offer.setTitle(form.getFirst("title"));
+    if (form.containsKey("code"))
+      offer.setCode(form.getFirst("code"));
+    if (form.containsKey("hold_days"))
+      offer.setHoldDays(Integer.parseInt(form.getFirst("hold_days")));
+    if (form.containsKey("auto_approve"))
+      offer.setAutoApprove(Boolean.parseBoolean(form.getFirst("auto_approve")));
+    if (form.containsKey("reentrant"))
+      offer.setReentrant(Boolean.parseBoolean(form.getFirst("reentrant")));
     
     if (form.containsKey("name"))
       offer.setName(form.getFirst("name"));
@@ -241,7 +263,9 @@ public class OfferResource {
   @PUT
   @Path("code")
   @Transactional
-  public void checkCode(@FormParam("code") String code, @FormParam("advertiser_id") Long advertiserId) {
+  public void checkCode(@FormParam("code") String code,
+                        @FormParam("advertiser_id") Long advertiserId,
+                        @FormParam("offer_id") Long offerId) {
     checkNotNull(code, advertiserId);
     
     SubOffer existentSub = repo.byHQL(
@@ -250,7 +274,7 @@ public class OfferResource {
         code, advertiserId
     );
 
-    if (existentSub != null)
+    if (existentSub != null && existentSub.id() != offerId)
       throw conflict();
 
     Offer existentOffer = repo.byHQL(
@@ -259,7 +283,7 @@ public class OfferResource {
         code, advertiserId
     );
 
-    if (existentOffer != null)
+    if (existentOffer != null && existentOffer.id() != offerId)
       throw conflict();
   }
 
@@ -311,12 +335,51 @@ public class OfferResource {
       cost = null;
     }
 
-    checkCode(code, offer.advertiser().id());
+    checkCode(code, offer.advertiser().id(), null);
 
     SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, percent,
                                      title, autoApprove, reentrant, code, holdDays);
     subOffers.put(suboffer);
     return suboffer.id().toString();
+  }
+  
+  @PUT
+  @Path("{id}/suboffers/{subofferId}")
+  @Transactional
+  public void updateSuboffer(@Context HttpContext context,
+                             @PathParam("id") long offerId, @PathParam("subofferId") long subofferId) {
+    Offer offer = existing(offerId);
+    SubOffer suboffer = null;
+    for (SubOffer sub : offer.suboffers())
+      if (sub.id().equals(subofferId)) {
+        suboffer = sub;
+        break;
+      }
+    if (suboffer == null)
+      throw badRequest();
+    
+    Form form = context.getRequest().getEntity(Form.class);
+    if (form.containsKey("cpa_policy"))
+      suboffer.setCpaPolicy(CpaPolicy.valueOf(form.getFirst("cpa_policy")));
+    if (form.containsKey("cost")) {
+      BigDecimal value = new BigDecimal(form.getFirst("cost"));
+      if (suboffer.cpaPolicy() == CpaPolicy.PERCENT)
+        suboffer.setPercent(value);
+      else
+        suboffer.setCost(value);
+    }
+    if (form.containsKey("title"))
+      suboffer.setTitle(form.getFirst("title"));
+    if (form.containsKey("code"))
+      suboffer.setCode(form.getFirst("code"));
+    if (form.containsKey("hold_days"))
+      suboffer.setHoldDays(Integer.parseInt(form.getFirst("hold_days")));
+    if (form.containsKey("auto_approve"))
+      suboffer.setAutoApprove(Boolean.parseBoolean(form.getFirst("auto_approve")));
+    if (form.containsKey("reentrant"))
+      suboffer.setReentrant(Boolean.parseBoolean(form.getFirst("reentrant")));
+    if (form.containsKey("active"))
+      suboffer.setActive(Boolean.parseBoolean(form.getFirst("active")));
   }
 
   @POST
