@@ -175,6 +175,28 @@ public class OfferStats {
     return stats;
   }
 
+  public long countAffStats(long affId) {
+    String query = "with offers as (\n" +
+        "\twith parent_offer as (\n" +
+        "\t\tselect g.offer_id offer_id\n" +
+        "\t\tfrom offer_grant g\n" +
+        "\t\tleft join offer o on g.offer_id = o.id\n" +
+        "\t\twhere\tg.state = 'APPROVED'\n" +
+        "\t\t\t\tand g.aff_id = {affId}\n" +
+        "\t\t\t\tand o.type = 1\n" +
+        "\t)\n" +
+        "\tselect p.offer_id\n" +
+        "\tfrom parent_offer p\n" +
+        "\tunion all\n" +
+        "\tselect o.id offer_id\n" +
+        "\tfrom offer o\n" +
+        "\tinner join parent_offer p on o.parent_id = p.offer_id\n" +
+        ")\n" +
+        "select count(*) from offers;";
+    query = query.replaceAll("\\{affId\\}", Long.toString(affId));
+    return extractLong(sessionProvider.get().createSQLQuery(query).uniqueResult());
+  }
+
   private static Long extractLong(Object val) {
     if (val == null)
       return 0L;

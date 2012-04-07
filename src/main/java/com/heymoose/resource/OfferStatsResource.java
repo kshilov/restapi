@@ -34,6 +34,7 @@ public class OfferStatsResource {
     OverallOfferStatsList list = new OverallOfferStatsList();
     for (OverallOfferStats s : stats.affStats(affId, ordering, dir, offset, limit))
       list.stats.add(s);
+    list.count = stats.countAffStats(affId);
     return list;
   }
 }
