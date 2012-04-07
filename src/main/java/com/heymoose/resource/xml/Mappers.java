@@ -7,6 +7,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.Region;
@@ -90,8 +91,10 @@ public class Mappers {
       xmlUser.blocked = user.blocked();
       xmlUser.registerTime = user.registerTime().toString();
       
-      if (user.advertiserAccount() != null)
+      if (user.advertiserAccount() != null) {
         xmlUser.customerAccount = toXmlAccount(user.advertiserAccount());
+        xmlUser.advertiserAccount = toXmlAccount(user.advertiserAccount());
+      }
       if (user.affiliateAccount() != null) {
         xmlUser.developerAccount = toXmlAccount(user.affiliateAccount());
         xmlUser.affiliateAccount = toXmlAccount(user.affiliateAccount());
@@ -111,6 +114,24 @@ public class Mappers {
     xmlAccount.balance = account.balance().doubleValue();
     xmlAccount.allowNegativeBalance = account.allowNegativeBalance();
     return xmlAccount;
+  }
+  
+  public static XmlAccountingEntry toXmlAccountingEntry(AccountingEntry entry) {
+    XmlAccountingEntry xmlEntry = new XmlAccountingEntry();
+    xmlEntry.id = entry.id();
+    xmlEntry.amount = entry.amount();
+    xmlEntry.descr = entry.descr();
+    if (entry.event() != null)
+      xmlEntry.event = entry.event().toString();
+    return xmlEntry;
+  }
+  
+  public static XmlAccountingEntries toXmlAccountingEntries(Iterable<AccountingEntry> entries, Long count) {
+    XmlAccountingEntries xmlEntries = new XmlAccountingEntries();
+    xmlEntries.count = count;
+    for (AccountingEntry entry : entries)
+      xmlEntries.entries.add(toXmlAccountingEntry(entry));
+    return xmlEntries;
   }
 
   public static XmlCount toXmlCount(Long count) {

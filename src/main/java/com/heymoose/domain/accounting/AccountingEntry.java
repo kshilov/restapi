@@ -87,4 +87,12 @@ public class AccountingEntry extends ModifiableEntity {
   public BigDecimal amount() {
     return amount;
   }
+  
+  public AccountingEvent event() {
+    return event;
+  }
+  
+  public String descr() {
+    return descr;
+  }
 }
