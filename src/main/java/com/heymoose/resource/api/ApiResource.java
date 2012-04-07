@@ -113,6 +113,8 @@ public class ApiResource {
       String[] parts = pair.split(":");
       String code = parts[0];
       BaseOffer offer = findOffer(advertiserId, code);
+      if (offer == null)
+        throw new ApiRequestException(404, "Offer not found, params code: " + code + ", " + "advertiser_id: " + advertiserId);
       Optional<Double> price = (parts.length == 2)
           ? Optional.of(Double.parseDouble(parts[1]))
           : Optional.<Double>absent();

@@ -10,7 +10,7 @@ public class ApiExceptions {
   }
   
   public static ApiRequestException notFound(Class<? extends IdEntity> clazz, Object id) {
-    return new ApiRequestException(404, clazz.getSimpleName() + "with id " + id + " was not found");
+    return new ApiRequestException(404, clazz.getSimpleName() + " with id " + id + " was not found");
   }
 
   public static ApiRequestException nullParam(String paramName) {
