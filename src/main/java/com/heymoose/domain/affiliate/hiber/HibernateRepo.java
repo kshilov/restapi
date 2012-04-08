@@ -17,6 +17,8 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @Singleton
@@ -72,6 +74,17 @@ public class HibernateRepo implements Repo {
   @Override
   public <T extends IdEntity> List<T> allByCriteria(DetachedCriteria criteria) {
     return criteria.getExecutableCriteria(hiber()).list();
+  }
+  
+  @Override
+  public <T extends IdEntity> List<T> pageByCriteria(DetachedCriteria criteria, int offset, int limit) {
+    return criteria.getExecutableCriteria(hiber()).setFirstResult(offset).setMaxResults(limit).list();
+  }
+  
+  @Override
+  public long countByCriteria(DetachedCriteria criteria) {
+    return (Long) criteria.setProjection(Projections.rowCount())
+        .getExecutableCriteria(hiber()).uniqueResult();
   }
 
   @Override

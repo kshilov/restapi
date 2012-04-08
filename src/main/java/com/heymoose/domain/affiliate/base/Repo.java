@@ -15,6 +15,8 @@ public interface Repo {
   <T extends IdEntity> T byCriteria(DetachedCriteria criteria);
   Criteria getExecutableCriteria(DetachedCriteria detachedCriteria);
   <T extends IdEntity> List<T> allByCriteria(DetachedCriteria criteria);
+  <T extends IdEntity> List<T> pageByCriteria(DetachedCriteria criteria, int offset, int limit);
+  long countByCriteria(DetachedCriteria criteria);
   <T extends IdEntity> Map<Long, T> get(Class<T> clazz, Set<Long> ids);
   <T extends IdEntity> T lock(T entity);
   <T extends IdEntity> void lockAll(T... entities);

@@ -20,4 +20,7 @@ public class XmlAccountingEntry {
   
   @XmlElement(name = "event")
   public String event;
+  
+  @XmlElement(name = "creation-time")
+  public String creationTime;
 }

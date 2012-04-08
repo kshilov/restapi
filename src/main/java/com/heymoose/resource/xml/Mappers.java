@@ -123,6 +123,7 @@ public class Mappers {
     xmlEntry.descr = entry.descr();
     if (entry.event() != null)
       xmlEntry.event = entry.event().toString();
+    xmlEntry.creationTime = entry.creationTime().toString();
     return xmlEntry;
   }
   
