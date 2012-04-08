@@ -89,9 +89,12 @@ public class HibernateRepo implements Repo {
 
   @Override
   public <T extends IdEntity> Map<Long, T> get(Class<T> clazz, Set<Long> ids) {
-    List<T> list = (List<T>) hiber().createCriteria(clazz)
+    List<T> list = newArrayList();
+    if (!ids.isEmpty()) {
+      list = (List<T>) hiber().createCriteria(clazz)
         .add(Restrictions.in("id", ids))
         .list();
+    }
     Map<Long, T> result = newHashMap();
     for (T e : list)
       result.put(e.id(), e);

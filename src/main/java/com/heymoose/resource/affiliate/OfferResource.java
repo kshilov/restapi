@@ -160,8 +160,6 @@ public class OfferResource {
                        @FormParam("cookie_ttl") Integer cookieTtl) {
     checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code, holdDays, cookieTtl);
     checkNotNull(URI.create(url));
-
-    checkArgument(!strRegions.isEmpty());
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
     
