@@ -99,8 +99,10 @@ public class Mappers {
         xmlUser.developerAccount = toXmlAccount(user.affiliateAccount());
         xmlUser.affiliateAccount = toXmlAccount(user.affiliateAccount());
       }
-      if (user.affiliateAccountNotConfirmed() != null)
+      if (user.affiliateAccountNotConfirmed() != null) {
+        xmlUser.developerAccountNotConfirmed = toXmlAccount(user.affiliateAccountNotConfirmed());
         xmlUser.affiliateAccountNotConfirmed = toXmlAccount(user.affiliateAccountNotConfirmed());
+      }
       xmlUser.roles = Sets.newHashSet();
       for (Role role : user.roles())
         xmlUser.roles.add(role.toString());

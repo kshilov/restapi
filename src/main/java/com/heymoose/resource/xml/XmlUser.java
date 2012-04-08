@@ -48,6 +48,9 @@ public class XmlUser {
   @XmlElement(name = "developer-account")
   public XmlAccount developerAccount;
   
+  @XmlElement(name = "developer-account-not-confirmed")
+  public XmlAccount developerAccountNotConfirmed;
+  
   @XmlElement(name = "advertiser-account")
   public XmlAccount advertiserAccount;
 

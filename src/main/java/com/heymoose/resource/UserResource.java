@@ -6,25 +6,20 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.UserRepository.Ordering;
-import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
-import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
-import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.resource.xml.XmlUsers;
-import com.heymoose.resource.xml.XmlWithdraws;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -46,14 +41,12 @@ public class UserResource {
 
   private final UserRepository users;
   private final AdminAccountAccessor adminAccountAccessor;
-  private final Accounting accounting;
   private final Repo repo;
 
   @Inject
-  public UserResource(UserRepository users, AdminAccountAccessor adminAccountAccessor, Accounting accounting, Repo repo) {
+  public UserResource(UserRepository users, AdminAccountAccessor adminAccountAccessor, Repo repo) {
     this.users = users;
     this.adminAccountAccessor = adminAccountAccessor;
-    this.accounting = accounting;
     this.repo = repo;
   }
   
@@ -228,58 +221,7 @@ public class UserResource {
     User user = existing(id);
     user.changeEmail(email);
   }
-
-  @POST
-  @Path("{id}/developer-account/withdraws")
-  @Transactional
-  public String createWithdraw(@PathParam("id") long id, @FormParam("amount") String _amount) {
-    checkNotNull(_amount);
-    BigDecimal amount = new BigDecimal(_amount);
-    User user = existing(id);
-    if (!user.isAffiliate())
-      throw conflict();
-    Withdraw withdraw = accounting.withdraw(user.affiliateAccount(), amount);
-    return Long.toString(withdraw.id());
-  }
-
-  @GET
-  @Transactional
-  @Path("{id}/developer-account/withdraws")
-  public XmlWithdraws developerWithdraws(@PathParam("id") long id) {
-    User user = existing(id);
-    if (!user.isAffiliate())
-      throw conflict();
-    List<Withdraw> withdraws = accounting.withdraws(user.affiliateAccount());
-    return Mappers.toXmlWithdraws(user.affiliateAccount().id(), withdraws);
-  }
-
-  @PUT
-  @Transactional
-  @Path("{id}/developer-account/withdraws/{withdrawId}")
-  public void approveDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
-    User user = existing(id);
-    if (!user.isAffiliate())
-      throw conflict();
-    Withdraw withdraw = accounting.withdrawOfAccount(user.affiliateAccount(), withdrawId);
-    if (withdraw == null)
-      throw notFound();
-    withdraw.approve();
-  }
-
-  @DELETE
-  @Transactional
-  @Path("{id}/developer-account/withdraws/{withdrawId}")
-  public void deleteDeveloperWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId, @FormParam("comment") String comment) {
-    checkNotNull(comment);
-    User user = existing(id);
-    if (!user.isAffiliate())
-      throw conflict();
-    Withdraw withdraw = accounting.withdrawOfAccount(user.affiliateAccount(), withdrawId);
-    if (withdraw == null)
-      throw notFound();
-    accounting.deleteWithdraw(withdraw, comment);
-  }
-
+  
   private User existing(long id) {
     User user = users.byId(id);
     if (user == null)
