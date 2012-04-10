@@ -213,7 +213,7 @@ public class ApiResource {
         params.put(ent.getKey(), ent.getValue().get(0));
     return params;
   }
-  
+
   private Long getRealIp() {
     String hRealIp = requestContextProvider.get().getHeaderValue("X-Real-IP");
     if (hRealIp == null)

@@ -21,14 +21,27 @@
             <pattern>%d %5p [%F:%M:%L] ﻿rid:%X{request-id} - %m%n</pattern>
         </encoder>
     </appender>
-    
-    <logger name="org.hibernate" level="INFO" additivity="false"/>
+
+    <appender name="IP" class="ch.qos.logback.core.FileAppender">
+      <file>logs/ip.log</file>
+      <bufferedIo>true</bufferedIo>
+      <encoder>
+        <pattern>%d %5p [%F:%M:%L] ﻿rid:%X{request-id} - %m%n</pattern>
+      </encoder>
+    </appender>
+
+
+  <logger name="org.hibernate" level="INFO" additivity="false"/>
 
     <logger name="com.heymoose.resource.api.ApiResource" additivity="false">
       <appender-ref ref="API"/>
     </logger>
-    
-    <root level="DEBUG">
+
+    <logger name="com.heymoose.domain.affiliate.GeoTargeting" additivity="false">
+      <appender-ref ref="IP"/>
+    </logger>
+
+  <root level="DEBUG">
         <appender-ref ref="FILE"/>
     </root>
 </configuration>

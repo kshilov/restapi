@@ -9,11 +9,14 @@ import static java.util.Collections.emptySet;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class GeoTargeting {
   
   private final Repo repo;
+  private final Logger log = LoggerFactory.getLogger(GeoTargeting.class);
 
   @Inject
   public GeoTargeting(Repo repo) {
@@ -23,8 +26,10 @@ public class GeoTargeting {
   @Transactional
   public Set<Region> regionsByIpNum(long ipNum) {
     IpSegment segment = repo.byHQL(IpSegment.class, "from IpSegment where ? >= startIpNum and ? <= endIpNum", ipNum, ipNum);
-    if (segment == null)
+    if (segment == null) {
+      log.warn("Unknown ip: " + intToIp(ipNum) + " [ip num: " + ipNum + "]");
       return emptySet();
+    }
     return Region.find(segment.code());
   }
 
@@ -40,5 +45,12 @@ public class GeoTargeting {
       return ((SubOffer) offer).parent().regions();
     else
       throw new IllegalArgumentException("Unknown offer type: " + offer.getClass().getSimpleName());
+  }
+
+  public static String intToIp(long i) {
+    return ((i >> 24 ) & 0xFF) + "." +
+        ((i >> 16 ) & 0xFF) + "." +
+        ((i >>  8 ) & 0xFF) + "." +
+        ( i        & 0xFF);
   }
 }
