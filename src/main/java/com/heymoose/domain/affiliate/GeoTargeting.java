@@ -35,10 +35,13 @@ public class GeoTargeting {
 
   @Transactional
   public boolean isAllowed(BaseOffer offer, long ipNum) {
-    Set<Region> regions = regions(offer);
-    if (regions.isEmpty())
+    Set<Region> offerRegions = regions(offer);
+    if (offerRegions.isEmpty())
       return true;
-    return !Sets.intersection(regions, regionsByIpNum(ipNum)).isEmpty();
+    Set<Region> ipRegions = regionsByIpNum(ipNum);
+    if (ipRegions.isEmpty())
+      return true;
+    return !Sets.intersection(offerRegions, ipRegions).isEmpty();
   }
   
   private static Set<Region> regions(BaseOffer offer) {
