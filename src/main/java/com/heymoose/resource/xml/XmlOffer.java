@@ -89,6 +89,9 @@ public class XmlOffer {
   @XmlElement(name = "cookie-ttl")
   public Integer cookieTtl;
   
+  @XmlElement(name = "token-param-name")
+  public String tokenParamName;
+  
   @XmlElementWrapper(name = "regions")
   @XmlElement(name = "region")
   public Set<String> regions = Sets.newHashSet();

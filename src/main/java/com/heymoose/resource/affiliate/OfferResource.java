@@ -1,6 +1,5 @@
 package com.heymoose.resource.affiliate;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.Banner;
@@ -238,14 +237,16 @@ public class OfferResource {
     if (form.containsKey("categories")) {
       List<Long> categIds = newArrayList();
       for (String strId : form.get("categories"))
-        categIds.add(Long.parseLong(strId));
+        if (strId != null && !strId.isEmpty())
+          categIds.add(Long.parseLong(strId));
       Iterable<Category> categories = repo.get(Category.class, newHashSet(categIds)).values();
       offer.setCategories(categories);
     }
     if (form.containsKey("regions")) {
       List<Region> regions = newArrayList();
       for (String strRegion : form.get("regions"))
-        regions.add(Region.valueOf(strRegion));
+        if (strRegion != null && !strRegion.isEmpty())
+          regions.add(Region.valueOf(strRegion));
       offer.setRegions(regions);
     }
     if (form.containsKey("allow_negative_balance"))

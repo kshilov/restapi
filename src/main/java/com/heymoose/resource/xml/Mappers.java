@@ -185,6 +185,7 @@ public class Mappers {
     xmlOffer.code = offer.code();
     xmlOffer.holdDays = offer.holdDays();
     xmlOffer.cookieTtl = offer.cookieTtl();
+    xmlOffer.tokenParamName = offer.tokenParamName();
     
     for (SubOffer suboffer : offer.suboffers())
       xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
