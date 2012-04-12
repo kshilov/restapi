@@ -96,6 +96,9 @@ public class Offer extends BaseOffer {
   @Column(name = "cookie_ttl")
   private int cookieTtl = 30;
 
+  @Column(name = "token_param_name", nullable = true)
+  private String tokenParamName;
+
   protected Offer() {}
 
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description,
@@ -243,5 +246,15 @@ public class Offer extends BaseOffer {
 
   public int cookieTtl() {
     return cookieTtl;
+  }
+
+  public String tokenParamName() {
+    if (tokenParamName == null)
+      return "_hm_token";
+    return tokenParamName;
+  }
+
+  public void setTokenParamName(String tokenParamName) {
+    this.tokenParamName = tokenParamName;
   }
 }

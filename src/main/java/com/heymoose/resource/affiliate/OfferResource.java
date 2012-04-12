@@ -256,6 +256,8 @@ public class OfferResource {
       offer.setReentrant(Boolean.parseBoolean(form.getFirst("reentrant")));
     if (form.containsKey("logo_filename"))
       offer.setLogoFileName(form.getFirst("logo_filename"));
+    if (form.containsKey("token_param_name"))
+      offer.setTokenParamName(form.getFirst("token_param_name"));
   }
 
   @PUT

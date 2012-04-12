@@ -169,7 +169,7 @@ public class ApiResource {
       return forbidden(grant);
     String token  = tracking.click(bannerId, offerId, affId, subId, sourceId);
     URI location = URI.create(offer.url());
-    location = appendQueryParam(location, "_hm_token", token);
+    location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     return Response.status(302).location(location).build();
   }
