@@ -75,14 +75,16 @@ public class OfferStats {
         "\tfrom offers\n" +
         "\tinner join offer o on offers.offer_id = o.id\n" +
         "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\twhere o.cpa_policy = 'FIXED'\n" +
+        "\tinner join offer_stat s on a.stat_id = s.id\n" +
+        "\twhere o.cpa_policy = 'FIXED' and s.aff_id = {affId}\n" +
         "\tgroup by offers.main\n" +
         "), sales as (\n" +
         "\tselect offers.main offer_id, count(a.id) sales\n" +
         "\tfrom offers\n" +
         "\tinner join offer o on offers.offer_id = o.id\n" +
         "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\twhere o.cpa_policy = 'PERCENT'\n" +
+        "\tinner join offer_stat s on a.stat_id = s.id\n" +
+        "\twhere o.cpa_policy = 'PERCENT' and s.aff_id = {affId}\n" +
         "\tgroup by offers.main\n" +
         "), not_confirmed_revenue as (\n" +
         "\tselect offers.main offer_id, sum(e.amount) not_confirmed_revenue\n" +
