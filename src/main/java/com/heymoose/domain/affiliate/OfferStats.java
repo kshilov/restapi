@@ -87,25 +87,22 @@ public class OfferStats {
         "\twhere s.aff_id = {affId}\n" +
         "\tgroup by offers.main" +
         "), not_confirmed_revenue as (\n" +
-        "\tselect offers.main offer_id, sum(e.amount) not_confirmed_revenue\n" +
+        "\tselect offers.main offer_id, coalesce(sum(e.amount), 0) not_confirmed_revenue\n" +
         "\tfrom offers\n" +
         "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tinner join accounting_entry e on a.id = e.source_id\n" +
-        "\twhere e.event = 1 and e.account_id = {notConfirmedAcc}\n" +
+        "\tleft join accounting_entry e on a.id = e.source_id and e.event = 1 and e.account_id = {notConfirmedAcc}\n" +
         "\tgroup by offers.main\n" +
         "), confirmed_revenue as (\n" +
-        "\tselect offers.main offer_id, sum(e.amount) confirmed_revenue\n" +
+        "\tselect offers.main offer_id, coalesce(sum(e.amount), 0) confirmed_revenue\n" +
         "\tfrom offers\n" +
         "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tinner join accounting_entry e on a.id = e.source_id\n" +
-        "\twhere e.event = 1 and e.account_id = {confirmedAcc}\n" +
+        "\tleft join accounting_entry e on a.id = e.source_id and e.event = 1 and e.account_id = {confirmedAcc}\n" +
         "\tgroup by offers.main\n" +
         "), canceled_revenue as (\n" +
-        "\tselect offers.main offer_id, sum(-e.amount) canceled_revenue\n" +
+        "\tselect offers.main offer_id, coalesce(sum(-e.amount), 0) canceled_revenue\n" +
         "\tfrom offers\n" +
         "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tinner join accounting_entry e on a.id = e.source_id\n" +
-        "\twhere e.event = 4 and e.account_id = {notConfirmedAcc}\n" +
+        "\tleft join accounting_entry e on a.id = e.source_id and e.event = 4 and e.account_id = {notConfirmedAcc}\n" +
         "\tgroup by offers.main\n" +
         ")\n" +
         "select\tstats.offer_id,\n" +
