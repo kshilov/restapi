@@ -9,6 +9,9 @@ public class OverallOfferStats {
   @XmlElement(name = "offer-id")
   public long offerId;
 
+  @XmlElement(name = "name")
+  public String name;
+
   @XmlElement(name = "shows")
   public long shows;
 
@@ -44,10 +47,11 @@ public class OverallOfferStats {
 
   protected OverallOfferStats() {}
 
-  public OverallOfferStats(long offerId, long shows, long clicks, long leads, long sales,
+  public OverallOfferStats(long offerId, String name, long shows, long clicks, long leads, long sales,
                            double confirmedRevenue, double notConfirmedRevenue, double canceledRevenue,
                            Double ctr, Double cr, Double ecpc, Double ecpm) {
     this.offerId = offerId;
+    this.name = name;
     this.shows = shows;
     this.clicks = clicks;
     this.leads = leads;

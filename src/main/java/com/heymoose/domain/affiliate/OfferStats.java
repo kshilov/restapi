@@ -106,6 +106,7 @@ public class OfferStats {
         "\tgroup by offers.main\n" +
         ")\n" +
         "select\tstats.offer_id,\n" +
+        "\t\toffer.name,\n" +
         "\t\tstats.shows,\n" +
         "\t\tstats.clicks,\n" +
         "\t\tleads.leads,\n" +
@@ -135,6 +136,7 @@ public class OfferStats {
         "left join confirmed_revenue using(offer_id)\n" +
         "left join not_confirmed_revenue using(offer_id)\n" +
         "left join canceled_revenue using(offer_id)\n" +
+        "left join offer on stats.offer_id = offer.id\n" +
         "order by {ordering} {dir}\n" +
         "offset {offset} limit {limit}";
 
@@ -156,17 +158,18 @@ public class OfferStats {
     for (Object[] record : records) {
       stats.add(new OverallOfferStats(
           extractLong(record[0]),
-          extractLong(record[1]),
+          (String) record[1],
           extractLong(record[2]),
           extractLong(record[3]),
           extractLong(record[4]),
-          extractDouble(record[5]),
+          extractLong(record[5]),
           extractDouble(record[6]),
           extractDouble(record[7]),
-          extractDoubleOrNull(record[8]),
+          extractDouble(record[8]),
           extractDoubleOrNull(record[9]),
           extractDoubleOrNull(record[10]),
-          extractDoubleOrNull(record[11])
+          extractDoubleOrNull(record[11]),
+          extractDoubleOrNull(record[12])
       ));
     }
     return stats;
