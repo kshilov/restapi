@@ -73,19 +73,19 @@ public class OfferStats {
         "), leads as (\n" +
         "\tselect offers.main offer_id, count(a.id) leads\n" +
         "\tfrom offers\n" +
-        "\tinner join offer o on offers.offer_id = o.id\n" +
-        "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tinner join offer_stat s on a.stat_id = s.id\n" +
-        "\twhere o.cpa_policy = 'FIXED' and s.aff_id = {affId}\n" +
+        "\tleft join offer o on offers.offer_id = o.id and o.cpa_policy = 'FIXED'\n" +
+        "\tleft join offer_action a on o.id = a.offer_id\n" +
+        "\tleft join offer_stat s on a.stat_id = s.id\n" +
+        "\twhere s.aff_id = {affId}\n" +
         "\tgroup by offers.main\n" +
         "), sales as (\n" +
         "\tselect offers.main offer_id, count(a.id) sales\n" +
         "\tfrom offers\n" +
-        "\tinner join offer o on offers.offer_id = o.id\n" +
-        "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tinner join offer_stat s on a.stat_id = s.id\n" +
-        "\twhere o.cpa_policy = 'PERCENT' and s.aff_id = {affId}\n" +
-        "\tgroup by offers.main\n" +
+        "\tleft join offer o on offers.offer_id = o.id and o.cpa_policy = 'PERCENT'\n" +
+        "\tleft join offer_action a on o.id = a.offer_id\n" +
+        "\tleft join offer_stat s on a.stat_id = s.id\n" +
+        "\twhere s.aff_id = {affId}\n" +
+        "\tgroup by offers.main" +
         "), not_confirmed_revenue as (\n" +
         "\tselect offers.main offer_id, sum(e.amount) not_confirmed_revenue\n" +
         "\tfrom offers\n" +
@@ -122,7 +122,7 @@ public class OfferStats {
         "\t\tend ctr,\n" +
         "\t\tcase\n" +
         "\t\t\twhen stats.clicks = 0 then null\n" +
-        "\t\t\telse (leads.leads + sales.sales) * 100.0 / stats.clicks\n" +
+        "\t\t\telse (coalesce(leads.leads, 0) + coalesce(sales.sales, 0)) * 100.0 / stats.clicks\n" +
         "\t\tend cr,\n" +
         "\t\tcase\n" +
         "\t\t\twhen stats.clicks = 0 then null\n" +
@@ -152,8 +152,6 @@ public class OfferStats {
     query = query.replaceAll("\\{dir\\}", dir.name());
     query = query.replaceAll("\\{offset\\}", Integer.toString(offset));
     query = query.replaceAll("\\{limit\\}", Integer.toString(limit));
-
-    System.out.println(query);
 
     List<Object[]> records = sessionProvider.get().createSQLQuery(query).list();
     List<OverallOfferStats> stats = newArrayList();
