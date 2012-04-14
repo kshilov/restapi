@@ -48,12 +48,12 @@ public class Tracking {
   @Transactional
   public OfferStat track(@Nullable Long bannerId, long offerId, long affId,
                         @Nullable String subId, @Nullable String sourceId) {
-    OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
+    /*OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat != null) {
       stat.incShows();
       return stat;
-    }
-    stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
+    }*/
+    OfferStat stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
     stat.incShows();
     repo.put(stat);
     return stat;
