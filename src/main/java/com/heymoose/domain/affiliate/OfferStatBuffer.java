@@ -44,7 +44,7 @@ public class OfferStatBuffer {
     Session s = sessionProvider.get();
     Query query = s.createQuery("update OfferStat set showCount = showCount + :diff where id = :id");
     for (Map.Entry<Long, AtomicInteger> ent : shows.entrySet()) {
-      int shows = ent.getValue().getAndSet(0);
+      long shows = ent.getValue().getAndSet(0);
       query.setParameter("diff", shows);
       query.setParameter("id", ent.getKey());
       query.executeUpdate();
