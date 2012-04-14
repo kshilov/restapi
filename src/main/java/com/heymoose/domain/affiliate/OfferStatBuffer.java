@@ -16,7 +16,6 @@ public class OfferStatBuffer {
   private final static int THRESHOLD = 100;
 
   private final ConcurrentHashMap<Long, AtomicInteger> shows = new ConcurrentHashMap<Long, AtomicInteger>();
-  private final AtomicInteger counter = new AtomicInteger();
 
   private final Provider<Session> sessionProvider;
 
@@ -27,16 +26,9 @@ public class OfferStatBuffer {
 
   public void incShows(long offerStatId) {
     shows.putIfAbsent(offerStatId, new AtomicInteger());
-    shows.get(offerStatId).incrementAndGet();
-    counter.incrementAndGet();
-    tryFlush();
-  }
-
-  public void tryFlush() {
-    if (counter.get() >= THRESHOLD) {
+    int cnt = shows.get(offerStatId).incrementAndGet();
+    if (cnt >= THRESHOLD)
       flush();
-      counter.set(0);
-    }
   }
 
   @Transactional
