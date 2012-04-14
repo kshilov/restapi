@@ -35,6 +35,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 @Entity
 @DiscriminatorValue("1")
@@ -95,6 +97,10 @@ public class Offer extends BaseOffer {
 
   @Column(name = "cookie_ttl")
   private int cookieTtl = 30;
+  
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+  @Column(name = "launch_time", nullable = true)
+  private DateTime launchTime;
 
   @Column(name = "token_param_name", nullable = true)
   private String tokenParamName;
@@ -226,6 +232,7 @@ public class Offer extends BaseOffer {
 
   public void unblock() {
     this.approved = true;
+    this.launchTime = DateTime.now();
   }
 
   public String blockReason() {
@@ -246,6 +253,10 @@ public class Offer extends BaseOffer {
 
   public int cookieTtl() {
     return cookieTtl;
+  }
+  
+  public DateTime launchTime() {
+    return launchTime;
   }
 
   public String tokenParamName() {

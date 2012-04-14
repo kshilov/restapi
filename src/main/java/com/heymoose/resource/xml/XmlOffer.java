@@ -68,6 +68,9 @@ public class XmlOffer {
   @XmlElement(name = "creation-time")
   public String creationTime;
   
+  @XmlElement(name = "launch-time")
+  public String launchTime;
+  
   @XmlElement(name = "title")
   public String title;
   

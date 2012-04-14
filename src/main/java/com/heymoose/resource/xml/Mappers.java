@@ -178,6 +178,8 @@ public class Mappers {
     xmlOffer.active = offer.active();
     xmlOffer.blockReason = offer.blockReason();
     xmlOffer.creationTime = offer.creationTime().toString();
+    if (offer.launchTime() != null)
+      xmlOffer.launchTime = offer.launchTime().toString();
     xmlOffer.title = offer.title();
     xmlOffer.url = offer.url();
     xmlOffer.autoApprove = offer.autoApprove();
