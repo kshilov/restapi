@@ -417,6 +417,30 @@ public class OfferResource {
       throw badRequest();
   }
   
+  @PUT
+  @Path("{id}/account")
+  @Transactional
+  public void addToBalance(@PathParam("id") long offerId, @FormParam("amount") double dAmount) {
+    Offer offer = existing(offerId);
+    BigDecimal amount = new BigDecimal(dAmount);
+    if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
+      throw new WebApplicationException(409);
+    accounting.transferMoney(offer.advertiser().advertiserAccount(), offer.account(), amount,
+      AccountingEvent.OFFER_ACCOUNT_ADD, null);
+  }
+  
+  @DELETE
+  @Path("{id}/account")
+  @Transactional
+  public void removeFromBalance(@PathParam("id") long offerId, @FormParam("amount") double dAmount) {
+    Offer offer = existing(offerId);
+    BigDecimal amount = new BigDecimal(dAmount);
+    if (offer.account().balance().compareTo(amount) == -1)
+      throw new WebApplicationException(409);
+    accounting.transferMoney(offer.account(), offer.advertiser().advertiserAccount(), amount,
+      AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
+  }
+  
   private Offer existing(long id) {
     Offer offer = offers.byId(id);
     if (offer == null)

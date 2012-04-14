@@ -7,4 +7,5 @@ public enum AccountingEvent {
   ACTION_CANCELED,
   OFFER_ACCOUNT_ADD,
   ROBOKASSA_ADD,
+  OFFER_ACCOUNT_REMOVE
 }
