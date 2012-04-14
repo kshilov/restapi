@@ -70,7 +70,7 @@ public class Tracking {
       stat.incClicks();
       repo.put(stat);
     } else {
-      stat.incClicks();
+      statBuffer.incClicks(stat.id());
     }
     Offer offer = repo.get(Offer.class, offerId);
     PayMethod payMethod = offer.payMethod();
