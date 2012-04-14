@@ -77,6 +77,9 @@ public class XmlUser {
   @XmlElement(name = "blocked")
   public Boolean blocked;
   
+  @XmlElement(name = "block-reason")
+  public String blockReason;
+  
   @XmlElement(name = "register-time")
   public String registerTime;
 

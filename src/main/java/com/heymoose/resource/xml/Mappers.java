@@ -89,6 +89,7 @@ public class Mappers {
       }
       xmlUser.confirmed = user.confirmed();
       xmlUser.blocked = user.blocked();
+      xmlUser.blockReason = user.blockReason();
       xmlUser.registerTime = user.registerTime().toString();
       
       if (user.advertiserAccount() != null) {

@@ -199,9 +199,9 @@ public class UserResource {
   @PUT
   @Path("{id}/blocked")
   @Transactional
-  public void block(@PathParam("id") long id) {
+  public void block(@PathParam("id") long id, @FormParam("reason") String reason) {
     User user = existing(id);
-    user.setBlocked(true);
+    user.block(reason);
   }
   
   @DELETE
@@ -209,7 +209,7 @@ public class UserResource {
   @Transactional
   public void unblock(@PathParam("id") long id) {
     User user = existing(id);
-    user.setBlocked(false);
+    user.unblock();
   }
   
   @PUT

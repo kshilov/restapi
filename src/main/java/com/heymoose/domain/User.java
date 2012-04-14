@@ -96,6 +96,9 @@ public class User extends IdEntity {
   @Basic(optional = false)
   private boolean blocked;
   
+  @Column(name = "block_reason")
+  private String blockReason;
+  
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
@@ -256,8 +259,21 @@ public class User extends IdEntity {
     return blocked;
   }
   
+  public void block(String reason) {
+    this.blocked = true;
+    this.blockReason = reason;
+  }
+  
+  public void unblock() {
+    this.blocked = false;
+  }
+  
   public void setBlocked(boolean blocked) {
     this.blocked = blocked;
+  }
+  
+  public String blockReason() {
+    return blockReason;
   }
   
   public boolean active() {
