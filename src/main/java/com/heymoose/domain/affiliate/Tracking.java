@@ -37,23 +37,25 @@ public class Tracking {
   private final Repo repo;
   private final AdminAccountAccessor adminAccountAccessor;
   private final Accounting accounting;
+  private final OfferStatBuffer statBuffer;
 
   @Inject
-  public Tracking(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting) {
+  public Tracking(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting, OfferStatBuffer statBuffer) {
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
     this.accounting = accounting;
+    this.statBuffer = statBuffer;
   }
 
   @Transactional
   public OfferStat track(@Nullable Long bannerId, long offerId, long affId,
                         @Nullable String subId, @Nullable String sourceId) {
-    /*OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
+    OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat != null) {
-      stat.incShows();
+      statBuffer.incShows(stat.id());
       return stat;
-    }*/
-    OfferStat stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
+    }
+    stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
     stat.incShows();
     repo.put(stat);
     return stat;
