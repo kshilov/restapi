@@ -54,7 +54,7 @@ public class OfferStatBuffer {
   @Transactional
   public void flushClicks() {
     Session s = sessionProvider.get();
-    Query query = s.createQuery("update OfferStat set showCount = showCount + :diff where id = :id");
+    Query query = s.createQuery("update OfferStat set clickCount = clickCount + :diff where id = :id");
     for (Map.Entry<Long, AtomicInteger> ent : clicks.entrySet()) {
       long shows = ent.getValue().getAndSet(0);
       query.setParameter("diff", shows);
