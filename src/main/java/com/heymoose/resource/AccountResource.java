@@ -6,18 +6,13 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
-
 import static com.heymoose.resource.Exceptions.notFound;
-
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlAccountingEntries;
 import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.util.Pair;
-
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -29,7 +24,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -55,8 +49,9 @@ public class AccountResource {
                        @FormParam("amount") Double _amount) {
     checkNotNull(fromAccountId, toAccountId, _amount);
     BigDecimal amount = new BigDecimal(_amount);
-    Pair<Account, Account> pair = accounting.getAndLock(fromAccountId, toAccountId);
-    accounting.transferMoney(pair.fst, pair.snd, amount, null, null);
+    Account src = repo.get(Account.class, fromAccountId);
+    Account dst = repo.get(Account.class, toAccountId);
+    accounting.transferMoney(src, dst, amount, null, null);
   }
   
   @GET

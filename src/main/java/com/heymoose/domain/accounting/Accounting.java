@@ -9,6 +9,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -23,15 +24,17 @@ public class Accounting {
     this.repo = repo;
   }
 
-  public Account createAccount(BigDecimal balance) {
-    Account account = new Account();
-    AccountingEntry entry = new AccountingEntry(account, balance);
-    repo.put(entry);
-    return account;
-  }
-
   public void transferMoney(Account src, Account dst, BigDecimal amount, AccountingEvent event, Long sourceId) {
     transferMoney(src, dst, amount, event, sourceId, null);
+  }
+
+  public void applyEntry(AccountingEntry entry) {
+    Session session = repo.session();
+    session.createQuery("update Account set balance = balance + :amount where id = :id")
+        .setParameter("amount", entry.amount())
+        .setParameter("id", entry.account().id())
+        .executeUpdate();
+    session.refresh(entry.account());
   }
 
   public void transferMoney(Account src, Account dst, BigDecimal amount, AccountingEvent event, Long sourceId, String descr) {
@@ -39,13 +42,39 @@ public class Accounting {
     AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, descr);
     AccountingEntry dstEntry = new AccountingEntry(dst, amount, event, sourceId, descr);
     createTransaction(srcEntry, dstEntry);
+    Session session = repo.session();
+    session.createQuery("update Account set balance = balance - :amount where id = :id")
+        .setParameter("amount", amount)
+        .setParameter("id", src.id())
+        .executeUpdate();
+    session.createQuery("update Account set balance = balance + :amount where id = :id")
+        .setParameter("amount", amount)
+        .setParameter("id", dstEntry.account().id())
+        .executeUpdate();
+    session.refresh(dst);
+    session.refresh(src);
   }
 
   public void transferMoney(Account src, AccountingEntry dstEntry, BigDecimal amount, AccountingEvent event, Long sourceId, String desc) {
     checkArgument(amount.signum() == 1);
-    dstEntry.amend(amount);
+    Session session = repo.session();
+    session.createQuery("update AccountingEntry set amount = amount + :amount where id = :id")
+        .setParameter("amount", amount)
+        .setParameter("id", dstEntry)
+        .executeUpdate();
+    session.refresh(dstEntry);
     AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, desc);
     srcEntry.setTransaction(dstEntry.transaction());
+    repo.put(srcEntry);
+    session.createQuery("update Account set balance = balance - :amount where id = :id")
+        .setParameter("amount", amount)
+        .setParameter("id", src.id())
+        .executeUpdate();
+    session.createQuery("update Account set balance = balance + :amount where id = :id")
+        .setParameter("amount", amount)
+        .setParameter("id", dstEntry.account().id())
+        .executeUpdate();
+    session.refresh(src);
   }
 
   public void cancel(AccountingTransaction transaction) {
@@ -59,6 +88,7 @@ public class Accounting {
       AccountingEntry reverseEntry = new AccountingEntry(entry.account(), entry.amount().negate());
       reverseEntry.setTransaction(reverseTx);
       repo.put(reverseEntry);
+      applyEntry(reverseEntry);
     }
   }
 
@@ -78,7 +108,8 @@ public class Accounting {
   }
 
   public Withdraw withdraw(Account account, BigDecimal amount) {
-    new AccountingEntry(account, amount.negate());
+    AccountingEntry entry = new AccountingEntry(account, amount.negate());
+    applyEntry(entry);
     Withdraw withdraw = new Withdraw(account, amount);
     repo.put(withdraw);
     return withdraw;
@@ -94,24 +125,9 @@ public class Accounting {
 
   public void deleteWithdraw(Withdraw withdraw, String comment) {
     checkArgument(!isBlank(comment));
-    new AccountingEntry(withdraw.account(), withdraw.amount());
+    AccountingEntry entry = new AccountingEntry(withdraw.account(), withdraw.amount());
+    applyEntry(entry);
     repo.remove(withdraw);
-  }
-
-  public Account getAndLock(Long accountId) {
-    Account account = repo.get(Account.class, accountId);
-    repo.lock(account);
-    return account;
-  }
-
-  public Pair<Account, Account> getAndLock(long accountId1, long accountId2) {
-    if (accountId1 > accountId2) {
-      return Pair.of(getAndLock(accountId1), getAndLock(accountId2));
-    } else {
-      Account account2 = getAndLock(accountId2);
-      Account account1 = getAndLock(accountId1);
-      return Pair.of(account1, account2);
-    }
   }
 
   public Account destination(AccountingTransaction transaction) {

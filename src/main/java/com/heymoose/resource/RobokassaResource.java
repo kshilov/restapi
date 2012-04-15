@@ -69,7 +69,7 @@ public class RobokassaResource {
       throw unauthorized();
     }
     double sum = Double.parseDouble(_sum);
-    Account account = accounting.getAndLock(accountId);
+    Account account = repo.get(Account.class, accountId);
     if (account == null) {
       logError(_sum, invId, sig, accountId, "account not found");
       throw notFound();
@@ -81,6 +81,7 @@ public class RobokassaResource {
         invId,
         "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm")
     );
+    accounting.applyEntry(add);
     repo.put(add);
     return "OK" + invId;
   }

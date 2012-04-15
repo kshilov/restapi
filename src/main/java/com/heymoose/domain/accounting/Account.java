@@ -60,14 +60,4 @@ public class Account extends ModifiableEntity {
     this.balance = balance;
     touch();
   }
-
-  public AccountingEntry add(BigDecimal amount) {
-    checkArgument(amount.signum() == 1);
-    return new AccountingEntry(this, amount);
-  }
-
-  public AccountingEntry subtract(BigDecimal amount) {
-    checkArgument(amount.signum() == 1);
-    return new AccountingEntry(this, amount.negate());
-  }
 }

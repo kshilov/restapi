@@ -58,18 +58,11 @@ public class AccountingEntry extends ModifiableEntity {
     checkArgument(amount.signum() != 0);
     this.account = account;
     this.amount = amount;
-    this.account.setBalance(this.account.balance().add(amount));
   }
 
   @Override
   public Long id() {
     return id;
-  }
-
-  public AccountingEntry amend(BigDecimal amount) {
-    this.amount = this.amount.add(amount);
-    touch();
-    return this;
   }
 
   public void setTransaction(AccountingTransaction transaction) {

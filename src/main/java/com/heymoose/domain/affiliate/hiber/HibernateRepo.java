@@ -4,8 +4,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.base.IdEntity;
-import static java.util.Collections.sort;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,11 +11,9 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.hibernate.Criteria;
-import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
@@ -102,27 +98,12 @@ public class HibernateRepo implements Repo {
   }
 
   @Override
-  public <T extends IdEntity> T lock(T entity) {
-    hiber().flush();
-    hiber().buildLockRequest(LockOptions.UPGRADE).lock(entity);
-    return entity;
-  }
-
-  @Override
-  public <T extends IdEntity> void lockAll(T... entities) {
-    List<T> list = newArrayList(entities);
-    sort(list, new Comparator<T>() {
-      @Override
-      public int compare(T o1, T o2) {
-        return o1.id().compareTo(o2.id());
-      }
-    });
-    for (T entity : list)
-      lock(entity);
-  }
-
-  @Override
   public <T extends IdEntity> void remove(T entity) {
     hiber().delete(entity);
+  }
+
+  @Override
+  public Session session() {
+    return hiber();
   }
 }

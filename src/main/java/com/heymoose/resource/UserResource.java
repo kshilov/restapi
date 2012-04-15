@@ -7,8 +7,8 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.UserRepository.Ordering;
 import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
-import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
@@ -41,13 +41,13 @@ public class UserResource {
 
   private final UserRepository users;
   private final AdminAccountAccessor adminAccountAccessor;
-  private final Repo repo;
+  private final Accounting accounting;
 
   @Inject
-  public UserResource(UserRepository users, AdminAccountAccessor adminAccountAccessor, Repo repo) {
+  public UserResource(UserRepository users, AdminAccountAccessor adminAccountAccessor, Accounting accounting) {
     this.users = users;
     this.adminAccountAccessor = adminAccountAccessor;
-    this.repo = repo;
+    this.accounting = accounting;
   }
   
   @GET
@@ -145,8 +145,8 @@ public class UserResource {
     User user = existing(id);
     if (!user.isAdvertiser())
       throw conflict();
-    repo.lock(user.advertiserAccount());
-    new AccountingEntry(user.advertiserAccount(), new BigDecimal(amount));
+    AccountingEntry entry = new AccountingEntry(user.advertiserAccount(), new BigDecimal(amount));
+    accounting.applyEntry(entry);
   }
 
   @PUT

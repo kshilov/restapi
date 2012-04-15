@@ -75,10 +75,6 @@ public class Tracking {
     Offer offer = repo.get(Offer.class, offerId);
     PayMethod payMethod = offer.payMethod();
     if (payMethod == PayMethod.CPC) {
-      repo.lockAll(
-          offer.account(), stat.affiliate().affiliateAccount(),
-          adminAccountAccessor.getAdminAccount()
-      );
       BigDecimal cost = offer.cost();
       BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee())  / 100.0));
       BigDecimal revenue = cost.subtract(amount);
@@ -153,11 +149,6 @@ public class Tracking {
       repo.put(action);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-      repo.lockAll(
-          offer.account(),
-          stat.affiliate().affiliateAccountNotConfirmed(),
-          adminAccountAccessor.getAdminAccountNotConfirmed()
-      );
       accounting.transferMoney(
           offer.account(),
           stat.affiliate().affiliateAccountNotConfirmed(),
