@@ -45,7 +45,7 @@ public class ActionImporter implements Runnable {
         log.info("Importing: {}", url.toString());
         doImport(ent.getKey(), getActions(url));
       } catch (Exception e) {
-        log.error("Can't import actions from: {}, advertiser_id={}", ent.getValue(), ent.getKey());
+        log.error("Can't import actions from: " + ent.getValue() + ", advertiser_id=" + ent.getKey(), e);
       }
     }
   }
