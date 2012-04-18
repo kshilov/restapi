@@ -2,6 +2,8 @@ package com.heymoose.domain.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.BaseOffer;
+import com.heymoose.domain.Offer;
+import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,6 +32,10 @@ public class OfferAction extends BaseEntity {
   private OfferStat stat;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "aff_id")
+  private User affiliate;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "offer_id")
   private BaseOffer offer;
 
@@ -50,12 +56,21 @@ public class OfferAction extends BaseEntity {
 
   protected OfferAction() {}
   
-  public OfferAction(Token token, OfferStat stat, BaseOffer offer, String transactionId) {
+  public OfferAction(Token token, User affiliate, OfferStat stat, BaseOffer offer, String transactionId) {
     this.token = token;
+    this.affiliate = affiliate;
     this.stat = stat;
     this.transactionId = transactionId;
     this.offer = offer;
     this.state = OfferActionState.NOT_APPROVED;
+  }
+
+  public User affiliate() {
+    return affiliate;
+  }
+
+  public BaseOffer offer() {
+    return offer;
   }
 
   public OfferStat stat() {

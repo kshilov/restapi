@@ -145,7 +145,7 @@ public class Tracking {
       } else if (cpaPolicy == CpaPolicy.FIXED) {
         cost = offer.cost();
       } else throw new IllegalStateException();
-      OfferAction action = new OfferAction(token, stat, offer, transactionId);
+      OfferAction action = new OfferAction(token, stat.affiliate(), stat, offer, transactionId);
       repo.put(action);
       BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
@@ -163,6 +163,11 @@ public class Tracking {
           AccountingEvent.ACTION_CREATED,
           action.id()
       );
+      if (cpaPolicy == CpaPolicy.FIXED)
+        stat.incLeads();
+      if (cpaPolicy == CpaPolicy.PERCENT)
+        stat.incSales();
+      stat.addToNotConfirmedRevenue(revenue);
       try {
         if (grant.postBackUrl() != null)
           getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), stat.sourceId(), stat.subId(), offer.id()));
