@@ -45,7 +45,7 @@ public class ProductionModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected ActionImporter actionImporter(@Named Properties settings, Tracking tracking, Repo repo) throws MalformedURLException {
+  protected ActionImporter actionImporter(@Named("settings") Properties settings, Tracking tracking, Repo repo) throws MalformedURLException {
     int period = Integer.valueOf(settings.get("action-import-period").toString());
     Map<Long, URL> advMap = newHashMap();
     Properties advProps = PropertiesUtil.subTree(settings, "action-import", null);
@@ -58,7 +58,7 @@ public class ProductionModule extends AbstractModule {
   @Provides
   @Singleton
   @Named("system")
-  protected ScheduledExecutorService sched(@Named Properties settings, ActionImporter actionImporter) {
+  protected ScheduledExecutorService sched(@Named("settings") Properties settings, ActionImporter actionImporter) {
     long period = Long.valueOf(settings.get("action-import-period").toString());
     ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
     sched.scheduleAtFixedRate(actionImporter, 0, period, TimeUnit.HOURS);
