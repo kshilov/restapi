@@ -3,6 +3,7 @@ package com.heymoose.domain.affiliate;
 import com.google.common.base.Optional;
 import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.api.ApiExceptions.notFound;
 import com.heymoose.resource.api.ApiRequestException;
 import static com.heymoose.util.QueryUtil.appendQueryParam;
@@ -12,6 +13,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -19,6 +23,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ActionImporter implements Runnable {
 
   private final static Logger log = LoggerFactory.getLogger(ActionImporter.class);
@@ -29,7 +34,8 @@ public class ActionImporter implements Runnable {
   private final int period;
   private final OfferLoader offerLoader;
 
-  public ActionImporter(Map<Long, URL> advUrls, Tracking tracking, Repo repo, int period, OfferLoader offerLoader) {
+  @Inject
+  public ActionImporter(@Named("adv-map") Map<Long, URL> advUrls, Tracking tracking, Repo repo, @Named("action-import-period") int period, OfferLoader offerLoader) {
     this.advUrls = advUrls;
     this.tracking = tracking;
     this.repo = repo;
@@ -50,6 +56,7 @@ public class ActionImporter implements Runnable {
     }
   }
 
+  @Transactional
   public void doImport(long advertiserId, ActionInfos actions) throws ApiRequestException {
     for (ActionInfo action : actions.actions) {
       Token token = repo.byHQL(Token.class, "from Token where value = ?", action.token);
