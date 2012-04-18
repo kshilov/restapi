@@ -2,9 +2,7 @@ package com.heymoose.domain.affiliate;
 
 import com.google.common.base.Optional;
 import com.heymoose.domain.BaseOffer;
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.api.ApiExceptions.notFound;
 import com.heymoose.resource.api.ApiRequestException;
 import static com.heymoose.util.QueryUtil.appendQueryParam;
@@ -28,13 +26,15 @@ public class ActionImporter implements Runnable {
   private final Map<Long, URL> advUrls;
   private final Tracking tracking;
   private final Repo repo;
-  protected final int period;
+  private final int period;
+  private final OfferLoader offerLoader;
 
-  public ActionImporter(Map<Long, URL> advUrls, Tracking tracking, Repo repo, int period) {
+  public ActionImporter(Map<Long, URL> advUrls, Tracking tracking, Repo repo, int period, OfferLoader offerLoader) {
     this.advUrls = advUrls;
     this.tracking = tracking;
     this.repo = repo;
     this.period = period;
+    this.offerLoader = offerLoader;
   }
 
   @Override
@@ -50,37 +50,17 @@ public class ActionImporter implements Runnable {
     }
   }
 
-  @Transactional
   public void doImport(long advertiserId, ActionInfos actions) throws ApiRequestException {
     for (ActionInfo action : actions.actions) {
       Token token = repo.byHQL(Token.class, "from Token where value = ?", action.token);
       if (token == null)
         throw notFound(Token.class, token);
-      BaseOffer offer = findOffer(advertiserId, action.offerCode);
+      BaseOffer offer = offerLoader.findOffer(advertiserId, action.offerCode);
       Optional<Double> price = action.price != null
           ? Optional.of(action.price)
           : Optional.<Double>absent();
       tracking.actionDone(token, action.transactionId, Collections.singletonMap(offer, price));
     }
-  }
-
-  private BaseOffer findOffer(long advertiserId, String code) {
-    SubOffer existentSub = repo.byHQL(
-        SubOffer.class,
-        "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
-        code, advertiserId
-    );
-
-    if (existentSub != null)
-      return existentSub;
-
-    Offer existentOffer = repo.byHQL(
-        Offer.class,
-        "from Offer o where o.code = ? and o.advertiser.id = ?",
-        code, advertiserId
-    );
-
-    return existentOffer;
   }
 
   private static ActionInfos getActions(URL url) throws JAXBException {

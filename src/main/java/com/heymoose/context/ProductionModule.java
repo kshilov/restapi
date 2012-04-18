@@ -4,6 +4,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.heymoose.domain.affiliate.ActionImporter;
+import com.heymoose.domain.affiliate.OfferLoader;
 import com.heymoose.domain.affiliate.Tracking;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.util.PropertiesUtil;
@@ -45,13 +46,13 @@ public class ProductionModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected ActionImporter actionImporter(@Named("settings") Properties settings, Tracking tracking, Repo repo) throws MalformedURLException {
+  protected ActionImporter actionImporter(@Named("settings") Properties settings, Tracking tracking, Repo repo, OfferLoader offerLoader) throws MalformedURLException {
     int period = Integer.valueOf(settings.get("action-import-period").toString());
     Map<Long, URL> advMap = newHashMap();
     Properties advProps = PropertiesUtil.subTree(settings, "action-import", null);
     for (Map.Entry<Object, Object> ent : advProps.entrySet())
       advMap.put(Long.parseLong(ent.getKey().toString()), new URL(ent.getValue().toString()));
-    ActionImporter actionImporter = new ActionImporter(advMap, tracking, repo, period);
+    ActionImporter actionImporter = new ActionImporter(advMap, tracking, repo, period, offerLoader);
     return actionImporter;
   }
 
