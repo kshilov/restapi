@@ -46,11 +46,12 @@ public class ProductionModule extends AbstractModule {
   @Provides
   @Singleton
   protected ActionImporter actionImporter(@Named Properties settings, Tracking tracking, Repo repo) throws MalformedURLException {
+    int period = Integer.valueOf(settings.get("action-import-period").toString());
     Map<Long, URL> advMap = newHashMap();
     Properties advProps = PropertiesUtil.subTree(settings, "action-import", null);
     for (Map.Entry<Object, Object> ent : advProps.entrySet())
       advMap.put(Long.parseLong(ent.getKey().toString()), new URL(ent.getValue().toString()));
-    ActionImporter actionImporter = new ActionImporter(advMap, tracking, repo);
+    ActionImporter actionImporter = new ActionImporter(advMap, tracking, repo, period);
     return actionImporter;
   }
 
