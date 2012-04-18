@@ -31,7 +31,7 @@ public class OfferAction extends BaseEntity {
   @JoinColumn(name = "stat_id")
   private OfferStat stat;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "aff_id")
   private User affiliate;
 
