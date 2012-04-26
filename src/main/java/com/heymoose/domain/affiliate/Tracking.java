@@ -9,6 +9,8 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.counter.BufferedClicks;
+import com.heymoose.domain.affiliate.counter.BufferedShows;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.QueryUtil;
 import java.io.ByteArrayOutputStream;
@@ -37,14 +39,16 @@ public class Tracking {
   private final Repo repo;
   private final AdminAccountAccessor adminAccountAccessor;
   private final Accounting accounting;
-  private final OfferStatBuffer statBuffer;
+  private final BufferedShows bufferedShows;
+  private final BufferedClicks bufferedClicks;
 
   @Inject
-  public Tracking(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting, OfferStatBuffer statBuffer) {
+  public Tracking(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting, BufferedShows bufferedShows, BufferedClicks bufferedClicks) {
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
     this.accounting = accounting;
-    this.statBuffer = statBuffer;
+    this.bufferedShows = bufferedShows;
+    this.bufferedClicks = bufferedClicks;
   }
 
   @Transactional
@@ -52,7 +56,7 @@ public class Tracking {
                         @Nullable String subId, @Nullable String sourceId) {
     OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat != null) {
-      statBuffer.incShows(stat.id());
+      bufferedShows.inc(stat.id());
       return stat;
     }
     stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
@@ -70,7 +74,7 @@ public class Tracking {
       stat.incClicks();
       repo.put(stat);
     } else {
-      statBuffer.incClicks(stat.id());
+      bufferedClicks.inc(stat.id());
     }
     Offer offer = repo.get(Offer.class, offerId);
     PayMethod payMethod = offer.payMethod();

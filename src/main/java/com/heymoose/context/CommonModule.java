@@ -1,6 +1,7 @@
 package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -23,12 +24,13 @@ import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferLoader;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferStat;
-import com.heymoose.domain.affiliate.OfferStatBuffer;
 import com.heymoose.domain.affiliate.Site;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.counter.BufferedClicks;
+import com.heymoose.domain.affiliate.counter.BufferedShows;
 import com.heymoose.domain.affiliate.hiber.HibernateRepo;
 import com.heymoose.domain.affiliate.hiber.OfferGrantRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.OfferRepositoryHiber;
@@ -74,8 +76,9 @@ public class CommonModule extends AbstractModule {
     bind(CategoryResource.class);
     bind(BannerResource.class);
     bind(OfferStatsResource.class);
-    bind(OfferStatBuffer.class);
     bind(OfferLoader.class);
+    bind(BufferedShows.class);
+    bind(BufferedClicks.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(Repo.class).to(HibernateRepo.class);
@@ -109,6 +112,15 @@ public class CommonModule extends AbstractModule {
     else if (!bannerDir.isDirectory())
       throw new IllegalArgumentException("Not a directory: "+ bannerDirStr);
     return bannerDirStr;
+  }
+
+  @Provides @Singleton @Named("system-threads")
+  protected Integer bufferedShows(BufferedShows shows, BufferedClicks clicks) {
+    Thread showsThread = new Thread(shows);
+    Thread clicksThread = new Thread(clicks);
+    showsThread.start();
+    clicksThread.start();
+    return 1;
   }
 
   @Provides @Singleton
