@@ -24,7 +24,7 @@ public class BufferedClicks extends BufferedCounters {
   public void flushCounter(long key, int diff) {
     sessionProvider.get()
         .createQuery("update OfferStat set clickCount = clickCount + :diff where id = :id")
-        .setParameter("diff", diff)
+        .setParameter("diff", (long) diff)
         .setParameter("id", key)
         .executeUpdate();
   }
