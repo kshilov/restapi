@@ -7,8 +7,12 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BufferedCounters implements Runnable {
+
+  private final static Logger log = LoggerFactory.getLogger(BufferedCounters.class);
 
   private static class DelayedCounter implements Delayed {
 
@@ -44,10 +48,10 @@ public abstract class BufferedCounters implements Runnable {
 
   private final ConcurrentMap<Long, DelayedCounter> counters = new ConcurrentHashMap<Long, DelayedCounter>();
   private final DelayQueue<DelayedCounter> queue = new DelayQueue<DelayedCounter>();
-  private final int delayMinutes;
+  private final int delaySeconds;
 
-  public BufferedCounters(int delayMinutes) {
-    this.delayMinutes = delayMinutes;
+  public BufferedCounters(int delaySeconds) {
+    this.delaySeconds = delaySeconds;
   }
 
   private static int incrementAndGetOld(AtomicInteger val) {
@@ -59,14 +63,14 @@ public abstract class BufferedCounters implements Runnable {
   }
 
   public void inc(long key) {
-    DelayedCounter newCounter = new DelayedCounter(key, DateTime.now().plusMinutes(delayMinutes));
+    DelayedCounter newCounter = new DelayedCounter(key, DateTime.now().plusSeconds(delaySeconds));
     DelayedCounter oldCounter = counters.putIfAbsent(key, newCounter);
     if (oldCounter == null) {
       queue.put(newCounter);
     } else {
       // zero means "removed from collections"
       if (incrementAndGetOld(oldCounter.counter) == 0) {
-        oldCounter.setExpirationTime(DateTime.now().plusMinutes(delayMinutes));
+        oldCounter.setExpirationTime(DateTime.now().plusSeconds(delaySeconds));
         counters.put(key, oldCounter);
         queue.put(oldCounter);
       }
@@ -79,10 +83,26 @@ public abstract class BufferedCounters implements Runnable {
       while (true) {
         DelayedCounter next = queue.take();
         counters.remove(next.key);
-        flushCounter(next.key, next.getAndReset());
+        flushCounterSafely(next.key, next.getAndReset());
       }
     } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+      log.warn("Buffer was interrupted", e);
+    }
+  }
+
+  public void flushAll() {
+    for (DelayedCounter counter : queue) {
+      queue.remove(counter);
+      counters.remove(counter.key);
+      flushCounterSafely(counter.key, counter.getAndReset());
+    }
+  }
+
+  private void flushCounterSafely(long key, int diff) {
+    try {
+      flushCounter(key, diff);
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
     }
   }
 

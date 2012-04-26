@@ -115,7 +115,7 @@ public class CommonModule extends AbstractModule {
   }
 
   @Provides @Singleton @Named("system-threads")
-  protected Integer bufferedShows(BufferedShows shows, BufferedClicks clicks) {
+  protected int bufferedShows(BufferedShows shows, BufferedClicks clicks) {
     Thread showsThread = new Thread(shows);
     Thread clicksThread = new Thread(clicks);
     showsThread.start();
@@ -136,5 +136,17 @@ public class CommonModule extends AbstractModule {
     );
     cacheManager.addCache(cache);
     return cache;
+  }
+
+  @Provides @Singleton @Named("system-shutdown-hook")
+  protected int shutdownHook(final BufferedShows shows, final BufferedClicks clicks) {
+    Runtime.getRuntime().addShutdownHook(new Thread(){
+      @Override
+      public void run() {
+        shows.flushAll();
+        clicks.flushAll();
+      }
+    });
+    return 1;
   }
 }
