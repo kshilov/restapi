@@ -79,7 +79,8 @@ public class ActionImporter implements Runnable {
   private static URL addStartTime(URL url, int period) throws URISyntaxException, MalformedURLException {
     URI uri = url.toURI();
     DateTime startTime = DateTime.now().minusHours(period).minusMinutes(10);
-    uri = appendQueryParam(uri, "start-time", startTime.getMillis());
+    long startTimeSeconds = Math.round(startTime.getMillis() / 1000.0);
+    uri = appendQueryParam(uri, "start-time", startTimeSeconds);
     return uri.toURL();
   }
 }
