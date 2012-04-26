@@ -1,7 +1,6 @@
 package com.heymoose.context;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -114,15 +113,6 @@ public class CommonModule extends AbstractModule {
     return bannerDirStr;
   }
 
-  @Provides @Singleton @Named("system-threads")
-  protected int bufferedShows(BufferedShows shows, BufferedClicks clicks) {
-    Thread showsThread = new Thread(shows);
-    Thread clicksThread = new Thread(clicks);
-    showsThread.start();
-    clicksThread.start();
-    return 1;
-  }
-
   @Provides @Singleton
   protected Ehcache cache() {
     CacheManager cacheManager = CacheManager.create();
@@ -136,17 +126,5 @@ public class CommonModule extends AbstractModule {
     );
     cacheManager.addCache(cache);
     return cache;
-  }
-
-  @Provides @Singleton @Named("system-shutdown-hook")
-  protected int shutdownHook(final BufferedShows shows, final BufferedClicks clicks) {
-    Runtime.getRuntime().addShutdownHook(new Thread(){
-      @Override
-      public void run() {
-        shows.flushAll();
-        clicks.flushAll();
-      }
-    });
-    return 1;
   }
 }
