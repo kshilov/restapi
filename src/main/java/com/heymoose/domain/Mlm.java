@@ -39,9 +39,11 @@ public class Mlm {
 
   @Transactional
   public void doMlmExport(DateTime startTime) {
-    DateTime toTime = startTime;
-    DateTime fromTime = toTime.minusDays(1);
+    doMlmExport(startTime.minusDays(1), startTime);
+  }
 
+  @Transactional
+  public void doMlmExport(DateTime fromTime, DateTime toTime) {
     log.info("fromTime: {}", fromTime);
     log.info("toTime: {}", toTime);
 

@@ -24,7 +24,7 @@ public class MlmResource {
   public Response run(@QueryParam("start") Long start) {
     if (start == null)
       return Response.status(400).build();
-    mlm.doMlmExport(new DateTime(start));
+    mlm.doMlmExport(new DateTime(start), DateTime.now());
     return Response.ok().build();
   }
 }
