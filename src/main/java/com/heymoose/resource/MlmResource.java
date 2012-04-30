@@ -21,10 +21,10 @@ public class MlmResource {
   }
 
   @GET
-  public Response run(@QueryParam("start") Long start) {
+  public Response run(@QueryParam("start") Long start, @QueryParam("stop") Long stop) {
     if (start == null)
       return Response.status(400).build();
-    mlm.doMlmExport(new DateTime(start), DateTime.now());
+    mlm.doMlmExport(new DateTime(start), new DateTime(stop));
     return Response.ok().build();
   }
 }
