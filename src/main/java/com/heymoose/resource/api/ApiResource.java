@@ -190,7 +190,7 @@ public class ApiResource {
     String tokenCookie = cookies().get("hm_token");
     Map<Long, TokenRecord> tokens = parseTokens(tokenCookie);
     tokens.put(offer.advertiser().id(), new TokenRecord(offer.advertiser().id(), token, Math.round(DateTime.now().plusDays(offer.cookieTtl()).getMillis() / (float) 1000.0)));
-    tokens = filterValues(tokens, TokenRecord.expired());
+    tokens = filterValues(tokens, TokenRecord.notExpired());
     DateTime maxExpirationTime = max(transform(tokens.values(), TokenRecord.expirationTime()));
     int maxAge = Seconds.secondsBetween(DateTime.now(), maxExpirationTime).getSeconds();
     addCookie(response, "hm_token", formatTokens(tokens.values()), maxAge);
@@ -403,11 +403,11 @@ public class ApiResource {
       };
     }
 
-    public static Predicate<TokenRecord> expired() {
+    public static Predicate<TokenRecord> notExpired() {
       return new Predicate<TokenRecord>() {
         @Override
         public boolean apply(TokenRecord token) {
-          return !DateTime.now().isBefore(new DateTime(token.expirationTime * 1000L));
+          return new DateTime(token.expirationTime * 1000L).isAfter(DateTime.now());
         }
       };
     }
