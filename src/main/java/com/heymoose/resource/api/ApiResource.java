@@ -384,7 +384,7 @@ public class ApiResource {
         throw badValue("token record", str);
       advertiserId = Long.valueOf(parts[0]);
       token = parts[1];
-      expirationTime = Integer.valueOf(parts[1]);
+      expirationTime = Integer.valueOf(parts[2]);
     }
 
     @Override
