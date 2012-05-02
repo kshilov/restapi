@@ -1,7 +1,12 @@
 package com.heymoose.resource.api;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import static com.google.common.collect.Collections2.transform;
 import com.google.common.collect.HashMultimap;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.filterValues;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.BaseOffer;
@@ -24,9 +29,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import static java.lang.String.format;
 import java.net.URI;
+import java.util.Collections;
+import static java.util.Collections.max;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -34,11 +44,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.StringUtils.join;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -121,7 +135,7 @@ public class ApiResource {
       offers.put(offer, price);
     }
     tracking.actionDone(token, txId, offers);
-    return Response.ok().build();
+    return noCache(Response.ok()).build();
   }
 
   private BaseOffer findOffer(long advertiserId, String code) {
@@ -171,7 +185,15 @@ public class ApiResource {
     URI location = URI.create(offer.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
-    return Response.status(302).location(location).build();
+    Response.ResponseBuilder response = Response.status(302).location(location);
+    String tokenCookie = cookies().get("hm_token");
+    Map<Long, TokenRecord> tokens = parseTokens(tokenCookie);
+    tokens.put(offer.advertiser().id(), new TokenRecord(offer.advertiser().id(), token, Math.round(DateTime.now().plusDays(offer.cookieTtl()).getMillis() / (float) 1000.0)));
+    tokens = filterValues(tokens, TokenRecord.expired());
+    int maxExpirationTime = max(transform(tokens.values(), TokenRecord.expirationTime()));
+    addCookie(response, "hm_token", formatTokens(tokens.values()), maxExpirationTime);
+    noCache(response);
+    return response.build();
   }
 
   private static boolean visible(BaseOffer offer) {
@@ -203,12 +225,20 @@ public class ApiResource {
     String subId = params.get("sub_id");
     String sourceId = params.get("source_id");
     tracking.track(bannerId, offerId, affId, subId, sourceId);
-    return Response.ok().build();
+    return noCache(Response.ok()).build();
   }
 
   private Map<String, String> queryParams() {
     Map<String, String> params = newHashMap();
     for (Map.Entry<String, List<String>> ent : requestContextProvider.get().getQueryParameters().entrySet())
+      if (!ent.getValue().isEmpty())
+        params.put(ent.getKey(), ent.getValue().get(0));
+    return params;
+  }
+
+  private Map<String, String> cookies() {
+    Map<String, String> params = newHashMap();
+    for (Map.Entry<String, List<String>> ent : requestContextProvider.get().getCookieNameValueMap().entrySet())
       if (!ent.getValue().isEmpty())
         params.put(ent.getKey(), ent.getValue().get(0));
     return params;
@@ -331,5 +361,85 @@ public class ApiResource {
       return Response.status(403).build();
     else
       return Response.status(302).location(URI.create(grant.backUrl())).build();
+  }
+
+  private static void addCookie(Response.ResponseBuilder response, String name, String value, int maxAge) {
+    response.cookie(new NewCookie(name, value, "/", null, null, maxAge, false));
+  }
+
+  private static class TokenRecord {
+    public final long advertiserId;
+    public final String token;
+    public final int expirationTime;
+
+    public TokenRecord(long advertiserId, String token, int expirationTime) {
+      this.advertiserId = advertiserId;
+      this.token = token;
+      this.expirationTime = expirationTime;
+    }
+
+    public TokenRecord(String str) throws ApiRequestException {
+      String[] parts = str.split(":");
+      if (parts.length < 3)
+        throw badValue("token record", str);
+      advertiserId = Long.valueOf(parts[0]);
+      token = parts[1];
+      expirationTime = Integer.valueOf(parts[1]);
+    }
+
+    @Override
+    public String toString() {
+      return format("%d:%s:%d", advertiserId, token, expirationTime);
+    }
+
+    public static Function<TokenRecord, Integer> expirationTime() {
+      return new Function<TokenRecord, Integer>() {
+        @Override
+        public Integer apply(TokenRecord input) {
+          return input.expirationTime;
+        }
+      };
+    }
+
+    public static Predicate<TokenRecord> expired() {
+      return new Predicate<TokenRecord>() {
+        @Override
+        public boolean apply(TokenRecord token) {
+          return !DateTime.now().isBefore(new DateTime(token.expirationTime));
+        }
+      };
+    }
+  }
+
+  private static Map<Long, TokenRecord> parseTokens(@Nullable String val) throws ApiRequestException {
+    if (val == null)
+      return newHashMap();
+    Map<Long, TokenRecord> tokens = newHashMap();
+    for (String token : val.split(";")) {
+      TokenRecord tokenRecord = new TokenRecord(token);
+      tokens.put(tokenRecord.advertiserId, tokenRecord);
+    }
+    return tokens;
+  }
+
+  private static String formatTokens(Iterable<TokenRecord> tokens) {
+    List<TokenRecord> sorted = newArrayList(tokens);
+    Collections.sort(sorted, new Comparator<TokenRecord>() {
+      @Override
+      public int compare(TokenRecord o1, TokenRecord o2) {
+        return Long.valueOf(o1.advertiserId).compareTo(o2.advertiserId);
+      }
+    });
+    List<String> tokensStr = newArrayList();
+    for (TokenRecord token : sorted)
+      tokensStr.add(token.toString());
+    return join(tokensStr, ";");
+  }
+
+  private static Response.ResponseBuilder noCache(Response.ResponseBuilder response) {
+    CacheControl cacheControl = new CacheControl();
+    cacheControl.setMaxAge(0);
+    cacheControl.setNoCache(true);
+    return response.cacheControl(cacheControl);
   }
 }
