@@ -53,6 +53,7 @@ import static org.apache.commons.lang.StringUtils.join;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -190,8 +191,9 @@ public class ApiResource {
     Map<Long, TokenRecord> tokens = parseTokens(tokenCookie);
     tokens.put(offer.advertiser().id(), new TokenRecord(offer.advertiser().id(), token, Math.round(DateTime.now().plusDays(offer.cookieTtl()).getMillis() / (float) 1000.0)));
     tokens = filterValues(tokens, TokenRecord.expired());
-    int maxExpirationTime = max(transform(tokens.values(), TokenRecord.expirationTime()));
-    addCookie(response, "hm_token", formatTokens(tokens.values()), maxExpirationTime);
+    DateTime maxExpirationTime = max(transform(tokens.values(), TokenRecord.expirationTime()));
+    int maxAge = Seconds.secondsBetween(DateTime.now(), maxExpirationTime).getSeconds();
+    addCookie(response, "hm_token", formatTokens(tokens.values()), maxAge);
     noCache(response);
     return response.build();
   }
@@ -368,9 +370,9 @@ public class ApiResource {
   }
 
   private static class TokenRecord {
-    public final long advertiserId;
-    public final String token;
-    public final int expirationTime;
+    private final long advertiserId;
+    private final String token;
+    private final int expirationTime;
 
     public TokenRecord(long advertiserId, String token, int expirationTime) {
       this.advertiserId = advertiserId;
@@ -392,11 +394,11 @@ public class ApiResource {
       return format("%d:%s:%d", advertiserId, token, expirationTime);
     }
 
-    public static Function<TokenRecord, Integer> expirationTime() {
-      return new Function<TokenRecord, Integer>() {
+    public static Function<TokenRecord, DateTime> expirationTime() {
+      return new Function<TokenRecord, DateTime>() {
         @Override
-        public Integer apply(TokenRecord input) {
-          return input.expirationTime;
+        public DateTime apply(TokenRecord input) {
+          return new DateTime(input.expirationTime * 1000L);
         }
       };
     }
@@ -405,7 +407,7 @@ public class ApiResource {
       return new Predicate<TokenRecord>() {
         @Override
         public boolean apply(TokenRecord token) {
-          return !DateTime.now().isBefore(new DateTime(token.expirationTime));
+          return !DateTime.now().isBefore(new DateTime(token.expirationTime * 1000L));
         }
       };
     }
