@@ -31,11 +31,15 @@ import java.io.StringWriter;
 import java.io.Writer;
 import static java.lang.String.format;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import static java.util.Collections.max;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -45,7 +49,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -365,8 +368,16 @@ public class ApiResource {
       return Response.status(302).location(URI.create(grant.backUrl())).build();
   }
 
-  private static void addCookie(Response.ResponseBuilder response, String name, String value, int maxAge) {
-    response.cookie(new NewCookie(name, value, "/", null, null, maxAge, false));
+  private static void addCookie(Response.ResponseBuilder resp, String name, String value, int age) {
+    long expires = System.currentTimeMillis() + age * 1000L;
+    resp.header("Set-Cookie", String.format("%s=%s;Version=1;expires=%s;Path=/", name, value, formatAsGMT(expires)));
+  }
+
+  private static String formatAsGMT(long time) {
+    // Wed, 19 Jan 2011 12:05:26 GMT
+    SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    return format.format(new Date(time));
   }
 
   private static class TokenRecord {
