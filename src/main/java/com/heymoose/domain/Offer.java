@@ -94,6 +94,9 @@ public class Offer extends BaseOffer {
 
   @Basic
   private String url;
+  
+  @Column(name = "site_url")
+  private String siteUrl;
 
   @Column(name = "cookie_ttl")
   private int cookieTtl = 30;
@@ -109,13 +112,14 @@ public class Offer extends BaseOffer {
 
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description,
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
-                  String title, String url, boolean autoApprove, boolean reentrant,
+                  String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
                   Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
                   String code, int holdDays, int cookieTtl) {
 
     super(payMethod, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
-    checkNotNull(url, advertiser, name, description, payMethod, cookieTtl);
+    checkNotNull(url, siteUrl, advertiser, name, description, payMethod, cookieTtl);
     this.url = url;
+    this.siteUrl = siteUrl;
     this.advertiser = advertiser;
     this.name = name;
     this.approved = false;
@@ -135,6 +139,14 @@ public class Offer extends BaseOffer {
   
   public void setUrl(URI url) {
     this.url = url.toString();
+  }
+  
+  public String siteUrl() {
+    return siteUrl;
+  }
+  
+  public void setSiteUrl(URI siteUrl) {
+    this.siteUrl = siteUrl.toString();
   }
 
   public User advertiser() {

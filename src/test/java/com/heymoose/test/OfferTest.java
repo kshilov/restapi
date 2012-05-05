@@ -19,6 +19,7 @@ public class OfferTest extends RestTest {
 
   private final static String OFFER_CODE = "offer324234";
   private final static String OFFER_URL = "http://ya.ru";
+  private final static String OFFER_SITE_URL = "http://yandex.ru";
   private final static String OFFER_NAME = "Offer1";
   private final static double ADV_BALANCE = 100.0;
   private final static double OFFER_BALANCE = 70.0;
@@ -43,7 +44,7 @@ public class OfferTest extends RestTest {
     sqlUpdate("insert into category(id, grouping, name) values(1, 'Group1', 'Category1')");
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId =  heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
-        OFFER_NAME, "descr", "logo", URI.create(OFFER_URL), "title", false, false,
+        OFFER_NAME, "descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
         true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180);
     heymoose().approveOffer(offerId);
     return offerId;

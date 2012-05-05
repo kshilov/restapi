@@ -183,6 +183,7 @@ public class Mappers {
       xmlOffer.launchTime = offer.launchTime().toString();
     xmlOffer.title = offer.title();
     xmlOffer.url = offer.url();
+    xmlOffer.siteUrl = offer.siteUrl();
     xmlOffer.autoApprove = offer.autoApprove();
     xmlOffer.reentrant = offer.reentrant();
     xmlOffer.code = offer.code();

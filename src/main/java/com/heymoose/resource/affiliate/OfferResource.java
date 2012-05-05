@@ -148,6 +148,7 @@ public class OfferResource {
                        @FormParam("description") String description,
                        @FormParam("logo_filename") String logoFileName,
                        @FormParam("url") String url,
+                       @FormParam("site_url") String siteUrl,
                        @FormParam("title") String title,
                        @FormParam("allow_negative_balance") @DefaultValue("false") boolean allowNegativeBalance,
                        @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
@@ -157,7 +158,7 @@ public class OfferResource {
                        @FormParam("code") String code,
                        @FormParam("hold_days") Integer holdDays,
                        @FormParam("cookie_ttl") Integer cookieTtl) {
-    checkNotNull(advertiserId, payMethod, strCost, name, description, url, title, code, holdDays, cookieTtl);
+    checkNotNull(advertiserId, payMethod, strCost, name, description, url, siteUrl, title, code, holdDays, cookieTtl);
     checkNotNull(URI.create(url));
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
@@ -187,8 +188,8 @@ public class OfferResource {
     checkCode(code, advertiser.id(), null);
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
-        payMethod, cpaPolicy, cost, percent, title, url, autoApprove, reentrant, regions, categories,
-        logoFileName, code, holdDays, cookieTtl);
+        payMethod, cpaPolicy, cost, percent, title, url, siteUrl, autoApprove, reentrant,
+        regions, categories, logoFileName, code, holdDays, cookieTtl);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -232,6 +233,8 @@ public class OfferResource {
       offer.setDescription(form.getFirst("description"));
     if (form.containsKey("url"))
       offer.setUrl(URI.create(form.getFirst("url")));
+    if (form.containsKey("site_url"))
+      offer.setSiteUrl(URI.create(form.getFirst("site_url")));
     if (form.containsKey("cookie_ttl"))
       offer.setCookieTtl(Integer.parseInt(form.getFirst("cookie_ttl")));
     if (form.containsKey("categories")) {

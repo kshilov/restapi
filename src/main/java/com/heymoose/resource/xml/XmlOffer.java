@@ -77,6 +77,9 @@ public class XmlOffer {
   @XmlElement(name = "url")
   public String url;
   
+  @XmlElement(name = "site-url")
+  public String siteUrl;
+  
   @XmlElement(name = "auto-approve")
   public Boolean autoApprove;
   
