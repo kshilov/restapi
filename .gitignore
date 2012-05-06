@@ -11,3 +11,4 @@ logs
 .classpath
 .project
 nohup.out
+.idea
