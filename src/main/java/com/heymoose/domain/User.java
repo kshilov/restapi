@@ -86,6 +86,9 @@ public class User extends IdEntity {
   
   @Column(name = "messenger_uid")
   private String messengerUid;
+  
+  @Basic
+  private String wmr;
 
   @Column(name = "referrer")
   private Long referrerId;
@@ -109,7 +112,7 @@ public class User extends IdEntity {
   protected User() {}
 
   public User(String email, String passwordHash, String firstName, String lastName, String organization,
-              String phone, URI sourceUrl, MessengerType messengerType, String messengerUid,
+              String phone, URI sourceUrl, MessengerType messengerType, String messengerUid, String wmr,
               Long referrerId) {
     checkNotNull(email, passwordHash, firstName, lastName);
     this.email = email;
@@ -121,6 +124,7 @@ public class User extends IdEntity {
     this.sourceUrl = sourceUrl != null ? sourceUrl.toString() : null;
     this.messengerType = messengerType;
     this.messengerUid = messengerUid;
+    this.wmr = wmr;
     this.referrerId = referrerId;
     this.confirmed = false;
     this.blocked = false;
@@ -232,6 +236,14 @@ public class User extends IdEntity {
   public void setMessenger(MessengerType type, String uid) {
     this.messengerType = type;
     this.messengerUid = uid;
+  }
+  
+  public String wmr() {
+    return wmr;
+  }
+  
+  public void setWmr(String wmr) {
+    this.wmr = wmr;
   }
 
   public String passwordHash() {

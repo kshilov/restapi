@@ -83,6 +83,7 @@ public class UserResource {
                            @FormParam("sourceUrl") String sourceUrl,
                            @FormParam("messengerType") MessengerType messengerType,
                            @FormParam("messengerUid") String messengerUid,
+                           @FormParam("wmr") String wmr,
                            @FormParam("referrer") Long referrerId) {
     checkNotNull(email, passwordHash, firstName, lastName);
     User existing = users.byEmail(email);
@@ -90,7 +91,7 @@ public class UserResource {
       return Response.status(409).build();
     URI uriSourceUrl = sourceUrl != null ? URI.create(sourceUrl) : null;
     User newUser = new User(email, passwordHash, firstName, lastName, organization,
-        phone, uriSourceUrl, messengerType, messengerUid, referrerId);
+        phone, uriSourceUrl, messengerType, messengerUid, wmr, referrerId);
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id()))).build();
   }
@@ -182,6 +183,8 @@ public class UserResource {
       else
         user.setMessenger(null, null);
     }
+    if (params.containsKey("wmr"))
+      user.setWmr(params.getFirst("wmr"));
     if (params.containsKey("confirmed"))
       user.setConfirmed(Boolean.valueOf(params.getFirst("confirmed")));
     if (params.containsKey("blocked"))

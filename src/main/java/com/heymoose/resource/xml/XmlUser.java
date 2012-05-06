@@ -38,6 +38,9 @@ public class XmlUser {
   
   @XmlElement(name = "messenger-uid")
   public String messengerUid;
+  
+  @XmlElement(name = "wmr")
+  public String wmr;
 
   @XmlElement(name = "customer-account")
   public XmlAccount customerAccount;
