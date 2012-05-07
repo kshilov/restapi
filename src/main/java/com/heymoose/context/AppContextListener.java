@@ -7,6 +7,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.domain.affiliate.counter.BufferedClicks;
 import com.heymoose.domain.affiliate.counter.BufferedShows;
 import javax.servlet.ServletContextEvent;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class AppContextListener extends GuiceServletContextListener {
   @Override
@@ -23,6 +24,7 @@ public class AppContextListener extends GuiceServletContextListener {
   @Override
   public void contextInitialized(ServletContextEvent servletContextEvent) {
     super.contextInitialized(servletContextEvent);
+    SLF4JBridgeHandler.install();
     Injector injector = (Injector) servletContextEvent.getServletContext().getAttribute(Injector.class.getName());
     final BufferedShows bufferedShows = injector.getInstance(BufferedShows.class);
     final BufferedClicks bufferedClicks = injector.getInstance(BufferedClicks.class);
