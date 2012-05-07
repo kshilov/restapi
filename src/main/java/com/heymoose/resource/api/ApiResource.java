@@ -1,12 +1,7 @@
 package com.heymoose.resource.api;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import static com.google.common.collect.Collections2.transform;
 import com.google.common.collect.HashMultimap;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.filterValues;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.BaseOffer;
@@ -29,18 +24,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import static java.lang.String.format;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import static java.util.Collections.max;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -52,7 +42,6 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.StringUtils.join;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.joda.time.DateTime;
@@ -118,10 +107,14 @@ public class ApiResource {
 
   @Transactional
   public Response reportAction(Map<String, String> params) throws ApiRequestException {
-    String sToken = safeGetParam(params, "token");
     long advertiserId = safeGetLongParam(params, "advertiser_id");
     String txId = safeGetParam(params, "transaction_id");
     String sOffer = safeGetParam(params, "offer");
+    String sToken = params.get("token");
+    if (sToken == null)
+      sToken = cookies().get("hm_token_" + advertiserId);
+    if (sToken == null)
+      throw nullParam("token");
     Token token = repo.byHQL(Token.class, "from Token where value = ?", sToken);
     if (token == null)
       throw notFound(Token.class, token);
@@ -190,13 +183,8 @@ public class ApiResource {
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     Response.ResponseBuilder response = Response.status(302).location(location);
-    String tokenCookie = cookies().get("hm_token");
-    Map<Long, TokenRecord> tokens = parseTokens(tokenCookie);
-    tokens.put(offer.advertiser().id(), new TokenRecord(offer.advertiser().id(), token, Math.round(DateTime.now().plusDays(offer.cookieTtl()).getMillis() / (float) 1000.0)));
-    tokens = filterValues(tokens, TokenRecord.notExpired());
-    DateTime maxExpirationTime = max(transform(tokens.values(), TokenRecord.expirationTime()));
-    int maxAge = Seconds.secondsBetween(DateTime.now(), maxExpirationTime).getSeconds();
-    addCookie(response, "hm_token", formatTokens(tokens.values()), maxAge);
+    int maxAge = Seconds.secondsBetween(DateTime.now(), DateTime.now().plusDays(offer.cookieTtl())).getSeconds();
+    addCookie(response, "hm_token_" + offer.advertiser().id(), token, maxAge);
     noCache(response);
     return response.build();
   }
@@ -378,75 +366,6 @@ public class ApiResource {
     SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
     return format.format(new Date(time));
-  }
-
-  private static class TokenRecord {
-    private final long advertiserId;
-    private final String token;
-    private final int expirationTime;
-
-    public TokenRecord(long advertiserId, String token, int expirationTime) {
-      this.advertiserId = advertiserId;
-      this.token = token;
-      this.expirationTime = expirationTime;
-    }
-
-    public TokenRecord(String str) throws ApiRequestException {
-      String[] parts = str.split(":");
-      if (parts.length < 3)
-        throw badValue("token record", str);
-      advertiserId = Long.valueOf(parts[0]);
-      token = parts[1];
-      expirationTime = Integer.valueOf(parts[2]);
-    }
-
-    @Override
-    public String toString() {
-      return format("%d:%s:%d", advertiserId, token, expirationTime);
-    }
-
-    public static Function<TokenRecord, DateTime> expirationTime() {
-      return new Function<TokenRecord, DateTime>() {
-        @Override
-        public DateTime apply(TokenRecord input) {
-          return new DateTime(input.expirationTime * 1000L);
-        }
-      };
-    }
-
-    public static Predicate<TokenRecord> notExpired() {
-      return new Predicate<TokenRecord>() {
-        @Override
-        public boolean apply(TokenRecord token) {
-          return new DateTime(token.expirationTime * 1000L).isAfter(DateTime.now());
-        }
-      };
-    }
-  }
-
-  private static Map<Long, TokenRecord> parseTokens(@Nullable String val) throws ApiRequestException {
-    if (val == null)
-      return newHashMap();
-    Map<Long, TokenRecord> tokens = newHashMap();
-    for (String token : val.split(";")) {
-      TokenRecord tokenRecord = new TokenRecord(token);
-      tokens.put(tokenRecord.advertiserId, tokenRecord);
-    }
-    return tokens;
-  }
-
-  private static String formatTokens(Iterable<TokenRecord> tokens) {
-    List<TokenRecord> sorted = newArrayList(tokens);
-    Collections.sort(sorted, new Comparator<TokenRecord>() {
-      @Override
-      public int compare(TokenRecord o1, TokenRecord o2) {
-        return Long.valueOf(o1.advertiserId).compareTo(o2.advertiserId);
-      }
-    });
-    List<String> tokensStr = newArrayList();
-    for (TokenRecord token : sorted)
-      tokensStr.add(token.toString());
-    return join(tokensStr, ";");
   }
 
   private static Response.ResponseBuilder noCache(Response.ResponseBuilder response) {
