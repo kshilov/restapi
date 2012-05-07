@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
@@ -51,7 +52,8 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
 
   @Override
   public Iterable<OfferGrant> list(Ordering ord, boolean asc, int offset, int limit,
-                                 Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked) {
+                                 Long offerId, Long affiliateId, OfferGrantState state,
+                                 Boolean blocked, Boolean moderation) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (offerId != null)
@@ -62,6 +64,13 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
       criteria.add(Restrictions.eq("state", state));
     if (blocked != null)
       criteria.add(Restrictions.eq("blocked", blocked));
+    if (moderation != null) {
+      LogicalExpression or = Restrictions.or(Restrictions.isNull("blockReason"), Restrictions.eq("blockReason", "")); 
+      if (moderation)
+        criteria.add(or);
+      else
+        criteria.add(Restrictions.not(or));
+    }
     
     setOrdering(criteria, ord, asc);
     return criteria
@@ -71,7 +80,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   @Override
-  public long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked) {
+  public long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked, Boolean moderation) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (offerId != null)
@@ -82,6 +91,13 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
       criteria.add(Restrictions.eq("state", state));
     if (blocked != null)
       criteria.add(Restrictions.eq("blocked", blocked));
+    if (moderation != null) {
+      LogicalExpression or = Restrictions.or(Restrictions.isNull("blockReason"), Restrictions.eq("blockReason", "")); 
+      if (moderation)
+        criteria.add(or);
+      else
+        criteria.add(Restrictions.not(or));
+    }
     
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())

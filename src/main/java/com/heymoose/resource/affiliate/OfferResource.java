@@ -111,8 +111,8 @@ public class OfferResource {
                                     @QueryParam("aff_id") long affiliateId,
                                     @QueryParam("active") Boolean active) {
     return Mappers.toXmlGrantedOffers(
-        offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active),
-        offerGrants.count(null, affiliateId, null, active)
+        offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active, null),
+        offerGrants.count(null, affiliateId, null, active, null)
     );
   }
   

@@ -61,10 +61,11 @@ public class OfferGrantResource {
                              @QueryParam("affiliate_id") Long affiliateId,
                              @QueryParam("state") OfferGrantState state,
                              @QueryParam("blocked") Boolean blocked,
+                             @QueryParam("moderation") Boolean moderation,
                              @QueryParam("full") @DefaultValue("false") boolean full) {
     return Mappers.toXmlOfferGrants(
-        offerGrants.list(ord, asc, offset, limit, offerId, affiliateId, state, blocked),
-        offerGrants.count(offerId, affiliateId, state, blocked), full
+        offerGrants.list(ord, asc, offset, limit, offerId, affiliateId, state, blocked, moderation),
+        offerGrants.count(offerId, affiliateId, state, blocked, moderation), full
     );
   }
   

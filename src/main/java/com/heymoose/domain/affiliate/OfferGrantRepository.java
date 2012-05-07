@@ -8,6 +8,7 @@ public interface OfferGrantRepository extends Repository<OfferGrant> {
   OfferGrant byOfferAndAffiliate(long offerId, long affiliateId);
   Map<Long, OfferGrant> byOffersAndAffiliate(Iterable<Long> offerIds, long affiliateId);
   Iterable<OfferGrant> list(Ordering ord, boolean asc, int offset, int limit,
-                          Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked);
-  long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked);
+                          Long offerId, Long affiliateId, OfferGrantState state,
+                          Boolean blocked, Boolean moderation);
+  long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked, Boolean moderation);
 }
