@@ -119,7 +119,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     break;
     }
     
-    if (ord != Ordering.ID)
+    if (ord != Ordering.GRANT_ID)
       criteria.addOrder(order("id", asc));
   }
   
