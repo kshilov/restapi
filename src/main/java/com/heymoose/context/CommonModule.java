@@ -40,6 +40,7 @@ import com.heymoose.domain.settings.Settings;
 import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.BannerResource;
 import com.heymoose.resource.CategoryResource;
+import com.heymoose.resource.OfferActionResource;
 import com.heymoose.resource.OfferStatsResource;
 import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
@@ -78,6 +79,7 @@ public class CommonModule extends AbstractModule {
     bind(OfferLoader.class);
     bind(BufferedShows.class);
     bind(BufferedClicks.class);
+    bind(OfferActionResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(Repo.class).to(HibernateRepo.class);
