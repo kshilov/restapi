@@ -1,11 +1,15 @@
 package com.heymoose.domain.mlm;
 
 import com.heymoose.domain.affiliate.base.BaseEntity;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "mlm_execution")
 public class MlmExecution extends BaseEntity {
 
   @Id

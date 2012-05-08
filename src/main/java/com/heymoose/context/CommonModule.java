@@ -36,6 +36,7 @@ import com.heymoose.domain.affiliate.hiber.OfferRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.SubOfferRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
 import com.heymoose.domain.mlm.Mlm;
+import com.heymoose.domain.mlm.MlmExecution;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.resource.AccountResource;
@@ -94,7 +95,7 @@ public class CommonModule extends AbstractModule {
     bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, Site.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, OfferStat.class, OfferAction.class,
-        AdminAccountNotConfirmed.class, Token.class);
+        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class);
   }
 
   protected void bindEntities(Class... classes) {
