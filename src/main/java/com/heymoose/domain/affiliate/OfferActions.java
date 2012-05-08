@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.hibernate.Query;
 
 @Singleton
 public class OfferActions {
@@ -29,19 +30,25 @@ public class OfferActions {
 
   @Transactional
   public void approveAllExpired(long offerId, Set<String> excluding) {
-    List<OfferAction> expiredActions = repo.session().createQuery(
-        "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state and a.transactionId not in (:excluding)")
+    String hql = "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state";
+    if (!excluding.isEmpty())
+      hql += " and a.transactionId not in (:excluding)";
+    Query query = repo.session().createQuery(hql);
+    if (!excluding.isEmpty())
+      query.setParameterList("excluding", excluding);
+    List<OfferAction> expiredActions = query
         .setParameter("offerId", offerId)
         .setParameter("state", OfferActionState.NOT_APPROVED)
-        .setParameterList("excluding", excluding)
         .list();
     for (OfferAction action : expiredActions)
       approve(action);
-    List<OfferAction> excludingActions = repo.session().createQuery("from OfferAction a where a.transactionId in (:excluding)")
-        .setParameterList("excluding", excluding)
-        .list();
-    for (OfferAction action : excludingActions)
-      cancel(action);
+    if (!excluding.isEmpty()) {
+      List<OfferAction> excludingActions = repo.session().createQuery("from OfferAction a where a.transactionId in (:excluding)")
+          .setParameterList("excluding", excluding)
+          .list();
+      for (OfferAction action : excludingActions)
+        cancel(action);
+    }
   }
 
   @Transactional
