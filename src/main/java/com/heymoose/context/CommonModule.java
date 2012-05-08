@@ -35,11 +35,13 @@ import com.heymoose.domain.affiliate.hiber.OfferGrantRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.OfferRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.SubOfferRepositoryHiber;
 import com.heymoose.domain.hiber.UserRepositoryHiber;
+import com.heymoose.domain.mlm.Mlm;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.BannerResource;
 import com.heymoose.resource.CategoryResource;
+import com.heymoose.resource.MlmResource;
 import com.heymoose.resource.OfferActionResource;
 import com.heymoose.resource.OfferStatsResource;
 import com.heymoose.resource.RobokassaResource;
@@ -80,6 +82,8 @@ public class CommonModule extends AbstractModule {
     bind(BufferedShows.class);
     bind(BufferedClicks.class);
     bind(OfferActionResource.class);
+    bind(Mlm.class);
+    bind(MlmResource.class);
 
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(Repo.class).to(HibernateRepo.class);
@@ -115,18 +119,8 @@ public class CommonModule extends AbstractModule {
     return bannerDirStr;
   }
 
-  @Provides @Singleton
-  protected Ehcache cache() {
-    CacheManager cacheManager = CacheManager.create();
-    Ehcache cache = new Cache(
-        new CacheConfiguration("ctr", 200)
-            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
-            .timeToLiveSeconds(30 * 60)
-            .diskPersistent(false)
-            .overflowToDisk(false)
-            .overflowToOffHeap(false)
-    );
-    cacheManager.addCache(cache);
-    return cache;
+  @Provides @Named("mlm-ratio") @Singleton
+  protected double mlmRatio(@Named("settings") Properties settings) {
+    return Double.parseDouble(settings.get("mlm-ratio").toString());
   }
 }
