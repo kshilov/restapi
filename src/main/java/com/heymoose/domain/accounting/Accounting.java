@@ -133,7 +133,7 @@ public class Accounting {
   public Account destination(AccountingTransaction transaction) {
     return repo.byHQL(
         Account.class,
-        "select e.account from from AccountingEntry e where e.transaction = ? and e.amount > 0",
+        "select e.account from AccountingEntry e where e.transaction = ? and e.amount > 0",
         transaction
     );
   }
