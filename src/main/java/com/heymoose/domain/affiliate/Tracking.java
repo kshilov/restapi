@@ -134,7 +134,7 @@ public class Tracking {
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
       OfferAction existent = findAction(offer, token);
-      if (!offer.reentrant() && existent != null)
+      if (existent != null && (existent.transactionId().equals(transactionId) || !offer.reentrant()))
         continue;
       PayMethod payMethod = offer.payMethod();
       CpaPolicy cpaPolicy = offer.cpaPolicy();

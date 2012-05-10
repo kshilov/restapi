@@ -90,4 +90,8 @@ public class OfferAction extends BaseEntity {
   public OfferActionState state() {
     return state;
   }
+
+  public String transactionId() {
+    return transactionId;
+  }
 }
