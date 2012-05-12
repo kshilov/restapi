@@ -27,28 +27,34 @@ public class OfferActions {
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
   }
-
+  
   @Transactional
-  public void approveAllExpired(long offerId, Set<String> excluding) {
-    String hql = "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state";
-    if (!excluding.isEmpty())
-      hql += " and a.transactionId not in (:excluding)";
-    Query query = repo.session().createQuery(hql);
-    if (!excluding.isEmpty())
-      query.setParameterList("excluding", excluding);
-    List<OfferAction> expiredActions = query
+  public Integer approveExpired(long offerId) {
+    String hql = "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state " +
+    		"and cast(now() as date) - cast(a.creationTime as date) > a.offer.holdDays";
+    List<OfferAction> expiredActions = repo.session().createQuery(hql)
         .setParameter("offerId", offerId)
         .setParameter("state", OfferActionState.NOT_APPROVED)
         .list();
     for (OfferAction action : expiredActions)
       approve(action);
-    if (!excluding.isEmpty()) {
-      List<OfferAction> excludingActions = repo.session().createQuery("from OfferAction a where a.transactionId in (:excluding)")
-          .setParameterList("excluding", excluding)
-          .list();
-      for (OfferAction action : excludingActions)
-        cancel(action);
-    }
+    return expiredActions.size();
+  }
+  
+  @Transactional
+  public Integer cancelByTransactions(long offerId, Set<String> transactionIds) {
+    if (transactionIds.isEmpty())
+      return 0;
+    String hql = "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state " +
+    		"and a.transactionId in (:transactionIds)";
+    List<OfferAction> actionsToCancel = repo.session().createQuery(hql)
+        .setParameter("offerId", offerId)
+        .setParameter("state", OfferActionState.NOT_APPROVED)
+        .setParameterList("transactionIds", transactionIds)
+        .list();
+    for (OfferAction action : actionsToCancel)
+      cancel(action);
+    return actionsToCancel.size();
   }
 
   @Transactional

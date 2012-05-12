@@ -5,8 +5,9 @@ import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 
 @Path("actions")
@@ -20,10 +21,16 @@ public class OfferActionResource {
     this.actions = actions;
   }
 
-  @POST
-  @Path("expired")
-  public void approveAllExpired(@FormParam("offer_id") Long offerId, @FormParam("exclude_transaction") Set<String> excluded) {
+  @PUT
+  public String approveExpired(@FormParam("offer_id") Long offerId) {
     checkNotNull(offerId);
-    actions.approveAllExpired(offerId, excluded);
+    return actions.approveExpired(offerId).toString();
+  }
+  
+  @DELETE
+  public String cancelByTransactions(@FormParam("offer_id") Long offerId,
+                                   @FormParam("transcations") Set<String> transactionIds) {
+    checkNotNull(offerId);
+    return actions.cancelByTransactions(offerId, transactionIds).toString();
   }
 }
