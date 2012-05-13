@@ -96,6 +96,7 @@ public class Tracking {
           AccountingEvent.CLICK_CREATED,
           stat.id()
       );
+      stat.addToConfirmedRevenue(amount);
     }
     Token token = new Token(stat);
     repo.put(token);
@@ -171,7 +172,7 @@ public class Tracking {
         stat.incLeads();
       if (cpaPolicy == CpaPolicy.PERCENT)
         stat.incSales();
-      stat.addToNotConfirmedRevenue(revenue);
+      stat.addToNotConfirmedRevenue(amount);
       try {
         if (grant.postBackUrl() != null)
           getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), stat.sourceId(), stat.subId(), offer.id()));

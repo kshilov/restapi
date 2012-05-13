@@ -131,6 +131,13 @@ public class OfferStat extends BaseEntity {
     salesCount++;
   }
 
+  public void addToConfirmedRevenue(BigDecimal amount) {
+    checkArgument(amount.signum() == 1);
+    if (confirmedRevenue == null)
+      confirmedRevenue = new BigDecimal(0);
+    confirmedRevenue = confirmedRevenue.add(amount);
+  }
+
   public void addToNotConfirmedRevenue(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (notConfirmedRevenue == null)
