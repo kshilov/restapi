@@ -24,10 +24,17 @@ public class OfferStatsResource {
   }
 
   @GET
+  @Transactional
+  public OverallOfferStatsList allLegacy(@QueryParam("offset") @DefaultValue("0") int offset,
+                                         @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+    return all(offset, limit);
+  }
+
+  @GET
   @Path("all")
   @Transactional
-  public OverallOfferStatsList all( @QueryParam("offset") @DefaultValue("0") int offset,
-                                    @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+  public OverallOfferStatsList all(@QueryParam("offset") @DefaultValue("0") int offset,
+                                   @QueryParam("limit") @DefaultValue("2147483647") int limit) {
     OverallOfferStatsList list = new OverallOfferStatsList();
     for (OverallOfferStats s : stats.statsAll(offset, limit))
       list.stats.add(s);
