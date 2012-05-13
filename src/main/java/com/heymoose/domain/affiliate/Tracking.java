@@ -25,9 +25,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.io.IOUtils;
-import org.hibernate.LockMode;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,7 @@ public class Tracking {
     addEqOrIsNull(criteria, "bannerId", bannerId);
     addEqOrIsNull(criteria, "sourceId", bannerId);
     addEqOrIsNull(criteria, "subId", bannerId);
-    criteria.setLockMode(LockMode.PESSIMISTIC_WRITE);
+    criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
 
