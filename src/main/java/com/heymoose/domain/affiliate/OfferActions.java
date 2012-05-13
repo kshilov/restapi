@@ -2,17 +2,16 @@ package com.heymoose.domain.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.AdminAccountAccessor;
+import com.heymoose.domain.Offer;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.hibernate.Query;
 
 @Singleton
 public class OfferActions {
@@ -28,12 +27,11 @@ public class OfferActions {
     this.adminAccountAccessor = adminAccountAccessor;
   }
   
-  @Transactional
-  public Integer approveExpired(long offerId) {
-    String hql = "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state " +
+  public Integer approveExpired(Offer offer) {
+    String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
     		"and cast(now() as date) - cast(a.creationTime as date) > a.offer.holdDays";
     List<OfferAction> expiredActions = repo.session().createQuery(hql)
-        .setParameter("offerId", offerId)
+        .setParameterList("offerIds", offer.subofferIds())
         .setParameter("state", OfferActionState.NOT_APPROVED)
         .list();
     for (OfferAction action : expiredActions)
@@ -41,14 +39,13 @@ public class OfferActions {
     return expiredActions.size();
   }
   
-  @Transactional
-  public Integer cancelByTransactions(long offerId, Set<String> transactionIds) {
+  public Integer cancelByTransactions(Offer offer, Set<String> transactionIds) {
     if (transactionIds.isEmpty())
       return 0;
-    String hql = "from OfferAction a where a.stat.offer.id = :offerId and a.state = :state " +
+    String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
     		"and a.transactionId in (:transactionIds)";
     List<OfferAction> actionsToCancel = repo.session().createQuery(hql)
-        .setParameter("offerId", offerId)
+        .setParameterList("offerIds", offer.subofferIds())
         .setParameter("state", OfferActionState.NOT_APPROVED)
         .setParameterList("transactionIds", transactionIds)
         .list();
@@ -57,7 +54,6 @@ public class OfferActions {
     return actionsToCancel.size();
   }
 
-  @Transactional
   public void approve(OfferAction action) {
     checkArgument(action.state() == OfferActionState.NOT_APPROVED);
     List<AccountingEntry> entries = repo.allByHQL(
@@ -90,7 +86,6 @@ public class OfferActions {
     action.approve();
   }
 
-  @Transactional
   public void cancel(OfferAction action) {
     checkArgument(action.state() == OfferActionState.NOT_APPROVED);
     List<AccountingEntry> entries = repo.allByHQL(

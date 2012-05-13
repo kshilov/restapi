@@ -280,4 +280,11 @@ public class Offer extends BaseOffer {
   public void setTokenParamName(String tokenParamName) {
     this.tokenParamName = tokenParamName;
   }
+  
+  public Set<Long> subofferIds() {
+    Set<Long> ids = newHashSet(id);
+    for (SubOffer suboffer : suboffers)
+      ids.add(suboffer.id());
+    return ids;
+  }
 }
