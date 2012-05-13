@@ -104,7 +104,7 @@ public class OfferStats {
         "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
         "sum(not_confirmed_revenue), sum(canceled_revenue) " +
         "from offer left join offer_stat on offer.id = offer_stat.master " +
-        "where offer.parent_id is null group by offer.id order by offer.id " +
+        "where offer.parent_id is null group by offer.id, offer.name order by offer.id " +
         "offset :offset limit :limit";
     return queryStats(query, offset, limit);
   }
@@ -149,7 +149,7 @@ public class OfferStats {
         "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
         "sum(not_confirmed_revenue), sum(canceled_revenue) " +
         "from offer left join offer_stat on offer.id = offer_stat.master " +
-        "where offer.user_id = :advId group by offer.id order by offer.id " +
+        "where offer.user_id = :advId group by offer.id, offer.name order by offer.id " +
         "offset :offset limit :limit";
     List<Object[]> dbResult = repo.session()
         .createSQLQuery(query)
