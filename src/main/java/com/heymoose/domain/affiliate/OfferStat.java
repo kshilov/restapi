@@ -99,6 +99,10 @@ public class OfferStat extends BaseEntity {
     this.sourceId = sourceId;
   }
 
+  public Long bannerId() {
+    return bannerId;
+  }
+
   public Offer offer() {
     return offer;
   }

@@ -128,10 +128,10 @@ public class Tracking {
 
   @Transactional
   public List<OfferAction> actionDone(Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers) {
-    OfferStat stat = token.stat();
+    OfferStat source = token.stat();
     List<OfferAction> actions = newArrayList();
     for (BaseOffer offer : offers.keySet()) {
-      OfferGrant grant = granted(offer, stat.affiliate());
+      OfferGrant grant = granted(offer, source.affiliate());
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
       OfferAction existent = findAction(offer, token);
@@ -150,13 +150,20 @@ public class Tracking {
       } else if (cpaPolicy == CpaPolicy.FIXED) {
         cost = offer.cost();
       } else throw new IllegalStateException();
-      OfferAction action = new OfferAction(token, stat.affiliate(), stat, offer, transactionId);
-      repo.put(action);
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - source.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
+      OfferStat stat = new OfferStat(source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.subId(), source.sourceId());
+      if (cpaPolicy == CpaPolicy.FIXED)
+        stat.incLeads();
+      if (cpaPolicy == CpaPolicy.PERCENT)
+        stat.incSales();
+      stat.addToNotConfirmedRevenue(amount);
+      repo.put(stat);
+      OfferAction action = new OfferAction(token, source.affiliate(), stat, source, offer, transactionId);
+      repo.put(action);
       accounting.transferMoney(
           offer.account(),
-          stat.affiliate().affiliateAccountNotConfirmed(),
+          source.affiliate().affiliateAccountNotConfirmed(),
           amount,
           AccountingEvent.ACTION_CREATED,
           action.id()
@@ -168,14 +175,9 @@ public class Tracking {
           AccountingEvent.ACTION_CREATED,
           action.id()
       );
-      if (cpaPolicy == CpaPolicy.FIXED)
-        stat.incLeads();
-      if (cpaPolicy == CpaPolicy.PERCENT)
-        stat.incSales();
-      stat.addToNotConfirmedRevenue(amount);
       try {
         if (grant.postBackUrl() != null)
-          getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), stat.sourceId(), stat.subId(), offer.id()));
+          getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id()));
       } catch (Exception e) {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
       }
