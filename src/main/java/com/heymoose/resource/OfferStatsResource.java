@@ -24,13 +24,6 @@ public class OfferStatsResource {
   }
 
   @GET
-  @Transactional
-  public OverallOfferStatsList allLegacy(@QueryParam("offset") @DefaultValue("0") int offset,
-                                         @QueryParam("limit") @DefaultValue("2147483647") int limit) {
-    return all(offset, limit);
-  }
-
-  @GET
   @Path("all")
   @Transactional
   public OverallOfferStatsList all(@QueryParam("offset") @DefaultValue("0") int offset,
