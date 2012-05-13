@@ -100,9 +100,9 @@ public class OfferStats {
 
   @Transactional
   public List<OverallOfferStats> statsAll(int offset, int limit) {
-    String query = "select offer.id, offer.name, sum(show_count), sum(click_count), " +
-        "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
-        "sum(not_confirmed_revenue), sum(canceled_revenue) " +
+    String query = "select offer.id a1, offer.name a2, sum(show_count) a3, sum(click_count) a4, " +
+        "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
+        "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
         "from offer left join offer_stat on offer.id = offer_stat.master " +
         "where offer.parent_id is null group by offer.id, offer.name order by offer.id " +
         "offset :offset limit :limit";
@@ -117,9 +117,9 @@ public class OfferStats {
 
   @Transactional
   public List<OverallOfferStats> statsAff(long affId, int offset, int limit) {
-    String query = "select g.offer_id, o.name, sum(show_count), sum(click_count), " +
-        "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
-        "sum(not_confirmed_revenue), sum(canceled_revenue) " +
+    String query = "select g.offer_id a1, o.name a2, sum(show_count) a3, sum(click_count) a4, " +
+        "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
+        "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
         "from offer_grant g " +
         "join offer o on g.offer_id = o.id " +
         "left join offer_stat on g.offer_id = master " +
@@ -145,9 +145,9 @@ public class OfferStats {
 
   @Transactional
   public List<OverallOfferStats> statsAdv(long advId, int offset, int limit) {
-    String query = "select offer.id, offer.name, sum(show_count), sum(click_count), " +
-        "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
-        "sum(not_confirmed_revenue), sum(canceled_revenue) " +
+    String query = "select offer.id a1, offer.name a2, sum(show_count) a3, sum(click_count) a4, " +
+        "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
+        "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
         "from offer left join offer_stat on offer.id = offer_stat.master " +
         "where offer.user_id = :advId group by offer.id, offer.name order by offer.id " +
         "offset :offset limit :limit";
