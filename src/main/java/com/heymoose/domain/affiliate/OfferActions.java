@@ -96,7 +96,7 @@ public class OfferActions {
     );
     for (AccountingEntry entry : entries) {
       Account dst = accounting.destination(entry.transaction());
-      if (dst.equals(action.stat().affiliate().affiliateAccountNotConfirmed())) {
+      if (dst.equals(action.affiliate().affiliateAccountNotConfirmed())) {
         accounting.transferMoney(
             action.affiliate().affiliateAccountNotConfirmed(),
             action.offer().account(),

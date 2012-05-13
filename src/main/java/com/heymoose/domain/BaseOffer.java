@@ -184,4 +184,6 @@ public abstract class BaseOffer extends BaseEntity {
   }
 
   public abstract Account account();
+
+  public abstract long master();
 }

@@ -43,6 +43,9 @@ public class OfferStat extends BaseEntity {
   @Column(name = "offer_id")
   private Long offerId;
 
+  @Column(name = "master")
+  private Long master;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "aff_id", insertable = false, updatable = false)
   private User affiliate;
@@ -86,10 +89,11 @@ public class OfferStat extends BaseEntity {
 
   protected OfferStat() {}
 
-  public OfferStat(@Nullable Long bannerId, Long offerId, Long affId, @Nullable String subId,
+  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, @Nullable String subId,
                    @Nullable String sourceId) {
     this.bannerId = bannerId;
     this.offerId = offerId;
+    this.master = master;
     this.affiliateId = affId;
     this.subId = subId;
     this.sourceId = sourceId;

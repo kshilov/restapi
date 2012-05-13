@@ -259,6 +259,11 @@ public class Offer extends BaseOffer {
     return account;
   }
 
+  @Override
+  public long master() {
+    return id;
+  }
+
   public void setCookieTtl(int cookieTtl) {
     this.cookieTtl = cookieTtl;
   }

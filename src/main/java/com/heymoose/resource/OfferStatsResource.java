@@ -24,17 +24,42 @@ public class OfferStatsResource {
   }
 
   @GET
+  @Path("all")
   @Transactional
-  public OverallOfferStatsList get(@QueryParam("aff_id") Long affId,
-                                   @QueryParam("ordering") @DefaultValue("OFFER") OfferStats.Ordering ordering,
-                                   @QueryParam("dir") @DefaultValue("ASC") OfferStats.Dir dir,
+  public OverallOfferStatsList all( @QueryParam("offset") @DefaultValue("0") int offset,
+                                    @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    for (OverallOfferStats s : stats.statsAll(offset, limit))
+      list.stats.add(s);
+    list.count = stats.countAll();
+    return list;
+  }
+
+  @GET
+  @Path("aff")
+  @Transactional
+  public OverallOfferStatsList aff(@QueryParam("aff_id") Long affId,
                                    @QueryParam("offset") @DefaultValue("0") int offset,
                                    @QueryParam("limit") @DefaultValue("2147483647") int limit) {
     checkNotNull(affId);
     OverallOfferStatsList list = new OverallOfferStatsList();
-    for (OverallOfferStats s : stats.affStats(affId, ordering, dir, offset, limit))
+    for (OverallOfferStats s : stats.statsAff(affId, offset, limit))
       list.stats.add(s);
-    list.count = stats.countAffStats(affId);
+    list.count = stats.countAff(affId);
+    return list;
+  }
+
+  @GET
+  @Path("adv")
+  @Transactional
+  public OverallOfferStatsList adv(@QueryParam("adv_id") Long advId,
+                                   @QueryParam("offset") @DefaultValue("0") int offset,
+                                   @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+    checkNotNull(advId);
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    for (OverallOfferStats s : stats.statsAdv(advId, offset, limit))
+      list.stats.add(s);
+    list.count = stats.countAdv(advId);
     return list;
   }
 }

@@ -1,5 +1,7 @@
 package com.heymoose.domain.affiliate;
 
+import com.google.common.base.Function;
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -44,6 +46,13 @@ public class OverallOfferStats {
 
   @XmlElement(name = "ecpm")
   public Double ecpm;
+
+  public static Function<OverallOfferStats, Long> ID = new Function<OverallOfferStats, Long>() {
+    @Override
+    public Long apply(@Nullable OverallOfferStats overallOfferStats) {
+      return overallOfferStats.offerId;
+    }
+  };
 
   protected OverallOfferStats() {}
 

@@ -1,14 +1,15 @@
 package com.heymoose.domain.affiliate;
 
 import static com.google.common.collect.Lists.newArrayList;
-import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.hibernate.Transactional;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 @Singleton
@@ -47,154 +48,124 @@ public class OfferStats {
     }
   }
 
-  public List<OverallOfferStats> affStats(long affId, Ordering ordering, Dir dir, int offset, int limit) {
-    String query = "with offers as (\n" +
-        "\twith parent_offer as (\n" +
-        "\t\tselect g.offer_id main, g.offer_id offer_id\n" +
-        "\t\tfrom offer_grant g\n" +
-        "\t\tleft join offer o on g.offer_id = o.id\n" +
-        "\t\twhere\tg.state = 'APPROVED'\n" +
-        "\t\t\t\tand g.aff_id = {affId}\n" +
-        "\t\t\t\tand o.type = 1\n" +
-        "\t)\n" +
-        "\tselect p.main, p.offer_id\n" +
-        "\tfrom parent_offer p\n" +
-        "\tunion all\n" +
-        "\tselect o.parent_id main, o.id offer_id\n" +
-        "\tfrom offer o\n" +
-        "\tinner join parent_offer p on o.parent_id = p.offer_id\n" +
-        "), stats as (\n" +
-        "\tselect\toffers.main offer_id,\n" +
-        "\t\t\tsum(s.show_count) shows,\n" +
-        "\t\t\tsum(s.click_count) clicks\n" +
-        "\tfrom offers\n" +
-        "\tleft join offer_stat s on offers.offer_id = s.offer_id\n" +
-        "\tgroup by offers.main\n" +
-        "), leads as (\n" +
-        "\tselect offers.main offer_id, count(a.id) leads\n" +
-        "\tfrom offers\n" +
-        "\tleft join offer o on offers.offer_id = o.id and o.cpa_policy = 'FIXED'\n" +
-        "\tleft join offer_action a on o.id = a.offer_id\n" +
-        "\tleft join offer_stat s on a.stat_id = s.id\n" +
-        "\twhere s.aff_id = {affId}\n" +
-        "\tgroup by offers.main\n" +
-        "), sales as (\n" +
-        "\tselect offers.main offer_id, count(a.id) sales\n" +
-        "\tfrom offers\n" +
-        "\tleft join offer o on offers.offer_id = o.id and o.cpa_policy = 'PERCENT'\n" +
-        "\tleft join offer_action a on o.id = a.offer_id\n" +
-        "\tleft join offer_stat s on a.stat_id = s.id\n" +
-        "\twhere s.aff_id = {affId}\n" +
-        "\tgroup by offers.main" +
-        "), not_confirmed_revenue as (\n" +
-        "\tselect offers.main offer_id, coalesce(sum(e.amount), 0) not_confirmed_revenue\n" +
-        "\tfrom offers\n" +
-        "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tleft join accounting_entry e on a.id = e.source_id and e.event = 1 and e.account_id = {notConfirmedAcc}\n" +
-        "\tgroup by offers.main\n" +
-        "), confirmed_revenue as (\n" +
-        "\tselect offers.main offer_id, coalesce(sum(e.amount), 0) confirmed_revenue\n" +
-        "\tfrom offers\n" +
-        "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tleft join accounting_entry e on a.id = e.source_id and e.event = 1 and e.account_id = {confirmedAcc}\n" +
-        "\tgroup by offers.main\n" +
-        "), canceled_revenue as (\n" +
-        "\tselect offers.main offer_id, coalesce(sum(-e.amount), 0) canceled_revenue\n" +
-        "\tfrom offers\n" +
-        "\tleft join offer_action a on offers.offer_id = a.offer_id\n" +
-        "\tleft join accounting_entry e on a.id = e.source_id and e.event = 4 and e.account_id = {notConfirmedAcc}\n" +
-        "\tgroup by offers.main\n" +
-        ")\n" +
-        "select\tstats.offer_id,\n" +
-        "\t\toffer.name,\n" +
-        "\t\tstats.shows,\n" +
-        "\t\tstats.clicks,\n" +
-        "\t\tleads.leads,\n" +
-        "\t\tsales.sales,\n" +
-        "\t\tconfirmed_revenue.confirmed_revenue,\n" +
-        "\t\tnot_confirmed_revenue.not_confirmed_revenue,\n" +
-        "\t\tcanceled_revenue.canceled_revenue,\n" +
-        "\t\tcase \n" +
-        "\t\t\twhen stats.shows = 0 then null\n" +
-        "\t\t\telse stats.clicks * 100.0 / stats.shows\n" +
-        "\t\tend ctr,\n" +
-        "\t\tcase\n" +
-        "\t\t\twhen stats.clicks = 0 then null\n" +
-        "\t\t\telse (coalesce(leads.leads, 0) + coalesce(sales.sales, 0)) * 100.0 / stats.clicks\n" +
-        "\t\tend cr,\n" +
-        "\t\tcase\n" +
-        "\t\t\twhen stats.clicks = 0 then null\n" +
-        "\t\t\telse (confirmed_revenue.confirmed_revenue + not_confirmed_revenue.not_confirmed_revenue) * 1.0 / stats.clicks\n" +
-        "\t\tend ecpc,\n" +
-        "\t\tcase\n" +
-        "\t\t\twhen stats.shows = 0 then null\n" +
-        "\t\t\telse (confirmed_revenue.confirmed_revenue + not_confirmed_revenue.not_confirmed_revenue) * 1000 / stats.shows\n" +
-        "\t\tend ecpm\n" +
-        "from stats\n" +
-        "left join leads using(offer_id)\n" +
-        "left join sales using(offer_id)\n" +
-        "left join confirmed_revenue using(offer_id)\n" +
-        "left join not_confirmed_revenue using(offer_id)\n" +
-        "left join canceled_revenue using(offer_id)\n" +
-        "left join offer on stats.offer_id = offer.id\n" +
-        "order by {ordering} {dir}\n" +
-        "offset {offset} limit {limit}";
-
-    User affiliate = repo.get(User.class, affId);
-    long notConfirmedAccId = affiliate.affiliateAccountNotConfirmed().id();
-    long confirmedAccId = affiliate.affiliateAccount().id();
-
-    query = query.replaceAll("\\{affId\\}", Long.toString(affId));
-    query = query.replaceAll("\\{notConfirmedAcc\\}", Long.toString(notConfirmedAccId));
-    query = query.replaceAll("\\{confirmedAcc\\}", Long.toString(confirmedAccId));
-    query = query.replaceAll("\\{ordering\\}", ordering.value);
-    query = query.replaceAll("\\{dir\\}", dir.name());
-    query = query.replaceAll("\\{offset\\}", Integer.toString(offset));
-    query = query.replaceAll("\\{limit\\}", Integer.toString(limit));
-
-    List<Object[]> records = sessionProvider.get().createSQLQuery(query).list();
-    List<OverallOfferStats> stats = newArrayList();
-
-    for (Object[] record : records) {
-      stats.add(new OverallOfferStats(
-          extractLong(record[0]),
-          (String) record[1],
-          extractLong(record[2]),
-          extractLong(record[3]),
-          extractLong(record[4]),
-          extractLong(record[5]),
-          extractDouble(record[6]),
-          extractDouble(record[7]),
-          extractDouble(record[8]),
-          extractDoubleOrNull(record[9]),
-          extractDoubleOrNull(record[10]),
-          extractDoubleOrNull(record[11]),
-          extractDoubleOrNull(record[12])
-      ));
-    }
-    return stats;
+  public int queryInt(Query query) {
+    return extractLong(query.uniqueResult()).intValue();
   }
 
-  public long countAffStats(long affId) {
-    String query = "with offers as (\n" +
-        "\twith parent_offer as (\n" +
-        "\t\tselect g.offer_id offer_id\n" +
-        "\t\tfrom offer_grant g\n" +
-        "\t\tleft join offer o on g.offer_id = o.id\n" +
-        "\t\twhere\tg.state = 'APPROVED'\n" +
-        "\t\t\t\tand g.aff_id = {affId}\n" +
-        "\t\t\t\tand o.type = 1\n" +
-        "\t)\n" +
-        "\tselect p.offer_id\n" +
-        "\tfrom parent_offer p\n" +
-        "\tunion all\n" +
-        "\tselect o.id offer_id\n" +
-        "\tfrom offer o\n" +
-        "\tinner join parent_offer p on o.parent_id = p.offer_id\n" +
-        ")\n" +
-        "select count(*) from offers;";
-    query = query.replaceAll("\\{affId\\}", Long.toString(affId));
-    return extractLong(sessionProvider.get().createSQLQuery(query).uniqueResult());
+  private int queryInt(String query) {
+    return queryInt(repo.session().createSQLQuery(query));
+  }
+
+  private List<Object[]> queryPage(String query, int offset, int limit) {
+    return repo.session()
+        .createSQLQuery(query)
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+  }
+
+  private List<OverallOfferStats> toStats(List<Object[]> dbResult) {
+    List<OverallOfferStats> result = newArrayList();
+    for (Object[] record : dbResult) {
+      long offerId = extractLong(record[0]);
+      String name = (String) record[1];
+      long shows = extractLong(record[2]);
+      long clicks = extractLong(record[3]);
+      long leads = extractLong(record[4]);
+      long sales = extractLong(record[5]);
+      double confirmedRevenue = extractDouble(record[6]);
+      double notConfirmedRevenue = extractDouble(record[7]);
+      double canceledRevenue = extractDouble(record[8]);
+      Double ctr = (shows == 0)
+          ? null
+          : clicks * 100.0 / shows;
+      Double cr = (clicks == 0)
+          ? null
+          : (leads + sales) * 100.0 / clicks;
+      Double ecpc = (clicks == 0)
+          ? null
+          : (confirmedRevenue + notConfirmedRevenue) / clicks;
+      Double ecpm = (shows == 0)
+          ? null
+          : (confirmedRevenue + notConfirmedRevenue) * 1000.0 / shows;
+      result.add(new OverallOfferStats(offerId, name, shows, clicks, leads, sales,
+          confirmedRevenue, notConfirmedRevenue, canceledRevenue, ctr, cr, ecpc, ecpm));
+    }
+    return result;
+  }
+
+  private List<OverallOfferStats> queryStats(String query, int offset, int limit) {
+    return toStats(queryPage(query, offset, limit));
+  }
+
+  @Transactional
+  public List<OverallOfferStats> statsAll(int offset, int limit) {
+    String query = "select offer.id, offer.name, sum(show_count), sum(click_count), " +
+        "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
+        "sum(not_confirmed_revenue), sum(canceled_revenue) " +
+        "from offer left join offer_stat on offer.id = offer_stat.master " +
+        "where offer.parent_id is null group by offer.id order by offer.id " +
+        "offset :offset limit :limit";
+    return queryStats(query, offset, limit);
+  }
+
+  @Transactional
+  public int countAll() {
+    String query = "select count(*) from offer where parent_id is null";
+    return queryInt(query);
+  }
+
+  @Transactional
+  public List<OverallOfferStats> statsAff(long affId, int offset, int limit) {
+    String query = "select g.offer_id, o.name, sum(show_count), sum(click_count), " +
+        "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
+        "sum(not_confirmed_revenue), sum(canceled_revenue) " +
+        "from offer_grant g " +
+        "join offer o on g.offer_id = o.id " +
+        "left join offer_stat on g.offer_id = master " +
+        "where g.state = 'APPROVED' and g.aff_id = :affId " +
+        "group by g.offer_id, o.name, g.creation_time order by g.creation_time desc " +
+        "offset :offset limit :limit";
+    List<Object[]> dbResult = repo.session()
+        .createSQLQuery(query)
+        .setParameter("affId", affId)
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+    return toStats(dbResult);
+  }
+
+  @Transactional
+  public int countAff(long affId) {
+    Query query = repo.session()
+        .createSQLQuery("select count(*) from offer_grant where state = 'APPROVED' and aff_id = :affId")
+        .setParameter("affId", affId);
+    return queryInt(query);
+  }
+
+  @Transactional
+  public List<OverallOfferStats> statsAdv(long advId, int offset, int limit) {
+    String query = "select offer.id, offer.name, sum(show_count), sum(click_count), " +
+        "sum(leads_count), sum(sales_count), sum(confirmed_revenue), " +
+        "sum(not_confirmed_revenue), sum(canceled_revenue) " +
+        "from offer left join offer_stat on offer.id = offer_stat.master " +
+        "where offer.user_id = :advId group by offer.id order by offer.id " +
+        "offset :offset limit :limit";
+    List<Object[]> dbResult = repo.session()
+        .createSQLQuery(query)
+        .setParameter("advId", advId)
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+    return toStats(dbResult);
+  }
+
+  @Transactional
+  public int countAdv(long advId) {
+    Query query = repo.session()
+        .createSQLQuery("select count(*) from offer where offer.user_id = :advId")
+        .setParameter("advId", advId);
+    return queryInt(query);
   }
 
   private static Long extractLong(Object val) {
@@ -210,16 +181,6 @@ public class OfferStats {
   private static double extractDouble(Object val) {
     if (val == null)
       return 0.0;
-    if (val instanceof BigInteger)
-      return ((BigInteger) val).doubleValue();
-    if (val instanceof BigDecimal)
-      return ((BigDecimal) val).doubleValue();
-    throw new IllegalStateException();
-  }
-
-  private static Double extractDoubleOrNull(Object val) {
-    if (val == null)
-      return null;
     if (val instanceof BigInteger)
       return ((BigInteger) val).doubleValue();
     if (val instanceof BigDecimal)

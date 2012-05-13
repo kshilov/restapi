@@ -178,7 +178,7 @@ public class ApiResource {
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum))
       return forbidden(grant);
-    String token  = tracking.click(bannerId, offerId, affId, subId, sourceId);
+    String token  = tracking.click(bannerId, offerId, offer.master(), affId, subId, sourceId);
     URI location = URI.create(offer.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
@@ -217,7 +217,7 @@ public class ApiResource {
       throw illegalState("Offer was not granted: " + offerId);
     String subId = params.get("sub_id");
     String sourceId = params.get("source_id");
-    tracking.track(bannerId, offerId, affId, subId, sourceId);
+    tracking.track(bannerId, offerId, offer.master(), affId, subId, sourceId);
     return noCache(Response.ok()).build();
   }
 

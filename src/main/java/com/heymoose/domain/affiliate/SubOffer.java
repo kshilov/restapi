@@ -30,6 +30,11 @@ public class SubOffer extends BaseOffer {
     return parent.account();
   }
 
+  @Override
+  public long master() {
+    return parentId;
+  }
+
   public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, boolean autoApprove, boolean reentrant, String code, int holdDays) {
     super(PayMethod.CPA, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);

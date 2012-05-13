@@ -52,25 +52,25 @@ public class Tracking {
   }
 
   @Transactional
-  public OfferStat track(@Nullable Long bannerId, long offerId, long affId,
+  public OfferStat track(@Nullable Long bannerId, long offerId, long master, long affId,
                         @Nullable String subId, @Nullable String sourceId) {
     OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat != null) {
       bufferedShows.inc(stat.id());
       return stat;
     }
-    stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
+    stat = new OfferStat(bannerId, offerId, master, affId, subId, sourceId);
     stat.incShows();
     repo.put(stat);
     return stat;
   }
   
   @Transactional
-  public String click(@Nullable Long bannerId, long offerId, long affId,
+  public String click(@Nullable Long bannerId, long offerId, long master, long affId,
                      @Nullable String subId, @Nullable String sourceId) {
     OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat == null) {
-      stat = new OfferStat(bannerId, offerId, affId, subId, sourceId);
+      stat = new OfferStat(bannerId, offerId, master, affId, subId, sourceId);
       stat.incClicks();
       repo.put(stat);
     } else {
