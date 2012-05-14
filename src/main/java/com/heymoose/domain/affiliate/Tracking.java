@@ -108,8 +108,8 @@ public class Tracking {
         .add(Restrictions.eq("offer.id", offerId))
         .add(Restrictions.eq("affiliate.id", affId));
     addEqOrIsNull(criteria, "bannerId", bannerId);
-    addEqOrIsNull(criteria, "sourceId", bannerId);
-    addEqOrIsNull(criteria, "subId", bannerId);
+    addEqOrIsNull(criteria, "sourceId", sourceId);
+    addEqOrIsNull(criteria, "subId", subId);
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
