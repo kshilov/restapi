@@ -13,6 +13,8 @@ import com.heymoose.util.URLEncodedUtils;
 import java.net.URI;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
+
+import org.joda.time.DateTimeUtils;
 import org.junit.Test;
 
 public class OfferTest extends RestTest {
@@ -45,7 +47,7 @@ public class OfferTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId =  heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
-        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180);
+        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
     heymoose().approveOffer(offerId);
     return offerId;
   }

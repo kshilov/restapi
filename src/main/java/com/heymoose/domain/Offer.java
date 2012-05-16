@@ -114,10 +114,10 @@ public class Offer extends BaseOffer {
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
                   String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
                   Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
-                  String code, int holdDays, int cookieTtl) {
+                  String code, int holdDays, int cookieTtl, DateTime launchTime) {
 
     super(payMethod, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
-    checkNotNull(url, siteUrl, advertiser, name, description, payMethod, cookieTtl);
+    checkNotNull(url, siteUrl, advertiser, name, description, payMethod, cookieTtl, launchTime);
     this.url = url;
     this.siteUrl = siteUrl;
     this.advertiser = advertiser;
@@ -127,6 +127,7 @@ public class Offer extends BaseOffer {
     this.active = true;
     this.logoFileName = logoFileName;
     this.cookieTtl = cookieTtl;
+    this.launchTime = launchTime;
 
     this.regions = newHashSet(regions);
     this.categories = newTreeSet(categories);
@@ -244,7 +245,6 @@ public class Offer extends BaseOffer {
 
   public void unblock() {
     this.approved = true;
-    this.launchTime = DateTime.now();
   }
 
   public String blockReason() {
@@ -274,6 +274,10 @@ public class Offer extends BaseOffer {
   
   public DateTime launchTime() {
     return launchTime;
+  }
+  
+  public void setLaunchTime(DateTime launchTime) {
+    this.launchTime = launchTime;
   }
 
   public String tokenParamName() {

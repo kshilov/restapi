@@ -51,6 +51,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.joda.time.DateTime;
+
 @Path("offers")
 @Singleton
 public class OfferResource {
@@ -157,8 +159,10 @@ public class OfferResource {
                        @FormParam("categories") List<Long> longCategories,
                        @FormParam("code") String code,
                        @FormParam("hold_days") Integer holdDays,
-                       @FormParam("cookie_ttl") Integer cookieTtl) {
-    checkNotNull(advertiserId, payMethod, strCost, name, description, url, siteUrl, title, code, holdDays, cookieTtl);
+                       @FormParam("cookie_ttl") Integer cookieTtl,
+                       @FormParam("launch_time") Long unixLaunchTime) {
+    checkNotNull(advertiserId, payMethod, strCost, name, description, url, siteUrl, title, code, holdDays,
+      cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
@@ -186,10 +190,11 @@ public class OfferResource {
     Iterable<Category> categories = repo.get(Category.class, newHashSet(longCategories)).values();
 
     checkCode(code, advertiser.id(), null);
+    DateTime launchTime = new DateTime(unixLaunchTime);
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
         payMethod, cpaPolicy, cost, percent, title, url, siteUrl, autoApprove, reentrant,
-        regions, categories, logoFileName, code, holdDays, cookieTtl);
+        regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -237,6 +242,8 @@ public class OfferResource {
       offer.setSiteUrl(URI.create(form.getFirst("site_url")));
     if (form.containsKey("cookie_ttl"))
       offer.setCookieTtl(Integer.parseInt(form.getFirst("cookie_ttl")));
+    if (form.containsKey("launch_time"))
+      offer.setLaunchTime(new DateTime(Long.parseLong(form.getFirst("launch_time"))));
     if (form.containsKey("categories")) {
       List<Long> categIds = newArrayList();
       for (String strId : form.get("categories"))

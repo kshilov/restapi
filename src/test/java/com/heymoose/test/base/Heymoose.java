@@ -18,6 +18,7 @@ import com.sun.jersey.api.representation.Form;
 import java.net.URI;
 import static java.util.Arrays.asList;
 import java.util.Set;
+
 import org.junit.Ignore;
 
 @Ignore
@@ -87,7 +88,7 @@ public class Heymoose {
                           double balance, String name, String descr, String logoFileName, URI uri,
                           URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
                           boolean reentrant, Set<Region> regions, Set<Long> categories,
-                          String code, int holdDays, int cookieTtl) {
+                          String code, int holdDays, int cookieTtl, Long launchTime) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
     form.add("pay_method", payMethod);
@@ -110,6 +111,7 @@ public class Heymoose {
     form.add("code", code);
     form.add("hold_days", holdDays);
     form.add("cookie_ttl", cookieTtl);
+    form.add("launch_time", launchTime);
     return Long.valueOf(client.path("offers").post(String.class, form));
   }
 
