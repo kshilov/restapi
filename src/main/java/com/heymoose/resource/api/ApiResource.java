@@ -138,7 +138,7 @@ public class ApiResource {
   private BaseOffer findOffer(long advertiserId, String code) {
     SubOffer existentSub = repo.byHQL(
         SubOffer.class,
-        "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
+        "from SubOffer o where o.active = true and o.code = ? and o.parent.advertiser.id = ?",
         code, advertiserId
     );
 
@@ -147,7 +147,7 @@ public class ApiResource {
 
     Offer existentOffer = repo.byHQL(
         Offer.class,
-        "from Offer o where o.code = ? and o.advertiser.id = ?",
+        "from Offer o where o.active = true and o.code = ? and o.advertiser.id = ?",
         code, advertiserId
     );
 
