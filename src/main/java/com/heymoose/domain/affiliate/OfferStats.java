@@ -240,6 +240,39 @@ public class OfferStats {
     return queryInt(query);
   }
 
+  @Transactional
+  public List<OverallOfferStats> affStatsByOffer(long offerId, DateTime from, DateTime to, int offset, int limit) {
+    String query = "select g.aff_id a2, p.first_name || ' ' || p.last_name, sum(show_count) a3, sum(click_count) a4, " +
+        "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, sum(not_confirmed_revenue) a8, " +
+        "sum(canceled_revenue) a9 " +
+        "from offer_grant g join offer o on g.offer_id = o.id " +
+        "left join offer_stat on offer_stat.creation_time between :from and :to and g.offer_id = master " +
+        "left join user_profile p on g.aff_id = p.id where g.state = 'APPROVED' and g.offer_id = :offer " +
+        "group by g.aff_id, p.first_name, p.last_name order by g.aff_id desc offset :offset limit :limit";
+    List<Object[]> dbResult = repo.session()
+        .createSQLQuery(query)
+        .setParameter("offer", offerId)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+    return toStats(dbResult);
+  }
+
+  @Transactional
+  public int affCountByOffer(long offerId, DateTime from, DateTime to) {
+    Query query = repo.session()
+        .createSQLQuery("select count(*) from (select g.aff_id a1 from offer_grant g join offer o on g.offer_id = o.id " +
+            "left join offer_stat on offer_stat.creation_time between :from and :to " +
+            "and g.offer_id = master where g.state = 'APPROVED' and g.offer_id = :offer group by g.aff_id) _")
+        .setParameter("offer", offerId)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate());
+    return queryInt(query);
+  }
+
+
   private static Long extractLong(Object val) {
     if (val == null)
       return 0L;

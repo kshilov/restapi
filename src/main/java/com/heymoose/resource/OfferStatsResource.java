@@ -29,7 +29,7 @@ public class OfferStatsResource {
   @GET
   @Path("offers/all")
   @Transactional
-  public OverallOfferStatsList all(@QueryParam("from") @DefaultValue("0") Long from,
+  public OverallOfferStatsList offersAll(@QueryParam("from") @DefaultValue("0") Long from,
                                    @QueryParam("to") Long to,
                                    @QueryParam("granted") @DefaultValue("false") boolean granted,
                                    @QueryParam("offset") @DefaultValue("0") int offset,
@@ -54,7 +54,7 @@ public class OfferStatsResource {
   @GET
   @Path("offers/aff")
   @Transactional
-  public OverallOfferStatsList aff(@QueryParam("aff_id") Long affId,
+  public OverallOfferStatsList offersAff(@QueryParam("aff_id") Long affId,
                                    @QueryParam("from") @DefaultValue("0") Long from,
                                    @QueryParam("to") Long to,
                                    @QueryParam("offset") @DefaultValue("0") int offset,
@@ -72,7 +72,7 @@ public class OfferStatsResource {
   @GET
   @Path("offers/adv")
   @Transactional
-  public OverallOfferStatsList adv(@QueryParam("adv_id") Long advId,
+  public OverallOfferStatsList offersAdv(@QueryParam("adv_id") Long advId,
                                    @QueryParam("from") @DefaultValue("0") Long from,
                                    @QueryParam("to") Long to,
                                    @QueryParam("offset") @DefaultValue("0") int offset,
@@ -90,7 +90,7 @@ public class OfferStatsResource {
   @GET
   @Path("affiliates/all")
   @Transactional
-  public OverallOfferStatsList affStats(@QueryParam("from") @DefaultValue("0") Long from,
+  public OverallOfferStatsList affAll(@QueryParam("from") @DefaultValue("0") Long from,
                                         @QueryParam("to") Long to,
                                         @QueryParam("offset") @DefaultValue("0") int offset,
                                         @QueryParam("limit") @DefaultValue("2147483647") int limit) {
@@ -100,6 +100,23 @@ public class OfferStatsResource {
     for (OverallOfferStats s : stats.affStats(new DateTime(from), new DateTime(to), offset, limit))
       list.stats.add(s);
     list.count = stats.affCount(new DateTime(from), new DateTime(to));
+    return list;
+  }
+
+  @GET
+  @Path("affiliates/offer")
+  @Transactional
+  public OverallOfferStatsList affOffers(@QueryParam("offer_id") Long offerId,
+                                        @QueryParam("from") @DefaultValue("0") Long from,
+                                        @QueryParam("to") Long to,
+                                        @QueryParam("offset") @DefaultValue("0") int offset,
+                                        @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+    checkNotNull(offerId);
+      to = DateTimeUtils.currentTimeMillis();
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    for (OverallOfferStats s : stats.affStatsByOffer(offerId, new DateTime(from), new DateTime(to), offset, limit))
+      list.stats.add(s);
+    list.count = stats.affCountByOffer(offerId, new DateTime(from), new DateTime(to));
     return list;
   }
 }
