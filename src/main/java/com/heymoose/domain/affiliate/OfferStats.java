@@ -232,7 +232,9 @@ public class OfferStats {
   @Transactional
   public int affCount(DateTime from, DateTime to) {
     Query query = repo.session()
-        .createSQLQuery("")
+        .createSQLQuery("select count(*) from (select g.aff_id a1 from offer_grant g join offer o on g.offer_id = o.id " +
+            "left join offer_stat on offer_stat.creation_time between '2012-05-01' and '2012-05-05' " +
+            "and g.offer_id = master where g.state = 'APPROVED' group by g.aff_id) _")
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate());
     return queryInt(query);
