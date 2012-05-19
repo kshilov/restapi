@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "stat")
 public class OverallOfferStats {
 
-  @XmlElement(name = "offer-id")
-  public long offerId;
+  @XmlElement(name = "id")
+  public long id;
 
   @XmlElement(name = "name")
   public String name;
@@ -50,16 +50,16 @@ public class OverallOfferStats {
   public static Function<OverallOfferStats, Long> ID = new Function<OverallOfferStats, Long>() {
     @Override
     public Long apply(@Nullable OverallOfferStats overallOfferStats) {
-      return overallOfferStats.offerId;
+      return overallOfferStats.id;
     }
   };
 
   protected OverallOfferStats() {}
 
-  public OverallOfferStats(long offerId, String name, long shows, long clicks, long leads, long sales,
+  public OverallOfferStats(long id, String name, long shows, long clicks, long leads, long sales,
                            double confirmedRevenue, double notConfirmedRevenue, double canceledRevenue,
                            Double ctr, Double cr, Double ecpc, Double ecpm) {
-    this.offerId = offerId;
+    this.id = id;
     this.name = name;
     this.shows = shows;
     this.clicks = clicks;
@@ -77,7 +77,7 @@ public class OverallOfferStats {
   @Override
   public String toString() {
     return "OverallOfferStats{" +
-        "offerId=" + offerId +
+        "id=" + id +
         ", shows=" + shows +
         ", clicks=" + clicks +
         ", leads=" + leads +
