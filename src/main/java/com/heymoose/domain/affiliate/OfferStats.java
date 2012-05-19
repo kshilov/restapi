@@ -246,7 +246,7 @@ public class OfferStats {
         "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, sum(not_confirmed_revenue) a8, " +
         "sum(canceled_revenue) a9 " +
         "from offer_grant g join offer o on g.offer_id = o.id " +
-        "left join offer_stat on offer_stat.creation_time between :from and :to and g.offer_id = master and g.aff_id = offer_stat.aff_id" +
+        "left join offer_stat on offer_stat.creation_time between :from and :to and g.offer_id = master and g.aff_id = offer_stat.aff_id " +
         "left join user_profile p on g.aff_id = p.id where g.state = 'APPROVED' and g.offer_id = :offer " +
         "group by g.aff_id, p.first_name, p.last_name order by g.aff_id desc offset :offset limit :limit";
     List<Object[]> dbResult = repo.session()
