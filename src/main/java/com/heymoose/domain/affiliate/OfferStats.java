@@ -150,7 +150,7 @@ public class OfferStats {
         "from offer_grant g " +
         "join offer o on g.offer_id = o.id " +
         "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "and g.offer_id = master " +
+        "and g.offer_id = master and g.aff_id = offer_stat.aff_id " +
         "where g.state = 'APPROVED' and g.aff_id = :affId " +
         "group by g.offer_id, o.name, g.creation_time order by g.creation_time desc " +
         "offset :offset limit :limit";
@@ -170,7 +170,7 @@ public class OfferStats {
     Query query = repo.session()
         .createSQLQuery("select count(*) from (select 1 from offer_grant g " +
         		"left join (select * from offer_stat where creation_time between :from and :to) as offer_stat " +
-        		"on g.offer_id = master where g.state = 'APPROVED' and g.aff_id = :affId group by g.offer_id) as _t")
+        		"on g.offer_id = master and g.aff_id = offer_stat.aff_id where g.state = 'APPROVED' and g.aff_id = :affId group by g.offer_id) as _t")
         .setParameter("affId", affId)
         .setTimestamp("from", from.toDate())
         .setTimestamp("to", to.toDate());
