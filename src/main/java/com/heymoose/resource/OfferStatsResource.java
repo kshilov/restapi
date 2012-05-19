@@ -5,6 +5,7 @@ import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
@@ -26,23 +27,32 @@ public class OfferStatsResource {
   }
 
   @GET
-  @Path("all")
+  @Path("offers/all")
   @Transactional
   public OverallOfferStatsList all(@QueryParam("from") @DefaultValue("0") Long from,
                                    @QueryParam("to") Long to,
+                                   @QueryParam("granted") @DefaultValue("false") boolean granted,
                                    @QueryParam("offset") @DefaultValue("0") int offset,
                                    @QueryParam("limit") @DefaultValue("2147483647") int limit) {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    for (OverallOfferStats s : stats.statsAll(new DateTime(from), new DateTime(to), offset, limit))
+    List<OverallOfferStats> overallOfferStats;
+    if (granted)
+      overallOfferStats = stats.grantedOfferStatsAll(new DateTime(from), new DateTime(to), offset, limit);
+    else
+      overallOfferStats = stats.offerStatsAll(new DateTime(from), new DateTime(to), offset, limit);
+    for (OverallOfferStats s : overallOfferStats)
       list.stats.add(s);
-    list.count = stats.countAll(new DateTime(from), new DateTime(to));
+    if (granted)
+      list.count = stats.grantedOfferCountAll(new DateTime(from), new DateTime(to));
+    else
+      list.count = stats.offerCountAll(new DateTime(from), new DateTime(to));
     return list;
   }
 
   @GET
-  @Path("aff")
+  @Path("offers/aff")
   @Transactional
   public OverallOfferStatsList aff(@QueryParam("aff_id") Long affId,
                                    @QueryParam("from") @DefaultValue("0") Long from,
@@ -53,14 +63,14 @@ public class OfferStatsResource {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    for (OverallOfferStats s : stats.statsAff(affId, new DateTime(from), new DateTime(to), offset, limit))
+    for (OverallOfferStats s : stats.offerStatsByAff(affId, new DateTime(from), new DateTime(to), offset, limit))
       list.stats.add(s);
-    list.count = stats.countAff(affId, new DateTime(from), new DateTime(to));
+    list.count = stats.offerCountByAff(affId, new DateTime(from), new DateTime(to));
     return list;
   }
 
   @GET
-  @Path("adv")
+  @Path("offers/adv")
   @Transactional
   public OverallOfferStatsList adv(@QueryParam("adv_id") Long advId,
                                    @QueryParam("from") @DefaultValue("0") Long from,
@@ -71,9 +81,25 @@ public class OfferStatsResource {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    for (OverallOfferStats s : stats.statsAdv(advId, new DateTime(from), new DateTime(to), offset, limit))
+    for (OverallOfferStats s : stats.offerStatsByAdv(advId, new DateTime(from), new DateTime(to), offset, limit))
       list.stats.add(s);
-    list.count = stats.countAdv(advId, new DateTime(from), new DateTime(to));
+    list.count = stats.offerCountByAdv(advId, new DateTime(from), new DateTime(to));
+    return list;
+  }
+
+  @GET
+  @Path("affiliates/all")
+  @Transactional
+  public OverallOfferStatsList affStats(@QueryParam("from") @DefaultValue("0") Long from,
+                                        @QueryParam("to") Long to,
+                                        @QueryParam("offset") @DefaultValue("0") int offset,
+                                        @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+    if (to == null)
+      to = DateTimeUtils.currentTimeMillis();
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    for (OverallOfferStats s : stats.affStats(new DateTime(from), new DateTime(to), offset, limit))
+      list.stats.add(s);
+    list.count = stats.affCount(new DateTime(from), new DateTime(to));
     return list;
   }
 }

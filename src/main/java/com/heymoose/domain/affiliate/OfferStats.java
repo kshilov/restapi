@@ -96,7 +96,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public List<OverallOfferStats> statsAll(DateTime from, DateTime to, int offset, int limit) {
+  public List<OverallOfferStats> offerStatsAll(DateTime from, DateTime to, int offset, int limit) {
     String query = "select offer.id a1, offer.name a2, sum(show_count) a3, sum(click_count) a4, " +
         "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
         "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
@@ -109,7 +109,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public int countAll(DateTime from, DateTime to) {
+  public int offerCountAll(DateTime from, DateTime to) {
     String query = "select count(*) from (select 1 from offer " +
     		"left join (select * from offer_stat where creation_time between :from and :to) as offer_stat " +
     		"on offer.id = offer_stat.master where parent_id is null group by offer.id) as _t" ;
@@ -121,14 +121,36 @@ public class OfferStats {
   }
 
   @Transactional
-  public List<OverallOfferStats> statsAff(long affId, DateTime from, DateTime to, int offset, int limit) {
+  public List<OverallOfferStats> grantedOfferStatsAll(DateTime from, DateTime to, int offset, int limit) {
+    String query = "select o.id a1, o.name a2, sum(show_count) a3, sum(click_count) a4, sum(leads_count) a5, " +
+        "sum(sales_count) a6, sum(confirmed_revenue) a7, sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
+        "from offer_grant g join offer o on g.offer_id = o.id left join offer_stat " +
+        "on offer_stat.creation_time between :from and :to and g.offer_id = master " +
+        "where g.state = 'APPROVED' group by o.id, o.name order by o.id desc offset :offset limit :limit";
+    return queryStats(query, from, to, offset, limit);
+  }
+
+  @Transactional
+  public int grantedOfferCountAll(DateTime from, DateTime to) {
+    String query = "select count(*) from (select g.offer_id from offer_grant g left join offer_stat " +
+        "on offer_stat.creation_time between '2012-04-01' and '2012-05-15' and g.offer_id = master " +
+        "where g.state = 'APPROVED' group by g.offer_id) _" ;
+    return queryInt(repo.session()
+        .createSQLQuery(query)
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+    );
+  }
+
+  @Transactional
+  public List<OverallOfferStats> offerStatsByAff(long affId, DateTime from, DateTime to, int offset, int limit) {
     String query = "select g.offer_id a1, o.name a2, sum(show_count) a3, sum(click_count) a4, " +
         "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
         "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
         "from offer_grant g " +
         "join offer o on g.offer_id = o.id " +
-        "left join (select * from offer_stat where creation_time between :from and :to) as offer_stat " +
-        "on g.offer_id = master " +
+        "left join offer_stat on offer_stat.creation_time between :from and :to " +
+        "and g.offer_id = master " +
         "where g.state = 'APPROVED' and g.aff_id = :affId " +
         "group by g.offer_id, o.name, g.creation_time order by g.creation_time desc " +
         "offset :offset limit :limit";
@@ -144,7 +166,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public int countAff(long affId, DateTime from, DateTime to) {
+  public int offerCountByAff(long affId, DateTime from, DateTime to) {
     Query query = repo.session()
         .createSQLQuery("select count(*) from (select 1 from offer_grant g " +
         		"left join (select * from offer_stat where creation_time between :from and :to) as offer_stat " +
@@ -156,7 +178,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public List<OverallOfferStats> statsAdv(long advId, DateTime from, DateTime to, int offset, int limit) {
+  public List<OverallOfferStats> offerStatsByAdv(long advId, DateTime from, DateTime to, int offset, int limit) {
     String query = "select offer.id a1, offer.name a2, sum(show_count) a3, sum(click_count) a4, " +
         "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
         "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
@@ -177,7 +199,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public int countAdv(long advId, DateTime from, DateTime to) {
+  public int offerCountByAdv(long advId, DateTime from, DateTime to) {
     Query query = repo.session()
         .createSQLQuery("select count(*) from (select 1 from offer " +
         		"left join (select * from offer_stat where creation_time between :from and :to) as offer_stat " +
@@ -185,6 +207,34 @@ public class OfferStats {
         .setParameter("advId", advId)
         .setTimestamp("from", from.toDate())
         .setTimestamp("to", to.toDate());
+    return queryInt(query);
+  }
+
+  @Transactional
+  public List<OverallOfferStats> affStats(DateTime from, DateTime to, int offset, int limit) {
+    String query = "select g.aff_id a2, p.first_name || ' ' || p.last_name, sum(show_count) a3, sum(click_count) a4, " +
+        "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, sum(not_confirmed_revenue) a8, " +
+        "sum(canceled_revenue) a9 " +
+        "from offer_grant g join offer o on g.offer_id = o.id " +
+        "left join offer_stat on offer_stat.creation_time between :from and :to and g.offer_id = master " +
+        "left join user_profile p on g.aff_id = p.id where g.state = 'APPROVED' " +
+        "group by g.aff_id, p.first_name, p.last_name order by g.aff_id desc offset :offset limit :limit";
+    List<Object[]> dbResult = repo.session()
+        .createSQLQuery(query)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+    return toStats(dbResult);
+  }
+
+  @Transactional
+  public int affCount(DateTime from, DateTime to) {
+    Query query = repo.session()
+        .createSQLQuery("")
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate());
     return queryInt(query);
   }
 
