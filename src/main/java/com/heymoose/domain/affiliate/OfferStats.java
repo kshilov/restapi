@@ -133,7 +133,7 @@ public class OfferStats {
   @Transactional
   public int grantedOfferCountAll(DateTime from, DateTime to) {
     String query = "select count(*) from (select g.offer_id from offer_grant g left join offer_stat " +
-        "on offer_stat.creation_time between '2012-04-01' and '2012-05-15' and g.offer_id = master " +
+        "on offer_stat.creation_time between :from and :to and g.offer_id = master " +
         "where g.state = 'APPROVED' group by g.offer_id) _" ;
     return queryInt(repo.session()
         .createSQLQuery(query)
