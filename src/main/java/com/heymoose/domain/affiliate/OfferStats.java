@@ -125,7 +125,7 @@ public class OfferStats {
     String query = "select o.id a1, o.name a2, sum(show_count) a3, sum(click_count) a4, sum(leads_count) a5, " +
         "sum(sales_count) a6, sum(confirmed_revenue) a7, sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
         "from offer_grant g join offer o on g.offer_id = o.id left join offer_stat " +
-        "on offer_stat.creation_time between :from and :to and g.offer_id = master " +
+        "on offer_stat.creation_time between :from and :to and g.offer_id = master and g.aff_id = offer_stat.aff_id " +
         "where g.state = 'APPROVED' group by o.id, o.name order by o.id desc offset :offset limit :limit";
     return queryStats(query, from, to, offset, limit);
   }
@@ -133,7 +133,7 @@ public class OfferStats {
   @Transactional
   public int grantedOfferCountAll(DateTime from, DateTime to) {
     String query = "select count(*) from (select g.offer_id from offer_grant g left join offer_stat " +
-        "on offer_stat.creation_time between :from and :to and g.offer_id = master " +
+        "on offer_stat.creation_time between :from and :to and g.offer_id = master and g.aff_id = offer_stat.aff_id " +
         "where g.state = 'APPROVED' group by g.offer_id) _" ;
     return queryInt(repo.session()
         .createSQLQuery(query)
