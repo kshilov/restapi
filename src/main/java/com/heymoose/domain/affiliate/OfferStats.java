@@ -144,7 +144,7 @@ public class OfferStats {
   public int offerCountByAff(long affId, DateTime from, DateTime to) {
     Query query = repo.session()
         .createSQLQuery("select count(*) from (select 1 from offer_grant g " +
-        		"left join offer_stat where offer_stat.creation_time between :from and :to " +
+        		"left join offer_stat offer_stat.creation_time between :from and :to " +
         		"and g.offer_id = master and g.aff_id = offer_stat.aff_id where g.state = 'APPROVED' and g.aff_id = :affId group by g.offer_id) as _t")
         .setParameter("affId", affId)
         .setTimestamp("from", from.toDate())
@@ -158,7 +158,7 @@ public class OfferStats {
         "sum(leads_count) a5, sum(sales_count) a6, sum(confirmed_revenue) a7, " +
         "sum(not_confirmed_revenue) a8, sum(canceled_revenue) a9 " +
         "from offer " +
-        "left join offer_stat where offer_stat.creation_time between :from and :to " +
+        "left join offer_stat on offer_stat.creation_time between :from and :to " +
         "and offer.id = offer_stat.master " +
         "where offer.user_id = :advId group by offer.id, offer.name order by offer.id desc " +
         "offset :offset limit :limit";
