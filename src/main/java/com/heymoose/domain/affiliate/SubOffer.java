@@ -35,9 +35,9 @@ public class SubOffer extends BaseOffer {
     return parentId;
   }
 
-  public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
+  public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
                   String title, boolean autoApprove, boolean reentrant, String code, int holdDays) {
-    super(PayMethod.CPA, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
+    super(PayMethod.CPA, cpaPolicy, cost, cost2, percent, title, autoApprove, reentrant, code, holdDays);
     checkNotNull(parentId, cpaPolicy);
     this.parentId = parentId;
     this.active = true;

@@ -54,7 +54,7 @@ public abstract class BufferedCounters implements Runnable {
     this.delaySeconds = delaySeconds;
   }
 
-  private static int incrementAndGetOld(AtomicInteger val) {
+  private static int getAndIncrement(AtomicInteger val) {
     int current;
     do {
       current = val.get();
@@ -69,7 +69,7 @@ public abstract class BufferedCounters implements Runnable {
       queue.put(newCounter);
     } else {
       // zero means "removed from collections"
-      if (incrementAndGetOld(oldCounter.counter) == 0) {
+      if (getAndIncrement(oldCounter.counter) == 0) {
         oldCounter.setExpirationTime(DateTime.now().plusSeconds(delaySeconds));
         counters.put(key, oldCounter);
         queue.put(oldCounter);

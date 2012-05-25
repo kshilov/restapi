@@ -64,7 +64,7 @@ public class Tracking {
     repo.put(stat);
     return stat;
   }
-  
+
   @Transactional
   public String click(@Nullable Long bannerId, long offerId, long master, long affId,
                      @Nullable String subId, @Nullable String sourceId) {
@@ -142,6 +142,7 @@ public class Tracking {
       if (payMethod != PayMethod.CPA)
         throw new IllegalArgumentException("Not CPA offer: " + offer.id());
       BigDecimal cost;
+      BigDecimal cost2 = null;
       if (cpaPolicy == CpaPolicy.PERCENT) {
         Optional<Double> price = offers.get(offer);
         if (!price.isPresent())
@@ -149,11 +150,16 @@ public class Tracking {
         cost = new BigDecimal(price.get()).multiply(offer.percent().divide(new BigDecimal(100.0)));
       } else if (cpaPolicy == CpaPolicy.FIXED) {
         cost = offer.cost();
+      } else if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+        cost = offer.cost();
+        cost2 = offer.cost2();
       } else throw new IllegalStateException();
+      if (existent != null && cost2 != null)
+        cost = cost2;
       BigDecimal amount = cost.multiply(new BigDecimal((100 - source.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.subId(), source.sourceId());
-      if (cpaPolicy == CpaPolicy.FIXED)
+      if (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)
         stat.incLeads();
       if (cpaPolicy == CpaPolicy.PERCENT)
         stat.incSales();
@@ -179,7 +185,7 @@ public class Tracking {
         if (grant.postBackUrl() != null)
           getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id()));
       } catch (Exception e) {
-        log.warn("Error while requesting postBackUrl: " + grant.postBackUrl());
+        log.warn("Error while requesting postBackUrl: " + grant.postBackUrl(), e);
       }
       actions.add(action);
     }

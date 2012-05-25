@@ -145,6 +145,7 @@ public class OfferResource {
                        @FormParam("pay_method") PayMethod payMethod,
                        @FormParam("cpa_policy") CpaPolicy cpaPolicy,
                        @FormParam("cost") String strCost,
+                       @FormParam("cost2") String strCost2,
                        @FormParam("balance") String strBalance,
                        @FormParam("name") String name,
                        @FormParam("description") String description,
@@ -180,7 +181,13 @@ public class OfferResource {
       percent = cost;
       cost = null;
     }
-    
+
+    BigDecimal cost2 = null;
+    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      checkNotNull(strCost2);
+      cost2 = new BigDecimal(strCost2);
+    }
+
     List<Region> regions = newArrayList();
     for (String strRegion : strRegions)
       regions.add(Region.valueOf(strRegion));
@@ -193,7 +200,7 @@ public class OfferResource {
     DateTime launchTime = new DateTime(unixLaunchTime);
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
-        payMethod, cpaPolicy, cost, percent, title, url, siteUrl, autoApprove, reentrant,
+        payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
         regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime);
     offers.put(offer);
 
@@ -221,6 +228,8 @@ public class OfferResource {
       else
         offer.setCost(value);
     }
+    if (form.containsKey("cost2"))
+      offer.setCost2(new BigDecimal(form.getFirst("cost2")));
     if (form.containsKey("title"))
       offer.setTitle(form.getFirst("title"));
     if (form.containsKey("code"))
@@ -332,6 +341,7 @@ public class OfferResource {
   public String createSuboffer(@PathParam("id") long offerId,
                                @FormParam("cpa_policy") CpaPolicy cpaPolicy,
                                @FormParam("cost") String strCost,
+                               @FormParam("cost2") String strCost2,
                                @FormParam("title") String title,
                                @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                                @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
@@ -346,9 +356,15 @@ public class OfferResource {
       cost = null;
     }
 
+    BigDecimal cost2 = null;
+    if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      checkNotNull(strCost2);
+      cost2 = new BigDecimal(strCost2);
+    }
+
     checkCode(code, offer.advertiser().id(), null);
 
-    SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, percent,
+    SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, cost2, percent,
                                      title, autoApprove, reentrant, code, holdDays);
     subOffers.put(suboffer);
     return suboffer.id().toString();

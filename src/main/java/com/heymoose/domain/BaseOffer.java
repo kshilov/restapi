@@ -45,6 +45,9 @@ public abstract class BaseOffer extends BaseEntity {
   protected BigDecimal cost;
 
   @Basic
+  protected BigDecimal cost2;
+
+  @Basic
   protected BigDecimal percent;
 
   @Basic
@@ -67,7 +70,7 @@ public abstract class BaseOffer extends BaseEntity {
 
   protected BaseOffer() {}
 
-  public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
+  public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
                    String title, boolean autoApprove, boolean reentrant, String code, int holdDays) {
 
     checkNotNull(payMethod);
@@ -77,8 +80,10 @@ public abstract class BaseOffer extends BaseEntity {
     if (payMethod == PayMethod.CPC || (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.FIXED)) {
       checkNotNull(cost);
       checkArgument(cost.signum() == 1);
-    }
-    else {
+    } else if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      checkNotNull(cost2);
+      checkArgument(cost2.signum() == 1);
+    } else {
       checkNotNull(percent);
       checkArgument(percent.signum() == 1);
     }
@@ -86,6 +91,7 @@ public abstract class BaseOffer extends BaseEntity {
     this.payMethod = payMethod;
     this.cpaPolicy = cpaPolicy;
     this.cost = cost;
+    this.cost2 = cost2;
     this.percent = percent;
 
     this.title = title;
@@ -111,10 +117,18 @@ public abstract class BaseOffer extends BaseEntity {
   public BigDecimal cost() {
     return cost;
   }
+
+  public BigDecimal cost2() {
+    return cost2;
+  }
   
   public void setCost(BigDecimal cost) {
     this.cost = cost;
     this.percent = null;
+  }
+
+  public void setCost2(BigDecimal cost2) {
+    this.cost2 = cost2;
   }
 
   public BigDecimal percent() {

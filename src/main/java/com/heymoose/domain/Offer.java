@@ -111,12 +111,12 @@ public class Offer extends BaseOffer {
   protected Offer() {}
 
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description,
-                  PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal percent,
+                  PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
                   String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
                   Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
                   String code, int holdDays, int cookieTtl, DateTime launchTime) {
 
-    super(payMethod, cpaPolicy, cost, percent, title, autoApprove, reentrant, code, holdDays);
+    super(payMethod, cpaPolicy, cost, cost2, percent, title, autoApprove, reentrant, code, holdDays);
     checkNotNull(url, siteUrl, advertiser, name, description, payMethod, cookieTtl, launchTime);
     this.url = url;
     this.siteUrl = siteUrl;
