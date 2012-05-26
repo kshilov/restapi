@@ -416,10 +416,11 @@ public class OfferResource {
                         @FormParam("width") Integer width,
                         @FormParam("height") Integer height,
                         @FormParam("mime_type") String mimeType,
+                        @FormParam("url") String url,
                         @FormParam("image") String image) throws IOException {
     checkNotNull(mimeType, image);
     Offer offer = existing(offerId);
-    Banner banner = new Banner(offer, mimeType, width, height);
+    Banner banner = new Banner(offer, mimeType, width, height, url);
     offer.addBanner(banner);
     repo.put(banner);
     bannerStore.saveBanner(banner.id(), image);

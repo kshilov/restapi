@@ -18,4 +18,7 @@ public class XmlBanner {
   
   @XmlElement(name = "mime-type")
   public String mimeType;
+
+  @XmlElement(name = "url")
+  public String url;
 }

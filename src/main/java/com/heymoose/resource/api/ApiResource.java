@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
+import com.heymoose.domain.Banner;
 import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
@@ -179,7 +180,8 @@ public class ApiResource {
     if (!geoTargeting.isAllowed(offer, ipNum))
       return forbidden(grant);
     String token  = tracking.click(bannerId, offerId, offer.master(), affId, subId, sourceId);
-    URI location = URI.create(offer.url());
+    Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
+    URI location = (banner == null) ? URI.create(offer.url()) : URI.create(banner.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     Response.ResponseBuilder response = Response.status(302).location(location);

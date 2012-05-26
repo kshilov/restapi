@@ -3,6 +3,7 @@ package com.heymoose.domain;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import javax.annotation.Nullable;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,15 +37,19 @@ public class Banner extends IdEntity {
   @Basic
   private Integer height;
 
+  @Basic
+  private String url;
+
   protected Banner() {}
 
-  public Banner(Offer offer, String mimeType, Integer width, Integer height) {
+  public Banner(Offer offer, String mimeType, Integer width, Integer height, @Nullable String url) {
     checkNotNull(offer, mimeType);
     checkArgument((width == null && height == null) || (width != null && height !=null));
     this.offer = offer;
     this.width = width;
     this.height = height;
     this.mimeType = mimeType;
+    this.url = url;
   }
 
   @Override
@@ -70,5 +75,9 @@ public class Banner extends IdEntity {
   
   public Integer height() {
     return height;
+  }
+
+  public String url() {
+    return url;
   }
 }

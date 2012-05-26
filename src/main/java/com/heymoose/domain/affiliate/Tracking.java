@@ -181,11 +181,14 @@ public class Tracking {
           AccountingEvent.ACTION_CREATED,
           action.id()
       );
+      URI uri = null;
+      if (grant.postBackUrl() != null)
+        uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id());
       try {
         if (grant.postBackUrl() != null)
-          getRequest(makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id()));
+          getRequest(uri);
       } catch (Exception e) {
-        log.warn("Error while requesting postBackUrl: " + grant.postBackUrl(), e);
+        log.warn("Error while requesting postBackUrl: " + uri, e);
       }
       actions.add(action);
     }

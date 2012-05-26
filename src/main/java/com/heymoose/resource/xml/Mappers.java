@@ -316,6 +316,7 @@ public class Mappers {
     xmlBanner.width = banner.width();
     xmlBanner.height = banner.height();
     xmlBanner.mimeType = banner.mimeType();
+    xmlBanner.url = banner.url();
     return xmlBanner;
   }
 }
