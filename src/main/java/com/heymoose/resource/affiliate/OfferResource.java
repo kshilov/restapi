@@ -146,6 +146,7 @@ public class OfferResource {
                        @FormParam("cpa_policy") CpaPolicy cpaPolicy,
                        @FormParam("cost") String strCost,
                        @FormParam("cost2") String strCost2,
+                       @FormParam("percent") String strPercent,
                        @FormParam("balance") String strBalance,
                        @FormParam("name") String name,
                        @FormParam("description") String description,
@@ -162,7 +163,7 @@ public class OfferResource {
                        @FormParam("hold_days") Integer holdDays,
                        @FormParam("cookie_ttl") Integer cookieTtl,
                        @FormParam("launch_time") Long unixLaunchTime) {
-    checkNotNull(advertiserId, payMethod, strCost, name, description, url, siteUrl, title, code, holdDays,
+    checkNotNull(advertiserId, payMethod, name, description, url, siteUrl, title, code, holdDays,
       cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
     if (payMethod == PayMethod.CPA)
@@ -170,24 +171,26 @@ public class OfferResource {
     
     User advertiser = activeAdvertiser(advertiserId);
     
-    BigDecimal cost = new BigDecimal(strCost), percent = null;
     BigDecimal balance = new BigDecimal(strBalance);
-    if (cost.signum() != 1 || balance.signum() < 0)
+    if (balance.signum() < 0)
       throw new WebApplicationException(400);
     if (balance.signum() > 0 && advertiser.advertiserAccount().balance().compareTo(balance) == -1)
       throw new WebApplicationException(409);
     
-    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT) {
-      percent = cost;
-      cost = null;
+    BigDecimal cost = null, cost2 = null, percent = null;
+    if (payMethod == PayMethod.CPC)
+      cost = positiveDecimal(strCost);
+    else if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.FIXED)
+      cost = positiveDecimal(strCost);
+    else if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT)
+      percent = positiveDecimal(strPercent);
+    else if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      cost = positiveDecimal(strCost);
+      cost2 = positiveDecimal(strCost2);
     }
-
-    BigDecimal cost2 = null;
-    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
-      checkNotNull(strCost2);
-      cost2 = new BigDecimal(strCost2);
-    }
-
+    else
+      throw new WebApplicationException(400);
+    
     List<Region> regions = newArrayList();
     for (String strRegion : strRegions)
       regions.add(Region.valueOf(strRegion));
@@ -221,15 +224,18 @@ public class OfferResource {
       offer.setPayMethod(PayMethod.valueOf(form.getFirst("pay_method")));
     if (form.containsKey("cpa_policy"))
       offer.setCpaPolicy(CpaPolicy.valueOf(form.getFirst("cpa_policy")));
-    if (form.containsKey("cost")) {
-      BigDecimal value = new BigDecimal(form.getFirst("cost"));
-      if (offer.payMethod() == PayMethod.CPA && offer.cpaPolicy() == CpaPolicy.PERCENT)
-        offer.setPercent(value);
-      else
-        offer.setCost(value);
-    }
-    if (form.containsKey("cost2"))
+    
+    PayMethod payMethod = offer.payMethod();
+    CpaPolicy cpaPolicy = offer.cpaPolicy();
+    
+    if ((payMethod == PayMethod.CPC || payMethod == PayMethod.CPA &&
+        (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)) &&
+        form.containsKey("cost"))
+      offer.setCost(new BigDecimal(form.getFirst("cost")));
+    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED && form.containsKey("cost2"))
       offer.setCost2(new BigDecimal(form.getFirst("cost2")));
+    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT && form.containsKey("percent"))
+      offer.setPercent(new BigDecimal(form.getFirst("percent")));
     if (form.containsKey("title"))
       offer.setTitle(form.getFirst("title"));
     if (form.containsKey("code"))
@@ -342,25 +348,26 @@ public class OfferResource {
                                @FormParam("cpa_policy") CpaPolicy cpaPolicy,
                                @FormParam("cost") String strCost,
                                @FormParam("cost2") String strCost2,
+                               @FormParam("percent") String strPercent,
                                @FormParam("title") String title,
                                @FormParam("auto_approve") @DefaultValue("false") boolean autoApprove,
                                @FormParam("reentrant") @DefaultValue("true") boolean reentrant,
                                @FormParam("code") String code,
                                @FormParam("hold_days") Integer holdDays) {
-    checkNotNull(cpaPolicy, strCost, title, code, holdDays);
+    checkNotNull(cpaPolicy, title, code, holdDays);
     Offer offer = existing(offerId);
     
-    BigDecimal cost = new BigDecimal(strCost), percent = null;
-    if (cpaPolicy == CpaPolicy.PERCENT) {
-      percent = cost;
-      cost = null;
+    BigDecimal cost = null, cost2 = null, percent = null;
+    if (cpaPolicy == CpaPolicy.FIXED)
+      cost = positiveDecimal(strCost);
+    else if (cpaPolicy == CpaPolicy.PERCENT)
+      percent = positiveDecimal(strPercent);
+    else if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      cost = positiveDecimal(strCost);
+      cost2 = positiveDecimal(strCost2);
     }
-
-    BigDecimal cost2 = null;
-    if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
-      checkNotNull(strCost2);
-      cost2 = new BigDecimal(strCost2);
-    }
+    else
+      throw new WebApplicationException(400);
 
     checkCode(code, offer.advertiser().id(), null);
 
@@ -388,13 +395,15 @@ public class OfferResource {
     Form form = context.getRequest().getEntity(Form.class);
     if (form.containsKey("cpa_policy"))
       suboffer.setCpaPolicy(CpaPolicy.valueOf(form.getFirst("cpa_policy")));
-    if (form.containsKey("cost")) {
-      BigDecimal value = new BigDecimal(form.getFirst("cost"));
-      if (suboffer.cpaPolicy() == CpaPolicy.PERCENT)
-        suboffer.setPercent(value);
-      else
-        suboffer.setCost(value);
-    }
+    
+    CpaPolicy cpaPolicy = suboffer.cpaPolicy();
+    if ((cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED) &&
+        form.containsKey("cost"))
+      suboffer.setCost(new BigDecimal(form.getFirst("cost")));
+    if (cpaPolicy == CpaPolicy.DOUBLE_FIXED && form.containsKey("cost2"))
+      suboffer.setCost2(new BigDecimal(form.getFirst("cost2")));
+    if (cpaPolicy == CpaPolicy.PERCENT && form.containsKey("percent"))
+      suboffer.setPercent(new BigDecimal(form.getFirst("percent")));
     if (form.containsKey("title"))
       suboffer.setTitle(form.getFirst("title"));
     if (form.containsKey("code"))
@@ -494,5 +503,12 @@ public class OfferResource {
     if (!user.isAdvertiser() || !user.active())
       throw new WebApplicationException(400);
     return user;
+  }
+  
+  private BigDecimal positiveDecimal(String strDecimal) {
+    BigDecimal decimal = new BigDecimal(strDecimal);
+    if (decimal.signum() != 1)
+      throw new WebApplicationException(400);
+    return decimal;
   }
 }

@@ -20,6 +20,9 @@ public class XmlSubOffer {
   @XmlElement(name = "cost")
   public BigDecimal cost;
   
+  @XmlElement(name = "cost2")
+  public BigDecimal cost2;
+  
   @XmlElement(name = "percent")
   public BigDecimal percent;
 

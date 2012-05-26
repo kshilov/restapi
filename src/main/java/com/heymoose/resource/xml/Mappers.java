@@ -245,6 +245,7 @@ public class Mappers {
     xmlSubOffer.payMethod = offer.payMethod().toString();
     xmlSubOffer.cpaPolicy = offer.cpaPolicy().toString();
     xmlSubOffer.cost = offer.cost();
+    xmlSubOffer.cost2 = offer.cost2();
     xmlSubOffer.percent = offer.percent();
     xmlSubOffer.active = offer.active();
     xmlSubOffer.creationTime = offer.creationTime().toString();
