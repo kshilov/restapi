@@ -181,7 +181,7 @@ public class ApiResource {
     if (!geoTargeting.isAllowed(offer, ipNum))
       return forbidden(grant);
     Map<String, String> affParams = newHashMap(params);
-    for (String param : asList("banner_id", "offer_id", "aff_id", "sub_id", "source_id"))
+    for (String param : asList("method", "banner_id", "offer_id", "aff_id", "sub_id", "source_id"))
       affParams.remove(param);
     String token  = tracking.click(bannerId, offerId, offer.master(), affId, subId, sourceId, affParams);
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
