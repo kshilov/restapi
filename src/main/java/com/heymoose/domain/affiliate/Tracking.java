@@ -100,6 +100,7 @@ public class Tracking {
       stat.addToConfirmedRevenue(amount);
     }
     Token token = new Token(stat);
+    token.setAffParams(affParams);
     repo.put(token);
     return token.value();
   }
