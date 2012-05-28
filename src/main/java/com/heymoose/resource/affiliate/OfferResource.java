@@ -435,22 +435,28 @@ public class OfferResource {
     bannerStore.saveBanner(banner.id(), image);
     return banner.id().toString();
   }
+  
+  @PUT
+  @Path("{id}/banners/{bannerId}")
+  @Transactional
+  public void updateBanner(@Context HttpContext context,
+                           @PathParam("id") long offerId, @PathParam("bannerId") long bannerId) {
+    Offer offer = existing(offerId);
+    Banner banner = existingBanner(offer, bannerId);
+    Form form = context.getRequest().getEntity(Form.class);
+    
+    if (form.containsKey("url")) {
+      String strUrl = form.getFirst("url");
+      banner.setUrl((strUrl != null && !strUrl.isEmpty()) ? URI.create(strUrl).toString() : null);
+    }
+  }
 
   @DELETE
   @Path("{id}/banners/{bannerId}")
   @Transactional
   public void deleteBanner(@PathParam("id") long offerId, @PathParam("bannerId") long bannerId) {
     Offer offer = existing(offerId);
-    boolean found = false;
-    for (Banner banner : offer.banners()) {
-      if (banner.id().equals(bannerId)) {
-        found = true;
-        offer.deleteBanner(banner);
-        break;
-      }
-    }
-    if (!found)
-      throw badRequest();
+    offer.deleteBanner(existingBanner(offer, bannerId));
   }
   
   @PUT
@@ -489,6 +495,13 @@ public class OfferResource {
     if (grant == null)
       throw new WebApplicationException(404);
     return grant;
+  }
+  
+  private Banner existingBanner(Offer offer, long bannerId) {
+    for (Banner banner : offer.banners())
+      if (banner.id().equals(bannerId))
+        return banner;
+    throw badRequest();
   }
   
   private User existingUser(long id) {

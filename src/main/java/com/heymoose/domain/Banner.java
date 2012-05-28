@@ -1,6 +1,7 @@
 package com.heymoose.domain;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import javax.annotation.Nullable;
@@ -79,5 +80,9 @@ public class Banner extends IdEntity {
 
   public String url() {
     return url;
+  }
+  
+  public void setUrl(String url) {
+    this.url = url;
   }
 }
