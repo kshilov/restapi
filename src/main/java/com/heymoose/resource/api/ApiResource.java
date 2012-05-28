@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.text.SimpleDateFormat;
+import static java.util.Arrays.asList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -179,7 +180,10 @@ public class ApiResource {
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum))
       return forbidden(grant);
-    String token  = tracking.click(bannerId, offerId, offer.master(), affId, subId, sourceId);
+    Map<String, String> affParams = newHashMap(params);
+    for (String param : asList("banner_id", "offer_id", "aff_id", "sub_id", "source_id"))
+      affParams.remove(param);
+    String token  = tracking.click(bannerId, offerId, offer.master(), affId, subId, sourceId, affParams);
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
     URI location = (banner == null) ? URI.create(offer.url()) : URI.create(banner.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
@@ -334,7 +338,7 @@ public class ApiResource {
     try {
       json = mapper.writeValueAsString(jsError);
     } catch (IOException e) {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new RuntimeException("JSON error", e);
     }
     log.error("Error while processing request: " + requestUri, cause);
     throw new WebApplicationException(cause, Response.status(status).entity(json).build());

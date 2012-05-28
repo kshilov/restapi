@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
@@ -67,7 +68,7 @@ public class Tracking {
 
   @Transactional
   public String click(@Nullable Long bannerId, long offerId, long master, long affId,
-                     @Nullable String subId, @Nullable String sourceId) {
+                     @Nullable String subId, @Nullable String sourceId, Map<String, String> affParams) {
     OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
     if (stat == null) {
       stat = new OfferStat(bannerId, offerId, master, affId, subId, sourceId);
@@ -183,7 +184,7 @@ public class Tracking {
       );
       URI uri = null;
       if (grant.postBackUrl() != null)
-        uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id());
+        uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id(), token.affParams());
       try {
         if (grant.postBackUrl() != null)
           getRequest(uri);
@@ -195,10 +196,14 @@ public class Tracking {
     return actions;
   }
 
-  private static URI makeFullPostBackUri(URI uri, String sourceId, String subId, long offerId) {
-    uri = QueryUtil.appendQueryParam(uri, "source_id", sourceId);
-    uri = QueryUtil.appendQueryParam(uri, "sub_id", subId);
+  private static URI makeFullPostBackUri(URI uri, String sourceId, String subId, long offerId, Map<String, String> affParams) {
+    if (sourceId != null)
+      uri = QueryUtil.appendQueryParam(uri, "source_id", sourceId);
+    if (subId != null)
+      uri = QueryUtil.appendQueryParam(uri, "sub_id", subId);
     uri = QueryUtil.appendQueryParam(uri, "offer_id", offerId);
+    for (Map.Entry<String, String> ent : affParams.entrySet())
+      uri = QueryUtil.appendQueryParam(uri, ent.getKey(), ent.getValue());
     return uri;
   }
 
