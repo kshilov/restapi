@@ -4,14 +4,14 @@
 
 <hibernate-configuration>
   <session-factory>
-    <mapping class="com.heymoose.domain.Offer"/>
+    <mapping class="com.heymoose.domain.affiliate.Offer"/>
     <mapping class="com.heymoose.domain.User"/>
-    <mapping class="com.heymoose.domain.Banner"/>
+    <mapping class="com.heymoose.domain.affiliate.Banner"/>
     <mapping class="com.heymoose.domain.Withdraw"/>
     <mapping class="com.heymoose.domain.settings.Setting"/>
     <mapping class="com.heymoose.domain.affiliate.OfferStat"/>
     <mapping class="com.heymoose.domain.affiliate.Site"/>
-    <mapping class="com.heymoose.domain.BaseOffer"/>
+    <mapping class="com.heymoose.domain.affiliate.BaseOffer"/>
     <mapping class="com.heymoose.domain.affiliate.SubOffer"/>
     <mapping class="com.heymoose.domain.affiliate.OfferGrant"/>
     <mapping class="com.heymoose.domain.affiliate.Category"/>

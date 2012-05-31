@@ -6,9 +6,9 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.heymoose.domain.AdminAccount;
 import com.heymoose.domain.AdminAccountNotConfirmed;
-import com.heymoose.domain.Banner;
-import com.heymoose.domain.BaseOffer;
-import com.heymoose.domain.Offer;
+import com.heymoose.domain.affiliate.Banner;
+import com.heymoose.domain.affiliate.BaseOffer;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.Withdraw;
@@ -49,18 +49,13 @@ import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.SiteResource;
 import com.heymoose.resource.UserResource;
-import com.heymoose.resource.affiliate.OfferGrantResource;
-import com.heymoose.resource.affiliate.OfferResource;
+import com.heymoose.resource.OfferGrantResource;
+import com.heymoose.resource.OfferResource;
 import com.heymoose.resource.api.ApiResource;
 import java.io.File;
 import java.util.Properties;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 public class CommonModule extends AbstractModule {
 

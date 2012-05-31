@@ -1,8 +1,6 @@
 package com.heymoose.domain.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import com.heymoose.domain.BaseOffer;
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import javax.persistence.Column;

@@ -1,6 +1,6 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.Offer;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferActions;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.hibernate.Transactional;

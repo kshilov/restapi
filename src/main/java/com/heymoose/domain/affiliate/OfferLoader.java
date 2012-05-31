@@ -1,7 +1,5 @@
 package com.heymoose.domain.affiliate;
 
-import com.heymoose.domain.BaseOffer;
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import javax.inject.Inject;

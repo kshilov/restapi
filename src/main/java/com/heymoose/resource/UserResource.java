@@ -1,7 +1,7 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.AdminAccountAccessor;
-import com.heymoose.domain.MessengerType;
+import com.heymoose.domain.affiliate.MessengerType;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;

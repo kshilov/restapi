@@ -2,7 +2,6 @@ package com.heymoose.domain.affiliate;
 
 import java.net.URI;
 
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;

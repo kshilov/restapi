@@ -2,7 +2,6 @@ package com.heymoose.domain.affiliate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.heymoose.domain.AdminAccountAccessor;
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;

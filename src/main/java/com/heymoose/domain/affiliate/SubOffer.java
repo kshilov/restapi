@@ -1,7 +1,5 @@
 package com.heymoose.domain.affiliate;
 
-import com.heymoose.domain.BaseOffer;
-import com.heymoose.domain.Offer;
 import com.heymoose.domain.accounting.Account;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;

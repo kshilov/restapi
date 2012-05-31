@@ -1,7 +1,6 @@
 package com.heymoose.domain.affiliate;
 
 import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.Offer;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;

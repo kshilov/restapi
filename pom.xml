@@ -159,7 +159,7 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.2.4</version>
-      <!--<scope>test</scope>-->
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -199,12 +199,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.rabbitmq</groupId>
-      <artifactId>amqp-client</artifactId>
-      <version>2.6.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
       <version>1.8.5</version>
@@ -220,12 +214,6 @@
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>2.5.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>mongo-java-driver</artifactId>
-      <version>2.7.3</version>
     </dependency>
 
   </dependencies>

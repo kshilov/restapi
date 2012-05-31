@@ -1,7 +1,6 @@
 package com.heymoose.domain.affiliate;
 
 import com.google.common.base.Optional;
-import com.heymoose.domain.BaseOffer;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.api.ApiExceptions.notFound;

@@ -1,6 +1,6 @@
 package com.heymoose.domain.affiliate.hiber;
 
-import com.heymoose.domain.Offer;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.hiber.RepositoryHiber;
 import javax.inject.Inject;

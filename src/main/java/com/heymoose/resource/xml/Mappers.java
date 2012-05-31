@@ -1,8 +1,8 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import com.heymoose.domain.Banner;
-import com.heymoose.domain.Offer;
+import com.heymoose.domain.affiliate.Banner;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.Withdraw;

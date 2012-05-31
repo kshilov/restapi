@@ -3,6 +3,7 @@ package com.heymoose.domain;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.affiliate.MessengerType;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.net.URI;
