@@ -10,6 +10,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
@@ -21,7 +22,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   @Override
   public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                                 Boolean approved, Boolean active, Long advertiserId) {
+                              Boolean approved, Boolean active, Boolean launched,
+                              Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (advertiserId != null)
@@ -30,6 +32,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       criteria.add(Restrictions.eq("approved", approved));
     if (active != null)
       criteria.add(Restrictions.eq("active", active));
+    if (launched != null)
+      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
     
     setOrdering(criteria, ord, asc);
     return criteria
@@ -39,7 +43,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public long count(Boolean approved, Boolean active, Long advertiserId) {
+  public long count(Boolean approved, Boolean active, Boolean launched, Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (advertiserId != null)
@@ -48,6 +52,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       criteria.add(Restrictions.eq("approved", approved));
     if (active != null)
       criteria.add(Restrictions.eq("active", active));
+    if (launched != null)
+      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
     
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())

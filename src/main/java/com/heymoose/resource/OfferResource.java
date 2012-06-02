@@ -87,11 +87,12 @@ public class OfferResource {
                            @QueryParam("asc") @DefaultValue("false") boolean asc,
                            @QueryParam("approved") Boolean approved,
                            @QueryParam("active") Boolean active,
+                           @QueryParam("launched") Boolean launched,
                            @QueryParam("advertiser_id") Long advertiserId,
                            @QueryParam("aff_id") Long affiliateId) {
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit,
-        approved, active, advertiserId);
-    long count = this.offers.count(approved, active, advertiserId);
+        approved, active, launched, advertiserId);
+    long count = this.offers.count(approved, active, launched, advertiserId);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
       for (Offer offer : offers)

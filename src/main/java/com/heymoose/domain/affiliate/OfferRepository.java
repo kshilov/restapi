@@ -4,8 +4,9 @@ import com.heymoose.domain.base.Repository;
 
 public interface OfferRepository extends Repository<Offer> {
   Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                          Boolean approved, Boolean active, Long advertiserId);
-  long count(Boolean approved, Boolean active, Long advertiserId);
+                       Boolean approved, Boolean active, Boolean launched,
+                       Long advertiserId);
+  long count(Boolean approved, Boolean active, Boolean launched, Long advertiserId);
   
   Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                    long affiliateId, Boolean active);
