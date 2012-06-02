@@ -10,6 +10,7 @@ import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.GeoTargeting;
 import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.OfferGrants;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.Tracking;
@@ -63,18 +64,20 @@ public class ApiResource {
   private final Tracking tracking;
   private final Repo repo;
   private final GeoTargeting geoTargeting;
+  private final OfferGrants offerGrants;
   
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider,
                      Provider<UriInfo> uriInfoProvider, Tracking tracking, Repo repo,
-                     GeoTargeting geoTargeting) {
+                     GeoTargeting geoTargeting, OfferGrants offerGrants) {
     this.requestContextProvider = requestContextProvider;
     this.uriInfoProvider = uriInfoProvider;
     this.tracking = tracking;
     this.repo = repo;
     this.geoTargeting = geoTargeting;
+    this.offerGrants = offerGrants;
   }
 
   @GET
@@ -133,7 +136,7 @@ public class ApiResource {
           : Optional.<Double>absent();
       offers.put(offer, price);
     }
-    tracking.actionDone(token, txId, offers);
+    tracking.trackConversion(token, txId, offers);
     return noCache(Response.ok()).build();
   }
 
@@ -168,7 +171,7 @@ public class ApiResource {
     User affiliate = repo.get(User.class, affId);
     if (affiliate == null)
       throw notFound(Offer.class, offerId);
-    OfferGrant grant = tracking.granted(offer, affiliate);
+    OfferGrant grant = offerGrants.visibleGrant(offer, affiliate);
     if (grant == null)
       return Response.status(409).build();
     if (!visible(offer))
@@ -183,7 +186,7 @@ public class ApiResource {
     Map<String, String> affParams = newHashMap(params);
     for (String param : asList("method", "banner_id", "offer_id", "aff_id", "sub_id", "source_id"))
       affParams.remove(param);
-    String token  = tracking.click(bannerId, offerId, offer.master(), affId, subId, sourceId, affParams);
+    String token  = tracking.trackClick(bannerId, offerId, offer.master(), affId, subId, sourceId, affParams);
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
     URI location = (banner == null) ? URI.create(offer.url()) : URI.create(banner.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
@@ -219,11 +222,11 @@ public class ApiResource {
     User affiliate = repo.get(User.class, affId);
     if (affiliate == null)
       throw notFound(Offer.class, offerId);
-    if (tracking.granted(offer, affiliate) == null)
+    if (offerGrants.visibleGrant(offer, affiliate) == null)
       throw illegalState("Offer was not granted: " + offerId);
     String subId = params.get("sub_id");
     String sourceId = params.get("source_id");
-    tracking.track(bannerId, offerId, offer.master(), affId, subId, sourceId);
+    tracking.trackShow(bannerId, offerId, offer.master(), affId, subId, sourceId);
     return noCache(Response.ok()).build();
   }
 

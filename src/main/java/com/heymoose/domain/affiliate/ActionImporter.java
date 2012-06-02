@@ -65,7 +65,7 @@ public class ActionImporter implements Runnable {
       Optional<Double> price = action.price != null
           ? Optional.of(action.price)
           : Optional.<Double>absent();
-      tracking.actionDone(token, action.transactionId, Collections.singletonMap(offer, price));
+      tracking.trackConversion(token, action.transactionId, Collections.singletonMap(offer, price));
     }
   }
 
