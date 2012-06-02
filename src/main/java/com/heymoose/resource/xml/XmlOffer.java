@@ -53,6 +53,9 @@ public class XmlOffer {
   @XmlElement(name = "cr")
   public BigDecimal cr;
   
+  @XmlElement(name = "showcase")
+  public Boolean showcase;
+  
   @XmlElement(name = "logo-filename")
   public String logoFileName;
   

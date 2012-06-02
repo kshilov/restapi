@@ -22,7 +22,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   @Override
   public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                              Boolean approved, Boolean active, Boolean launched,
+                              Boolean approved, Boolean active, Boolean launched, Boolean showcase,
                               Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
@@ -34,6 +34,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       criteria.add(Restrictions.eq("active", active));
     if (launched != null)
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+    if (showcase != null)
+      criteria.add(Restrictions.eq("showcase", showcase));
     
     setOrdering(criteria, ord, asc);
     return criteria
@@ -43,7 +45,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public long count(Boolean approved, Boolean active, Boolean launched, Long advertiserId) {
+  public long count(Boolean approved, Boolean active, Boolean launched, Boolean showcase, Long advertiserId) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
     if (advertiserId != null)
@@ -54,6 +56,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       criteria.add(Restrictions.eq("active", active));
     if (launched != null)
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+    if (showcase != null)
+      criteria.add(Restrictions.eq("showcase", showcase));
     
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())

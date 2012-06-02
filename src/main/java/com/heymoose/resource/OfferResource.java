@@ -88,11 +88,12 @@ public class OfferResource {
                            @QueryParam("approved") Boolean approved,
                            @QueryParam("active") Boolean active,
                            @QueryParam("launched") Boolean launched,
+                           @QueryParam("showcase") Boolean showcase,
                            @QueryParam("advertiser_id") Long advertiserId,
                            @QueryParam("aff_id") Long affiliateId) {
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit,
-        approved, active, launched, advertiserId);
-    long count = this.offers.count(approved, active, launched, advertiserId);
+        approved, active, launched, showcase, advertiserId);
+    long count = this.offers.count(approved, active, launched, showcase, advertiserId);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
       for (Offer offer : offers)
@@ -257,6 +258,8 @@ public class OfferResource {
       offer.setShortDescription(form.getFirst("short_description"));
     if (form.containsKey("cr"))
       offer.setCr(new BigDecimal(form.getFirst("cr")));
+    if (form.containsKey("showcase"))
+      offer.setShowcase(Boolean.parseBoolean(form.getFirst("showcase")));
     if (form.containsKey("url"))
       offer.setUrl(URI.create(form.getFirst("url")));
     if (form.containsKey("site_url"))

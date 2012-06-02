@@ -175,6 +175,7 @@ public class Mappers {
     xmlOffer.description = offer.description();
     xmlOffer.shortDescription = offer.shortDescription();
     xmlOffer.cr = offer.cr();
+    xmlOffer.showcase = offer.showcase();
     xmlOffer.logoFileName = offer.logoFileName();
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();

@@ -61,6 +61,9 @@ public class Offer extends BaseOffer {
   
   @Basic
   protected BigDecimal cr;
+  
+  @Basic
+  protected boolean showcase;
 
   @Column(name = "logo_file_name")
   protected String logoFileName;
@@ -126,6 +129,7 @@ public class Offer extends BaseOffer {
     this.approved = false;
     this.description = description;
     this.shortDescription = shortDescription;
+    this.showcase = false;
     this.active = true;
     this.logoFileName = logoFileName;
     this.cookieTtl = cookieTtl;
@@ -238,6 +242,14 @@ public class Offer extends BaseOffer {
   
   public void setCr(BigDecimal cr) {
     this.cr = cr;
+  }
+  
+  public boolean showcase() {
+    return showcase;
+  }
+  
+  public void setShowcase(boolean showcase) {
+    this.showcase = showcase;
   }
 
   public String logoFileName() {
