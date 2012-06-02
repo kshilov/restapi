@@ -173,6 +173,8 @@ public class Mappers {
       xmlOffer.cpaPolicy = offer.cpaPolicy().toString();
     xmlOffer.name = offer.name();
     xmlOffer.description = offer.description();
+    xmlOffer.shortDescription = offer.shortDescription();
+    xmlOffer.cr = offer.cr();
     xmlOffer.logoFileName = offer.logoFileName();
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();

@@ -47,6 +47,12 @@ public class XmlOffer {
   @XmlElement(name = "description")
   public String description;
   
+  @XmlElement(name = "short-description")
+  public String shortDescription;
+  
+  @XmlElement(name = "cr")
+  public BigDecimal cr;
+  
   @XmlElement(name = "logo-filename")
   public String logoFileName;
   

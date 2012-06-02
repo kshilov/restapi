@@ -85,7 +85,7 @@ public class Heymoose {
   }
 
   public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
-                          double balance, String name, String descr, String logoFileName, URI uri,
+                          double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
                           URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
                           boolean reentrant, Set<Region> regions, Set<Long> categories,
                           String code, int holdDays, int cookieTtl, Long launchTime) {
@@ -97,6 +97,7 @@ public class Heymoose {
     form.add("balance", balance);
     form.add("name", name);
     form.add("description", descr);
+    form.add("short_description", shortDescr);
     form.add("logo_filename", logoFileName);
     form.add("url", uri);
     form.add("site_url", siteUrl);

@@ -150,6 +150,7 @@ public class OfferResource {
                        @FormParam("balance") String strBalance,
                        @FormParam("name") String name,
                        @FormParam("description") String description,
+                       @FormParam("short_description") String shortDescription,
                        @FormParam("logo_filename") String logoFileName,
                        @FormParam("url") String url,
                        @FormParam("site_url") String siteUrl,
@@ -163,8 +164,8 @@ public class OfferResource {
                        @FormParam("hold_days") Integer holdDays,
                        @FormParam("cookie_ttl") Integer cookieTtl,
                        @FormParam("launch_time") Long unixLaunchTime) {
-    checkNotNull(advertiserId, payMethod, name, description, url, siteUrl, title, code, holdDays,
-      cookieTtl, unixLaunchTime);
+    checkNotNull(advertiserId, payMethod, name, description, shortDescription, url, siteUrl,
+      title, code, holdDays, cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
@@ -202,7 +203,7 @@ public class OfferResource {
     checkCode(code, advertiser.id(), null);
     DateTime launchTime = new DateTime(unixLaunchTime);
 
-    Offer offer = new Offer(advertiser, allowNegativeBalance, name, description,
+    Offer offer = new Offer(advertiser, allowNegativeBalance, name, description, shortDescription,
         payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
         regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime);
     offers.put(offer);
@@ -251,6 +252,10 @@ public class OfferResource {
       offer.setName(form.getFirst("name"));
     if (form.containsKey("description"))
       offer.setDescription(form.getFirst("description"));
+    if (form.containsKey("short_description"))
+      offer.setShortDescription(form.getFirst("short_description"));
+    if (form.containsKey("cr"))
+      offer.setCr(new BigDecimal(form.getFirst("cr")));
     if (form.containsKey("url"))
       offer.setUrl(URI.create(form.getFirst("url")));
     if (form.containsKey("site_url"))

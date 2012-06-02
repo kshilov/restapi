@@ -55,6 +55,12 @@ public class Offer extends BaseOffer {
 
   @Basic
   protected String description;
+  
+  @Column(name = "short_description")
+  protected String shortDescription;
+  
+  @Basic
+  protected BigDecimal cr;
 
   @Column(name = "logo_file_name")
   protected String logoFileName;
@@ -105,20 +111,21 @@ public class Offer extends BaseOffer {
 
   protected Offer() {}
 
-  public Offer(User advertiser, boolean allowNegativeBalance, String name, String description,
+  public Offer(User advertiser, boolean allowNegativeBalance, String name, String description, String shortDescription,
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
                   String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
                   Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
                   String code, int holdDays, int cookieTtl, DateTime launchTime) {
 
     super(payMethod, cpaPolicy, cost, cost2, percent, title, autoApprove, reentrant, code, holdDays);
-    checkNotNull(url, siteUrl, advertiser, name, description, payMethod, cookieTtl, launchTime);
+    checkNotNull(url, siteUrl, advertiser, name, description, shortDescription, payMethod, cookieTtl, launchTime);
     this.url = url;
     this.siteUrl = siteUrl;
     this.advertiser = advertiser;
     this.name = name;
     this.approved = false;
     this.description = description;
+    this.shortDescription = shortDescription;
     this.active = true;
     this.logoFileName = logoFileName;
     this.cookieTtl = cookieTtl;
@@ -215,6 +222,22 @@ public class Offer extends BaseOffer {
   public void setDescription(String description) {
     checkNotNull(description);
     this.description = description;
+  }
+  
+  public String shortDescription() {
+    return shortDescription;
+  }
+  
+  public void setShortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+  }
+  
+  public BigDecimal cr() {
+    return cr;
+  }
+  
+  public void setCr(BigDecimal cr) {
+    this.cr = cr;
   }
 
   public String logoFileName() {
