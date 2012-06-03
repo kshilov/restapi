@@ -20,7 +20,6 @@ import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferAction;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferGrants;
 import com.heymoose.domain.affiliate.OfferLoader;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferStat;
@@ -85,7 +84,6 @@ public class CommonModule extends AbstractModule {
     bind(OfferLoader.class);
     bind(BufferedShows.class);
     bind(BufferedClicks.class);
-    bind(OfferGrants.class);
 
     bind(Tracking.class).to(TrackingImpl.class);
     bind(Repo.class).to(HibernateRepo.class);

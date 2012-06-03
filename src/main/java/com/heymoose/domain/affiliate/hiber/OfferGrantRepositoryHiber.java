@@ -2,10 +2,15 @@ package com.heymoose.domain.affiliate.hiber;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import com.heymoose.domain.User;
+import com.heymoose.domain.affiliate.BaseOffer;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferGrantState;
+import com.heymoose.domain.affiliate.SubOffer;
+import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.hiber.RepositoryHiber;
 import java.util.Map;
 import javax.inject.Inject;
@@ -18,9 +23,12 @@ import org.hibernate.criterion.Restrictions;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements OfferGrantRepository {
 
+  private final Repo repo;
+
   @Inject
-  public OfferGrantRepositoryHiber(Provider<Session> sessionProvider) {
+  public OfferGrantRepositoryHiber(Provider<Session> sessionProvider, Repo repo) {
     super(sessionProvider);
+    this.repo = repo;
   }
   
   @Override
@@ -48,6 +56,27 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     for (OfferGrant grant : grants)
       grantsMap.put(grant.offerId(), grant);
     return grantsMap;
+  }
+
+  @Override
+  public OfferGrant visibleByOfferAndAff(BaseOffer offer, User affiliate) {
+    BaseOffer grantTarget;
+    if (offer instanceof Offer)
+      grantTarget = offer;
+    else if (offer instanceof SubOffer)
+      grantTarget = ((SubOffer) offer).parent();
+    else
+      throw new IllegalStateException();
+    OfferGrant grant = repo.byHQL(
+        OfferGrant.class,
+        "from OfferGrant where offer = ? and affiliate = ?",
+        grantTarget, affiliate
+    );
+    if (grant == null)
+      return null;
+    if (!grant.offerIsVisible())
+      return null;
+    return grant;
   }
 
   @Override

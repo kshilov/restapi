@@ -10,7 +10,7 @@ import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.GeoTargeting;
 import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrants;
+import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.Tracking;
@@ -64,14 +64,14 @@ public class ApiResource {
   private final Tracking tracking;
   private final Repo repo;
   private final GeoTargeting geoTargeting;
-  private final OfferGrants offerGrants;
-  
+  private final OfferGrantRepository offerGrants;
+
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider,
                      Provider<UriInfo> uriInfoProvider, Tracking tracking, Repo repo,
-                     GeoTargeting geoTargeting, OfferGrants offerGrants) {
+                     GeoTargeting geoTargeting, OfferGrantRepository offerGrants) {
     this.requestContextProvider = requestContextProvider;
     this.uriInfoProvider = uriInfoProvider;
     this.tracking = tracking;
@@ -171,7 +171,7 @@ public class ApiResource {
     User affiliate = repo.get(User.class, affId);
     if (affiliate == null)
       throw notFound(Offer.class, offerId);
-    OfferGrant grant = offerGrants.visibleGrant(offer, affiliate);
+    OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
     if (grant == null)
       return Response.status(409).build();
     if (!visible(offer))
@@ -222,7 +222,7 @@ public class ApiResource {
     User affiliate = repo.get(User.class, affId);
     if (affiliate == null)
       throw notFound(Offer.class, offerId);
-    if (offerGrants.visibleGrant(offer, affiliate) == null)
+    if (offerGrants.visibleByOfferAndAff(offer, affiliate) == null)
       throw illegalState("Offer was not granted: " + offerId);
     String subId = params.get("sub_id");
     String sourceId = params.get("source_id");

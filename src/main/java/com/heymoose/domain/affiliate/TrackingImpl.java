@@ -38,10 +38,10 @@ public class TrackingImpl implements Tracking {
   private final Accounting accounting;
   private final BufferedShows bufferedShows;
   private final BufferedClicks bufferedClicks;
-  private final OfferGrants offerGrants;
+  private final OfferGrantRepository offerGrants;
 
   @Inject
-  public TrackingImpl(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting, BufferedShows bufferedShows, BufferedClicks bufferedClicks, OfferGrants offerGrants) {
+  public TrackingImpl(Repo repo, AdminAccountAccessor adminAccountAccessor, Accounting accounting, BufferedShows bufferedShows, BufferedClicks bufferedClicks, OfferGrantRepository offerGrants) {
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
     this.accounting = accounting;
@@ -111,7 +111,7 @@ public class TrackingImpl implements Tracking {
     OfferStat source = token.stat();
     List<OfferAction> actions = newArrayList();
     for (BaseOffer offer : offers.keySet()) {
-      OfferGrant grant = offerGrants.visibleGrant(offer, source.affiliate());
+      OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, source.affiliate());
       if (grant == null)
         throw new IllegalStateException("Offer not granted: " + offer.id());
       OfferAction existent = findAction(offer, token);
