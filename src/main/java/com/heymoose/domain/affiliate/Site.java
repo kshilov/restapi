@@ -59,13 +59,12 @@ public class Site extends IdEntity {
   private Set<Category> categories;
 
   @ElementCollection
-  @Enumerated(EnumType.STRING)
   @CollectionTable(
       name = "site_region",
       joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id")
   )
   @Column(name = "region")
-  private Set<Region> regions;
+  private Set<String> regions;
 
   @Override
   public Long id() {
@@ -74,7 +73,7 @@ public class Site extends IdEntity {
 
   protected Site() {}
   
-  public Site(String name, String domain, Lang lang, String comment, User affiliate, Set<Category> categories, Set<Region> regions) {
+  public Site(String name, String domain, Lang lang, String comment, User affiliate, Set<Category> categories, Set<String> regions) {
     this.name = name;
     this.domain = domain;
     this.lang = lang;
@@ -90,7 +89,7 @@ public class Site extends IdEntity {
     return unmodifiableSet(categories);
   }
   
-  public Set<Region> regions() {
+  public Set<String> regions() {
     if (regions == null)
       return emptySet();
     return unmodifiableSet(regions);

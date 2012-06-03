@@ -49,6 +49,7 @@ import com.heymoose.resource.OfferActionResource;
 import com.heymoose.resource.OfferGrantResource;
 import com.heymoose.resource.OfferResource;
 import com.heymoose.resource.OfferStatsResource;
+import com.heymoose.resource.RegionResource;
 import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.SiteResource;
@@ -78,6 +79,7 @@ public class CommonModule extends AbstractModule {
     bind(OfferStatsResource.class);
     bind(OfferActionResource.class);
     bind(MlmResource.class);
+    bind(RegionResource.class);
 
     bind(Mlm.class);
     bind(Settings.class);

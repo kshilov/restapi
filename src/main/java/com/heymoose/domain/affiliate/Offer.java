@@ -69,13 +69,12 @@ public class Offer extends BaseOffer {
   protected String logoFileName;
 
   @ElementCollection
-  @Enumerated(EnumType.STRING)
   @CollectionTable(
       name = "offer_region",
       joinColumns = @JoinColumn(name = "offer_id", referencedColumnName = "id")
   )
   @Column(name = "region")
-  protected Set<Region> regions;
+  protected Set<String> regions;
 
   @Basic
   protected boolean approved;
@@ -117,7 +116,7 @@ public class Offer extends BaseOffer {
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description, String shortDescription,
                   PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
                   String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
-                  Iterable<Region> regions, Iterable<Category> categories, String logoFileName,
+                  Iterable<String> regions, Iterable<Category> categories, String logoFileName,
                   String code, int holdDays, int cookieTtl, DateTime launchTime) {
 
     super(payMethod, cpaPolicy, cost, cost2, percent, title, autoApprove, reentrant, code, holdDays);
@@ -178,13 +177,13 @@ public class Offer extends BaseOffer {
     return unmodifiableSet(banners);
   }
 
-  public Set<Region> regions() {
+  public Set<String> regions() {
     if (regions == null)
       return emptySet();
     return unmodifiableSet(regions);
   }
   
-  public void setRegions(Iterable<Region> regions) {
+  public void setRegions(Iterable<String> regions) {
     this.regions = newHashSet(regions);
   }
 

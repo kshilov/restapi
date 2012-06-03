@@ -3,7 +3,6 @@ package com.heymoose.test.base;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Region;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
@@ -87,7 +86,7 @@ public class Heymoose {
   public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
                           double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
                           URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
-                          boolean reentrant, Set<Region> regions, Set<Long> categories,
+                          boolean reentrant, Set<String> regions, Set<Long> categories,
                           String code, int holdDays, int cookieTtl, Long launchTime) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
@@ -105,7 +104,7 @@ public class Heymoose {
     form.add("allow_negative_balance", allowNegativeBalance);
     form.add("auto_approve", autoApprove);
     form.add("reentrant", reentrant);
-    for (Region region : regions)
+    for (String region : regions)
       form.add("regions", region);
     for (long categoryId : categories)
       form.add("categories", categoryId);

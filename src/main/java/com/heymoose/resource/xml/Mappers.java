@@ -10,7 +10,6 @@ import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
 import java.util.Map;
 
@@ -205,8 +204,8 @@ public class Mappers {
     for (Banner banner : offer.banners())
       xmlOffer.banners.add(toXmlBanner(banner));
     
-    for (Region region : offer.regions())
-      xmlOffer.regions.add(region.toString());
+    for (String region : offer.regions())
+      xmlOffer.regions.add(region);
     
     return xmlOffer;
   }
@@ -322,5 +321,19 @@ public class Mappers {
     xmlBanner.mimeType = banner.mimeType();
     xmlBanner.url = banner.url();
     return xmlBanner;
+  }
+
+  public static XmlRegions toXmlRegions(Map<String, String> countriesByCode) {
+    XmlRegions xmlRegions = new XmlRegions();
+    for (Map.Entry<String, String> ent : countriesByCode.entrySet())
+      xmlRegions.regions.add(toXmlRegion(ent.getKey(), ent.getValue()));
+    return xmlRegions;
+  }
+
+  public static XmlRegion toXmlRegion(String countryCode, String countryName) {
+    XmlRegion xmlRegion = new XmlRegion();
+    xmlRegion.countryCode = countryCode;
+    xmlRegion.countryName = countryName;
+    return xmlRegion;
   }
 }

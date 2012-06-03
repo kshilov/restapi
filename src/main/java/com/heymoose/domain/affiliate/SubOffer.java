@@ -3,6 +3,7 @@ package com.heymoose.domain.affiliate;
 import com.heymoose.domain.accounting.Account;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -31,6 +32,11 @@ public class SubOffer extends BaseOffer {
   @Override
   public long master() {
     return parentId;
+  }
+
+  @Override
+  public Set<String> regions() {
+    return parent().regions();
   }
 
   public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,

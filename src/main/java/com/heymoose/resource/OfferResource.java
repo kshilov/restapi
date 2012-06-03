@@ -16,7 +16,6 @@ import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
@@ -194,9 +193,9 @@ public class OfferResource {
     else
       throw new WebApplicationException(400);
     
-    List<Region> regions = newArrayList();
+    List<String> regions = newArrayList();
     for (String strRegion : strRegions)
-      regions.add(Region.valueOf(strRegion));
+      regions.add(strRegion);
 
     if (longCategories == null)
       longCategories = newArrayList();
@@ -277,10 +276,10 @@ public class OfferResource {
       offer.setCategories(categories);
     }
     if (form.containsKey("regions")) {
-      List<Region> regions = newArrayList();
+      List<String> regions = newArrayList();
       for (String strRegion : form.get("regions"))
         if (strRegion != null && !strRegion.isEmpty())
-          regions.add(Region.valueOf(strRegion));
+          regions.add(strRegion);
       offer.setRegions(regions);
     }
     if (form.containsKey("allow_negative_balance"))
