@@ -4,7 +4,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.Lang;
-import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.Site;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -37,7 +36,7 @@ public class SiteResource {
                        @FormParam("lang") Lang lang,
                        @FormParam("comment") String comment,
                        @FormParam("category") List<Long> categories,
-                       @FormParam("region") List<Region> regions) {
+                       @FormParam("region") List<String> regions) {
 
     checkNotNull(userId, name, domain, lang, comment);
     User user = repo.get(User.class, userId);

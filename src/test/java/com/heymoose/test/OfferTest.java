@@ -4,7 +4,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlUser;
@@ -53,7 +52,7 @@ public class OfferTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
-        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
+        true, newHashSet("RU"), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
     heymoose().approveOffer(offerId);
     return offerId;
   }

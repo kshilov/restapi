@@ -7,6 +7,7 @@ import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.base.BaseEntity;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -200,4 +201,6 @@ public abstract class BaseOffer extends BaseEntity {
   public abstract Account account();
 
   public abstract long master();
+
+  public abstract Set<String> regions();
 }
