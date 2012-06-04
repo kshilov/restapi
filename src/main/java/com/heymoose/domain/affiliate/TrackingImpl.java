@@ -161,10 +161,10 @@ public class TrackingImpl implements Tracking {
           AccountingEvent.ACTION_CREATED,
           action.id()
       );
-      URI uri = null;
-      if (grant.postBackUrl() != null)
-        uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id(), token.affParams());
       try {
+        URI uri = null;
+        if (grant.postBackUrl() != null)
+          uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id(), token.affParams());
         if (grant.postBackUrl() != null)
           getRequest(uri);
       } catch (Exception e) {
