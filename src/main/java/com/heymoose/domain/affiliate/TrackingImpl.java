@@ -168,7 +168,7 @@ public class TrackingImpl implements Tracking {
         if (grant.postBackUrl() != null)
           getRequest(uri);
       } catch (Exception e) {
-        log.warn("Error while requesting postBackUrl: " + uri, e);
+        log.warn("Error while requesting postBackUrl: " + grant.postBackUrl(), e);
       }
       actions.add(action);
     }
