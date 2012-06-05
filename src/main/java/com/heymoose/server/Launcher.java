@@ -34,10 +34,11 @@ public class Launcher {
     if (server != null)
       return;
     server = new GrizzlyWebServer(port);
-    int nThreads = Runtime.getRuntime().availableProcessors() * 2;
+    int nThreads = Runtime.getRuntime().availableProcessors() * 4;
     server.setCoreThreads(nThreads);
     server.setMaxThreads(nThreads);
 		ServletAdapter adapter = new ServletAdapter(new StubServlet());
+    adapter.setProperty(ServletAdapter.LOAD_ON_STARTUP, true);
 		adapter.addServletListener(contextListenerClass.getName());
 		adapter.addFilter(new GuiceFilter(), "GuiceFilter", null);
 		server.addGrizzlyAdapter(adapter, new String[]{ "/" });
