@@ -59,7 +59,7 @@ public class OfferTest extends RestTest {
     }
 
     private void doCreateGrant(long offerId, long affId) {
-        long grantId = heymoose().createGrant(offerId, affId, "msg");
+        long grantId = heymoose().createGrant(offerId, affId, "msg", baseUrl() + "/postback");
         heymoose().unblockGrant(grantId);
         heymoose().approveGrant(grantId);
     }
@@ -153,6 +153,23 @@ public class OfferTest extends RestTest {
         long affId = doRegisterAffiliate();
         doCreateGrant(offerId, affId);
         URI location = doClick(offerId, affId, Subs.empty());
+        String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
+        assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
+        assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
+        XmlUser aff = heymoose().getUser(affId);
+        int fee = aff.fee;
+        assertEquals(CPA * (100 - fee) / 100.0, aff.affiliateAccountNotConfirmed.balance, 0.000001);
+    }
+
+    @Test
+    public void actionWithSubs() {
+        long advertiserId = doRegisterAdvertiser();
+        long offerId = doCreateOffer(advertiserId);
+        long affId = doRegisterAffiliate();
+        doCreateGrant(offerId, affId);
+        URI location = doClick(offerId, affId,
+            new Subs("test-sourceId", "test-subId", null, "test-subId3", null, "test-subId5")
+        );
         String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
         assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
         assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);

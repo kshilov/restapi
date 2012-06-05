@@ -165,11 +165,12 @@ public class Heymoose {
         client.path("offers").path(Long.toString(offerId)).path("blocked").delete();
     }
 
-    public long createGrant(long offerId, long affId, String message) {
+    public long createGrant(long offerId, long affId, String message, String postbackUrl) {
         Form form = new Form();
         form.add("offer_id", offerId);
         form.add("aff_id", affId);
         form.add("message", message);
+        form.add("postback_url", postbackUrl);
         return Long.valueOf(client.path("grants").post(String.class, form));
     }
 
@@ -181,6 +182,12 @@ public class Heymoose {
     // as adv
     public void approveGrant(long grantId) {
         client.path("grants").path(Long.toString(grantId)).path("approved").put();
+    }
+
+    public void updateGrant(long grantId, String postbackUrl) {
+        Form form = new Form();
+        form.add("postback_url", postbackUrl);
+        client.path("grants").path(Long.toString(grantId)).put(form);
     }
 
     public XmlOfferGrant getGrant(long grantId) {
