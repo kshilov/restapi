@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import com.sun.jersey.api.client.WebResource;
 import javax.annotation.Nullable;
 
 /**
@@ -13,6 +14,10 @@ public class Subs {
     private String subId2;
     private String subId3;
     private String subId4;
+
+    public static Subs empty() {
+        return new Subs(null, null, null, null, null, null);
+    }
 
     public Subs(@Nullable String sourceId,
                 @Nullable String subId, @Nullable String subId1, @Nullable String subId2,
@@ -47,5 +52,15 @@ public class Subs {
 
     public String subId4() {
         return subId4;
+    }
+
+    public WebResource addToQuery(WebResource wr) {
+        if (sourceId != null) wr = wr.queryParam("source_id", sourceId);
+        if (subId != null) wr = wr.queryParam("sub_id", subId);
+        if (subId1 != null) wr = wr.queryParam("sub_id1", subId1);
+        if (subId2 != null) wr = wr.queryParam("sub_id2", subId2);
+        if (subId3 != null) wr = wr.queryParam("sub_id3", subId3);
+        if (subId4 != null) wr = wr.queryParam("sub_id4", subId4);
+        return wr;
     }
 }

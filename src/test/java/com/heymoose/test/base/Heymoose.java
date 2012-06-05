@@ -4,6 +4,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.Region;
+import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
@@ -132,22 +133,22 @@ public class Heymoose {
         return client.path("offers").path(Long.toString(offerId)).get(XmlOffer.class);
     }
 
-    public int track(long offerId, long affId) {
-        ClientResponse response = client.path("api")
+    public int track(long offerId, long affId, Subs subs) {
+        WebResource wr = client.path("api")
             .queryParam("method", "track")
             .queryParam("offer_id", Long.toString(offerId))
-            .queryParam("aff_id", Long.toString(affId))
-            .get(ClientResponse.class);
-        return response.getStatus();
+            .queryParam("aff_id", Long.toString(affId));
+        wr = subs.addToQuery(wr);
+        return wr.get(ClientResponse.class).getStatus();
     }
 
-    public URI click(long offerId, long affId) {
-        ClientResponse response = client.path("api")
+    public URI click(long offerId, long affId, Subs subs) {
+        WebResource wr = client.path("api")
             .queryParam("method", "click")
             .queryParam("offer_id", Long.toString(offerId))
-            .queryParam("aff_id", Long.toString(affId))
-            .get(ClientResponse.class);
-        return response.getLocation();
+            .queryParam("aff_id", Long.toString(affId));
+        wr = subs.addToQuery(wr);
+        return wr.get(ClientResponse.class).getLocation();
     }
 
     public int action(String token, String txId, long advertiserId, String... codes) {
