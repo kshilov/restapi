@@ -2,6 +2,7 @@ target
 *.iml
 *.ipr
 *.iws
+*.ids
 debian/backend*
 debian/files
 debian/stamp-makefile-build
