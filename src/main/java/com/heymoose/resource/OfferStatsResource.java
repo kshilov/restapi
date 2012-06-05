@@ -2,6 +2,7 @@ package com.heymoose.resource;
 
 import com.heymoose.domain.affiliate.OfferStats;
 import com.heymoose.domain.affiliate.OverallOfferStats;
+import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
@@ -90,16 +91,23 @@ public class OfferStatsResource {
     @GET
     @Path("affiliates/all")
     @Transactional
-    public OverallOfferStatsList affAll(@QueryParam("from") @DefaultValue("0") Long from,
+    public OverallOfferStatsList affAll(@QueryParam("source_id") String sourceId,
+                                        @QueryParam("sub_id") String subId,
+                                        @QueryParam("sub_id1") String subId1,
+                                        @QueryParam("sub_id2") String subId2,
+                                        @QueryParam("sub_id3") String subId3,
+                                        @QueryParam("sub_id4") String subId4,
+                                        @QueryParam("from") @DefaultValue("0") Long from,
                                         @QueryParam("to") Long to,
                                         @QueryParam("offset") @DefaultValue("0") int offset,
                                         @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
         if (to == null)
             to = DateTimeUtils.currentTimeMillis();
         OverallOfferStatsList list = new OverallOfferStatsList();
-        for (OverallOfferStats s : stats.affStats(new DateTime(from), new DateTime(to), offset, limit))
+        for (OverallOfferStats s : stats.affStats(subs, new DateTime(from), new DateTime(to), offset, limit))
             list.stats.add(s);
-        list.count = stats.affCount(new DateTime(from), new DateTime(to));
+        list.count = stats.affCount(subs, new DateTime(from), new DateTime(to));
         return list;
     }
 
@@ -107,16 +115,24 @@ public class OfferStatsResource {
     @Path("affiliates/offer")
     @Transactional
     public OverallOfferStatsList affOffers(@QueryParam("offer_id") Long offerId,
+                                           @QueryParam("source_id") String sourceId,
+                                           @QueryParam("sub_id") String subId,
+                                           @QueryParam("sub_id1") String subId1,
+                                           @QueryParam("sub_id2") String subId2,
+                                           @QueryParam("sub_id3") String subId3,
+                                           @QueryParam("sub_id4") String subId4,
                                            @QueryParam("from") @DefaultValue("0") Long from,
                                            @QueryParam("to") Long to,
                                            @QueryParam("offset") @DefaultValue("0") int offset,
                                            @QueryParam("limit") @DefaultValue("2147483647") int limit) {
         checkNotNull(offerId);
-        to = DateTimeUtils.currentTimeMillis();
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+        if (to == null)
+            to = DateTimeUtils.currentTimeMillis();
         OverallOfferStatsList list = new OverallOfferStatsList();
-        for (OverallOfferStats s : stats.affStatsByOffer(offerId, new DateTime(from), new DateTime(to), offset, limit))
+        for (OverallOfferStats s : stats.affStatsByOffer(offerId, subs, new DateTime(from), new DateTime(to), offset, limit))
             list.stats.add(s);
-        list.count = stats.affCountByOffer(offerId, new DateTime(from), new DateTime(to));
+        list.count = stats.affCountByOffer(offerId, subs, new DateTime(from), new DateTime(to));
         return list;
     }
 }

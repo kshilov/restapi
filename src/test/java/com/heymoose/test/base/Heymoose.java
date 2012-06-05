@@ -1,10 +1,14 @@
 package com.heymoose.test.base;
 
+import com.google.inject.Injector;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.Subs;
+import com.heymoose.domain.affiliate.counter.BufferedClicks;
+import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
@@ -193,4 +197,34 @@ public class Heymoose {
     public XmlOfferGrant getGrant(long grantId) {
         return client.path("grants").path(Long.toString(grantId)).get(XmlOfferGrant.class);
     }
+
+    public OverallOfferStatsList getAffiliatesAllStats(Subs subs) {
+        WebResource wr = client.path("stats").path("affiliates").path("all");
+        wr = addSubToWebQuery(subs, wr);
+        return wr.get(OverallOfferStatsList.class);
+    }
+
+    private WebResource addSubToWebQuery(Subs subs, WebResource wr) {
+        if (subs.sourceId() != null) wr = wr.queryParam("source_id", subs.sourceId());
+        if (subs.subId() != null) wr = wr.queryParam("sub_id", subs.subId());
+        if (subs.subId1() != null) wr = wr.queryParam("sub_id1", subs.subId1());
+        if (subs.subId2() != null) wr = wr.queryParam("sub_id2", subs.subId2());
+        if (subs.subId3() != null) wr = wr.queryParam("sub_id3", subs.subId3());
+        if (subs.subId4() != null) wr = wr.queryParam("sub_id4", subs.subId4());
+        return wr;
+    }
+
+    public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs) {
+        WebResource wr = client.path("stats").path("affiliates").path("offer")
+            .queryParam("offer_id", offerId.toString());
+        wr = addSubToWebQuery(subs, wr);
+        return wr.get(OverallOfferStatsList.class);
+    }
+
+    public void flushBufferedCounters() {
+        Injector injector = TestContextListener.injector();
+        injector.getInstance(BufferedShows.class).flushAll();
+        injector.getInstance(BufferedClicks.class).flushAll();
+    }
+
 }
