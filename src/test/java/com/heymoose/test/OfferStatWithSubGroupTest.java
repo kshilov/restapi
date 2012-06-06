@@ -36,7 +36,7 @@ public class OfferStatWithSubGroupTest extends RestTest {
     private static Long affId = 0L;
     private static Long lastOfferId = 0L;
 
-    private static Subs sub_ = new Subs("2-sourceId", "2-subId", null, "2-subId2", null, "2-subId4", "sub_id2");
+    private static Subs sub_ = new Subs(null, null, null, null, null, null, "sub_id2");
 
     private static long doRegisterAdvertiser() {
         long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
@@ -97,17 +97,20 @@ public class OfferStatWithSubGroupTest extends RestTest {
             long offerId = (lastOfferId = createdOfferPair.fst);
             String offerCode = createdOfferPair.snd;
             doCreateGrant(offerId, affId);
-            int k = rnd.nextInt(3);
-            Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
 
             // 3 shows
             for (int j = 0; j < 3; j++) {
+                int k = rnd.nextInt(3);
+                Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
                 // show
                 assertEquals(200, heymoose().track(offerId, affId, subs));
             }
 
             // 1 more show with click
             {
+                int k = rnd.nextInt(3);
+                Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+
                 // show
                 assertEquals(200, heymoose().track(offerId, affId, subs));
 
@@ -118,6 +121,9 @@ public class OfferStatWithSubGroupTest extends RestTest {
 
             // 1 more show with click and action
             {
+                int k = rnd.nextInt(3);
+                Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+
                 // show
                 assertEquals(200, heymoose().track(offerId, affId, subs));
 

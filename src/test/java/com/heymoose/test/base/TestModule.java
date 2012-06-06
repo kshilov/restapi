@@ -20,6 +20,7 @@ public class TestModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, Injector injector) {
         Configuration config = new Configuration();
 
