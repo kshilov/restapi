@@ -36,6 +36,7 @@ public class OfferStatsResource {
                                            @QueryParam("sub_id2") String subId2,
                                            @QueryParam("sub_id3") String subId3,
                                            @QueryParam("sub_id4") String subId4,
+                                           @QueryParam("sub_group") String subGroup,
                                            @QueryParam("granted") @DefaultValue("false") boolean granted,
                                            @QueryParam("from") @DefaultValue("0") Long from,
                                            @QueryParam("to") Long to,
@@ -43,7 +44,7 @@ public class OfferStatsResource {
                                            @QueryParam("limit") @DefaultValue("2147483647") int limit) {
         if (to == null)
             to = DateTimeUtils.currentTimeMillis();
-        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4, subGroup);
         OverallOfferStatsList list = new OverallOfferStatsList();
         List<OverallOfferStats> overallOfferStats;
         if (granted)
@@ -69,12 +70,13 @@ public class OfferStatsResource {
                                            @QueryParam("sub_id2") String subId2,
                                            @QueryParam("sub_id3") String subId3,
                                            @QueryParam("sub_id4") String subId4,
+                                           @QueryParam("sub_group") String subGroup,
                                            @QueryParam("from") @DefaultValue("0") Long from,
                                            @QueryParam("to") Long to,
                                            @QueryParam("offset") @DefaultValue("0") int offset,
                                            @QueryParam("limit") @DefaultValue("2147483647") int limit) {
         checkNotNull(affId);
-        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4, subGroup);
         if (to == null)
             to = DateTimeUtils.currentTimeMillis();
         OverallOfferStatsList list = new OverallOfferStatsList();
@@ -94,12 +96,13 @@ public class OfferStatsResource {
                                            @QueryParam("sub_id2") String subId2,
                                            @QueryParam("sub_id3") String subId3,
                                            @QueryParam("sub_id4") String subId4,
+                                           @QueryParam("sub_group") String subGroup,
                                            @QueryParam("from") @DefaultValue("0") Long from,
                                            @QueryParam("to") Long to,
                                            @QueryParam("offset") @DefaultValue("0") int offset,
                                            @QueryParam("limit") @DefaultValue("2147483647") int limit) {
         checkNotNull(advId);
-        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4, subGroup);
         if (to == null)
             to = DateTimeUtils.currentTimeMillis();
         OverallOfferStatsList list = new OverallOfferStatsList();
@@ -118,11 +121,12 @@ public class OfferStatsResource {
                                         @QueryParam("sub_id2") String subId2,
                                         @QueryParam("sub_id3") String subId3,
                                         @QueryParam("sub_id4") String subId4,
+                                        @QueryParam("sub_group") String subGroup,
                                         @QueryParam("from") @DefaultValue("0") Long from,
                                         @QueryParam("to") Long to,
                                         @QueryParam("offset") @DefaultValue("0") int offset,
                                         @QueryParam("limit") @DefaultValue("2147483647") int limit) {
-        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4, subGroup);
         if (to == null)
             to = DateTimeUtils.currentTimeMillis();
         OverallOfferStatsList list = new OverallOfferStatsList();
@@ -142,12 +146,13 @@ public class OfferStatsResource {
                                            @QueryParam("sub_id2") String subId2,
                                            @QueryParam("sub_id3") String subId3,
                                            @QueryParam("sub_id4") String subId4,
+                                           @QueryParam("sub_group") String subGroup,
                                            @QueryParam("from") @DefaultValue("0") Long from,
                                            @QueryParam("to") Long to,
                                            @QueryParam("offset") @DefaultValue("0") int offset,
                                            @QueryParam("limit") @DefaultValue("2147483647") int limit) {
         checkNotNull(offerId);
-        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+        Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4, subGroup);
         if (to == null)
             to = DateTimeUtils.currentTimeMillis();
         OverallOfferStatsList list = new OverallOfferStatsList();

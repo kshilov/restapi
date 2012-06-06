@@ -15,8 +15,11 @@ public class Subs {
     private String subId3;
     private String subId4;
 
+    private String subGroup;
+
+
     public static Subs empty() {
-        return new Subs(null, null, null, null, null, null);
+        return new Subs(null, null, null, null, null, null, null);
     }
 
     public Subs(@Nullable String sourceId,
@@ -28,6 +31,13 @@ public class Subs {
         this.subId2 = subId2;
         this.subId3 = subId3;
         this.subId4 = subId4;
+    }
+
+    public Subs(@Nullable String sourceId,
+                @Nullable String subId, @Nullable String subId1, @Nullable String subId2,
+                @Nullable String subId3, @Nullable String subId4, @Nullable String subGroup) {
+        this(sourceId, subId, subId1, subId2, subId3, subId4);
+        this.subGroup = subGroup;
     }
 
     public String sourceId() {
@@ -52,6 +62,10 @@ public class Subs {
 
     public String subId4() {
         return subId4;
+    }
+
+    public String subGroup() {
+        return subGroup;
     }
 
     public WebResource addToQuery(WebResource wr) {

@@ -245,6 +245,7 @@ public class Heymoose {
         if (subs.subId2() != null) wr = wr.queryParam("sub_id2", subs.subId2());
         if (subs.subId3() != null) wr = wr.queryParam("sub_id3", subs.subId3());
         if (subs.subId4() != null) wr = wr.queryParam("sub_id4", subs.subId4());
+        if (subs.subGroup()!= null) wr = wr.queryParam("sub_group", subs.subGroup());
         return wr;
     }
 }
