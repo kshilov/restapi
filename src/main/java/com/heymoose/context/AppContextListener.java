@@ -10,32 +10,32 @@ import javax.servlet.ServletContextEvent;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class AppContextListener extends GuiceServletContextListener {
-  @Override
-  protected Injector getInjector() {
-    return Guice.createInjector(
+    @Override
+    protected Injector getInjector() {
+        return Guice.createInjector(
             Stage.PRODUCTION,
             new SettingsModule(),
             new JerseyModule(),
             new CommonModule(),
             new ProductionModule()
-    );
-  }
+        );
+    }
 
-  @Override
-  public void contextInitialized(ServletContextEvent servletContextEvent) {
-    super.contextInitialized(servletContextEvent);
-    SLF4JBridgeHandler.install();
-    Injector injector = (Injector) servletContextEvent.getServletContext().getAttribute(Injector.class.getName());
-    final BufferedShows bufferedShows = injector.getInstance(BufferedShows.class);
-    final BufferedClicks bufferedClicks = injector.getInstance(BufferedClicks.class);
-    new Thread(bufferedShows).start();
-    new Thread(bufferedClicks).start();
-    Runtime.getRuntime().addShutdownHook(new Thread(){
-      @Override
-      public void run() {
-        bufferedShows.flushAll();
-        bufferedClicks.flushAll();
-      }
-    });
-  }
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        super.contextInitialized(servletContextEvent);
+        SLF4JBridgeHandler.install();
+        Injector injector = (Injector) servletContextEvent.getServletContext().getAttribute(Injector.class.getName());
+        final BufferedShows bufferedShows = injector.getInstance(BufferedShows.class);
+        final BufferedClicks bufferedClicks = injector.getInstance(BufferedClicks.class);
+        new Thread(bufferedShows).start();
+        new Thread(bufferedClicks).start();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                bufferedShows.flushAll();
+                bufferedClicks.flushAll();
+            }
+        });
+    }
 }
