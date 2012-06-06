@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.List;
 import org.joda.time.DateTimeUtils;
 import static org.junit.Assert.assertEquals;
+import org.junit.Before;
 import org.junit.Test;
 
 public class OfferTest extends RestTest {
@@ -26,6 +27,11 @@ public class OfferTest extends RestTest {
     private final static double ADV_BALANCE = 100.0;
     private final static double OFFER_BALANCE = 70.0;
     private final static double CPA = 30.0;
+
+    @Before
+    public void before() {
+        reset();
+    }
 
     private long doRegisterAdvertiser() {
         long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");

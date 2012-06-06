@@ -204,19 +204,30 @@ public class Heymoose {
         return wr.get(OverallOfferStatsList.class);
     }
 
-    private WebResource addSubToWebQuery(Subs subs, WebResource wr) {
-        if (subs.sourceId() != null) wr = wr.queryParam("source_id", subs.sourceId());
-        if (subs.subId() != null) wr = wr.queryParam("sub_id", subs.subId());
-        if (subs.subId1() != null) wr = wr.queryParam("sub_id1", subs.subId1());
-        if (subs.subId2() != null) wr = wr.queryParam("sub_id2", subs.subId2());
-        if (subs.subId3() != null) wr = wr.queryParam("sub_id3", subs.subId3());
-        if (subs.subId4() != null) wr = wr.queryParam("sub_id4", subs.subId4());
-        return wr;
-    }
-
     public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs) {
         WebResource wr = client.path("stats").path("affiliates").path("offer")
             .queryParam("offer_id", offerId.toString());
+        wr = addSubToWebQuery(subs, wr);
+        return wr.get(OverallOfferStatsList.class);
+    }
+
+    public OverallOfferStatsList getOffersAllStats(boolean granted, Subs subs) {
+        WebResource wr = client.path("stats").path("offers").path("all")
+            .queryParam("granted", Boolean.toString(granted));
+        wr = addSubToWebQuery(subs, wr);
+        return wr.get(OverallOfferStatsList.class);
+    }
+
+    public OverallOfferStatsList getOffersStatsByAffiliate(Long affId, Subs subs) {
+        WebResource wr = client.path("stats").path("offers").path("aff")
+            .queryParam("aff_id", affId.toString());
+        wr = addSubToWebQuery(subs, wr);
+        return wr.get(OverallOfferStatsList.class);
+    }
+
+    public OverallOfferStatsList getOffersStatsByAdvertizer(Long advId, Subs subs) {
+        WebResource wr = client.path("stats").path("offers").path("adv")
+            .queryParam("adv_id", advId.toString());
         wr = addSubToWebQuery(subs, wr);
         return wr.get(OverallOfferStatsList.class);
     }
@@ -227,4 +238,13 @@ public class Heymoose {
         injector.getInstance(BufferedClicks.class).flushAll();
     }
 
+    private WebResource addSubToWebQuery(Subs subs, WebResource wr) {
+        if (subs.sourceId() != null) wr = wr.queryParam("source_id", subs.sourceId());
+        if (subs.subId() != null) wr = wr.queryParam("sub_id", subs.subId());
+        if (subs.subId1() != null) wr = wr.queryParam("sub_id1", subs.subId1());
+        if (subs.subId2() != null) wr = wr.queryParam("sub_id2", subs.subId2());
+        if (subs.subId3() != null) wr = wr.queryParam("sub_id3", subs.subId3());
+        if (subs.subId4() != null) wr = wr.queryParam("sub_id4", subs.subId4());
+        return wr;
+    }
 }
