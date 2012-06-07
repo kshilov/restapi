@@ -50,10 +50,13 @@ public class Mlm {
 
     log.info("last execution date: {}", lastExecutionDate);
 
-    String sql = "select u.id, sum(e.amount) from user_profile u " +
+    String sql = "select u.id, sum(e2.amount) " +
+        "from user_profile u " +
         "join accounting_entry e on u.affiliate_account_id = e.account_id " +
-        "where e.event = 2 and u.referrer is not null " +
-        "and e.creation_time > :last and e.creation_time <= :current group by u.id";
+        "join accounting_entry e2 on e.source_id = e2.source_id " +
+        "and e2.account_id = (select account_id from admin_account) " +
+        "where e.event = 2 and e.creation_time > :last and e.creation_time <= :current " +
+        "group by u.id";
 
     List<Object[]> dbResult = repo.session().createSQLQuery(sql)
         .setParameter("last", lastExecutionDate)
