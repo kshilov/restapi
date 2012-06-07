@@ -5,6 +5,7 @@ import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
+import com.heymoose.util.Pair;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.List;
 import javax.inject.Inject;
@@ -46,13 +47,14 @@ public class OfferStatsResource {
       to = DateTimeUtils.currentTimeMillis();
     Subs subs = new Subs(sourceId, subId, subId1, subId2, subId3, subId4, subGroup);
     OverallOfferStatsList list = new OverallOfferStatsList();
-    List<OverallOfferStats> overallOfferStats;
-    if (granted)
-      overallOfferStats = stats.grantedOfferStatsAll(subs, new DateTime(from), new DateTime(to), offset, limit);
-    else
-      overallOfferStats = stats.offerStatsAll(subs, new DateTime(from), new DateTime(to), offset, limit);
-    list.stats.addAll(overallOfferStats);
-    list.count = list.stats.size();
+    Pair<List<OverallOfferStats>, Long> p;
+    if (granted) {
+      p = stats.grantedOfferStatsAll(subs, new DateTime(from), new DateTime(to), offset, limit);
+    } else {
+      p = stats.offerStatsAll(subs, new DateTime(from), new DateTime(to), offset, limit);
+    }
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
     return list;
   }
 
@@ -76,9 +78,9 @@ public class OfferStatsResource {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    List<OverallOfferStats> overallOfferStats = stats.offerStatsByAff(affId, subs, new DateTime(from), new DateTime(to), offset, limit);
-    list.stats.addAll(overallOfferStats);
-    list.count = list.stats.size();
+    Pair<List<OverallOfferStats>, Long> p = stats.offerStatsByAff(affId, subs, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
     return list;
   }
 
@@ -102,9 +104,9 @@ public class OfferStatsResource {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    List<OverallOfferStats> overallOfferStats = stats.offerStatsByAdv(advId, subs, new DateTime(from), new DateTime(to), offset, limit);
-    list.stats.addAll(overallOfferStats);
-    list.count = list.stats.size();
+    Pair<List<OverallOfferStats>, Long> p = stats.offerStatsByAdv(advId, subs, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
     return list;
   }
 
@@ -126,9 +128,9 @@ public class OfferStatsResource {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    List<OverallOfferStats> overallOfferStats = stats.affStats(subs, new DateTime(from), new DateTime(to), offset, limit);
-    list.stats.addAll(overallOfferStats);
-    list.count = list.stats.size();
+    Pair<List<OverallOfferStats>, Long> p = stats.affStats(subs, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
     return list;
   }
 
@@ -152,9 +154,9 @@ public class OfferStatsResource {
     if (to == null)
       to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    List<OverallOfferStats> overallOfferStats = stats.affStatsByOffer(offerId, subs, new DateTime(from), new DateTime(to), offset, limit);
-    list.stats.addAll(overallOfferStats);
-    list.count = list.stats.size();
+    Pair<List<OverallOfferStats>, Long> p = stats.affStatsByOffer(offerId, subs, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
     return list;
   }
 }

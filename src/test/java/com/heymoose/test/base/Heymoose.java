@@ -13,6 +13,7 @@ import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlUser;
+import com.heymoose.util.Paging;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
@@ -199,36 +200,61 @@ public class Heymoose {
   }
 
   public OverallOfferStatsList getAffiliatesAllStats(Subs subs) {
+    return getAffiliatesAllStats(subs, null);
+  }
+
+  public OverallOfferStatsList getAffiliatesAllStats(Subs subs, Paging paging) {
     WebResource wr = client.path("stats").path("affiliates").path("all");
     wr = addSubToWebQuery(subs, wr);
+    if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs) {
+    return getAffiliatesStatsByOffer(offerId, subs, null);
+  }
+
+  public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs, Paging paging) {
     WebResource wr = client.path("stats").path("affiliates").path("offer")
         .queryParam("offer_id", offerId.toString());
     wr = addSubToWebQuery(subs, wr);
+    if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getOffersAllStats(boolean granted, Subs subs) {
+    return getOffersAllStats(granted, subs, null);
+  }
+
+  public OverallOfferStatsList getOffersAllStats(boolean granted, Subs subs, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("all")
         .queryParam("granted", Boolean.toString(granted));
     wr = addSubToWebQuery(subs, wr);
+    if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getOffersStatsByAffiliate(Long affId, Subs subs) {
+    return getOffersStatsByAffiliate(affId, subs, null);
+  }
+
+  public OverallOfferStatsList getOffersStatsByAffiliate(Long affId, Subs subs, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("aff")
         .queryParam("aff_id", affId.toString());
     wr = addSubToWebQuery(subs, wr);
+    if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getOffersStatsByAdvertizer(Long advId, Subs subs) {
+    return getOffersStatsByAdvertizer(advId, subs, null);
+  }
+
+  public OverallOfferStatsList getOffersStatsByAdvertizer(Long advId, Subs subs, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("adv")
         .queryParam("adv_id", advId.toString());
     wr = addSubToWebQuery(subs, wr);
+    if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
