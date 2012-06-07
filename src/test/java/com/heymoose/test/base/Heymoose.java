@@ -103,11 +103,11 @@ public class Heymoose {
   }
 
   public Long createOffer(
-    long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
-    double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
-    URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
-    boolean reentrant, Set<Region> regions, Set<Long> categories,
-    String code, int holdDays, int cookieTtl, Long launchTime) {
+      long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
+      double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
+      URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
+      boolean reentrant, Set<Region> regions, Set<Long> categories,
+      String code, int holdDays, int cookieTtl, Long launchTime) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
     form.add("pay_method", payMethod);
@@ -139,28 +139,28 @@ public class Heymoose {
 
   public int track(long offerId, long affId, Subs subs) {
     WebResource wr = client.path("api")
-      .queryParam("method", "track")
-      .queryParam("offer_id", Long.toString(offerId))
-      .queryParam("aff_id", Long.toString(affId));
+        .queryParam("method", "track")
+        .queryParam("offer_id", Long.toString(offerId))
+        .queryParam("aff_id", Long.toString(affId));
     wr = subs.addToQuery(wr);
     return wr.get(ClientResponse.class).getStatus();
   }
 
   public URI click(long offerId, long affId, Subs subs) {
     WebResource wr = client.path("api")
-      .queryParam("method", "click")
-      .queryParam("offer_id", Long.toString(offerId))
-      .queryParam("aff_id", Long.toString(affId));
+        .queryParam("method", "click")
+        .queryParam("offer_id", Long.toString(offerId))
+        .queryParam("aff_id", Long.toString(affId));
     wr = subs.addToQuery(wr);
     return wr.get(ClientResponse.class).getLocation();
   }
 
   public int action(String token, String txId, long advertiserId, String... codes) {
     WebResource resource = client.path("api")
-      .queryParam("method", "reportAction")
-      .queryParam("token", token)
-      .queryParam("advertiser_id", Long.toString(advertiserId))
-      .queryParam("transaction_id", txId);
+        .queryParam("method", "reportAction")
+        .queryParam("token", token)
+        .queryParam("advertiser_id", Long.toString(advertiserId))
+        .queryParam("transaction_id", txId);
     for (String code : codes) resource = resource.queryParam("offer", code);
     return resource.get(ClientResponse.class).getStatus();
   }
@@ -206,28 +206,28 @@ public class Heymoose {
 
   public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs) {
     WebResource wr = client.path("stats").path("affiliates").path("offer")
-      .queryParam("offer_id", offerId.toString());
+        .queryParam("offer_id", offerId.toString());
     wr = addSubToWebQuery(subs, wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getOffersAllStats(boolean granted, Subs subs) {
     WebResource wr = client.path("stats").path("offers").path("all")
-      .queryParam("granted", Boolean.toString(granted));
+        .queryParam("granted", Boolean.toString(granted));
     wr = addSubToWebQuery(subs, wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getOffersStatsByAffiliate(Long affId, Subs subs) {
     WebResource wr = client.path("stats").path("offers").path("aff")
-      .queryParam("aff_id", affId.toString());
+        .queryParam("aff_id", affId.toString());
     wr = addSubToWebQuery(subs, wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
   public OverallOfferStatsList getOffersStatsByAdvertizer(Long advId, Subs subs) {
     WebResource wr = client.path("stats").path("offers").path("adv")
-      .queryParam("adv_id", advId.toString());
+        .queryParam("adv_id", advId.toString());
     wr = addSubToWebQuery(subs, wr);
     return wr.get(OverallOfferStatsList.class);
   }

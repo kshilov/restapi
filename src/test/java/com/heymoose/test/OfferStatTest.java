@@ -39,10 +39,10 @@ public class OfferStatTest extends RestTest {
 
   // stats for the last
   private static List<Subs> subs = asList(
-    new Subs("3-sourceId", "3-subId", null, "3-subId2", null, "3-subId4"),
-    new Subs("3-sourceId", "3-subId", null, "3-subId2", null, null),
-    new Subs("3-sourceId", "3-subId", null, null, null, null),
-    new Subs("3-sourceId", null, null, null, null, null)
+      new Subs("3-sourceId", "3-subId", null, "3-subId2", null, "3-subId4"),
+      new Subs("3-sourceId", "3-subId", null, "3-subId2", null, null),
+      new Subs("3-sourceId", "3-subId", null, null, null, null),
+      new Subs("3-sourceId", null, null, null, null, null)
   );
   private static Subs sub_ = new Subs("2-sourceId", "2-subId", null, "2-subId2", null, "2-subId4");
   private static Subs sub__ = new Subs("7-sourceId", "7-subId", null, "7-subId2", null, "7-subId4");
@@ -66,9 +66,9 @@ public class OfferStatTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     String offerCode = OFFER_CODE + "-" + seed + "-" + rnd.nextInt(1000);
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
-      OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL),
-      "title", false, false, true, newHashSet(Region.RUSSIA), newHashSet(categoryId),
-      offerCode, 30, 180, DateTimeUtils.currentTimeMillis());
+        OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL),
+        "title", false, false, true, newHashSet(Region.RUSSIA), newHashSet(categoryId),
+        offerCode, 30, 180, DateTimeUtils.currentTimeMillis());
     heymoose().approveOffer(offerId);
     return new Pair<Long, String>(offerId, offerCode);
   }

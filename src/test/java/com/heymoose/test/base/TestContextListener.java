@@ -17,9 +17,9 @@ public class TestContextListener extends GuiceServletContextListener {
     if (injector != null)
       return injector;
     return (injector = Guice.createInjector(
-      new JerseyModule(),
-      new CommonModule(),
-      new TestModule()
+        new JerseyModule(),
+        new CommonModule(),
+        new TestModule()
     ));
   }
 

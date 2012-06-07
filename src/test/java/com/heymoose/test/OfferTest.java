@@ -52,8 +52,8 @@ public class OfferTest extends RestTest {
     sqlUpdate("insert into category(id, grouping, name) values(1, 'Group1', 'Category1')");
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
-      OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
-      true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
+        OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
+        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
     heymoose().approveOffer(offerId);
     return offerId;
   }
@@ -174,7 +174,7 @@ public class OfferTest extends RestTest {
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
     URI location = doClick(offerId, affId,
-      new Subs("test-sourceId", "test-subId", null, "test-subId3", null, "test-subId5")
+        new Subs("test-sourceId", "test-subId", null, "test-subId3", null, "test-subId5")
     );
     String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));

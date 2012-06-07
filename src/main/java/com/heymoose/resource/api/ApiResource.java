@@ -132,8 +132,8 @@ public class ApiResource {
       if (offer == null)
         throw new ApiRequestException(404, "Offer not found, params code: " + code + ", " + "advertiser_id: " + advertiserId);
       Optional<Double> price = (parts.length == 2)
-        ? Optional.of(Double.parseDouble(parts[1]))
-        : Optional.<Double>absent();
+          ? Optional.of(Double.parseDouble(parts[1]))
+          : Optional.<Double>absent();
       offers.put(offer, price);
     }
     tracking.trackConversion(token, txId, offers);
@@ -142,18 +142,18 @@ public class ApiResource {
 
   private BaseOffer findOffer(long advertiserId, String code) {
     SubOffer existentSub = repo.byHQL(
-      SubOffer.class,
-      "from SubOffer o where o.active = true and o.code = ? and o.parent.advertiser.id = ?",
-      code, advertiserId
+        SubOffer.class,
+        "from SubOffer o where o.active = true and o.code = ? and o.parent.advertiser.id = ?",
+        code, advertiserId
     );
 
     if (existentSub != null)
       return existentSub;
 
     Offer existentOffer = repo.byHQL(
-      Offer.class,
-      "from Offer o where o.active = true and o.code = ? and o.advertiser.id = ?",
-      code, advertiserId
+        Offer.class,
+        "from Offer o where o.active = true and o.code = ? and o.advertiser.id = ?",
+        code, advertiserId
     );
 
     return existentOffer;
@@ -178,11 +178,11 @@ public class ApiResource {
       return forbidden(grant);
 
     Subs subs = new Subs(params.get("source_id"),
-      params.get("sub_id"),
-      params.get("sub_id1"),
-      params.get("sub_id2"),
-      params.get("sub_id3"),
-      params.get("sub_id4")
+        params.get("sub_id"),
+        params.get("sub_id1"),
+        params.get("sub_id2"),
+        params.get("sub_id3"),
+        params.get("sub_id4")
     );
     Long ipNum = getRealIp();
     if (ipNum == null)
@@ -191,7 +191,7 @@ public class ApiResource {
       return forbidden(grant);
     Map<String, String> affParams = newHashMap(params);
     for (String param : asList("method", "banner_id", "offer_id", "aff_id",
-      "sub_id", "sub_id1", "sub_id2", "sub_id3", "sub_id4", "source_id"))
+        "sub_id", "sub_id1", "sub_id2", "sub_id3", "sub_id4", "source_id"))
       affParams.remove(param);
     String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, subs, affParams);
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
@@ -233,11 +233,11 @@ public class ApiResource {
       throw illegalState("Offer was not granted: " + offerId);
 
     Subs subs = new Subs(params.get("source_id"),
-      params.get("sub_id"),
-      params.get("sub_id1"),
-      params.get("sub_id2"),
-      params.get("sub_id3"),
-      params.get("sub_id4")
+        params.get("sub_id"),
+        params.get("sub_id1"),
+        params.get("sub_id2"),
+        params.get("sub_id3"),
+        params.get("sub_id4")
     );
     tracking.trackShow(bannerId, offerId, offer.master(), affId, subs);
     return noCache(Response.ok()).build();

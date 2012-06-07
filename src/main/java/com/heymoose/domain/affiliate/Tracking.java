@@ -7,11 +7,11 @@ import javax.annotation.Nullable;
 
 public interface Tracking {
   OfferStat trackShow(
-    @Nullable Long bannerId, long offerId, long master, long affId, Subs subs);
+      @Nullable Long bannerId, long offerId, long master, long affId, Subs subs);
 
   String trackClick(
-    @Nullable Long bannerId, long offerId, long master, long affId, Subs subs, Map<String, String> affParams);
+      @Nullable Long bannerId, long offerId, long master, long affId, Subs subs, Map<String, String> affParams);
 
   List<OfferAction> trackConversion(
-    Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers);
+      Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers);
 }

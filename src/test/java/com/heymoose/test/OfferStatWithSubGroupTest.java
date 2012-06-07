@@ -57,9 +57,9 @@ public class OfferStatWithSubGroupTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     String offerCode = OFFER_CODE + "-" + seed + "-" + rnd.nextInt(1000);
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
-      OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL),
-      "title", false, false, true, newHashSet(Region.RUSSIA), newHashSet(categoryId),
-      offerCode, 30, 180, DateTimeUtils.currentTimeMillis());
+        OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL),
+        "title", false, false, true, newHashSet(Region.RUSSIA), newHashSet(categoryId),
+        offerCode, 30, 180, DateTimeUtils.currentTimeMillis());
     heymoose().approveOffer(offerId);
     return new Pair<Long, String>(offerId, offerCode);
   }

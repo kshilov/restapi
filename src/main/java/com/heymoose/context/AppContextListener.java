@@ -13,11 +13,11 @@ public class AppContextListener extends GuiceServletContextListener {
   @Override
   protected Injector getInjector() {
     return Guice.createInjector(
-      Stage.PRODUCTION,
-      new SettingsModule(),
-      new JerseyModule(),
-      new CommonModule(),
-      new ProductionModule()
+        Stage.PRODUCTION,
+        new SettingsModule(),
+        new JerseyModule(),
+        new CommonModule(),
+        new ProductionModule()
     );
   }
 

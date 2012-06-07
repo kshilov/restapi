@@ -83,18 +83,18 @@ public class TrackingImpl implements Tracking {
       BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       accounting.transferMoney(
-        offer.account(),
-        stat.affiliate().affiliateAccount(),
-        amount,
-        AccountingEvent.CLICK_CREATED,
-        stat.id()
+          offer.account(),
+          stat.affiliate().affiliateAccount(),
+          amount,
+          AccountingEvent.CLICK_CREATED,
+          stat.id()
       );
       accounting.transferMoney(
-        offer.account(),
-        adminAccountAccessor.getAdminAccount(),
-        revenue,
-        AccountingEvent.CLICK_CREATED,
-        stat.id()
+          offer.account(),
+          adminAccountAccessor.getAdminAccount(),
+          revenue,
+          AccountingEvent.CLICK_CREATED,
+          stat.id()
       );
       stat.addToConfirmedRevenue(amount);
     }
@@ -138,7 +138,7 @@ public class TrackingImpl implements Tracking {
       BigDecimal amount = cost.multiply(new BigDecimal((100 - source.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
-        source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.subs());
+          source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.subs());
       if (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)
         stat.incLeads();
       if (cpaPolicy == CpaPolicy.PERCENT)
@@ -148,18 +148,18 @@ public class TrackingImpl implements Tracking {
       OfferAction action = new OfferAction(token, source.affiliate(), stat, source, offer, transactionId);
       repo.put(action);
       accounting.transferMoney(
-        offer.account(),
-        source.affiliate().affiliateAccountNotConfirmed(),
-        amount,
-        AccountingEvent.ACTION_CREATED,
-        action.id()
+          offer.account(),
+          source.affiliate().affiliateAccountNotConfirmed(),
+          amount,
+          AccountingEvent.ACTION_CREATED,
+          action.id()
       );
       accounting.transferMoney(
-        offer.account(),
-        adminAccountAccessor.getAdminAccountNotConfirmed(),
-        revenue,
-        AccountingEvent.ACTION_CREATED,
-        action.id()
+          offer.account(),
+          adminAccountAccessor.getAdminAccountNotConfirmed(),
+          revenue,
+          AccountingEvent.ACTION_CREATED,
+          action.id()
       );
       try {
         URI uri;
@@ -176,10 +176,10 @@ public class TrackingImpl implements Tracking {
   }
 
   private OfferStat findStat(
-    @Nullable Long bannerId, long offerId, long affId, Subs subs) {
+      @Nullable Long bannerId, long offerId, long affId, Subs subs) {
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
-      .add(Restrictions.eq("offer.id", offerId))
-      .add(Restrictions.eq("affiliate.id", affId));
+        .add(Restrictions.eq("offer.id", offerId))
+        .add(Restrictions.eq("affiliate.id", affId));
     addEqOrIsNull(criteria, "bannerId", bannerId);
     addEqOrIsNull(criteria, "sourceId", subs.sourceId());
     addEqOrIsNull(criteria, "subId", subs.subId());

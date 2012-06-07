@@ -88,7 +88,7 @@ public class OfferResource {
                         @QueryParam("advertiser_id") Long advertiserId,
                         @QueryParam("aff_id") Long affiliateId) {
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit,
-      approved, active, launched, showcase, advertiserId);
+        approved, active, launched, showcase, advertiserId);
     long count = this.offers.count(approved, active, launched, showcase, advertiserId);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
@@ -110,8 +110,8 @@ public class OfferResource {
                                  @QueryParam("aff_id") long affiliateId,
                                  @QueryParam("active") Boolean active) {
     return Mappers.toXmlGrantedOffers(
-      offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active, null),
-      offerGrants.count(null, affiliateId, null, active, null)
+        offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active, null),
+        offerGrants.count(null, affiliateId, null, active, null)
     );
   }
 
@@ -162,7 +162,7 @@ public class OfferResource {
                        @FormParam("cookie_ttl") Integer cookieTtl,
                        @FormParam("launch_time") Long unixLaunchTime) {
     checkNotNull(advertiserId, payMethod, name, description, shortDescription, url, siteUrl,
-      title, code, holdDays, cookieTtl, unixLaunchTime);
+        title, code, holdDays, cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
@@ -200,8 +200,8 @@ public class OfferResource {
     DateTime launchTime = new DateTime(unixLaunchTime);
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description, shortDescription,
-      payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
-      regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime);
+        payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
+        regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -226,8 +226,8 @@ public class OfferResource {
     CpaPolicy cpaPolicy = offer.cpaPolicy();
 
     if ((payMethod == PayMethod.CPC || payMethod == PayMethod.CPA &&
-      (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)) &&
-      form.containsKey("cost"))
+        (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)) &&
+        form.containsKey("cost"))
       offer.setCost(new BigDecimal(form.getFirst("cost")));
     if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED && form.containsKey("cost2"))
       offer.setCost2(new BigDecimal(form.getFirst("cost2")));
@@ -298,18 +298,18 @@ public class OfferResource {
     checkNotNull(code, advertiserId);
 
     SubOffer existentSub = repo.byHQL(
-      SubOffer.class,
-      "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
-      code, advertiserId
+        SubOffer.class,
+        "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
+        code, advertiserId
     );
 
     if (existentSub != null && existentSub.id() != offerId)
       throw conflict();
 
     Offer existentOffer = repo.byHQL(
-      Offer.class,
-      "from Offer o where o.code = ? and o.advertiser.id = ?",
-      code, advertiserId
+        Offer.class,
+        "from Offer o where o.code = ? and o.advertiser.id = ?",
+        code, advertiserId
     );
 
     if (existentOffer != null && existentOffer.id() != offerId)
@@ -339,8 +339,8 @@ public class OfferResource {
   @Transactional
   public XmlSubOffers listSuboffers(@PathParam("id") long parentId) {
     return Mappers.toXmlSubOffers(
-      subOffers.list(parentId),
-      subOffers.count(parentId)
+        subOffers.list(parentId),
+        subOffers.count(parentId)
     );
   }
 
@@ -374,7 +374,7 @@ public class OfferResource {
     checkCode(code, offer.advertiser().id(), null);
 
     SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, cost2, percent,
-      title, autoApprove, reentrant, code, holdDays);
+        title, autoApprove, reentrant, code, holdDays);
     subOffers.put(suboffer);
     return suboffer.id().toString();
   }
@@ -400,7 +400,7 @@ public class OfferResource {
 
     CpaPolicy cpaPolicy = suboffer.cpaPolicy();
     if ((cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED) &&
-      form.containsKey("cost"))
+        form.containsKey("cost"))
       suboffer.setCost(new BigDecimal(form.getFirst("cost")));
     if (cpaPolicy == CpaPolicy.DOUBLE_FIXED && form.containsKey("cost2"))
       suboffer.setCost2(new BigDecimal(form.getFirst("cost2")));
@@ -470,7 +470,7 @@ public class OfferResource {
     if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
     accounting.transferMoney(offer.advertiser().advertiserAccount(), offer.account(), amount,
-      AccountingEvent.OFFER_ACCOUNT_ADD, null);
+        AccountingEvent.OFFER_ACCOUNT_ADD, null);
   }
 
   @DELETE
@@ -482,7 +482,7 @@ public class OfferResource {
     if (offer.account().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
     accounting.transferMoney(offer.account(), offer.advertiser().advertiserAccount(), amount,
-      AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
+        AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
   }
 
   private Offer existing(long id) {
