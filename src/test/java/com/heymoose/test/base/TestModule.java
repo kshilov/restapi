@@ -13,50 +13,50 @@ import org.junit.Ignore;
 @Ignore
 public class TestModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
-        bind(PostbackTestResource.class);
-    }
+  @Override
+  protected void configure() {
+    bind(PostbackTestResource.class);
+  }
 
-    @Provides
-    @Singleton
-    @SuppressWarnings("unused")
-    protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, Injector injector) {
-        Configuration config = new Configuration();
+  @Provides
+  @Singleton
+  @SuppressWarnings("unused")
+  protected Configuration hibernateConfig(@Named("entities") Set<Class> classes, Injector injector) {
+    Configuration config = new Configuration();
 
-        for (Class klass : classes)
-            config.addAnnotatedClass(klass);
+    for (Class klass : classes)
+      config.addAnnotatedClass(klass);
 
-        /*
-        config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
-        config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/hm_test");
-        config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");
-        config.setProperty("hibernate.connection.username", "postgres");
-        config.setProperty("hibernate.connection.password", "qwerty");
-        config.setProperty("hibernate.hbm2ddl.auto", "update");
-         */
+    /*
+   config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+   config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/hm_test");
+   config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");
+   config.setProperty("hibernate.connection.username", "postgres");
+   config.setProperty("hibernate.connection.password", "qwerty");
+   config.setProperty("hibernate.hbm2ddl.auto", "update");
+    */
 
-        config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
-        config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
-        config.setProperty("hibernate.hbm2ddl.auto", "create");
+    config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
+    config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
+    config.setProperty("hibernate.hbm2ddl.auto", "create");
 
-        config.setProperty("hibernate.show_sql", "true");
-        config.setProperty("hibernate.format_sql", "false");
-        config.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
-        config.setProperty("hibernate.current_session_context_class", "thread");
-        config.setProperty("hibernate.jdbc.batch_size", "0");
-        return config;
-    }
+    config.setProperty("hibernate.show_sql", "true");
+    config.setProperty("hibernate.format_sql", "false");
+    config.setProperty("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
+    config.setProperty("hibernate.current_session_context_class", "thread");
+    config.setProperty("hibernate.jdbc.batch_size", "0");
+    return config;
+  }
 
-    @Provides
-    @Singleton
-    @Named("settings")
-    protected Properties settings() {
-        Properties settings = new Properties();
-        settings.setProperty("tax", "0.1");
-        settings.setProperty("robokassaPass", "robokassaPass");
-        settings.setProperty("banners.dir", "target/banners");
-        settings.setProperty("mlm-ratio", "0.1");
-        return settings;
-    }
+  @Provides
+  @Singleton
+  @Named("settings")
+  protected Properties settings() {
+    Properties settings = new Properties();
+    settings.setProperty("tax", "0.1");
+    settings.setProperty("robokassaPass", "robokassaPass");
+    settings.setProperty("banners.dir", "target/banners");
+    settings.setProperty("mlm-ratio", "0.1");
+    return settings;
+  }
 }

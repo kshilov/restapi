@@ -17,15 +17,15 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class PostbackTestResource {
 
-    private final static Logger log = LoggerFactory.getLogger(PostbackTestResource.class);
+  private final static Logger log = LoggerFactory.getLogger(PostbackTestResource.class);
 
-    @GET
-    public Response call(@Context UriInfo ui) {
-        //MultivaluedMap<String,String> queryParameters = ui.getQueryParameters();
-        log.debug("Postback REQUEST: " + ui.getRequestUri());
-        return Response.ok().build();
+  @GET
+  public Response call(@Context UriInfo ui) {
+    //MultivaluedMap<String,String> queryParameters = ui.getQueryParameters();
+    log.debug("Postback REQUEST: " + ui.getRequestUri());
+    return Response.ok().build();
 
-    }
+  }
 
 
 }
