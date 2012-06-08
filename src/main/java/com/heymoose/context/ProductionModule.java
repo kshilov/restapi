@@ -4,6 +4,9 @@ import static com.google.common.collect.Maps.newHashMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.heymoose.domain.affiliate.ActionImporter;
+import com.heymoose.domain.mlm.Mlm;
+import com.heymoose.job.Job;
+import com.heymoose.job.Scheduler;
 import com.heymoose.util.PropertiesUtil;
 import static com.heymoose.util.PropertiesUtil.subTree;
 import java.net.MalformedURLException;
@@ -17,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.hibernate.cfg.Configuration;
+import org.joda.time.DateTime;
 
 public class ProductionModule extends AbstractModule {
 
@@ -68,5 +72,17 @@ public class ProductionModule extends AbstractModule {
     ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
     sched.scheduleAtFixedRate(actionImporter, 0, period, TimeUnit.HOURS);
     return sched;
+  }
+
+  @Provides @Singleton
+  protected Scheduler scheduler(final Mlm mlm) {
+    Scheduler scheduler = new Scheduler(3, 0, new Job() {
+      @Override
+      public void run(DateTime plannedStartTime) throws Exception {
+        mlm.doExport();
+      }
+    });
+    scheduler.schedule();
+    return scheduler;
   }
 }
