@@ -100,6 +100,24 @@ public class OverallOfferStats {
     this.subId4 = subId4;
   }
 
+  public OverallOfferStats(long id, String name, long shows, long clicks, long leads, long sales,
+                           double confirmedRevenue, double notConfirmedRevenue, double canceledRevenue,
+                           Double ctr, Double cr, Double ecpc, Double ecpm) {
+    this.id = id;
+    this.name = name;
+    this.shows = shows;
+    this.clicks = clicks;
+    this.leads = leads;
+    this.sales = sales;
+    this.confirmedRevenue = confirmedRevenue;
+    this.notConfirmedRevenue = notConfirmedRevenue;
+    this.canceledRevenue = canceledRevenue;
+    this.ctr = ctr;
+    this.cr = cr;
+    this.ecpc = ecpc;
+    this.ecpm = ecpm;
+  }
+
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
