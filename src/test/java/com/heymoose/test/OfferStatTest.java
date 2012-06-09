@@ -12,7 +12,6 @@ import com.heymoose.util.NameValuePair;
 import com.heymoose.util.Pair;
 import com.heymoose.util.URLEncodedUtils;
 import java.net.URI;
-import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Random;
 import org.joda.time.DateTimeUtils;
@@ -36,16 +35,6 @@ public class OfferStatTest extends RestTest {
   private static Long advertiserId = 0L;
   private static Long affId = 0L;
   private static Long lastOfferId = 0L;
-
-  // stats for the last
-  private static List<Subs> subs = asList(
-      new Subs("3-sourceId", "3-subId", null, "3-subId2", null, "3-subId4"),
-      new Subs("3-sourceId", "3-subId", null, "3-subId2", null, null),
-      new Subs("3-sourceId", "3-subId", null, null, null, null),
-      new Subs("3-sourceId", null, null, null, null, null)
-  );
-  private static Subs sub_ = new Subs("2-sourceId", "2-subId", null, "2-subId2", null, "2-subId4");
-  private static Subs sub__ = new Subs("7-sourceId", "7-subId", null, "7-subId2", null, "7-subId4");
 
   private static long doRegisterAdvertiser() {
     long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
@@ -73,8 +62,8 @@ public class OfferStatTest extends RestTest {
     return new Pair<Long, String>(offerId, offerCode);
   }
 
-  private static URI doClick(long offerId, long affId, Subs subs) {
-    return heymoose().click(offerId, affId, subs);
+  private static URI doClick(long offerId, long affId, String sourceId, Subs subs) {
+    return heymoose().click(offerId, affId, sourceId, subs);
   }
 
   private static void doCreateGrant(long offerId, long affId) {
@@ -106,31 +95,32 @@ public class OfferStatTest extends RestTest {
       long offerId = (lastOfferId = createdOfferPair.fst);
       String offerCode = createdOfferPair.snd;
       doCreateGrant(offerId, affId);
-      Subs subs = new Subs(i + "-sourceId", i + "-subId", null, i + "-subId2", null, i + "-subId4");
+      String sourceId = i + "-sourceId";
+      Subs subs = new Subs(i + "-subId", null, i + "-subId2", null, i + "-subId4");
 
       // 3 shows
       for (int j = 0; j < 3; j++) {
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
       }
 
       // 1 more show with click
       {
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
 
         // click
-        URI location = doClick(offerId, affId, subs);
+        URI location = doClick(offerId, affId, sourceId, subs);
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
       }
 
       // 1 more show with click and action
       {
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
 
         // click
-        URI location = doClick(offerId, affId, subs);
+        URI location = doClick(offerId, affId, sourceId, subs);
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
 
         // action
@@ -146,196 +136,124 @@ public class OfferStatTest extends RestTest {
   private OverallOfferStatsList stats;
 
   @Test
-  public void getAffiliatesAllStats() {
+  public void getAffiliatesAllStatsGranted() {
     // 5 shows, 2 clicks
-    for (Subs sub : subs) {
-      stats = heymoose().getAffiliatesAllStats(sub);
-      assertEquals(1L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(5L, stats.stats.get(0).shows);
-      assertEquals(2L, stats.stats.get(0).clicks);
-      assertEquals(1L, stats.stats.get(0).leads);
-    }
-  }
-
-  @Test
-  public void getAffiliatesStatsByOffer() {
-    // 5 shows, 2 clicks
-    for (Subs sub : subs) {
-      stats = heymoose().getAffiliatesStatsByOffer(lastOfferId, sub);
-      assertEquals(1L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(5L, stats.stats.get(0).shows);
-      assertEquals(2L, stats.stats.get(0).clicks);
-      assertEquals(1L, stats.stats.get(0).leads);
-    }
-  }
-
-  @Test
-  public void getAffiliatesStatsByOfferWithBadSubs() {
-    // not related offerId and subs
-    stats = heymoose().getAffiliatesStatsByOffer(lastOfferId, sub_);
+    stats = heymoose().getAffiliatesAllStats(true);
     assertEquals(1L, stats.count);
     assertNotNull(stats.stats);
-    assertEquals(0L, stats.stats.get(0).shows);
-    assertEquals(0L, stats.stats.get(0).clicks);
-    assertEquals(0L, stats.stats.get(0).leads);
+    assertEquals(20L, stats.stats.get(0).shows);
+    assertEquals(8L, stats.stats.get(0).clicks);
+    assertEquals(4L, stats.stats.get(0).leads);
   }
 
   @Test
-  public void getAffiliatesStatsByOfferWithBadOfferId() {
-    // nothing in return
-    for (Subs sub : subs) {
-      stats = heymoose().getAffiliatesStatsByOffer(-1L, sub);
-      assertEquals(0L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(0, stats.stats.size());
-    }
+  public void getAffiliatesAllStatsNonGranted() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAffiliatesAllStats(false);
+    assertEquals(1L, stats.count);
+    assertNotNull(stats.stats);
+    assertEquals(20L, stats.stats.get(0).shows);
+    assertEquals(8L, stats.stats.get(0).clicks);
+    assertEquals(4L, stats.stats.get(0).leads);
+  }
+
+  @Test
+  public void getAffiliatesStatsByOfferGranted() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAffiliatesStatsByOffer(true, lastOfferId);
+    assertEquals(1L, stats.count);
+    assertNotNull(stats.stats);
+    assertEquals(5L, stats.stats.get(0).shows);
+    assertEquals(2L, stats.stats.get(0).clicks);
+    assertEquals(1L, stats.stats.get(0).leads);
+  }
+
+  @Test
+  public void getAffiliatesStatsByOfferNonGranted() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAffiliatesStatsByOffer(false, lastOfferId);
+    assertEquals(1L, stats.count);
+    assertNotNull(stats.stats);
+    assertEquals(5L, stats.stats.get(0).shows);
+    assertEquals(2L, stats.stats.get(0).clicks);
+    assertEquals(1L, stats.stats.get(0).leads);
   }
 
   @Test
   public void getOffersAllStatsGranted() {
     // only one is not null
-    for (Subs sub : subs) {
-      stats = heymoose().getOffersAllStats(true, sub);
-      assertEquals(4L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(5L, stats.stats.get(0).shows);
-      assertEquals(2L, stats.stats.get(0).clicks);
-      assertEquals(1L, stats.stats.get(0).leads);
-      for (int i = 1; i < 4; i++) {
-        assertEquals(0L, stats.stats.get(i).shows);
-        assertEquals(0L, stats.stats.get(i).clicks);
-        assertEquals(0L, stats.stats.get(i).leads);
-      }
-    }
-  }
-
-  @Test
-  public void getOffersAllStatsGrantedWithBadSub() {
-    // all offers with no data
-    stats = heymoose().getOffersAllStats(true, sub__);
+    stats = heymoose().getOffersAllStats(true);
     assertEquals(4L, stats.count);
     assertNotNull(stats.stats);
     for (int i = 0; i < 4; i++) {
-      assertEquals(0L, stats.stats.get(i).shows);
-      assertEquals(0L, stats.stats.get(i).clicks);
-      assertEquals(0L, stats.stats.get(i).leads);
+      assertEquals(5L, stats.stats.get(i).shows);
+      assertEquals(2L, stats.stats.get(i).clicks);
+      assertEquals(1L, stats.stats.get(i).leads);
     }
   }
 
   @Test
   public void getOffersAllStatsNotGranted() {
     // only one is not null
-    for (Subs sub : subs) {
-      stats = heymoose().getOffersAllStats(false, sub);
-      assertEquals(4L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(5L, stats.stats.get(0).shows);
-      assertEquals(2L, stats.stats.get(0).clicks);
-      assertEquals(1L, stats.stats.get(0).leads);
-      for (int i = 1; i < 4; i++) {
-        assertEquals(0L, stats.stats.get(i).shows);
-        assertEquals(0L, stats.stats.get(i).clicks);
-        assertEquals(0L, stats.stats.get(i).leads);
-      }
-    }
-  }
-
-  @Test
-  public void getOffersAllStatsNotGrantedWithBadSub() {
-    // all offers with no data
-    stats = heymoose().getOffersAllStats(false, sub__);
+    stats = heymoose().getOffersAllStats(false);
     assertEquals(4L, stats.count);
     assertNotNull(stats.stats);
     for (int i = 0; i < 4; i++) {
-      assertEquals(0L, stats.stats.get(i).shows);
-      assertEquals(0L, stats.stats.get(i).clicks);
-      assertEquals(0L, stats.stats.get(i).leads);
+      assertEquals(5L, stats.stats.get(i).shows);
+      assertEquals(2L, stats.stats.get(i).clicks);
+      assertEquals(1L, stats.stats.get(i).leads);
     }
   }
 
   @Test
-  public void getOffersStatsByAdvertizer() {
+  public void getOffersStatsByAdvertizerGranted() {
     // only one is not null
-    for (Subs sub : subs) {
-      stats = heymoose().getOffersStatsByAdvertizer(advertiserId, sub);
-      assertEquals(4L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(5L, stats.stats.get(0).shows);
-      assertEquals(2L, stats.stats.get(0).clicks);
-      assertEquals(1L, stats.stats.get(0).leads);
-      for (int i = 1; i < 4; i++) {
-        assertEquals(0L, stats.stats.get(i).shows);
-        assertEquals(0L, stats.stats.get(i).clicks);
-        assertEquals(0L, stats.stats.get(i).leads);
-      }
-    }
-  }
-
-  @Test
-  public void getOffersStatsByAdvertizerWithBadSub() {
-    // all offers with no data
-    stats = heymoose().getOffersStatsByAdvertizer(advertiserId, sub__);
+    stats = heymoose().getOffersStatsByAdvertizer(true, advertiserId);
     assertEquals(4L, stats.count);
     assertNotNull(stats.stats);
     for (int i = 0; i < 4; i++) {
-      assertEquals(0L, stats.stats.get(i).shows);
-      assertEquals(0L, stats.stats.get(i).clicks);
-      assertEquals(0L, stats.stats.get(i).leads);
+      assertEquals(5L, stats.stats.get(i).shows);
+      assertEquals(2L, stats.stats.get(i).clicks);
+      assertEquals(1L, stats.stats.get(i).leads);
     }
   }
 
   @Test
-  public void getOffersStatsByAdvertizerWithBadAdvertizer() {
-    // bad advertiserId
-    for (Subs sub : subs) {
-      stats = heymoose().getOffersStatsByAdvertizer(-1L, sub);
-      assertEquals(0L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(0, stats.stats.size());
-    }
-  }
-
-  @Test
-  public void getOffersStatsByAffiliate() {
+  public void getOffersStatsByAdvertizerNonGranted() {
     // only one is not null
-    for (Subs sub : subs) {
-      stats = heymoose().getOffersStatsByAffiliate(affId, sub);
-      assertEquals(4L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(5L, stats.stats.get(0).shows);
-      assertEquals(2L, stats.stats.get(0).clicks);
-      assertEquals(1L, stats.stats.get(0).leads);
-      for (int i = 1; i < 4; i++) {
-        assertEquals(0L, stats.stats.get(i).shows);
-        assertEquals(0L, stats.stats.get(i).clicks);
-        assertEquals(0L, stats.stats.get(i).leads);
-      }
-    }
-  }
-
-  @Test
-  public void getOffersStatsByAffiliateWithBadSub() {
-    // all offers with no data
-    stats = heymoose().getOffersStatsByAffiliate(affId, sub__);
+    stats = heymoose().getOffersStatsByAdvertizer(false, advertiserId);
     assertEquals(4L, stats.count);
     assertNotNull(stats.stats);
     for (int i = 0; i < 4; i++) {
-      assertEquals(0L, stats.stats.get(i).shows);
-      assertEquals(0L, stats.stats.get(i).clicks);
-      assertEquals(0L, stats.stats.get(i).leads);
+      assertEquals(5L, stats.stats.get(i).shows);
+      assertEquals(2L, stats.stats.get(i).clicks);
+      assertEquals(1L, stats.stats.get(i).leads);
     }
   }
 
   @Test
-  public void getOffersStatsByAffiliateWithBadAffiliate() {
-    // bad affId
-    for (Subs sub : subs) {
-      stats = heymoose().getOffersStatsByAffiliate(-1L, sub);
-      assertEquals(0L, stats.count);
-      assertNotNull(stats.stats);
-      assertEquals(0, stats.stats.size());
+  public void getOffersStatsByAffiliateGranted() {
+    // only one is not null
+    stats = heymoose().getOffersStatsByAffiliate(true, affId);
+    assertEquals(4L, stats.count);
+    assertNotNull(stats.stats);
+    for (int i = 0; i < 4; i++) {
+      assertEquals(5L, stats.stats.get(i).shows);
+      assertEquals(2L, stats.stats.get(i).clicks);
+      assertEquals(1L, stats.stats.get(i).leads);
+    }
+  }
+
+  @Test
+  public void getOffersStatsByAffiliateNonGranted() {
+    // only one is not null
+    stats = heymoose().getOffersStatsByAffiliate(false, affId);
+    assertEquals(4L, stats.count);
+    assertNotNull(stats.stats);
+    for (int i = 0; i < 4; i++) {
+      assertEquals(5L, stats.stats.get(i).shows);
+      assertEquals(2L, stats.stats.get(i).clicks);
+      assertEquals(1L, stats.stats.get(i).leads);
     }
   }
 }

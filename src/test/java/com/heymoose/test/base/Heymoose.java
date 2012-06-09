@@ -23,6 +23,7 @@ import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.representation.Form;
 import java.net.URI;
 import static java.util.Arrays.asList;
+import java.util.List;
 import java.util.Set;
 import org.junit.Ignore;
 import org.slf4j.Logger;
@@ -138,20 +139,22 @@ public class Heymoose {
     return client.path("offers").path(Long.toString(offerId)).get(XmlOffer.class);
   }
 
-  public int track(long offerId, long affId, Subs subs) {
+  public int track(long offerId, long affId, String sourceId, Subs subs) {
     WebResource wr = client.path("api")
         .queryParam("method", "track")
         .queryParam("offer_id", Long.toString(offerId))
         .queryParam("aff_id", Long.toString(affId));
+    if (sourceId != null) wr = wr.queryParam("source_id", sourceId);
     wr = subs.addToQuery(wr);
     return wr.get(ClientResponse.class).getStatus();
   }
 
-  public URI click(long offerId, long affId, Subs subs) {
+  public URI click(long offerId, long affId, String sourceId, Subs subs) {
     WebResource wr = client.path("api")
         .queryParam("method", "click")
         .queryParam("offer_id", Long.toString(offerId))
         .queryParam("aff_id", Long.toString(affId));
+    if (sourceId != null) wr = wr.queryParam("source_id", sourceId);
     wr = subs.addToQuery(wr);
     return wr.get(ClientResponse.class).getLocation();
   }
@@ -199,61 +202,92 @@ public class Heymoose {
     return client.path("grants").path(Long.toString(grantId)).get(XmlOfferGrant.class);
   }
 
-  public OverallOfferStatsList getAffiliatesAllStats(Subs subs) {
-    return getAffiliatesAllStats(subs, null);
+  // stats
+
+  public OverallOfferStatsList getOffersAllStats(boolean granted) {
+    return getOffersAllStats(granted, null);
   }
 
-  public OverallOfferStatsList getAffiliatesAllStats(Subs subs, Paging paging) {
-    WebResource wr = client.path("stats").path("affiliates").path("all");
-    wr = addSubToWebQuery(subs, wr);
-    if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
-  }
-
-  public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs) {
-    return getAffiliatesStatsByOffer(offerId, subs, null);
-  }
-
-  public OverallOfferStatsList getAffiliatesStatsByOffer(Long offerId, Subs subs, Paging paging) {
-    WebResource wr = client.path("stats").path("affiliates").path("offer")
-        .queryParam("offer_id", offerId.toString());
-    wr = addSubToWebQuery(subs, wr);
-    if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
-  }
-
-  public OverallOfferStatsList getOffersAllStats(boolean granted, Subs subs) {
-    return getOffersAllStats(granted, subs, null);
-  }
-
-  public OverallOfferStatsList getOffersAllStats(boolean granted, Subs subs, Paging paging) {
+  public OverallOfferStatsList getOffersAllStats(boolean granted, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("all")
         .queryParam("granted", Boolean.toString(granted));
-    wr = addSubToWebQuery(subs, wr);
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getOffersStatsByAffiliate(Long affId, Subs subs) {
-    return getOffersStatsByAffiliate(affId, subs, null);
+  public OverallOfferStatsList getOffersStatsByAffiliate(boolean granted, Long affId) {
+    return getOffersStatsByAffiliate(granted, affId, null);
   }
 
-  public OverallOfferStatsList getOffersStatsByAffiliate(Long affId, Subs subs, Paging paging) {
+  public OverallOfferStatsList getOffersStatsByAffiliate(boolean granted, Long affId, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("aff")
-        .queryParam("aff_id", affId.toString());
-    wr = addSubToWebQuery(subs, wr);
+        .queryParam("granted", Boolean.toString(granted));
+    if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getOffersStatsByAdvertizer(Long advId, Subs subs) {
-    return getOffersStatsByAdvertizer(advId, subs, null);
+  public OverallOfferStatsList getOffersStatsByAdvertizer(boolean granted, Long advId) {
+    return getOffersStatsByAdvertizer(granted, advId, null);
   }
 
-  public OverallOfferStatsList getOffersStatsByAdvertizer(Long advId, Subs subs, Paging paging) {
+  public OverallOfferStatsList getOffersStatsByAdvertizer(boolean granted, Long advId, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("adv")
-        .queryParam("adv_id", advId.toString());
-    wr = addSubToWebQuery(subs, wr);
+        .queryParam("granted", Boolean.toString(granted));
+    if (advId != null) wr = wr.queryParam("adv_id", advId.toString());
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
+  public OverallOfferStatsList getAffiliatesAllStats(boolean granted) {
+    return getAffiliatesAllStats(granted, null);
+  }
+
+  public OverallOfferStatsList getAffiliatesAllStats(boolean granted, Paging paging) {
+    WebResource wr = client.path("stats").path("affiliates").path("all")
+        .queryParam("granted", Boolean.toString(granted));
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
+  public OverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId) {
+    return getAffiliatesStatsByOffer(granted, offerId, null);
+  }
+
+  public OverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId, Paging paging) {
+    WebResource wr = client.path("stats").path("affiliates").path("offer")
+        .queryParam("granted", Boolean.toString(granted));
+    if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
+  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId) {
+    return getSourceIdStats(granted, affId, null);
+  }
+
+  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Paging paging) {
+    WebResource wr = client.path("stats").path("source_ids")
+        .queryParam("granted", Boolean.toString(granted));
+    if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
+  public OverallOfferStatsList getSubIdStats(boolean granted, Long affId, Subs subs, List<Boolean> grouping) {
+    return getSubIdStats(granted, affId, subs, grouping, null);
+  }
+
+  public OverallOfferStatsList getSubIdStats(
+      boolean granted, Long affId, Subs subs, List<Boolean> grouping, Paging paging) {
+
+    WebResource wr = client.path("stats").path("sub_ids")
+        .queryParam("granted", Boolean.toString(granted));
+    if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    wr = subs.addToQuery(wr);
+    for (int i = 0; i < grouping.size(); i++) {
+      if (grouping.get(i)) wr = wr.queryParam("g_sub_id" + (i == 0 ? "" : i), Boolean.toString(grouping.get(i)));
+    }
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
@@ -262,16 +296,5 @@ public class Heymoose {
     Injector injector = TestContextListener.injector();
     injector.getInstance(BufferedShows.class).flushAll();
     injector.getInstance(BufferedClicks.class).flushAll();
-  }
-
-  private WebResource addSubToWebQuery(Subs subs, WebResource wr) {
-    if (subs.sourceId() != null) wr = wr.queryParam("source_id", subs.sourceId());
-    if (subs.subId() != null) wr = wr.queryParam("sub_id", subs.subId());
-    if (subs.subId1() != null) wr = wr.queryParam("sub_id1", subs.subId1());
-    if (subs.subId2() != null) wr = wr.queryParam("sub_id2", subs.subId2());
-    if (subs.subId3() != null) wr = wr.queryParam("sub_id3", subs.subId3());
-    if (subs.subId4() != null) wr = wr.queryParam("sub_id4", subs.subId4());
-    if (subs.subGroup() != null) wr = wr.queryParam("sub_group", subs.subGroup());
-    return wr;
   }
 }

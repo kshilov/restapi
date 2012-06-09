@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class OfferStatPagingTest extends RestTest {
 
-  private final static String OFFER_CODE = "offer324234";
+  /*private final static String OFFER_CODE = "offer324234";
   private final static String OFFER_URL = "http://ya.ru";
   private final static String OFFER_SITE_URL = "http://yandex.ru";
   private final static String OFFER_NAME = "Offer1";
@@ -191,5 +191,5 @@ public class OfferStatPagingTest extends RestTest {
     assertNotNull(stats.stats);
     assertEquals(2L, stats.stats.size());
     assertTrue(stats.count > stats.stats.size());
-  }
+  } */
 }

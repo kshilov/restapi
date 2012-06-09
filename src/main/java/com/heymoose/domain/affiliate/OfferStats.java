@@ -63,7 +63,7 @@ public class OfferStats {
     String groupBy = "o.id, o.name";
     String select = "o.id a8, o.name a9";
     // particular
-    if (affId != null) {
+    if (affId != null && granted) {
       orderBy = "g.creation_time";
       groupBy = "o.id, o.name, g.creation_time";
     }
@@ -81,7 +81,7 @@ public class OfferStats {
         (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
-        (affId != null ? "and g.aff_id = :affId " : "") +
+        (affId != null ? "and offer_stat.aff_id = :affId " : "") +
         (advId != null ? "and o.user_id = :advId " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
@@ -115,8 +115,8 @@ public class OfferStats {
 
     // default
     String orderBy = "a2";
-    String groupBy = "g.aff_id, p.first_name, p.last_name";
-    String select = "g.aff_id a8, p.first_name || ' ' || p.last_name a9";
+    String groupBy = "offer_stat.aff_id, p.first_name, p.last_name";
+    String select = "offer_stat.aff_id a8, p.first_name || ' ' || p.last_name a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
@@ -126,7 +126,7 @@ public class OfferStats {
         "left join offer_stat on offer_stat.creation_time between :from and :to " +
         "and o.id = offer_stat.master " +
         (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "left join user_profile p on g.aff_id = p.id " +
+        "left join user_profile p on offer_stat.aff_id = p.id " +
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
@@ -159,8 +159,8 @@ public class OfferStats {
 
     // default
     String orderBy = "a2";
-    String groupBy = "g.aff_id, p.first_name, p.last_name";
-    String select = "g.aff_id a8, p.first_name || ' ' || p.last_name a9";
+    String groupBy = "offer_stat.aff_id, p.first_name, p.last_name";
+    String select = "offer_stat.aff_id a8, p.first_name || ' ' || p.last_name a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
@@ -170,8 +170,8 @@ public class OfferStats {
         "left join offer_stat on offer_stat.creation_time between :from and :to " +
         "and o.id = offer_stat.master " +
         (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "left join user_profile p on g.aff_id = p.id " +
-        "where o.parent_id is null and g.offer_id = :offer " +
+        "left join user_profile p on offer_stat.aff_id = p.id " +
+        "where o.parent_id is null and o.id = :offer " +
         (granted ? "and g.state = 'APPROVED' " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
@@ -217,7 +217,7 @@ public class OfferStats {
         (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
-        (affId != null ? "and g.aff_id = :affId " : "") +
+        (affId != null ? "and offer_stat.aff_id = :affId " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
     // count without offset and limit
@@ -261,7 +261,7 @@ public class OfferStats {
     int j = 0;
     for (int i = 0; i < grouping.size(); i++) {
       if (grouping.get(i)) {
-        subs[i] = "offer_stat.sub_id" + (i == 0 ? "" : i);
+        subs[j] = "offer_stat.sub_id" + (i == 0 ? "" : i);
         j++;
       }
     }
@@ -272,7 +272,8 @@ public class OfferStats {
     // clauses
     String orderBy = "a9";
     String groupBy = StringUtils.join(subs, ", ", 0, j);
-    String select = "0 a8, " + StringUtils.join(subs, " || ' + ' || ", 0, j) + " a9";
+    String select = (j == 1) ? "0 a8, " + subs[0] + " a9"
+        : "0 a8, concat(" + StringUtils.join(subs, ", ' / ', ", 0, j) + ") a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
@@ -285,8 +286,8 @@ public class OfferStats {
         "where o.parent_id is null " +
         filter +
         (granted ? "and g.state = 'APPROVED' " : "") +
-        (affId != null ? "and g.aff_id = :affId " : "") +
-        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
+        (affId != null ? "and offer_stat.aff_id = :affId " : "") +
+        "group by " + groupBy + " order by " + orderBy + " offset :offset limit :limit";
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));

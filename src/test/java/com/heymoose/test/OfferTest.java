@@ -58,9 +58,9 @@ public class OfferTest extends RestTest {
     return offerId;
   }
 
-  private URI doClick(long offerId, long affId, Subs subs) {
+  private URI doClick(long offerId, long affId, String sourceId, Subs subs) {
     sqlUpdate("insert into ip_segment(id, start_ip_addr, end_ip_addr, start_ip_num, end_ip_num, country_code, country_name) values(1, '127.0.0.1', '127.0.0.1', 2130706433, 2130706433, 'RU', 'Russian')");
-    URI location = heymoose().click(offerId, affId, subs);
+    URI location = heymoose().click(offerId, affId,sourceId, subs);
     return location;
   }
 
@@ -84,7 +84,7 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    assertEquals(200, heymoose().track(offerId, affId, Subs.empty()));
+    assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
   }
 
   @Test
@@ -93,8 +93,8 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    assertEquals(200, heymoose().track(offerId, affId, Subs.empty()));
-    URI location = doClick(offerId, affId, Subs.empty());
+    assertEquals(200, heymoose().track(offerId, affId, null,Subs.empty()));
+    URI location = doClick(offerId, affId, null,Subs.empty());
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
   }
 
@@ -104,9 +104,9 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    Subs subs = new Subs("test-sourceId", null, null, null, null, null);
-    assertEquals(200, heymoose().track(offerId, affId, subs));
-    URI location = doClick(offerId, affId, subs);
+    Subs subs = new Subs( null, null, null, null, null);
+    assertEquals(200, heymoose().track(offerId, affId, "test-source-id", subs));
+    URI location = doClick(offerId, affId, "test-source-id", subs);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
   }
 
@@ -116,9 +116,9 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    Subs subs = new Subs("test-sourceId", "test-subId", null, null, null, null);
-    assertEquals(200, heymoose().track(offerId, affId, subs));
-    URI location = doClick(offerId, affId, subs);
+    Subs subs = new Subs("test-subId", null, null, null, null);
+    assertEquals(200, heymoose().track(offerId, affId, "test-sourceId", subs));
+    URI location = doClick(offerId, affId, "test-sourceId", subs);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
   }
 
@@ -128,9 +128,9 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    Subs subs = new Subs("test-sourceId", "test-subId", null, "test-subId3", null, "test-subId5");
-    assertEquals(200, heymoose().track(offerId, affId, subs));
-    URI location = doClick(offerId, affId, subs);
+    Subs subs = new Subs("test-subId", null, "test-subId3", null, "test-subId5");
+    assertEquals(200, heymoose().track(offerId, affId, "test-sourceId", subs));
+    URI location = doClick(offerId, affId, "test-sourceId", subs);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
   }
 
@@ -140,15 +140,15 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    Subs subs = new Subs("test-sourceId", "test-subId", null, null, null, null);
-    assertEquals(200, heymoose().track(offerId, affId, subs));
+    Subs subs = new Subs( "test-subId", null, null, null, null);
+    assertEquals(200, heymoose().track(offerId, affId, "test-sourceId",subs));
 
-    subs = new Subs("test-sourceId", "wrong-test-subId", null, null, null, null);
-    URI location = doClick(offerId, affId, subs);
+    subs = new Subs( "wrong-test-subId", null, null, null, null);
+    URI location = doClick(offerId, affId, "test-sourceId",subs);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
 
-    subs = new Subs("test-sourceId", "test-subId", null, "another-test-sub3", null, null);
-    location = doClick(offerId, affId, subs);
+    subs = new Subs( "test-subId", null, "another-test-sub3", null, null);
+    location = doClick(offerId, affId,"test-sourceId", subs);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
   }
 
@@ -158,7 +158,7 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    URI location = doClick(offerId, affId, Subs.empty());
+    URI location = doClick(offerId, affId, null, Subs.empty());
     String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
@@ -173,8 +173,8 @@ public class OfferTest extends RestTest {
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
-    URI location = doClick(offerId, affId,
-        new Subs("test-sourceId", "test-subId", null, "test-subId3", null, "test-subId5")
+    URI location = doClick(offerId, affId, "test-sourceId",
+        new Subs( "test-subId", null, "test-subId3", null, "test-subId5")
     );
     String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));

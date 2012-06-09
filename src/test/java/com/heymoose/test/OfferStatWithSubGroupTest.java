@@ -12,6 +12,7 @@ import com.heymoose.util.NameValuePair;
 import com.heymoose.util.Pair;
 import com.heymoose.util.URLEncodedUtils;
 import java.net.URI;
+import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Random;
 import org.joda.time.DateTimeUtils;
@@ -34,9 +35,6 @@ public class OfferStatWithSubGroupTest extends RestTest {
 
   private static Long advertiserId = 0L;
   private static Long affId = 0L;
-  private static Long lastOfferId = 0L;
-
-  private static Subs sub_ = new Subs(null, null, null, null, null, null, "sub_id2");
 
   private static long doRegisterAdvertiser() {
     long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
@@ -64,8 +62,8 @@ public class OfferStatWithSubGroupTest extends RestTest {
     return new Pair<Long, String>(offerId, offerCode);
   }
 
-  private static URI doClick(long offerId, long affId, Subs subs) {
-    return heymoose().click(offerId, affId, subs);
+  private static URI doClick(long offerId, long affId, String sourceId, Subs subs) {
+    return heymoose().click(offerId, affId, sourceId, subs);
   }
 
   private static void doCreateGrant(long offerId, long affId) {
@@ -91,44 +89,47 @@ public class OfferStatWithSubGroupTest extends RestTest {
     advertiserId = doRegisterAdvertiser();
     affId = doRegisterAffiliate();
 
-    for (int i = 0; i < 4; i++) { // 4 offers
+    for (int i = 0; i < 3; i++) { // 6 offers
       // create offer
       Pair<Long, String> createdOfferPair = doCreateOffer(advertiserId, i);
-      long offerId = (lastOfferId = createdOfferPair.fst);
+      long offerId = createdOfferPair.fst;
       String offerCode = createdOfferPair.snd;
       doCreateGrant(offerId, affId);
 
-      // 3 shows
-      for (int j = 0; j < 3; j++) {
+      // 10 shows
+      for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
-        Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+        String sourceId = k + "-sourceId";
+        Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
       }
 
-      // 1 more show with click
-      {
+      // 10 more shows with clicks
+      for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
-        Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+        String sourceId = k + "-sourceId";
+        Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
 
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
 
         // click
-        URI location = doClick(offerId, affId, subs);
+        URI location = doClick(offerId, affId, sourceId, subs);
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
       }
 
-      // 1 more show with click and action
-      {
+      // 10 more shows with clicks and actions
+      for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
-        Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+        String sourceId = k + "-sourceId";
+        Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
 
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
 
         // click
-        URI location = doClick(offerId, affId, subs);
+        URI location = doClick(offerId, affId, sourceId, subs);
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
 
         // action
@@ -144,38 +145,144 @@ public class OfferStatWithSubGroupTest extends RestTest {
   private OverallOfferStatsList stats;
 
   @Test
-  public void getAffiliatesAllStats() {
-    stats = heymoose().getAffiliatesAllStats(sub_);
+  public void getSourceIdStatsGranted() {
+    stats = heymoose().getSourceIdStats(true, null);
     assertNotNull(stats.stats);
   }
 
   @Test
-  public void getAffiliatesStatsByOffer() {
-    stats = heymoose().getAffiliatesStatsByOffer(lastOfferId, sub_);
+  public void getSourceIdStatsNonGranted() {
+    stats = heymoose().getSourceIdStats(false, null);
     assertNotNull(stats.stats);
   }
 
   @Test
-  public void getOffersAllStatsGranted() {
-    stats = heymoose().getOffersAllStats(true, sub_);
+  public void getSourceIdStatsForAffGranted() {
+    stats = heymoose().getSourceIdStats(true, affId);
     assertNotNull(stats.stats);
   }
 
   @Test
-  public void getOffersAllStatsNotGranted() {
-    stats = heymoose().getOffersAllStats(false, sub_);
+  public void getSourceIdStatsForAffNonGranted() {
+    stats = heymoose().getSourceIdStats(false, affId);
     assertNotNull(stats.stats);
   }
 
   @Test
-  public void getOffersStatsByAdvertizer() {
-    stats = heymoose().getOffersStatsByAdvertizer(advertiserId, sub_);
+  public void getSourceIdStatsForAdvGranted() {
+    stats = heymoose().getSourceIdStats(true, advertiserId);
+    assertEquals(0L, stats.count);
     assertNotNull(stats.stats);
   }
 
   @Test
-  public void getOffersStatsByAffiliate() {
-    stats = heymoose().getOffersStatsByAffiliate(affId, sub_);
+  public void getSourceIdStatsForAdvNonGranted() {
+    stats = heymoose().getSourceIdStats(false, advertiserId);
+    assertEquals(0L, stats.count);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsGranted() {
+    stats = heymoose().getSubIdStats(true, null, Subs.empty(), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffGranted() {
+    stats = heymoose().getSubIdStats(true, affId, Subs.empty(), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsGrantedPartialGroup() {
+    stats = heymoose().getSubIdStats(true, null, Subs.empty(), asList(true, true, true, false, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffGrantedPartialGroup() {
+    stats = heymoose().getSubIdStats(true, affId, Subs.empty(), asList(true, true, true, false, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsGrantedFilter() {
+    stats = heymoose().getSubIdStats(
+        true, null, new Subs(null, null, "2-subId2", null,null), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffGrantedFilter() {
+    stats = heymoose().getSubIdStats(
+        true, affId, new Subs(null, null, "2-subId2", null,null), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsGrantedFilterAndPartialGroup() {
+    stats = heymoose().getSubIdStats(
+        true, null, new Subs(null, null, "2-subId2", null,null), asList(false, true, true, true, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffGrantedFilterAndPartialGroup() {
+    stats = heymoose().getSubIdStats(
+        true, affId, new Subs(null, null, "2-subId2", null,null), asList(false, true, true, true, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsNonGranted() {
+    stats = heymoose().getSubIdStats(false, null, Subs.empty(), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffNonGranted() {
+    stats = heymoose().getSubIdStats(false, affId, Subs.empty(), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsNonGrantedPartialGroup() {
+    stats = heymoose().getSubIdStats(false, null, Subs.empty(), asList(true, true, true, false, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffNonGrantedPartialGroup() {
+    stats = heymoose().getSubIdStats(false, affId, Subs.empty(), asList(true, true, true, false, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsNonGrantedFilter() {
+    stats = heymoose().getSubIdStats(
+        false, null, new Subs(null, null, "2-subId2", null,null), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffNonGrantedFilter() {
+    stats = heymoose().getSubIdStats(
+        false, affId, new Subs(null, null, "2-subId2", null,null), asList(true, true, true, true, true));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsNonGrantedFilterAndPartialGroup() {
+    stats = heymoose().getSubIdStats(
+        false, null, new Subs(null, null, "2-subId2", null,null), asList(false, true, true, true, false));
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getSubIdStatsAffNonGrantedFilterAndPartialGroup() {
+    stats = heymoose().getSubIdStats(
+        false, affId, new Subs(null, null, "2-subId2", null,null), asList(false, true, true, true, false));
     assertNotNull(stats.stats);
   }
 }
