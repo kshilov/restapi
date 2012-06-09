@@ -52,13 +52,14 @@ public class TrackingImpl implements Tracking {
 
   @Override
   @Transactional
-  public OfferStat trackShow(@Nullable Long bannerId, long offerId, long master, long affId, Subs subs) {
-    OfferStat stat = findStat(bannerId, offerId, affId, subs);
+  public OfferStat trackShow(
+      @Nullable Long bannerId, long offerId, long master, long affId, @Nullable String sourceId, Subs subs) {
+    OfferStat stat = findStat(bannerId, offerId, affId, sourceId, subs);
     if (stat != null) {
       bufferedShows.inc(stat.id());
       return stat;
     }
-    stat = new OfferStat(bannerId, offerId, master, affId, subs);
+    stat = new OfferStat(bannerId, offerId, master, affId, sourceId, subs);
     stat.incShows();
     repo.put(stat);
     return stat;
@@ -67,10 +68,10 @@ public class TrackingImpl implements Tracking {
   @Override
   @Transactional
   public String trackClick(@Nullable Long bannerId, long offerId, long master, long affId,
-                           Subs subs, Map<String, String> affParams) {
-    OfferStat stat = findStat(bannerId, offerId, affId, subs);
+                           @Nullable String sourceId, Subs subs, Map<String, String> affParams) {
+    OfferStat stat = findStat(bannerId, offerId, affId, sourceId, subs);
     if (stat == null) {
-      stat = new OfferStat(bannerId, offerId, master, affId, subs);
+      stat = new OfferStat(bannerId, offerId, master, affId, sourceId, subs);
       stat.incClicks();
       repo.put(stat);
     } else {
@@ -138,7 +139,7 @@ public class TrackingImpl implements Tracking {
       BigDecimal amount = cost.multiply(new BigDecimal((100 - source.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
-          source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.subs());
+          source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.sourceId(), source.subs());
       if (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)
         stat.incLeads();
       if (cpaPolicy == CpaPolicy.PERCENT)
@@ -164,7 +165,8 @@ public class TrackingImpl implements Tracking {
       try {
         URI uri;
         if (grant.postBackUrl() != null) {
-          uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.subs(), offer.id(), token.affParams());
+          uri = makeFullPostBackUri(
+              URI.create(grant.postBackUrl()), source.sourceId(), source.subs(), offer.id(), token.affParams());
           getRequest(uri);
         }
       } catch (Exception e) {
@@ -176,12 +178,12 @@ public class TrackingImpl implements Tracking {
   }
 
   private OfferStat findStat(
-      @Nullable Long bannerId, long offerId, long affId, Subs subs) {
+      @Nullable Long bannerId, long offerId, long affId, String sourceId, Subs subs) {
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
         .add(Restrictions.eq("offer.id", offerId))
         .add(Restrictions.eq("affiliate.id", affId));
     addEqOrIsNull(criteria, "bannerId", bannerId);
-    addEqOrIsNull(criteria, "sourceId", subs.sourceId());
+    addEqOrIsNull(criteria, "sourceId", sourceId);
     addEqOrIsNull(criteria, "subId", subs.subId());
     addEqOrIsNull(criteria, "subId1", subs.subId1());
     addEqOrIsNull(criteria, "subId2", subs.subId2());
@@ -203,9 +205,9 @@ public class TrackingImpl implements Tracking {
     return criteria;
   }
 
-  private static URI makeFullPostBackUri(URI uri, Subs subs, long offerId, Map<String, String> affParams) {
-    if (subs.sourceId() != null)
-      uri = QueryUtil.appendQueryParam(uri, "source_id", subs.sourceId());
+  private static URI makeFullPostBackUri(URI uri, String sourceId, Subs subs, long offerId, Map<String, String> affParams) {
+    if (sourceId != null)
+      uri = QueryUtil.appendQueryParam(uri, "source_id", sourceId);
     if (subs.subId() != null)
       uri = QueryUtil.appendQueryParam(uri, "sub_id", subs.subId());
     if (subs.subId1() != null)

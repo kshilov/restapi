@@ -177,13 +177,14 @@ public class ApiResource {
     if (!visible(offer))
       return forbidden(grant);
 
-    Subs subs = new Subs(params.get("source_id"),
+    Subs subs = new Subs(
         params.get("sub_id"),
         params.get("sub_id1"),
         params.get("sub_id2"),
         params.get("sub_id3"),
         params.get("sub_id4")
     );
+    String sourceId = params.get("source_id");
     Long ipNum = getRealIp();
     if (ipNum == null)
       throw new ApiRequestException(409, "Can't get IP address");
@@ -193,7 +194,7 @@ public class ApiResource {
     for (String param : asList("method", "banner_id", "offer_id", "aff_id",
         "sub_id", "sub_id1", "sub_id2", "sub_id3", "sub_id4", "source_id"))
       affParams.remove(param);
-    String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, subs, affParams);
+    String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, sourceId, subs, affParams);
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
     URI location = (banner == null) ? URI.create(offer.url()) : URI.create(banner.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
@@ -232,14 +233,15 @@ public class ApiResource {
     if (offerGrants.visibleByOfferAndAff(offer, affiliate) == null)
       throw illegalState("Offer was not granted: " + offerId);
 
-    Subs subs = new Subs(params.get("source_id"),
+    Subs subs = new Subs(
         params.get("sub_id"),
         params.get("sub_id1"),
         params.get("sub_id2"),
         params.get("sub_id3"),
         params.get("sub_id4")
     );
-    tracking.trackShow(bannerId, offerId, offer.master(), affId, subs);
+    String sourceId = params.get("source_id");
+    tracking.trackShow(bannerId, offerId, offer.master(), affId, sourceId, subs);
     return noCache(Response.ok()).build();
   }
 

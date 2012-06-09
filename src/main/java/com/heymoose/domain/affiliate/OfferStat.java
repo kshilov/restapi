@@ -104,7 +104,7 @@ public class OfferStat extends BaseEntity {
   protected OfferStat() {
   }
 
-  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, Subs subs) {
+  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, String sourceId, Subs subs) {
     this.bannerId = bannerId;
     this.offerId = offerId;
     this.master = master;
@@ -114,7 +114,7 @@ public class OfferStat extends BaseEntity {
     this.subId2 = subs.subId2();
     this.subId3 = subs.subId3();
     this.subId4 = subs.subId4();
-    this.sourceId = subs.sourceId();
+    this.sourceId = sourceId;
   }
 
   public Long bannerId() {
@@ -130,7 +130,11 @@ public class OfferStat extends BaseEntity {
   }
 
   public Subs subs() {
-    return new Subs(sourceId, subId, subId1, subId2, subId3, subId4);
+    return new Subs(subId, subId1, subId2, subId3, subId4);
+  }
+
+  public String sourceId() {
+    return sourceId;
   }
 
   public void incClicks() {
