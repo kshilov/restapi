@@ -6,6 +6,7 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.util.Pair;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static java.util.Arrays.asList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -142,6 +143,39 @@ public class OfferStatsResource {
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p
         = stats.sourceIdStats(granted, affId, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
+    return list;
+  }
+
+  @GET
+  @Path("sub_ids")
+  @Transactional
+  public OverallOfferStatsList subIdStats(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("granted") @DefaultValue("false") boolean granted,
+      @QueryParam("sub_id") String subId,
+      @QueryParam("sub_id1") String subId1,
+      @QueryParam("sub_id2") String subId2,
+      @QueryParam("sub_id3") String subId3,
+      @QueryParam("sub_id4") String subId4,
+      @QueryParam("g_sub_id") @DefaultValue("false") boolean groupSubId,
+      @QueryParam("g_sub_id1") @DefaultValue("false") boolean groupSubId1,
+      @QueryParam("g_sub_id2") @DefaultValue("false") boolean groupSubId2,
+      @QueryParam("g_sub_id3") @DefaultValue("false") boolean groupSubId3,
+      @QueryParam("g_sub_id4") @DefaultValue("false") boolean groupSubId4,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+
+    if (to == null) to = DateTimeUtils.currentTimeMillis();
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    Pair<List<OverallOfferStats>, Long> p = stats.subIdStats(
+        granted, affId,
+        asList(subId, subId1, subId2, subId3, subId4),
+        asList(groupSubId, groupSubId1, groupSubId2, groupSubId3, groupSubId4),
+        new DateTime(from), new DateTime(to), offset, limit);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;

@@ -6,10 +6,12 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
@@ -241,6 +243,76 @@ public class OfferStats {
     return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
 
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> subIdStats(
+      boolean granted, Long affId, List<String> subsFilter, List<Boolean> grouping, DateTime from, DateTime to, int offset, int limit) {
+
+    // filter
+    String filter = "";
+    for (int i = 0; i < subsFilter.size(); i++) {
+      if (subsFilter.get(i) != null) {
+        filter += "and sub_id" + (i == 0 ? "" : i) + " = :sub_id" + i + " ";
+        grouping.set(i, false); // do not group where value is filtered
+      }
+    }
+
+    // grouping
+    String[] subs = new String[5];
+    int j = 0;
+    for (int i = 0; i < grouping.size(); i++) {
+      if (grouping.get(i)) {
+        subs[i] = "offer_stat.sub_id" + (i == 0 ? "" : i);
+        j++;
+      }
+    }
+
+    // at least one grouping of not-filtered values should exist
+    if (j == 0) return new Pair<List<OverallOfferStats>, Long>(new ArrayList<OverallOfferStats>(), 0L);
+
+    // clauses
+    String orderBy = "a9";
+    String groupBy = StringUtils.join(subs, ", ", 0, j);
+    String select = "0 a8, " + StringUtils.join(subs, " || ' + ' || ", 0, j) + " a9";
+
+    // sql
+    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
+        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
+        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
+        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
+        "left join offer_stat on offer_stat.creation_time between :from and :to " +
+        "and o.id = offer_stat.master " +
+        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
+        "where o.parent_id is null " +
+        filter +
+        (granted ? "and g.state = 'APPROVED' " : "") +
+        (affId != null ? "and g.aff_id = :affId " : "") +
+        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    if (affId != null) countQuery.setParameter("affId", affId);
+    addSubsParametersToQuery(subsFilter, countQuery);
+    Long count = extractLong(countQuery
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    if (affId != null) query.setParameter("affId", affId);
+    addSubsParametersToQuery(subsFilter, query);
+    @SuppressWarnings("unchecked")
+    List<OverallOfferStats> stats = toStats(query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list()
+    );
+    return new Pair<List<OverallOfferStats>, Long>(stats, count);
+  }
+
 
   private static Long extractLong(Object val) {
     if (val == null)
@@ -264,42 +336,13 @@ public class OfferStats {
     throw new IllegalStateException();
   }
 
-/*  private void addSubsParametersToQuery(Subs subs, Query dbQuery) {
-    if (subs.sourceId() != null) dbQuery.setParameter("source_id", subs.sourceId());
-    if (subs.subId() != null) dbQuery.setParameter("sub_id", subs.subId());
-    if (subs.subId1() != null) dbQuery.setParameter("sub_id1", subs.subId1());
-    if (subs.subId2() != null) dbQuery.setParameter("sub_id2", subs.subId2());
-    if (subs.subId3() != null) dbQuery.setParameter("sub_id3", subs.subId3());
-    if (subs.subId4() != null) dbQuery.setParameter("sub_id4", subs.subId4());
+  private void addSubsParametersToQuery(List<String> subs, Query query) {
+    for (int i = 0; i < subs.size(); i++) {
+      if (subs.get(i) != null) {
+        query.setParameter("sub_id" + i, subs.get(i));
+      }
+    }
   }
-
-  private String addSubsToSql(Subs subs) {
-    String query = "";
-    if (subs.sourceId() != null) query += "and offer_stat.source_id = :source_id ";
-    if (subs.subId() != null) query += "and offer_stat.sub_id = :sub_id ";
-    if (subs.subId1() != null) query += "and offer_stat.sub_id1 = :sub_id1 ";
-    if (subs.subId2() != null) query += "and offer_stat.sub_id2 = :sub_id2 ";
-    if (subs.subId3() != null) query += "and offer_stat.sub_id3 = :sub_id3 ";
-    if (subs.subId4() != null) query += "and offer_stat.sub_id4 = :sub_id4 ";
-    return query;
-  }
-
-  private String addSubGroupToSqlInSelect(String subGroup) {
-    String g = addSubGroupToSqlInGroupBy(subGroup);
-    if ("".equals(g)) return g;
-    else return g + " s";
-  }
-
-  private String addSubGroupToSqlInGroupBy(String subGroup) {
-    if ("source_id".equals(subGroup)) return ", source_id";
-    if ("sub_id".equals(subGroup)) return ", sub_id";
-    if ("sub_id1".equals(subGroup)) return ", sub_id1";
-    if ("sub_id2".equals(subGroup)) return ", sub_id2";
-    if ("sub_id3".equals(subGroup)) return ", sub_id3";
-    if ("sub_id4".equals(subGroup)) return ", sub_id4";
-    return "";
-  }
-  */
 
   private String countSql(String sql) {
     sql = sql.replaceFirst("select .* from ", "select count(*) from ");
