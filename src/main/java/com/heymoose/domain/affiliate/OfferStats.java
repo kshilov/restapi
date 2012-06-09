@@ -29,6 +29,7 @@ public class OfferStats {
   private List<OverallOfferStats> toStats(List<Object[]> dbResult) {
     List<OverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
+      // a1 - a7
       long shows = extractLong(record[0]);
       long clicks = extractLong(record[1]);
       long leads = extractLong(record[2]);
@@ -36,13 +37,14 @@ public class OfferStats {
       double confirmedRevenue = extractDouble(record[4]);
       double notConfirmedRevenue = extractDouble(record[5]);
       double canceledRevenue = extractDouble(record[6]);
+      // calculations
       Double ctr = (shows == 0) ? null : clicks * 100.0 / shows;
       Double cr = (clicks == 0) ? null : (leads + sales) * 100.0 / clicks;
       Double ecpc = (clicks == 0) ? null : (confirmedRevenue + notConfirmedRevenue) / clicks;
       Double ecpm = (shows == 0) ? null : (confirmedRevenue + notConfirmedRevenue) * 1000.0 / shows;
 
-      long offerId = extractLong(record[7]);
-      String name = (String) record[8];
+      long offerId = extractLong(record[7]); // a8
+      String name = (String) record[8]; // a9
 
       result.add(new OverallOfferStats(offerId, name, shows, clicks, leads, sales,
           confirmedRevenue, notConfirmedRevenue, canceledRevenue, ctr, cr, ecpc, ecpm));
@@ -151,7 +153,7 @@ public class OfferStats {
   @Transactional
   @SuppressWarnings("unchecked")
   public Pair<List<OverallOfferStats>, Long> affStatsByOffer(
-      long offerId, boolean granted, DateTime from, DateTime to, int offset, int limit) {
+      boolean granted, long offerId, DateTime from, DateTime to, int offset, int limit) {
 
     // default
     String orderBy = "a2";
@@ -193,6 +195,52 @@ public class OfferStats {
     );
     return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> sourceIdStats(
+      boolean granted, Long affId, DateTime from, DateTime to, int offset, int limit) {
+
+    // default
+    String orderBy = "a9";
+    String groupBy = "offer_stat.source_id";
+    String select = "0 a8, offer_stat.source_id a9";
+
+    // sql
+    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
+        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
+        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
+        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
+        "left join offer_stat on offer_stat.creation_time between :from and :to " +
+        "and o.id = offer_stat.master " +
+        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
+        "where o.parent_id is null " +
+        (granted ? "and g.state = 'APPROVED' " : "") +
+        (affId != null ? "and g.aff_id = :affId " : "") +
+        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    if (affId != null) countQuery.setParameter("affId", affId);
+    Long count = extractLong(countQuery
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    if (affId != null) query.setParameter("affId", affId);
+    @SuppressWarnings("unchecked")
+    List<OverallOfferStats> stats = toStats(query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list()
+    );
+    return new Pair<List<OverallOfferStats>, Long>(stats, count);
+  }
+
 
   private static Long extractLong(Object val) {
     if (val == null)
