@@ -196,7 +196,7 @@ public class ApiResource {
       affParams.remove(param);
     String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, sourceId, subs, affParams);
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
-    URI location = (banner == null) ? URI.create(offer.url()) : URI.create(banner.url());
+    URI location = (banner != null && banner.url() != null) ? URI.create(banner.url()) : URI.create(offer.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     Response.ResponseBuilder response = Response.status(302).location(location);
