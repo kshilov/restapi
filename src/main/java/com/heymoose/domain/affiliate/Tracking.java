@@ -11,7 +11,7 @@ public interface Tracking {
 
   String trackClick(
       @Nullable Long bannerId, long offerId, long master, long affId, @Nullable String sourceId, Subs subs,
-      Map<String, String> affParams);
+      Map<String, String> affParams, @Nullable String referer, @Nullable String keywords);
 
   List<OfferAction> trackConversion(
       Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers);

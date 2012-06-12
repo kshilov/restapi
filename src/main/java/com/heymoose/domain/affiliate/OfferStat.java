@@ -96,6 +96,14 @@ public class OfferStat extends BaseEntity {
   @Column(name = "canceled_revenue")
   private BigDecimal canceledRevenue = new BigDecimal(0);
 
+  @Column(name = "referer")
+  @Nullable
+  private String referer;
+
+  @Column(name = "keywords")
+  @Nullable
+  private String keywords;
+
   @Override
   public Long id() {
     return id;
@@ -104,7 +112,8 @@ public class OfferStat extends BaseEntity {
   protected OfferStat() {
   }
 
-  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, String sourceId, Subs subs) {
+  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, String sourceId, Subs subs,
+                   String referer, String keywords) {
     this.bannerId = bannerId;
     this.offerId = offerId;
     this.master = master;
@@ -115,6 +124,8 @@ public class OfferStat extends BaseEntity {
     this.subId3 = subs.subId3();
     this.subId4 = subs.subId4();
     this.sourceId = sourceId;
+    this.referer = referer;
+    this.keywords = keywords;
   }
 
   public Long bannerId() {
@@ -135,6 +146,14 @@ public class OfferStat extends BaseEntity {
 
   public String sourceId() {
     return sourceId;
+  }
+
+  public String referer() {
+    return referer;
+  }
+
+  public String keywords() {
+    return keywords;
   }
 
   public void incClicks() {

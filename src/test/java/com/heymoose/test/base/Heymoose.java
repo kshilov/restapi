@@ -35,12 +35,21 @@ public class Heymoose {
   protected final static Logger log = LoggerFactory.getLogger(Heymoose.class);
 
   private final WebResource client;
+  private static String referer;
 
   public Heymoose(WebResource client) {
     client.addFilter(new ClientFilter() {
       @Override
       public ClientResponse handle(ClientRequest cr) throws ClientHandlerException {
         cr.getHeaders().put("X-Real-Ip", asList((Object) "127.0.0.1"));
+        return getNext().handle(cr);
+      }
+    });
+    // referer
+    client.addFilter(new ClientFilter() {
+      @Override
+      public ClientResponse handle(ClientRequest cr) throws ClientHandlerException {
+        if (referer!= null) cr.getHeaders().put("Referer", asList((Object) referer));
         return getNext().handle(cr);
       }
     });
@@ -150,6 +159,17 @@ public class Heymoose {
   }
 
   public URI click(long offerId, long affId, String sourceId, Subs subs) {
+    WebResource wr = client.path("api")
+        .queryParam("method", "click")
+        .queryParam("offer_id", Long.toString(offerId))
+        .queryParam("aff_id", Long.toString(affId));
+    if (sourceId != null) wr = wr.queryParam("source_id", sourceId);
+    wr = subs.addToQuery(wr);
+    return wr.get(ClientResponse.class).getLocation();
+  }
+
+  public URI click(long offerId, long affId, String sourceId, Subs subs, String referer) {
+    Heymoose.referer = referer;
     WebResource wr = client.path("api")
         .queryParam("method", "click")
         .queryParam("offer_id", Long.toString(offerId))

@@ -8,6 +8,7 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.GeoTargeting;
+import com.heymoose.domain.affiliate.KeywordPatternDao;
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
@@ -66,18 +67,21 @@ public class ApiResource {
   private final Repo repo;
   private final GeoTargeting geoTargeting;
   private final OfferGrantRepository offerGrants;
+  private final KeywordPatternDao keywordPatternDao;
 
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, Provider<UriInfo> uriInfoProvider,
-                     Tracking tracking, Repo repo, GeoTargeting geoTargeting, OfferGrantRepository offerGrants) {
+                     Tracking tracking, Repo repo, GeoTargeting geoTargeting, OfferGrantRepository offerGrants,
+                     KeywordPatternDao keywordPatternDao) {
     this.requestContextProvider = requestContextProvider;
     this.uriInfoProvider = uriInfoProvider;
     this.tracking = tracking;
     this.repo = repo;
     this.geoTargeting = geoTargeting;
     this.offerGrants = offerGrants;
+    this.keywordPatternDao = keywordPatternDao;
   }
 
   @GET
@@ -98,6 +102,7 @@ public class ApiResource {
   }
 
   private Response callMethodInternal(@QueryParam("method") String method) throws ApiRequestException {
+
     ensureNotNull("method", method);
     Map<String, String> params = queryParams();
     if (method.equals("track"))
@@ -177,6 +182,7 @@ public class ApiResource {
     if (!visible(offer))
       return forbidden(grant);
 
+    // sourceId and subIds extracting
     Subs subs = new Subs(
         params.get("sub_id"),
         params.get("sub_id1"),
@@ -185,16 +191,32 @@ public class ApiResource {
         params.get("sub_id4")
     );
     String sourceId = params.get("source_id");
+
+    // geo targeting
     Long ipNum = getRealIp();
     if (ipNum == null)
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum))
       return forbidden(grant);
+
+    // keywords
+    String referer = extractReferer();
+    String keywords;
+    if (params.containsKey("keywords"))
+      keywords = params.get("keywords");
+    else
+      keywords = keywordPatternDao.extractKeywords(referer);
+
+    // postback feature parameters
     Map<String, String> affParams = newHashMap(params);
     for (String param : asList("method", "banner_id", "offer_id", "aff_id",
         "sub_id", "sub_id1", "sub_id2", "sub_id3", "sub_id4", "source_id"))
       affParams.remove(param);
-    String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, sourceId, subs, affParams);
+
+    // track
+    String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, sourceId, subs, affParams, referer, keywords);
+
+    // location
     Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
     URI location = (banner != null && banner.url() != null) ? URI.create(banner.url()) : URI.create(offer.url());
     location = appendQueryParam(location, offer.tokenParamName(), token);
@@ -204,6 +226,13 @@ public class ApiResource {
     addCookie(response, "hm_token_" + offer.advertiser().id(), token, maxAge);
     noCache(response);
     return response.build();
+  }
+
+  private String extractReferer() {
+    if (requestContextProvider.get().getHeaderValue("Referer") != null)
+      return requestContextProvider.get().getHeaderValue("Referer");
+    else
+      return requestContextProvider.get().getHeaderValue("X-Real-IP");
   }
 
   private static boolean visible(BaseOffer offer) {

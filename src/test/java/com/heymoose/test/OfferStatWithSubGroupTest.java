@@ -89,14 +89,14 @@ public class OfferStatWithSubGroupTest extends RestTest {
     advertiserId = doRegisterAdvertiser();
     affId = doRegisterAffiliate();
 
-    for (int i = 0; i < 3; i++) { // 6 offers
+    for (int i = 0; i < 3; i++) { // 3 offers
       // create offer
       Pair<Long, String> createdOfferPair = doCreateOffer(advertiserId, i);
       long offerId = createdOfferPair.fst;
       String offerCode = createdOfferPair.snd;
       doCreateGrant(offerId, affId);
 
-      // 10 shows
+      // 5 shows
       for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
         String sourceId = k + "-sourceId";
@@ -105,7 +105,7 @@ public class OfferStatWithSubGroupTest extends RestTest {
         assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
       }
 
-      // 10 more shows with clicks
+      // 5 more shows with clicks
       for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
         String sourceId = k + "-sourceId";
@@ -119,7 +119,7 @@ public class OfferStatWithSubGroupTest extends RestTest {
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
       }
 
-      // 10 more shows with clicks and actions
+      // 5 more shows with clicks and actions
       for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
         String sourceId = k + "-sourceId";

@@ -9,7 +9,6 @@ import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.test.base.RestTest;
 import com.heymoose.util.NameValuePair;
-import com.heymoose.util.Paging;
 import com.heymoose.util.Pair;
 import com.heymoose.util.URLEncodedUtils;
 import java.net.URI;
@@ -18,13 +17,12 @@ import java.util.Random;
 import org.joda.time.DateTimeUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class OfferStatPagingTest extends RestTest {
+public class RefererTest extends RestTest {
 
-  /*private final static String OFFER_CODE = "offer324234";
+  private final static String OFFER_CODE = "offer324234";
   private final static String OFFER_URL = "http://ya.ru";
   private final static String OFFER_SITE_URL = "http://yandex.ru";
   private final static String OFFER_NAME = "Offer1";
@@ -36,9 +34,6 @@ public class OfferStatPagingTest extends RestTest {
 
   private static Long advertiserId = 0L;
   private static Long affId = 0L;
-  private static Long lastOfferId = 0L;
-
-  private static Subs sub_ = new Subs(null, null, null, null, null, null, "sub_id2");
 
   private static long doRegisterAdvertiser() {
     long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
@@ -66,8 +61,8 @@ public class OfferStatPagingTest extends RestTest {
     return new Pair<Long, String>(offerId, offerCode);
   }
 
-  private static URI doClick(long offerId, long affId, Subs subs) {
-    return heymoose().click(offerId, affId, subs);
+  private static URI doClick(long offerId, long affId, String sourceId, Subs subs, String referer) {
+    return heymoose().click(offerId, affId, sourceId, subs, referer);
   }
 
   private static void doCreateGrant(long offerId, long affId) {
@@ -96,41 +91,50 @@ public class OfferStatPagingTest extends RestTest {
     for (int i = 0; i < 6; i++) { // 6 offers
       // create offer
       Pair<Long, String> createdOfferPair = doCreateOffer(advertiserId, i);
-      long offerId = (lastOfferId = createdOfferPair.fst);
+      long offerId = createdOfferPair.fst;
       String offerCode = createdOfferPair.snd;
       doCreateGrant(offerId, affId);
 
       // 10 shows
       for (int j = 0; j < 10; j++) {
-        int k = rnd.nextInt(10);
-        Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+        int k = rnd.nextInt(3);
+        String sourceId = k + "-sourceId";
+        Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
       }
 
-      // 5 more show with click
-      for (int j = 0; j < 5; j++) {
-        int k = rnd.nextInt(10);
-        Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+      // 10 more shows with clicks
+      for (int j = 0; j < 10; j++) {
+        int k = rnd.nextInt(3);
+        String sourceId = k + "-sourceId";
+        Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
 
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
 
         // click
-        URI location = doClick(offerId, affId, subs);
+        String referer = rnd.nextInt(7) > 4 ? null :
+            "http://" + (rnd.nextInt(7) > 4 ? "rambler.ru" : "yandex.ru")
+                + "/search?" + (rnd.nextInt(7) > 4 ? "q" : "text") + "=" + k + "qwerty";
+        URI location = doClick(offerId, affId, sourceId, subs, referer);
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
       }
 
-      // 5 more show with click and action
-      for (int j = 0; j < 5; j++) {
-        int k = rnd.nextInt(10);
-        Subs subs = new Subs(k + "-sourceId", k + "-subId", null, k + "-subId2", null, k + "-subId4");
+      // 10 more shows with clicks and actions
+      for (int j = 0; j < 10; j++) {
+        int k = rnd.nextInt(3);
+        String sourceId = k + "-sourceId";
+        Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
 
         // show
-        assertEquals(200, heymoose().track(offerId, affId, subs));
+        assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
 
         // click
-        URI location = doClick(offerId, affId, subs);
+        String referer = rnd.nextInt(7) > 4 ? null :
+            "http://" + (rnd.nextInt(7) > 4 ? "rambler.ru" : "yandex.ru")
+                + "/search?" + (rnd.nextInt(7) > 4 ? "q" : "text") + "=" + k + "qwerty";
+        URI location = doClick(offerId, affId, sourceId, subs, referer);
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
 
         // action
@@ -146,50 +150,8 @@ public class OfferStatPagingTest extends RestTest {
   private OverallOfferStatsList stats;
 
   @Test
-  public void getAffiliatesAllStats() {
-    stats = heymoose().getAffiliatesAllStats(sub_, new Paging(0, 2));
+  public void getStats() {
+    stats = heymoose().getOffersAllStats(true, null);
     assertNotNull(stats.stats);
-    assertEquals(2L, stats.stats.size());
-    assertTrue(stats.count > stats.stats.size());
   }
-
-  @Test
-  public void getAffiliatesStatsByOffer() {
-    stats = heymoose().getAffiliatesStatsByOffer(lastOfferId, sub_, new Paging(0, 2));
-    assertNotNull(stats.stats);
-    assertEquals(2L, stats.stats.size());
-    assertTrue(stats.count > stats.stats.size());
-  }
-
-  @Test
-  public void getOffersAllStatsGranted() {
-    stats = heymoose().getOffersAllStats(true, sub_, new Paging(0, 2));
-    assertNotNull(stats.stats);
-    assertEquals(2L, stats.stats.size());
-    assertTrue(stats.count > stats.stats.size());
-  }
-
-  @Test
-  public void getOffersAllStatsNotGranted() {
-    stats = heymoose().getOffersAllStats(false, sub_, new Paging(0, 2));
-    assertNotNull(stats.stats);
-    assertEquals(2L, stats.stats.size());
-    assertTrue(stats.count > stats.stats.size());
-  }
-
-  @Test
-  public void getOffersStatsByAdvertizer() {
-    stats = heymoose().getOffersStatsByAdvertizer(advertiserId, sub_, new Paging(0, 2));
-    assertNotNull(stats.stats);
-    assertEquals(2L, stats.stats.size());
-    assertTrue(stats.count > stats.stats.size());
-  }
-
-  @Test
-  public void getOffersStatsByAffiliate() {
-    stats = heymoose().getOffersStatsByAffiliate(affId, sub_, new Paging(0, 2));
-    assertNotNull(stats.stats);
-    assertEquals(2L, stats.stats.size());
-    assertTrue(stats.count > stats.stats.size());
-  } */
 }
