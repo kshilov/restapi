@@ -154,4 +154,28 @@ public class RefererTest extends RestTest {
     stats = heymoose().getOffersAllStats(true, null);
     assertNotNull(stats.stats);
   }
+
+  @Test
+  public void getRefererStats() {
+    stats = heymoose().getRefererStats(true, null);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getRefererStatsForAff() {
+    stats = heymoose().getRefererStats(true, affId);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getKeywordsStats() {
+    stats = heymoose().getKeywordsStats(true, null);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getKeywordsStatsForAff() {
+    stats = heymoose().getKeywordsStats(true, affId);
+    assertNotNull(stats.stats);
+  }
 }

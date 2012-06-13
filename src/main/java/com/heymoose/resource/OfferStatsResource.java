@@ -180,4 +180,44 @@ public class OfferStatsResource {
     list.count = p.snd;
     return list;
   }
+
+  @GET
+  @Path("referer")
+  @Transactional
+  public OverallOfferStatsList refererStats(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("granted") @DefaultValue("false") boolean granted,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+
+    if (to == null) to = DateTimeUtils.currentTimeMillis();
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    Pair<List<OverallOfferStats>, Long> p
+        = stats.refererStats(granted, affId, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
+    return list;
+  }
+
+  @GET
+  @Path("keywords")
+  @Transactional
+  public OverallOfferStatsList keywordsStats(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("granted") @DefaultValue("false") boolean granted,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+
+    if (to == null) to = DateTimeUtils.currentTimeMillis();
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    Pair<List<OverallOfferStats>, Long> p
+        = stats.keywordsStats(granted, affId, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
+    return list;
+  }
 }

@@ -49,7 +49,7 @@ public class Heymoose {
     client.addFilter(new ClientFilter() {
       @Override
       public ClientResponse handle(ClientRequest cr) throws ClientHandlerException {
-        if (referer!= null) cr.getHeaders().put("Referer", asList((Object) referer));
+        if (referer != null) cr.getHeaders().put("Referer", asList((Object) referer));
         return getNext().handle(cr);
       }
     });
@@ -288,6 +288,30 @@ public class Heymoose {
 
   public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Paging paging) {
     WebResource wr = client.path("stats").path("source_ids")
+        .queryParam("granted", Boolean.toString(granted));
+    if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
+  public OverallOfferStatsList getRefererStats(boolean granted, Long affId) {
+    return getRefererStats(granted, affId, null);
+  }
+
+  public OverallOfferStatsList getRefererStats(boolean granted, Long affId, Paging paging) {
+    WebResource wr = client.path("stats").path("referer")
+        .queryParam("granted", Boolean.toString(granted));
+    if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
+  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId) {
+    return getKeywordsStats(granted, affId, null);
+  }
+
+  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Paging paging) {
+    WebResource wr = client.path("stats").path("keywords")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
