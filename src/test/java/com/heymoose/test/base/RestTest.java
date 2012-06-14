@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,12 @@ public class RestTest {
   protected final static Logger log = LoggerFactory.getLogger(RestTest.class);
 
   private final static int TEST_PORT = 5467;
-  private static Injector injector;
 
   protected RestTest() {
+  }
+
+  @BeforeClass
+  public static void start() {
     try {
       Launcher.launch(TEST_PORT, TestContextListener.class);
     } catch (IOException e) {
@@ -29,28 +32,28 @@ public class RestTest {
     }
   }
 
-  protected String baseUrl() {
+  protected static String baseUrl() {
     return "http://127.0.0.1:" + TEST_PORT;
   }
 
-  protected WebResource client() {
+  protected static WebResource client() {
     Client client = Client.create();
     client.setFollowRedirects(false);
     return client.resource(baseUrl());
   }
 
-  protected Heymoose heymoose() {
+  protected static Heymoose heymoose() {
     return new Heymoose(client());
   }
 
-  protected Injector injector() {
+  protected static Injector injector() {
     return TestContextListener.injector();
   }
 
-  protected void sqlUpdate(String sql) {
+  protected static void sqlUpdate(String sql) {
     SessionFactory sessionFactory = injector().getInstance(SessionFactory.class);
     Session session = sessionFactory.openSession();
-    Transaction tx =  session.beginTransaction();
+    Transaction tx = session.beginTransaction();
     try {
       session.createSQLQuery(sql).executeUpdate();
       tx.commit();
@@ -61,10 +64,10 @@ public class RestTest {
     session.close();
   }
 
-  @Before public void reset() throws InterruptedException {
+  public static void reset() {
     SessionFactory sessionFactory = injector().getInstance(SessionFactory.class);
     Session session = sessionFactory.openSession();
-    Transaction tx =  session.beginTransaction();
+    Transaction tx = session.beginTransaction();
     try {
       session.createQuery("delete from OfferAction").executeUpdate();
       session.createQuery("delete from Token").executeUpdate();
