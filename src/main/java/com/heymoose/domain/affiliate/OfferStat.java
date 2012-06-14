@@ -55,6 +55,22 @@ public class OfferStat extends BaseEntity {
   @Nullable
   private String subId;
 
+  @Column(name = "sub_id1")
+  @Nullable
+  private String subId1;
+
+  @Column(name = "sub_id2")
+  @Nullable
+  private String subId2;
+
+  @Column(name = "sub_id3")
+  @Nullable
+  private String subId3;
+
+  @Column(name = "sub_id4")
+  @Nullable
+  private String subId4;
+
   @Column(name = "source_id")
   @Nullable
   private String sourceId;
@@ -80,21 +96,36 @@ public class OfferStat extends BaseEntity {
   @Column(name = "canceled_revenue")
   private BigDecimal canceledRevenue = new BigDecimal(0);
 
+  @Column(name = "referer")
+  @Nullable
+  private String referer;
+
+  @Column(name = "keywords")
+  @Nullable
+  private String keywords;
+
   @Override
   public Long id() {
     return id;
   }
 
-  protected OfferStat() {}
+  protected OfferStat() {
+  }
 
-  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, @Nullable String subId,
-                   @Nullable String sourceId) {
+  public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, String sourceId, Subs subs,
+                   String referer, String keywords) {
     this.bannerId = bannerId;
     this.offerId = offerId;
     this.master = master;
     this.affiliateId = affId;
-    this.subId = subId;
+    this.subId = subs.subId();
+    this.subId1 = subs.subId1();
+    this.subId2 = subs.subId2();
+    this.subId3 = subs.subId3();
+    this.subId4 = subs.subId4();
     this.sourceId = sourceId;
+    this.referer = referer;
+    this.keywords = keywords;
   }
 
   public Long bannerId() {
@@ -109,12 +140,20 @@ public class OfferStat extends BaseEntity {
     return affiliate;
   }
 
+  public Subs subs() {
+    return new Subs(subId, subId1, subId2, subId3, subId4);
+  }
+
   public String sourceId() {
     return sourceId;
   }
 
-  public String subId () {
-    return subId;
+  public String referer() {
+    return referer;
+  }
+
+  public String keywords() {
+    return keywords;
   }
 
   public void incClicks() {
