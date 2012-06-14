@@ -198,7 +198,7 @@ public class OfferStats {
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> sourceIdStats(
-      boolean granted, Long affId, DateTime from, DateTime to, int offset, int limit) {
+      boolean granted, Long affId, Long offerId, DateTime from, DateTime to, int offset, int limit) {
 
     // default
     String orderBy = "a9";
@@ -216,11 +216,13 @@ public class OfferStats {
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
         (affId != null ? "and offer_stat.aff_id = :affId " : "") +
+        (offerId != null ? "and o.id = :offerId " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));
     if (affId != null) countQuery.setParameter("affId", affId);
+    if (offerId != null) countQuery.setParameter("offerId", offerId);
     Long count = extractLong(countQuery
         .setTimestamp("from", from.toDate())
         .setTimestamp("to", to.toDate())
@@ -230,6 +232,7 @@ public class OfferStats {
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
     if (affId != null) query.setParameter("affId", affId);
+    if (offerId != null) query.setParameter("offerId", offerId);
     @SuppressWarnings("unchecked")
     List<OverallOfferStats> stats = toStats(query
         .setTimestamp("from", from.toDate())
@@ -243,7 +246,8 @@ public class OfferStats {
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> subIdStats(
-      boolean granted, Long affId, List<String> subsFilter, List<Boolean> grouping, DateTime from, DateTime to, int offset, int limit) {
+      boolean granted, Long affId, Long offerId, List<String> subsFilter,
+      List<Boolean> grouping, DateTime from, DateTime to, int offset, int limit) {
 
     // filter
     String filter = "";
@@ -285,11 +289,13 @@ public class OfferStats {
         filter +
         (granted ? "and g.state = 'APPROVED' " : "") +
         (affId != null ? "and offer_stat.aff_id = :affId " : "") +
+        (offerId != null ? "and o.id = :offerId " : "") +
         "group by " + groupBy + " order by " + orderBy + " offset :offset limit :limit";
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));
     if (affId != null) countQuery.setParameter("affId", affId);
+    if (offerId != null) countQuery.setParameter("offerId", offerId);
     addSubsParametersToQuery(subsFilter, countQuery);
     Long count = extractLong(countQuery
         .setTimestamp("from", from.toDate())
@@ -300,6 +306,7 @@ public class OfferStats {
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
     if (affId != null) query.setParameter("affId", affId);
+    if (offerId != null) query.setParameter("offerId", offerId);
     addSubsParametersToQuery(subsFilter, query);
     @SuppressWarnings("unchecked")
     List<OverallOfferStats> stats = toStats(query
@@ -314,7 +321,7 @@ public class OfferStats {
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> refererStats(
-      boolean granted, Long affId, DateTime from, DateTime to, int offset, int limit) {
+      boolean granted, Long affId, Long offerId, DateTime from, DateTime to, int offset, int limit) {
 
     // default
     String orderBy = "a9";
@@ -332,11 +339,13 @@ public class OfferStats {
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
         (affId != null ? "and offer_stat.aff_id = :affId " : "") +
+        (offerId != null ? "and o.id = :offerId " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));
     if (affId != null) countQuery.setParameter("affId", affId);
+    if (offerId != null) countQuery.setParameter("offerId", offerId);
     Long count = extractLong(countQuery
         .setTimestamp("from", from.toDate())
         .setTimestamp("to", to.toDate())
@@ -346,6 +355,7 @@ public class OfferStats {
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
     if (affId != null) query.setParameter("affId", affId);
+    if (offerId != null) query.setParameter("offerId", offerId);
     @SuppressWarnings("unchecked")
     List<OverallOfferStats> stats = toStats(query
         .setTimestamp("from", from.toDate())
@@ -359,7 +369,7 @@ public class OfferStats {
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> keywordsStats(
-      boolean granted, Long affId, DateTime from, DateTime to, int offset, int limit) {
+      boolean granted, Long affId, Long offerId, DateTime from, DateTime to, int offset, int limit) {
 
     // default
     String orderBy = "a9";
@@ -377,11 +387,13 @@ public class OfferStats {
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
         (affId != null ? "and offer_stat.aff_id = :affId " : "") +
+        (offerId != null ? "and o.id = :offerId " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));
     if (affId != null) countQuery.setParameter("affId", affId);
+    if (offerId != null) countQuery.setParameter("offerId", offerId);
     Long count = extractLong(countQuery
         .setTimestamp("from", from.toDate())
         .setTimestamp("to", to.toDate())
@@ -391,6 +403,7 @@ public class OfferStats {
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
     if (affId != null) query.setParameter("affId", affId);
+    if (offerId != null) query.setParameter("offerId", offerId);
     @SuppressWarnings("unchecked")
     List<OverallOfferStats> stats = toStats(query
         .setTimestamp("from", from.toDate())

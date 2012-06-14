@@ -282,52 +282,56 @@ public class Heymoose {
     return wr.get(OverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId) {
-    return getSourceIdStats(granted, affId, null);
+  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Long offerId) {
+    return getSourceIdStats(granted, affId, offerId, null);
   }
 
-  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Paging paging) {
+  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("source_ids")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getRefererStats(boolean granted, Long affId) {
-    return getRefererStats(granted, affId, null);
+  public OverallOfferStatsList getRefererStats(boolean granted, Long affId, Long offerId) {
+    return getRefererStats(granted, affId, offerId, null);
   }
 
-  public OverallOfferStatsList getRefererStats(boolean granted, Long affId, Paging paging) {
+  public OverallOfferStatsList getRefererStats(boolean granted, Long affId, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("referer")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId) {
-    return getKeywordsStats(granted, affId, null);
+  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Long offerId) {
+    return getKeywordsStats(granted, affId, offerId, null);
   }
 
-  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Paging paging) {
+  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("keywords")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getSubIdStats(boolean granted, Long affId, Subs subs, List<Boolean> grouping) {
-    return getSubIdStats(granted, affId, subs, grouping, null);
+  public OverallOfferStatsList getSubIdStats(boolean granted, Long affId, Long offerId, Subs subs, List<Boolean> grouping) {
+    return getSubIdStats(granted, affId, offerId, subs, grouping, null);
   }
 
   public OverallOfferStatsList getSubIdStats(
-      boolean granted, Long affId, Subs subs, List<Boolean> grouping, Paging paging) {
+      boolean granted, Long affId, Long offerId, Subs subs, List<Boolean> grouping, Paging paging) {
 
     WebResource wr = client.path("stats").path("sub_ids")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
+    if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     wr = subs.addToQuery(wr);
     for (int i = 0; i < grouping.size(); i++) {
       if (grouping.get(i)) wr = wr.queryParam("g_sub_id" + (i == 0 ? "" : i), Boolean.toString(grouping.get(i)));

@@ -32,8 +32,8 @@ public class RefererTest extends RestTest {
 
   private static final Random rnd = new Random(System.currentTimeMillis());
 
-  private static Long advertiserId = 0L;
-  private static Long affId = 0L;
+  private static Long affId = -1L;
+  private static Long lastOfferId = -1L;
 
   private static long doRegisterAdvertiser() {
     long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
@@ -85,18 +85,18 @@ public class RefererTest extends RestTest {
     sqlUpdate("insert into category(id, grouping, name) values(1, 'Group1', 'Category1')");
     sqlUpdate("insert into ip_segment(id, start_ip_addr, end_ip_addr, start_ip_num, end_ip_num, country_code, country_name) values(1, '127.0.0.1', '127.0.0.1', 2130706433, 2130706433, 'RU', 'Russian')");
 
-    advertiserId = doRegisterAdvertiser();
+    long advertiserId = doRegisterAdvertiser();
     affId = doRegisterAffiliate();
 
-    for (int i = 0; i < 6; i++) { // 6 offers
+    for (int i = 0; i < 3; i++) { // 3 offers
       // create offer
       Pair<Long, String> createdOfferPair = doCreateOffer(advertiserId, i);
-      long offerId = createdOfferPair.fst;
+      long offerId = (lastOfferId = createdOfferPair.fst);
       String offerCode = createdOfferPair.snd;
       doCreateGrant(offerId, affId);
 
-      // 10 shows
-      for (int j = 0; j < 10; j++) {
+      // 5 shows
+      for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
         String sourceId = k + "-sourceId";
         Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
@@ -104,8 +104,8 @@ public class RefererTest extends RestTest {
         assertEquals(200, heymoose().track(offerId, affId, sourceId, subs));
       }
 
-      // 10 more shows with clicks
-      for (int j = 0; j < 10; j++) {
+      // 5 more shows with clicks
+      for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
         String sourceId = k + "-sourceId";
         Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
@@ -121,8 +121,8 @@ public class RefererTest extends RestTest {
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
       }
 
-      // 10 more shows with clicks and actions
-      for (int j = 0; j < 10; j++) {
+      // 5 more shows with clicks and actions
+      for (int j = 0; j < 5; j++) {
         int k = rnd.nextInt(3);
         String sourceId = k + "-sourceId";
         Subs subs = new Subs(k + "-subId", null, k + "-subId2", null, k + "-subId4");
@@ -157,25 +157,49 @@ public class RefererTest extends RestTest {
 
   @Test
   public void getRefererStats() {
-    stats = heymoose().getRefererStats(true, null);
+    stats = heymoose().getRefererStats(true, null, null);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getRefererStatsWithOffer() {
+    stats = heymoose().getRefererStats(true, null, lastOfferId);
     assertNotNull(stats.stats);
   }
 
   @Test
   public void getRefererStatsForAff() {
-    stats = heymoose().getRefererStats(true, affId);
+    stats = heymoose().getRefererStats(true, affId, null);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getRefererStatsForAffWithOffer() {
+    stats = heymoose().getRefererStats(true, affId, lastOfferId);
     assertNotNull(stats.stats);
   }
 
   @Test
   public void getKeywordsStats() {
-    stats = heymoose().getKeywordsStats(true, null);
+    stats = heymoose().getKeywordsStats(true, null, null);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getKeywordsStatsWithOffer() {
+    stats = heymoose().getKeywordsStats(true, null, lastOfferId);
     assertNotNull(stats.stats);
   }
 
   @Test
   public void getKeywordsStatsForAff() {
-    stats = heymoose().getKeywordsStats(true, affId);
+    stats = heymoose().getKeywordsStats(true, affId, null);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getKeywordsStatsForAffWithOffer() {
+    stats = heymoose().getKeywordsStats(true, affId, lastOfferId);
     assertNotNull(stats.stats);
   }
 }

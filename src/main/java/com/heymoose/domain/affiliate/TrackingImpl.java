@@ -54,7 +54,7 @@ public class TrackingImpl implements Tracking {
   @Transactional
   public OfferStat trackShow(
       @Nullable Long bannerId, long offerId, long master, long affId, @Nullable String sourceId, Subs subs) {
-    OfferStat stat = findStat(bannerId, offerId, affId, sourceId, subs, null,null);
+    OfferStat stat = findStat(bannerId, offerId, affId, sourceId, subs, null, null);
     if (stat != null) {
       bufferedShows.inc(stat.id());
       return stat;
@@ -174,7 +174,14 @@ public class TrackingImpl implements Tracking {
         URI uri;
         if (grant.postBackUrl() != null) {
           uri = makeFullPostBackUri(
-              URI.create(grant.postBackUrl()), source.sourceId(), source.subs(), offer.id(), token.affParams());
+              URI.create(grant.postBackUrl()),
+              source.sourceId(),
+              source.subs(),
+              source.referer(),
+              source.keywords(),
+              offer.id(),
+              token.affParams()
+          );
           getRequest(uri);
         }
       } catch (Exception e) {
@@ -193,14 +200,14 @@ public class TrackingImpl implements Tracking {
         .add(Restrictions.eq("offer.id", offerId))
         .add(Restrictions.eq("affiliate.id", affId));
     addEqOrIsNull(criteria, "bannerId", bannerId);
-    if (sourceId != null) criteria.add(Restrictions.eq("sourceId", sourceId));
-    if (subs.subId() != null) criteria.add(Restrictions.eq("subId", subs.subId()));
-    if (subs.subId1() != null) criteria.add(Restrictions.eq("subId1", subs.subId1()));
-    if (subs.subId2() != null) criteria.add(Restrictions.eq("subId2", subs.subId2()));
-    if (subs.subId3() != null) criteria.add(Restrictions.eq("subId3", subs.subId3()));
-    if (subs.subId4() != null) criteria.add(Restrictions.eq("subId4", subs.subId4()));
-    if (referer != null) criteria.add(Restrictions.eq("referer", referer));
-    if (keywords != null) criteria.add(Restrictions.eq("keywords", keywords));
+    addEqOrIsNull(criteria, "sourceId", sourceId);
+    addEqOrIsNull(criteria, "subId", subs.subId());
+    addEqOrIsNull(criteria, "subId1", subs.subId1());
+    addEqOrIsNull(criteria, "subId2", subs.subId2());
+    addEqOrIsNull(criteria, "subId3", subs.subId3());
+    addEqOrIsNull(criteria, "subId4", subs.subId4());
+    addEqOrIsNull(criteria, "referer", referer);
+    addEqOrIsNull(criteria, "keywords", keywords);
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
@@ -217,7 +224,10 @@ public class TrackingImpl implements Tracking {
     return criteria;
   }
 
-  private static URI makeFullPostBackUri(URI uri, String sourceId, Subs subs, long offerId, Map<String, String> affParams) {
+  private static URI makeFullPostBackUri(
+      URI uri, String sourceId, Subs subs, String referer, String keywords, long offerId,
+      Map<String, String> affParams) {
+
     if (sourceId != null)
       uri = QueryUtil.appendQueryParam(uri, "source_id", sourceId);
     if (subs.subId() != null)
@@ -230,6 +240,10 @@ public class TrackingImpl implements Tracking {
       uri = QueryUtil.appendQueryParam(uri, "sub_id3", subs.subId3());
     if (subs.subId4() != null)
       uri = QueryUtil.appendQueryParam(uri, "sub_id4", subs.subId4());
+    if (referer != null)
+      uri = QueryUtil.appendQueryParam(uri, "referer", referer);
+    if (keywords != null)
+      uri = QueryUtil.appendQueryParam(uri, "keywords", keywords);
     uri = QueryUtil.appendQueryParam(uri, "offer_id", offerId);
     for (Map.Entry<String, String> ent : affParams.entrySet())
       uri = QueryUtil.appendQueryParam(uri, ent.getKey(), ent.getValue());
