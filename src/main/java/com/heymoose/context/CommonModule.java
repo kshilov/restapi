@@ -16,6 +16,8 @@ import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.IpSegment;
+import com.heymoose.domain.affiliate.KeywordPattern;
+import com.heymoose.domain.affiliate.KeywordPatternDao;
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferAction;
 import com.heymoose.domain.affiliate.OfferGrant;
@@ -84,6 +86,7 @@ public class CommonModule extends AbstractModule {
     bind(OfferLoader.class);
     bind(BufferedShows.class);
     bind(BufferedClicks.class);
+    bind(KeywordPatternDao.class);
 
     bind(Tracking.class).to(TrackingImpl.class);
     bind(Repo.class).to(HibernateRepo.class);
@@ -95,7 +98,7 @@ public class CommonModule extends AbstractModule {
     bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, Site.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, OfferStat.class, OfferAction.class,
-        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class);
+        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class, KeywordPattern.class);
   }
 
   protected void bindEntities(Class... classes) {

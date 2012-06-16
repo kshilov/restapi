@@ -54,7 +54,8 @@ public class OverallOfferStats {
     }
   };
 
-  protected OverallOfferStats() {}
+  protected OverallOfferStats() {
+  }
 
   public OverallOfferStats(long id, String name, long shows, long clicks, long leads, long sales,
                            double confirmedRevenue, double notConfirmedRevenue, double canceledRevenue,
@@ -76,19 +77,22 @@ public class OverallOfferStats {
 
   @Override
   public String toString() {
-    return "OverallOfferStats{" +
-        "id=" + id +
-        ", shows=" + shows +
-        ", clicks=" + clicks +
-        ", leads=" + leads +
-        ", sales=" + sales +
-        ", confirmedRevenue=" + confirmedRevenue +
-        ", notConfirmedRevenue=" + notConfirmedRevenue +
-        ", canceledRevenue=" + canceledRevenue +
-        ", ctr=" + ctr +
-        ", cr=" + cr +
-        ", ecpc=" + ecpc +
-        ", ecpm=" + ecpm +
-        '}';
+    final StringBuilder sb = new StringBuilder();
+    sb.append("OverallOfferStats{");
+    sb.append("id=").append(id);
+    sb.append(", name='").append(name).append('\'');
+    sb.append(", shows=").append(shows);
+    sb.append(", clicks=").append(clicks);
+    sb.append(", leads=").append(leads);
+    sb.append(", sales=").append(sales);
+    sb.append(", confirmedRevenue=").append(confirmedRevenue);
+    sb.append(", notConfirmedRevenue=").append(notConfirmedRevenue);
+    sb.append(", canceledRevenue=").append(canceledRevenue);
+    sb.append(", ctr=").append(ctr);
+    sb.append(", cr=").append(cr);
+    sb.append(", ecpc=").append(ecpc);
+    sb.append(", ecpm=").append(ecpm);
+    sb.append('}');
+    return sb.toString();
   }
 }

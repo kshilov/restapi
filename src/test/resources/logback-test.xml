@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %5p [%F:%M:%L] - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/backend.log</file>
+        <bufferedIo>true</bufferedIo>
+        <encoder>
+            <pattern>%d %5p [%F:%M:%L] - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="API" class="ch.qos.logback.core.FileAppender">
+        <file>logs/api.log</file>
+        <bufferedIo>true</bufferedIo>
+        <encoder>
+            <pattern>%d %5p [%F:%M:%L] ﻿rid:%X{request-id} - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="IP" class="ch.qos.logback.core.FileAppender">
+        <file>logs/ip.log</file>
+        <bufferedIo>true</bufferedIo>
+        <encoder>
+            <pattern>%d %5p [%F:%M:%L] ﻿rid:%X{request-id} - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.hibernate" level="INFO" additivity="false"/>
+
+    <logger name="com.heymoose.resource.api.ApiResource" additivity="false">
+        <appender-ref ref="API"/>
+    </logger>
+
+    <logger name="com.heymoose.domain.affiliate.GeoTargeting" additivity="false">
+        <appender-ref ref="IP"/>
+    </logger>
+
+    <root level="DEBUG">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

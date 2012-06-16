@@ -43,7 +43,8 @@ public class Token extends BaseEntity {
     return id;
   }
 
-  protected Token() {}
+  protected Token() {
+  }
 
   public Token(OfferStat stat) {
     this.stat = stat;

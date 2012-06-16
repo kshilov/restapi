@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.affiliate.KeywordPatternDao;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.XmlSettings;
@@ -12,16 +13,19 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 
 @Singleton
 @Path("settings")
 public class SettingResource {
 
   private final Settings settings;
+  private final KeywordPatternDao keywordPatternDao;
 
   @Inject
-  public SettingResource(Settings settings) {
+  public SettingResource(Settings settings, KeywordPatternDao keywordPatternDao) {
     this.settings = settings;
+    this.keywordPatternDao = keywordPatternDao;
   }
 
   @GET
@@ -31,7 +35,15 @@ public class SettingResource {
     checkNotNull(name);
     return settings.getString(name);
   }
-  
+
+  @GET
+  @Path("keywords/cache/reset")
+  @Transactional
+  public Response resetKeywordPatternCache() {
+    keywordPatternDao.fetchKeywordPatters();
+    return Response.ok().build();
+  }
+
   @GET
   @Transactional
   public XmlSettings all() {
@@ -42,7 +54,7 @@ public class SettingResource {
     xmlSettings.Cmin = settingsMap.get(Settings.C_MIN);
     return xmlSettings;
   }
-  
+
   @PUT
   @Transactional
   public void update(@FormParam("m") Double m, @FormParam("q") Double q, @FormParam("cmin") Double cmin) {

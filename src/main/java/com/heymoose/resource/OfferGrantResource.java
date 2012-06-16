@@ -1,23 +1,21 @@
 package com.heymoose.resource;
 
-import java.net.URI;
-
-import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.OfferRepository;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferGrantState;
+import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import java.net.URI;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -37,20 +35,20 @@ import javax.ws.rs.core.Response;
 @Path("grants")
 @Singleton
 public class OfferGrantResource {
-  
+
   private final OfferRepository offers;
   private final OfferGrantRepository offerGrants;
   private final UserRepository users;
-  
+
   @Inject
   public OfferGrantResource(OfferRepository offers,
-                          OfferGrantRepository offerGrants,
-                          UserRepository users) {
+                            OfferGrantRepository offerGrants,
+                            UserRepository users) {
     this.offers = offers;
     this.offerGrants = offerGrants;
     this.users = users;
   }
-  
+
   @GET
   @Transactional
   public XmlOfferGrants list(@QueryParam("offset") @DefaultValue("0") int offset,
@@ -68,7 +66,7 @@ public class OfferGrantResource {
         offerGrants.count(offerId, affiliateId, state, blocked, moderation), full
     );
   }
-  
+
   @GET
   @Path("{id}")
   @Transactional
@@ -77,37 +75,39 @@ public class OfferGrantResource {
     OfferGrant grant = existing(id);
     return Mappers.toXmlOfferGrant(grant, full);
   }
-  
+
   @POST
   @Transactional
   public String create(@FormParam("offer_id") long offerId,
                        @FormParam("aff_id") long affiliateId,
-                       @FormParam("message") String message) {
+                       @FormParam("message") String message,
+                       @FormParam("postback_url") String postbackUrl) {
     checkNotNull(message);
     Offer offer = visibleOffer(offerId);
     User affiliate = activeAffiliate(affiliateId);
-    
+
     if (offerGrants.byOfferAndAffiliate(offerId, affiliateId) != null)
       throw new WebApplicationException(409);
-    
+
     OfferGrant grant = new OfferGrant(offer.id(), affiliate.id(), message);
+    if (postbackUrl != null) grant.setPostbackUrl(URI.create(postbackUrl));
     offerGrants.put(grant);
     return grant.id().toString();
   }
-  
+
   @PUT
   @Path("{id}")
   @Transactional
   public void update(@Context HttpContext context, @PathParam("id") long id) {
     OfferGrant grant = existing(id);
     Form form = context.getRequest().getEntity(Form.class);
-    
+
     if (form.containsKey("back_url"))
       grant.setBackUrl(URI.create(form.getFirst("back_url")));
     if (form.containsKey("postback_url"))
       grant.setPostbackUrl(URI.create(form.getFirst("postback_url")));
   }
-  
+
   @PUT
   @Path("{id}/approved")
   @Transactional
@@ -118,7 +118,7 @@ public class OfferGrantResource {
     grant.approve();
     return Response.ok().build();
   }
-  
+
   @DELETE
   @Path("{id}/approved")
   @Transactional
@@ -130,7 +130,7 @@ public class OfferGrantResource {
     grant.reject(reason);
     return Response.ok().build();
   }
-  
+
   @PUT
   @Path("{id}/blocked")
   @Transactional
@@ -139,7 +139,7 @@ public class OfferGrantResource {
     grant.block(reason);
     return Response.ok().build();
   }
-  
+
   @DELETE
   @Path("{id}/blocked")
   @Transactional
@@ -148,14 +148,14 @@ public class OfferGrantResource {
     grant.unblock();
     return Response.ok().build();
   }
-  
+
   private OfferGrant existing(long id) {
     OfferGrant grant = offerGrants.byId(id);
     if (grant == null)
       throw new WebApplicationException(404);
     return grant;
   }
-  
+
   private Offer visibleOffer(long id) {
     Offer offer = offers.byId(id);
     if (offer == null)
@@ -164,14 +164,14 @@ public class OfferGrantResource {
       throw new WebApplicationException(409);
     return offer;
   }
-  
+
   private User existingUser(long id) {
     User user = users.byId(id);
     if (user == null)
       throw new WebApplicationException(404);
     return user;
   }
-  
+
   private User activeAffiliate(long id) {
     User user = existingUser(id);
     if (!user.isAffiliate() || !user.active())

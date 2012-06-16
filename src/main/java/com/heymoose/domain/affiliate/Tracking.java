@@ -6,11 +6,13 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public interface Tracking {
-  OfferStat trackShow(@Nullable Long bannerId, long offerId, long master, long affId,
-                      @Nullable String subId, @Nullable String sourceId);
+  OfferStat trackShow(
+      @Nullable Long bannerId, long offerId, long master, long affId, @Nullable String sourceId, Subs subs);
 
-  String trackClick(@Nullable Long bannerId, long offerId, long master, long affId,
-                    @Nullable String subId, @Nullable String sourceId, Map<String, String> affParams);
+  String trackClick(
+      @Nullable Long bannerId, long offerId, long master, long affId, @Nullable String sourceId, Subs subs,
+      Map<String, String> affParams, @Nullable String referer, @Nullable String keywords);
 
-  List<OfferAction> trackConversion(Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers);
+  List<OfferAction> trackConversion(
+      Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers);
 }

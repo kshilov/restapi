@@ -52,14 +52,14 @@ public class TrackingImpl implements Tracking {
 
   @Override
   @Transactional
-  public OfferStat trackShow(@Nullable Long bannerId, long offerId, long master, long affId,
-                             @Nullable String subId, @Nullable String sourceId) {
-    OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
+  public OfferStat trackShow(
+      @Nullable Long bannerId, long offerId, long master, long affId, @Nullable String sourceId, Subs subs) {
+    OfferStat stat = findStat(bannerId, offerId, affId, sourceId, subs, null, null);
     if (stat != null) {
       bufferedShows.inc(stat.id());
       return stat;
     }
-    stat = new OfferStat(bannerId, offerId, master, affId, subId, sourceId);
+    stat = new OfferStat(bannerId, offerId, master, affId, sourceId, subs, null, null);
     stat.incShows();
     repo.put(stat);
     return stat;
@@ -68,10 +68,11 @@ public class TrackingImpl implements Tracking {
   @Override
   @Transactional
   public String trackClick(@Nullable Long bannerId, long offerId, long master, long affId,
-                           @Nullable String subId, @Nullable String sourceId, Map<String, String> affParams) {
-    OfferStat stat = findStat(bannerId, offerId, affId, subId, sourceId);
+                           @Nullable String sourceId, Subs subs, Map<String, String> affParams,
+                           @Nullable String referer, @Nullable String keywords) {
+    OfferStat stat = findStat(bannerId, offerId, affId, sourceId, subs, referer, keywords);
     if (stat == null) {
-      stat = new OfferStat(bannerId, offerId, master, affId, subId, sourceId);
+      stat = new OfferStat(bannerId, offerId, master, affId, sourceId, subs, referer, keywords);
       stat.incClicks();
       repo.put(stat);
     } else {
@@ -81,7 +82,7 @@ public class TrackingImpl implements Tracking {
     PayMethod payMethod = offer.payMethod();
     if (payMethod == PayMethod.CPC) {
       BigDecimal cost = offer.cost();
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee())  / 100.0));
+      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
       accounting.transferMoney(
           offer.account(),
@@ -138,7 +139,15 @@ public class TrackingImpl implements Tracking {
         cost = cost2;
       BigDecimal amount = cost.multiply(new BigDecimal((100 - source.affiliate().fee()) / 100.0));
       BigDecimal revenue = cost.subtract(amount);
-      OfferStat stat = new OfferStat(source.bannerId(), offer.id(), offer.master(), source.affiliate().id(), source.subId(), source.sourceId());
+      OfferStat stat = new OfferStat(
+          source.bannerId(),
+          offer.id(),
+          offer.master(),
+          source.affiliate().id(),
+          source.sourceId(),
+          source.subs(),
+          source.referer(),
+          source.keywords());
       if (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)
         stat.incLeads();
       if (cpaPolicy == CpaPolicy.PERCENT)
@@ -162,11 +171,19 @@ public class TrackingImpl implements Tracking {
           action.id()
       );
       try {
-        URI uri = null;
-        if (grant.postBackUrl() != null)
-          uri = makeFullPostBackUri(URI.create(grant.postBackUrl()), source.sourceId(), source.subId(), offer.id(), token.affParams());
-        if (grant.postBackUrl() != null)
+        URI uri;
+        if (grant.postBackUrl() != null) {
+          uri = makeFullPostBackUri(
+              URI.create(grant.postBackUrl()),
+              source.sourceId(),
+              source.subs(),
+              source.referer(),
+              source.keywords(),
+              offer.id(),
+              token.affParams()
+          );
           getRequest(uri);
+        }
       } catch (Exception e) {
         log.warn("Error while requesting postBackUrl: " + grant.postBackUrl(), e);
       }
@@ -175,13 +192,22 @@ public class TrackingImpl implements Tracking {
     return actions;
   }
 
-  private OfferStat findStat(@Nullable Long bannerId, long offerId, long affId, @Nullable String subId, @Nullable String sourceId) {
+  private OfferStat findStat(
+      @Nullable Long bannerId, long offerId, long affId, String sourceId, Subs subs,
+      @Nullable String referer, @Nullable String keywords) {
+
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
         .add(Restrictions.eq("offer.id", offerId))
         .add(Restrictions.eq("affiliate.id", affId));
     addEqOrIsNull(criteria, "bannerId", bannerId);
     addEqOrIsNull(criteria, "sourceId", sourceId);
-    addEqOrIsNull(criteria, "subId", subId);
+    addEqOrIsNull(criteria, "subId", subs.subId());
+    addEqOrIsNull(criteria, "subId1", subs.subId1());
+    addEqOrIsNull(criteria, "subId2", subs.subId2());
+    addEqOrIsNull(criteria, "subId3", subs.subId3());
+    addEqOrIsNull(criteria, "subId4", subs.subId4());
+    addEqOrIsNull(criteria, "referer", referer);
+    addEqOrIsNull(criteria, "keywords", keywords);
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
@@ -198,11 +224,26 @@ public class TrackingImpl implements Tracking {
     return criteria;
   }
 
-  private static URI makeFullPostBackUri(URI uri, String sourceId, String subId, long offerId, Map<String, String> affParams) {
+  private static URI makeFullPostBackUri(
+      URI uri, String sourceId, Subs subs, String referer, String keywords, long offerId,
+      Map<String, String> affParams) {
+
     if (sourceId != null)
       uri = QueryUtil.appendQueryParam(uri, "source_id", sourceId);
-    if (subId != null)
-      uri = QueryUtil.appendQueryParam(uri, "sub_id", subId);
+    if (subs.subId() != null)
+      uri = QueryUtil.appendQueryParam(uri, "sub_id", subs.subId());
+    if (subs.subId1() != null)
+      uri = QueryUtil.appendQueryParam(uri, "sub_id1", subs.subId1());
+    if (subs.subId2() != null)
+      uri = QueryUtil.appendQueryParam(uri, "sub_id2", subs.subId2());
+    if (subs.subId3() != null)
+      uri = QueryUtil.appendQueryParam(uri, "sub_id3", subs.subId3());
+    if (subs.subId4() != null)
+      uri = QueryUtil.appendQueryParam(uri, "sub_id4", subs.subId4());
+    if (referer != null)
+      uri = QueryUtil.appendQueryParam(uri, "referer", referer);
+    if (keywords != null)
+      uri = QueryUtil.appendQueryParam(uri, "keywords", keywords);
     uri = QueryUtil.appendQueryParam(uri, "offer_id", offerId);
     for (Map.Entry<String, String> ent : affParams.entrySet())
       uri = QueryUtil.appendQueryParam(uri, ent.getKey(), ent.getValue());
