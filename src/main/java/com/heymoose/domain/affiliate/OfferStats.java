@@ -149,6 +149,41 @@ public class OfferStats {
     );
     return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
+  
+  @Transactional
+  public List<OverallOfferStats> topAffiliates(DateTime from, DateTime to, int offset, int limit) {
+    String sql =
+      "select offer_stat.aff_id id, p.first_name || ' ' || p.last_name n, sum(confirmed_revenue) r " +
+      "from offer o " +
+      "join offer_grant g on g.offer_id = o.id " +
+      "left join offer_stat on offer_stat.creation_time between :from and :to " +
+      "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
+      "left join user_profile p on offer_stat.aff_id = p.id " +
+      "where o.parent_id is null and g.state = 'APPROVED' " +
+      "group by offer_stat.aff_id, p.first_name, p.last_name " +
+      "order by r desc, id asc " +
+      "offset :offset limit :limit";
+    
+    Query query = repo.session().createSQLQuery(sql);
+    @SuppressWarnings("unchecked")
+    List<Object[]> dbResult = query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+    
+    List<OverallOfferStats> result = newArrayList();
+    for (Object[] record : dbResult) {
+      long id = extractLong(record[0]);
+      if (id == 0L)
+        continue;
+      String name = (String) record[1];
+      double confirmedRevenue = extractDouble(record[2]);
+      result.add(new OverallOfferStats(id, name, confirmedRevenue));
+    }
+    return result;
+  }
 
   @Transactional
   @SuppressWarnings("unchecked")

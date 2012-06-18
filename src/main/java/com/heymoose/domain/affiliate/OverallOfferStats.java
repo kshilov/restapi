@@ -74,6 +74,12 @@ public class OverallOfferStats {
     this.ecpc = ecpc;
     this.ecpm = ecpm;
   }
+  
+  public OverallOfferStats(long id, String name, double confirmedRevenue) {
+    this.id = id;
+    this.name = name;
+    this.confirmedRevenue = confirmedRevenue;
+  }
 
   @Override
   public String toString() {
