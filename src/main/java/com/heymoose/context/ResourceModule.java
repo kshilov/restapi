@@ -59,55 +59,22 @@ import java.util.Properties;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-public class CommonModule extends AbstractModule {
+public class ResourceModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    install(new HibernateModule());
-
-    bind(Mlm.class);
-    bind(Settings.class);
-    bind(OfferLoader.class);
-    bind(BufferedShows.class);
-    bind(BufferedClicks.class);
-
-    bind(Tracking.class).to(TrackingImpl.class);
-    bind(Repo.class).to(HibernateRepo.class);
-    bind(UserRepository.class).to(UserRepositoryHiber.class);
-    bind(OfferRepository.class).to(OfferRepositoryHiber.class);
-    bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
-    bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
-
-    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, Site.class,
-        BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
-        AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, OfferStat.class, OfferAction.class,
-        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class);
-  }
-
-  protected void bindEntities(Class... classes) {
-    Multibinder<Class> multibinder = Multibinder.newSetBinder(binder(), Class.class, Names.named("entities"));
-    for (Class klass : classes)
-      multibinder.addBinding().toInstance(klass);
-  }
-
-  @Provides @Named("robokassaPass")  @Singleton
-  protected String robokassaPass(@Named("settings") Properties settings) {
-    return settings.getProperty("robokassaPass");
-  }
-
-  @Provides @Named("banners-dir")  @Singleton
-  protected String bannersDir(@Named("settings") Properties settings) {
-    String bannerDirStr = settings.getProperty("banners.dir");
-    File bannerDir = new File(bannerDirStr);
-    if (!bannerDir.exists())
-      bannerDir.mkdirs();
-    else if (!bannerDir.isDirectory())
-      throw new IllegalArgumentException("Not a directory: "+ bannerDirStr);
-    return bannerDirStr;
-  }
-
-  @Provides @Named("mlm-ratio") @Singleton
-  protected double mlmRatio(@Named("settings") Properties settings) {
-    return Double.parseDouble(settings.get("mlm-ratio").toString());
+    bind(UserResource.class);
+    bind(ApiResource.class);
+    bind(RobokassaResource.class);
+    bind(AccountResource.class);
+    bind(SettingResource.class);
+    bind(OfferResource.class);
+    bind(SiteResource.class);
+    bind(OfferGrantResource.class);
+    bind(CategoryResource.class);
+    bind(BannerResource.class);
+    bind(OfferStatsResource.class);
+    bind(OfferActionResource.class);
+    bind(MlmResource.class);
   }
 }

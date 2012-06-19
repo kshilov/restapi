@@ -13,11 +13,12 @@ public class AppContextListener extends GuiceServletContextListener {
   @Override
   protected Injector getInjector() {
     return Guice.createInjector(
-            Stage.PRODUCTION,
-            new SettingsModule(),
-            new JerseyModule(),
-            new CommonModule(),
-            new ProductionModule()
+        Stage.PRODUCTION,
+        new SettingsModule(),
+        new JerseyModule(),
+        new CommonModule(),
+        new ResourceModule(),
+        new ProductionModule()
     );
   }
 
@@ -30,7 +31,7 @@ public class AppContextListener extends GuiceServletContextListener {
     final BufferedClicks bufferedClicks = injector.getInstance(BufferedClicks.class);
     new Thread(bufferedShows).start();
     new Thread(bufferedClicks).start();
-    Runtime.getRuntime().addShutdownHook(new Thread(){
+    Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         bufferedShows.flushAll();
