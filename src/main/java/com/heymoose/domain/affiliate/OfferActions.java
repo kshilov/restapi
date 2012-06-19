@@ -25,10 +25,12 @@ public class OfferActions {
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
   }
-  
+
   public Integer approveExpired(Offer offer) {
     String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
     		"and cast(now() as date) - cast(a.creationTime as date) > a.offer.holdDays";
+
+    @SuppressWarnings("unchecked")
     List<OfferAction> expiredActions = repo.session().createQuery(hql)
         .setParameterList("offerIds", offer.subofferIds())
         .setParameter("state", OfferActionState.NOT_APPROVED)
@@ -43,6 +45,8 @@ public class OfferActions {
       return 0;
     String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
     		"and a.transactionId in (:transactionIds)";
+
+    @SuppressWarnings("unchecked")
     List<OfferAction> actionsToCancel = repo.session().createQuery(hql)
         .setParameterList("offerIds", offer.subofferIds())
         .setParameter("state", OfferActionState.NOT_APPROVED)

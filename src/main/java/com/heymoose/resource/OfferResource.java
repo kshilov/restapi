@@ -2,15 +2,15 @@ package com.heymoose.resource;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.affiliate.Banner;
-import com.heymoose.domain.affiliate.BannerStore;
-import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.affiliate.Banner;
+import com.heymoose.domain.affiliate.BannerStore;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.CpaPolicy;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferRepository;
@@ -27,10 +27,9 @@ import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlSubOffers;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-
-import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -50,13 +49,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
 import org.joda.time.DateTime;
 
 @Path("offers")
 @Singleton
 public class OfferResource {
-  
+
   private final OfferRepository offers;
   private final SubOfferRepository subOffers;
   private final OfferGrantRepository offerGrants;
@@ -66,9 +64,7 @@ public class OfferResource {
   private final BannerStore bannerStore;
 
   @Inject
-  public OfferResource(OfferRepository offers,
-                       SubOfferRepository subOffers,
-                       OfferGrantRepository offerGrants,
+  public OfferResource(OfferRepository offers, SubOfferRepository subOffers, OfferGrantRepository offerGrants,
                        UserRepository users, Accounting accounting, Repo repo, BannerStore bannerStore) {
     this.offers = offers;
     this.subOffers = subOffers;
@@ -78,19 +74,19 @@ public class OfferResource {
     this.repo = repo;
     this.bannerStore = bannerStore;
   }
-  
+
   @GET
   @Transactional
   public XmlOffers list(@QueryParam("offset") @DefaultValue("0") int offset,
-                           @QueryParam("limit") @DefaultValue("20") int limit,
-                           @QueryParam("ord") @DefaultValue("ID") Ordering ord,
-                           @QueryParam("asc") @DefaultValue("false") boolean asc,
-                           @QueryParam("approved") Boolean approved,
-                           @QueryParam("active") Boolean active,
-                           @QueryParam("launched") Boolean launched,
-                           @QueryParam("showcase") Boolean showcase,
-                           @QueryParam("advertiser_id") Long advertiserId,
-                           @QueryParam("aff_id") Long affiliateId) {
+                        @QueryParam("limit") @DefaultValue("20") int limit,
+                        @QueryParam("ord") @DefaultValue("ID") Ordering ord,
+                        @QueryParam("asc") @DefaultValue("false") boolean asc,
+                        @QueryParam("approved") Boolean approved,
+                        @QueryParam("active") Boolean active,
+                        @QueryParam("launched") Boolean launched,
+                        @QueryParam("showcase") Boolean showcase,
+                        @QueryParam("advertiser_id") Long advertiserId,
+                        @QueryParam("aff_id") Long affiliateId) {
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit,
         approved, active, launched, showcase, advertiserId);
     long count = this.offers.count(approved, active, launched, showcase, advertiserId);
@@ -100,47 +96,46 @@ public class OfferResource {
         offerIds.add(offer.id());
       Map<Long, OfferGrant> grants = offerGrants.byOffersAndAffiliate(offerIds, affiliateId);
       return Mappers.toXmlOffers(offers, grants, count);
-    }
-    else
+    } else
       return Mappers.toXmlOffers(offers, count);
   }
-  
+
   @GET
   @Path("requested")
   @Transactional
   public XmlOffers listRequested(@QueryParam("offset") @DefaultValue("0") int offset,
-                                    @QueryParam("limit") @DefaultValue("20") int limit,
-                                    @QueryParam("ord") @DefaultValue("ID") Ordering ord,
-                                    @QueryParam("asc") @DefaultValue("false") boolean asc,
-                                    @QueryParam("aff_id") long affiliateId,
-                                    @QueryParam("active") Boolean active) {
+                                 @QueryParam("limit") @DefaultValue("20") int limit,
+                                 @QueryParam("ord") @DefaultValue("ID") Ordering ord,
+                                 @QueryParam("asc") @DefaultValue("false") boolean asc,
+                                 @QueryParam("aff_id") long affiliateId,
+                                 @QueryParam("active") Boolean active) {
     return Mappers.toXmlGrantedOffers(
         offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active, null),
         offerGrants.count(null, affiliateId, null, active, null)
     );
   }
-  
+
   @GET
   @Path("{id}")
   @Transactional
   public XmlOffer get(@PathParam("id") long offerId,
-                         @QueryParam("approved") @DefaultValue("false") boolean approved,
-                         @QueryParam("active") @DefaultValue("false") boolean active) {
+                      @QueryParam("approved") @DefaultValue("false") boolean approved,
+                      @QueryParam("active") @DefaultValue("false") boolean active) {
     Offer offer = existing(offerId);
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
     return Mappers.toXmlOffer(offer);
   }
-  
+
   @GET
   @Path("{id}/requested")
   @Transactional
   public XmlOffer getRequested(@PathParam("id") long offerId,
-                                  @QueryParam("aff_id") long affiliateId) {
+                               @QueryParam("aff_id") long affiliateId) {
     OfferGrant grant = existingGrant(offerId, affiliateId);
     return Mappers.toXmlGrantedNewOffer(grant);
   }
-  
+
   @POST
   @Transactional
   public String create(@FormParam("advertiser_id") Long advertiserId,
@@ -167,19 +162,19 @@ public class OfferResource {
                        @FormParam("cookie_ttl") Integer cookieTtl,
                        @FormParam("launch_time") Long unixLaunchTime) {
     checkNotNull(advertiserId, payMethod, name, description, shortDescription, url, siteUrl,
-      title, code, holdDays, cookieTtl, unixLaunchTime);
+        title, code, holdDays, cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
     if (payMethod == PayMethod.CPA)
       checkNotNull(cpaPolicy);
-    
+
     User advertiser = activeAdvertiser(advertiserId);
-    
+
     BigDecimal balance = new BigDecimal(strBalance);
     if (balance.signum() < 0)
       throw new WebApplicationException(400);
     if (balance.signum() > 0 && advertiser.advertiserAccount().balance().compareTo(balance) == -1)
       throw new WebApplicationException(409);
-    
+
     BigDecimal cost = null, cost2 = null, percent = null;
     if (payMethod == PayMethod.CPC)
       cost = positiveDecimal(strCost);
@@ -190,10 +185,9 @@ public class OfferResource {
     else if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
       cost = positiveDecimal(strCost);
       cost2 = positiveDecimal(strCost2);
-    }
-    else
+    } else
       throw new WebApplicationException(400);
-    
+
     List<Region> regions = newArrayList();
     for (String strRegion : strRegions)
       regions.add(Region.valueOf(strRegion));
@@ -212,25 +206,25 @@ public class OfferResource {
 
     if (balance.signum() > 0)
       accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
-    
+
     return offer.id().toString();
   }
-  
+
   @PUT
   @Path("{id}")
   @Transactional
   public void update(@Context HttpContext context, @PathParam("id") long id) {
     Offer offer = existing(id);
     Form form = context.getRequest().getEntity(Form.class);
-    
+
     if (form.containsKey("pay_method"))
       offer.setPayMethod(PayMethod.valueOf(form.getFirst("pay_method")));
     if (form.containsKey("cpa_policy"))
       offer.setCpaPolicy(CpaPolicy.valueOf(form.getFirst("cpa_policy")));
-    
+
     PayMethod payMethod = offer.payMethod();
     CpaPolicy cpaPolicy = offer.cpaPolicy();
-    
+
     if ((payMethod == PayMethod.CPC || payMethod == PayMethod.CPA &&
         (cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED)) &&
         form.containsKey("cost"))
@@ -249,7 +243,7 @@ public class OfferResource {
       offer.setAutoApprove(Boolean.parseBoolean(form.getFirst("auto_approve")));
     if (form.containsKey("reentrant"))
       offer.setReentrant(Boolean.parseBoolean(form.getFirst("reentrant")));
-    
+
     if (form.containsKey("name"))
       offer.setName(form.getFirst("name"));
     if (form.containsKey("description"))
@@ -302,7 +296,7 @@ public class OfferResource {
                         @FormParam("advertiser_id") Long advertiserId,
                         @FormParam("offer_id") Long offerId) {
     checkNotNull(code, advertiserId);
-    
+
     SubOffer existentSub = repo.byHQL(
         SubOffer.class,
         "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
@@ -339,7 +333,7 @@ public class OfferResource {
     offer.unblock();
     return Response.ok().build();
   }
-  
+
   @GET
   @Path("{id}/suboffers")
   @Transactional
@@ -349,7 +343,7 @@ public class OfferResource {
         subOffers.count(parentId)
     );
   }
-  
+
   @POST
   @Path("{id}/suboffers")
   @Transactional
@@ -365,7 +359,7 @@ public class OfferResource {
                                @FormParam("hold_days") Integer holdDays) {
     checkNotNull(cpaPolicy, title, code, holdDays);
     Offer offer = existing(offerId);
-    
+
     BigDecimal cost = null, cost2 = null, percent = null;
     if (cpaPolicy == CpaPolicy.FIXED)
       cost = positiveDecimal(strCost);
@@ -374,18 +368,17 @@ public class OfferResource {
     else if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
       cost = positiveDecimal(strCost);
       cost2 = positiveDecimal(strCost2);
-    }
-    else
+    } else
       throw new WebApplicationException(400);
 
     checkCode(code, offer.advertiser().id(), null);
 
     SubOffer suboffer = new SubOffer(offer.id(), cpaPolicy, cost, cost2, percent,
-                                     title, autoApprove, reentrant, code, holdDays);
+        title, autoApprove, reentrant, code, holdDays);
     subOffers.put(suboffer);
     return suboffer.id().toString();
   }
-  
+
   @PUT
   @Path("{id}/suboffers/{subofferId}")
   @Transactional
@@ -400,11 +393,11 @@ public class OfferResource {
       }
     if (suboffer == null)
       throw badRequest();
-    
+
     Form form = context.getRequest().getEntity(Form.class);
     if (form.containsKey("cpa_policy"))
       suboffer.setCpaPolicy(CpaPolicy.valueOf(form.getFirst("cpa_policy")));
-    
+
     CpaPolicy cpaPolicy = suboffer.cpaPolicy();
     if ((cpaPolicy == CpaPolicy.FIXED || cpaPolicy == CpaPolicy.DOUBLE_FIXED) &&
         form.containsKey("cost"))
@@ -431,11 +424,11 @@ public class OfferResource {
   @Path("{id}/banners")
   @Transactional
   public String addBanner(@PathParam("id") long offerId,
-                        @FormParam("width") Integer width,
-                        @FormParam("height") Integer height,
-                        @FormParam("mime_type") String mimeType,
-                        @FormParam("url") String url,
-                        @FormParam("image") String image) throws IOException {
+                          @FormParam("width") Integer width,
+                          @FormParam("height") Integer height,
+                          @FormParam("mime_type") String mimeType,
+                          @FormParam("url") String url,
+                          @FormParam("image") String image) throws IOException {
     checkNotNull(mimeType, image);
     Offer offer = existing(offerId);
     Banner banner = new Banner(offer, mimeType, width, height, url);
@@ -444,7 +437,7 @@ public class OfferResource {
     bannerStore.saveBanner(banner.id(), image);
     return banner.id().toString();
   }
-  
+
   @PUT
   @Path("{id}/banners/{bannerId}")
   @Transactional
@@ -453,7 +446,7 @@ public class OfferResource {
     Offer offer = existing(offerId);
     Banner banner = existingBanner(offer, bannerId);
     Form form = context.getRequest().getEntity(Form.class);
-    
+
     if (form.containsKey("url")) {
       String strUrl = form.getFirst("url");
       banner.setUrl((strUrl != null && !strUrl.isEmpty()) ? URI.create(strUrl).toString() : null);
@@ -467,7 +460,7 @@ public class OfferResource {
     Offer offer = existing(offerId);
     offer.deleteBanner(existingBanner(offer, bannerId));
   }
-  
+
   @PUT
   @Path("{id}/account")
   @Transactional
@@ -477,9 +470,9 @@ public class OfferResource {
     if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
     accounting.transferMoney(offer.advertiser().advertiserAccount(), offer.account(), amount,
-      AccountingEvent.OFFER_ACCOUNT_ADD, null);
+        AccountingEvent.OFFER_ACCOUNT_ADD, null);
   }
-  
+
   @DELETE
   @Path("{id}/account")
   @Transactional
@@ -489,44 +482,44 @@ public class OfferResource {
     if (offer.account().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
     accounting.transferMoney(offer.account(), offer.advertiser().advertiserAccount(), amount,
-      AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
+        AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
   }
-  
+
   private Offer existing(long id) {
     Offer offer = offers.byId(id);
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;
   }
-  
+
   private OfferGrant existingGrant(long offerId, long affiliateId) {
     OfferGrant grant = offerGrants.byOfferAndAffiliate(offerId, affiliateId);
     if (grant == null)
       throw new WebApplicationException(404);
     return grant;
   }
-  
+
   private Banner existingBanner(Offer offer, long bannerId) {
     for (Banner banner : offer.banners())
       if (banner.id().equals(bannerId))
         return banner;
     throw badRequest();
   }
-  
+
   private User existingUser(long id) {
     User user = users.byId(id);
     if (user == null)
       throw new WebApplicationException(404);
     return user;
   }
-  
+
   private User activeAdvertiser(long id) {
     User user = existingUser(id);
     if (!user.isAdvertiser() || !user.active())
       throw new WebApplicationException(400);
     return user;
   }
-  
+
   private BigDecimal positiveDecimal(String strDecimal) {
     BigDecimal decimal = new BigDecimal(strDecimal);
     if (decimal.signum() != 1)
