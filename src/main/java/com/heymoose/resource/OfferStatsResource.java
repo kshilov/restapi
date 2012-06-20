@@ -106,7 +106,26 @@ public class OfferStatsResource {
     list.count = p.snd;
     return list;
   }
-  
+
+  @GET
+  @Path("advertiser/all")
+  @Transactional
+  public OverallOfferStatsList allAdvertiserStats(
+      @QueryParam("granted") @DefaultValue("false") boolean granted,
+      @QueryParam("expired") @DefaultValue("false") boolean expired,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+
+    if (to == null) to = DateTimeUtils.currentTimeMillis();
+    OverallOfferStatsList list = new OverallOfferStatsList();
+    Pair<List<OverallOfferStats>, Long> p = stats.advStats(granted, expired, new DateTime(from), new DateTime(to), offset, limit);
+    list.stats.addAll(p.fst);
+    list.count = p.snd;
+    return list;
+  }
+
   @GET
   @Path("affiliates/top")
   @Transactional

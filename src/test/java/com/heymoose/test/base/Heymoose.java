@@ -270,6 +270,18 @@ public class Heymoose {
     return wr.get(OverallOfferStatsList.class);
   }
 
+  public OverallOfferStatsList getAdvertiserAllStats(boolean granted, boolean expired) {
+    return getAdvertiserAllStats(granted, expired, null);
+  }
+
+  public OverallOfferStatsList getAdvertiserAllStats(boolean granted, boolean expired, Paging paging) {
+    WebResource wr = client.path("stats").path("advertiser").path("all")
+        .queryParam("granted", Boolean.toString(granted))
+        .queryParam("expired", Boolean.toString(expired));
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(OverallOfferStatsList.class);
+  }
+
   public OverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId) {
     return getAffiliatesStatsByOffer(granted, offerId, null);
   }

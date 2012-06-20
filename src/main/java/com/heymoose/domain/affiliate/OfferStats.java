@@ -149,21 +149,69 @@ public class OfferStats {
     );
     return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
-  
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> advStats(boolean granted, boolean expired, DateTime from, DateTime to, int offset, int limit) {
+
+    // default
+    String orderBy = "a2";
+    String groupBy = "offer_stat.aff_id, p.first_name, p.last_name";
+    String select = "offer_stat.aff_id a8, p.first_name || ' ' || p.last_name a9";
+
+    // sql
+    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
+        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
+        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
+        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
+        "left join offer_stat on offer_stat.creation_time between :from and :to " +
+        "and o.id = offer_stat.master " +
+        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
+        "left join user_profile p on offer_stat.aff_id = p.id " +
+        (expired ? "left join offer_action oa on oa.stat_id = offer_stat.id " : "") +
+        "where o.parent_id is null " +
+        (granted ? "and g.state = 'APPROVED' " : "") +
+        (expired ? "and oa.creation_time + o.hold_days * interval '1 day' < timestamp '" + nowSql() + "' " : "") +
+        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    Long count = extractLong(countQuery
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    @SuppressWarnings("unchecked")
+    List<OverallOfferStats> stats = toStats(query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list()
+    );
+    return new Pair<List<OverallOfferStats>, Long>(stats, count);
+  }
+
+  private String nowSql() {
+    return DateTime.now().toString("YYYY-MM-dd HH:mm:ss");
+  }
+
   @Transactional
   public List<OverallOfferStats> topAffiliates(DateTime from, DateTime to, int offset, int limit) {
     String sql =
-      "select offer_stat.aff_id id, p.first_name || ' ' || p.last_name n, sum(confirmed_revenue) r " +
-      "from offer o " +
-      "join offer_grant g on g.offer_id = o.id " +
-      "left join offer_stat on offer_stat.creation_time between :from and :to " +
-      "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
-      "left join user_profile p on offer_stat.aff_id = p.id " +
-      "where o.parent_id is null and g.state = 'APPROVED' " +
-      "group by offer_stat.aff_id, p.first_name, p.last_name " +
-      "order by r desc, id asc " +
-      "offset :offset limit :limit";
-    
+        "select offer_stat.aff_id id, p.first_name || ' ' || p.last_name n, sum(confirmed_revenue) r " +
+            "from offer o " +
+            "join offer_grant g on g.offer_id = o.id " +
+            "left join offer_stat on offer_stat.creation_time between :from and :to " +
+            "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
+            "left join user_profile p on offer_stat.aff_id = p.id " +
+            "where o.parent_id is null and g.state = 'APPROVED' " +
+            "group by offer_stat.aff_id, p.first_name, p.last_name " +
+            "order by r desc, id asc " +
+            "offset :offset limit :limit";
+
     Query query = repo.session().createSQLQuery(sql);
     @SuppressWarnings("unchecked")
     List<Object[]> dbResult = query
@@ -172,7 +220,7 @@ public class OfferStats {
         .setParameter("offset", offset)
         .setParameter("limit", limit)
         .list();
-    
+
     List<OverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
       long id = extractLong(record[0]);

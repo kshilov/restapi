@@ -158,6 +158,45 @@ public class OfferStatTest extends RestTest {
   }
 
   @Test
+  public void getAdvertiserAllStatsGranted() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAdvertiserAllStats(true, false);
+    assertEquals(1L, stats.count);
+    assertNotNull(stats.stats);
+    assertEquals(20L, stats.stats.get(0).shows);
+    assertEquals(8L, stats.stats.get(0).clicks);
+    assertEquals(4L, stats.stats.get(0).leads);
+  }
+
+  @Test
+  public void getAdvertiserAllStatsGrantedExpired() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAdvertiserAllStats(true, true);
+    assertEquals(0L, stats.count);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
+  public void getAdvertiserAllStatsNonGranted() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAdvertiserAllStats(false, false);
+    assertEquals(1L, stats.count);
+    assertNotNull(stats.stats);
+    assertEquals(20L, stats.stats.get(0).shows);
+    assertEquals(8L, stats.stats.get(0).clicks);
+    assertEquals(4L, stats.stats.get(0).leads);
+  }
+
+  @Test
+  // has no sense, but should work
+  public void getAdvertiserAllStatsNonGrantedExpired() {
+    // 5 shows, 2 clicks
+    stats = heymoose().getAdvertiserAllStats(false, true);
+    assertEquals(0L, stats.count);
+    assertNotNull(stats.stats);
+  }
+
+  @Test
   public void getAffiliatesStatsByOfferGranted() {
     // 5 shows, 2 clicks
     stats = heymoose().getAffiliatesStatsByOffer(true, lastOfferId);
