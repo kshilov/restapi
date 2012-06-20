@@ -170,7 +170,7 @@ public class OfferStats {
         (expired ? "left join offer_action oa on oa.stat_id = offer_stat.id " : "") +
         "where o.parent_id is null " +
         (granted ? "and g.state = 'APPROVED' " : "") +
-        (expired ? "and oa.creation_time + o.hold_days * interval '1 day' < timestamp '" + nowSql() + "' " : "") +
+        (expired ? "and cast(now() as date) - cast(oa.creation_time as date) > o.hold_days " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 
     // count without offset and limit
