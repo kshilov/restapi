@@ -1,17 +1,19 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import com.heymoose.domain.affiliate.Banner;
-import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.User;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.ErrorInfo;
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.SubOffer;
+
 import java.util.Map;
 
 public class Mappers {
@@ -322,5 +324,18 @@ public class Mappers {
     xmlBanner.mimeType = banner.mimeType();
     xmlBanner.url = banner.url();
     return xmlBanner;
+  }
+
+  public static XmlErrorInfo toXmlErrorInfo(ErrorInfo error) {
+    return new XmlErrorInfo(error);
+  }
+
+  public static XmlErrorsInfo toXmlErrorsInfo(Iterable<ErrorInfo> info) {
+    XmlErrorsInfo xmlInfo = new XmlErrorsInfo();
+    for (ErrorInfo error : info) {
+      xmlInfo.list.add(toXmlErrorInfo(error));
+    }
+    xmlInfo.count = (long) xmlInfo.list.size();
+    return xmlInfo;
   }
 }

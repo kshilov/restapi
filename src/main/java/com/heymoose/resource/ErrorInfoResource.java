@@ -1,6 +1,8 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.affiliate.ErrorInfoRepository;
+import com.heymoose.resource.xml.Mappers;
+import com.heymoose.resource.xml.XmlErrorsInfo;
 
 public final class ErrorInfoResource {
 
@@ -10,7 +12,7 @@ public final class ErrorInfoResource {
     this.repository = repository;
   }
 
-  public void list(int offset, int limit, Long affId) {
-    repository.list(offset, limit, affId);
+  public XmlErrorsInfo list(int offset, int limit, Long affId) {
+    return Mappers.toXmlErrorsInfo(repository.list(offset, limit, affId));
   }
 }
