@@ -2,7 +2,6 @@ package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.base.IdEntity;
-import com.heymoose.hibernate.Transactional;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -38,7 +37,6 @@ public class HibernateRepo implements Repo {
     return (T) hiber().get(clazz, id);
   }
 
-  @Transactional
   @Override
   public <T extends IdEntity> void put(T entity) {
     hiber().saveOrUpdate(entity);
