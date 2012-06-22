@@ -155,7 +155,7 @@ public class OfferStats {
 
     // default
     String orderBy = "a2";
-    String groupBy = "p.id, p.first_name, p.last_name";
+    String groupBy = "p.id, p.first_name, p.last_name, p.organization";
     String select = "p.id a8, p.first_name || ' ' || p.last_name || ' (' || coalesce(p.organization, '--') || ')' a9";
 
     // sql
