@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.hibernate.Query;
 
 @Singleton
 public class OfferActions {
@@ -27,24 +28,28 @@ public class OfferActions {
   }
 
   public Integer approveExpired(Offer offer) {
-    String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
-    		"and cast(now() as date) - cast(a.creationTime as date) > a.offer.holdDays";
+    String hql = "from OfferAction a where " +
+        (offer != null ? "a.offer.id in (:offerIds) and " : "") +
+        "a.state = :state " +
+        "and cast(now() as date) - cast(a.creationTime as date) > a.offer.holdDays";
+
+    Query query = repo.session().createQuery(hql);
+    if (offer != null) query.setParameterList("offerIds", offer.subofferIds());
+    query.setParameter("state", OfferActionState.NOT_APPROVED);
 
     @SuppressWarnings("unchecked")
-    List<OfferAction> expiredActions = repo.session().createQuery(hql)
-        .setParameterList("offerIds", offer.subofferIds())
-        .setParameter("state", OfferActionState.NOT_APPROVED)
-        .list();
+    List<OfferAction> expiredActions = query.list();
+
     for (OfferAction action : expiredActions)
       approve(action);
     return expiredActions.size();
   }
-  
+
   public Integer cancelByTransactions(Offer offer, Set<String> transactionIds) {
     if (transactionIds.isEmpty())
       return 0;
     String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
-    		"and a.transactionId in (:transactionIds)";
+        "and a.transactionId in (:transactionIds)";
 
     @SuppressWarnings("unchecked")
     List<OfferAction> actionsToCancel = repo.session().createQuery(hql)

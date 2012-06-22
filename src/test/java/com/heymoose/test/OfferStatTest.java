@@ -275,4 +275,13 @@ public class OfferStatTest extends RestTest {
       assertEquals(1L, stats.stats.get(i).leads);
     }
   }
+
+  @Test
+  public void testApproveOffersWithHoldExpired() {
+    heymoose().approveOfferWithHoldExpired(null);
+    // mmm, no exceptions is a good sign
+
+    heymoose().approveOfferWithHoldExpired(lastOfferId);
+    // again mmm, no exceptions is a good sign
+  }
 }

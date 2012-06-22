@@ -193,6 +193,12 @@ public class Heymoose {
     client.path("offers").path(Long.toString(offerId)).path("blocked").delete();
   }
 
+  public void approveOfferWithHoldExpired(Long offerId) {
+    Form form = new Form();
+    if (offerId != null) form.add("offer_id", offerId);
+    client.path("actions").put(form);
+  }
+
   public long createGrant(long offerId, long affId, String message, String postbackUrl) {
     Form form = new Form();
     form.add("offer_id", offerId);

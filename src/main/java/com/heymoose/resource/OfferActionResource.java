@@ -4,7 +4,6 @@ import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferActions;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.hibernate.Transactional;
-
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.Set;
 import javax.inject.Inject;
@@ -31,10 +30,12 @@ public class OfferActionResource {
   @PUT
   @Transactional
   public String approveExpired(@FormParam("offer_id") Long offerId) {
-    checkNotNull(offerId);
+    if (offerId == null)
+      return actions.approveExpired(null).toString();
+
     return actions.approveExpired(existingOffer(offerId)).toString();
   }
-  
+
   @DELETE
   @Transactional
   public String cancelByTransactions(@FormParam("offer_id") Long offerId,
@@ -42,7 +43,7 @@ public class OfferActionResource {
     checkNotNull(offerId);
     return actions.cancelByTransactions(existingOffer(offerId), transactionIds).toString();
   }
-  
+
   private Offer existingOffer(long id) {
     Offer offer = offers.byId(id);
     if (offer == null)
