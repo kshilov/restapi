@@ -76,7 +76,7 @@ public final class ErrorInfo {
     return key.description;
   }
 
-  public DateTime date() {
+  public DateTime lastOccurred() {
     return new DateTime(lastOccurred);
   }
 
