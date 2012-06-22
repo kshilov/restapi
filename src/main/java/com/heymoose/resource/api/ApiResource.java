@@ -404,7 +404,7 @@ public class ApiResource {
 
     String affIdString = params.get("aff_id");
     if (affIdString == null) // anonymous affiliate ... do we care?
-      return;
+      return; // no
     Long affId = Long.valueOf(params.get("aff_id"));
 
     String uriPart = String.format("%s?%s", uri.getPath(), uri.getQuery());

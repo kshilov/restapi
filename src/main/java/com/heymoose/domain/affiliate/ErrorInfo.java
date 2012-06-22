@@ -1,8 +1,6 @@
 package com.heymoose.domain.affiliate;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -13,6 +11,7 @@ import javax.persistence.Table;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.Date;
 
 
 @Entity
@@ -55,13 +54,11 @@ public final class ErrorInfo {
         .setLastOccurred(date);
   }
 
-  private static DateTimeFormatter ISO = ISODateTimeFormat.dateTime();
-
   @Id
   private ErrorKey key;
 
   @Column(name = "last_occurred", nullable = false)
-  private String lastOccurred;
+  private Date lastOccurred;
 
   @Column(name = "stack_trace", length = 10000)
   private String stackTrace;
@@ -80,7 +77,7 @@ public final class ErrorInfo {
   }
 
   public DateTime date() {
-    return ISO.parseDateTime(lastOccurred);
+    return new DateTime(lastOccurred);
   }
 
   public String stackTrace() {
@@ -107,7 +104,7 @@ public final class ErrorInfo {
   }
 
   public ErrorInfo setLastOccurred(DateTime lastOccurred) {
-    this.lastOccurred = ISO.print(lastOccurred);
+    this.lastOccurred = lastOccurred.toDate();
     return this;
   }
 
