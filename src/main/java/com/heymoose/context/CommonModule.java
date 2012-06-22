@@ -15,6 +15,7 @@ import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.ErrorInfo;
 import com.heymoose.domain.affiliate.IpSegment;
 import com.heymoose.domain.affiliate.KeywordPattern;
 import com.heymoose.domain.affiliate.KeywordPatternDao;
@@ -43,23 +44,11 @@ import com.heymoose.domain.mlm.Mlm;
 import com.heymoose.domain.mlm.MlmExecution;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
-import com.heymoose.resource.AccountResource;
-import com.heymoose.resource.BannerResource;
-import com.heymoose.resource.CategoryResource;
-import com.heymoose.resource.MlmResource;
-import com.heymoose.resource.OfferActionResource;
-import com.heymoose.resource.OfferGrantResource;
-import com.heymoose.resource.OfferResource;
-import com.heymoose.resource.OfferStatsResource;
-import com.heymoose.resource.RobokassaResource;
-import com.heymoose.resource.SettingResource;
-import com.heymoose.resource.SiteResource;
-import com.heymoose.resource.UserResource;
-import com.heymoose.resource.api.ApiResource;
-import java.io.File;
-import java.util.Properties;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.File;
+import java.util.Properties;
 
 public class CommonModule extends AbstractModule {
 
@@ -84,7 +73,7 @@ public class CommonModule extends AbstractModule {
     bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, Site.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, OfferStat.class, OfferAction.class,
-        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class, KeywordPattern.class);
+        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class, KeywordPattern.class, ErrorInfo.class);
   }
 
   protected void bindEntities(Class... classes) {

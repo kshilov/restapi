@@ -1,21 +1,24 @@
 package com.heymoose.domain.affiliate.hiber;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.base.IdEntity;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import com.heymoose.hibernate.Transactional;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 @Singleton
 public class HibernateRepo implements Repo {
@@ -35,6 +38,7 @@ public class HibernateRepo implements Repo {
     return (T) hiber().get(clazz, id);
   }
 
+  @Transactional
   @Override
   public <T extends IdEntity> void put(T entity) {
     hiber().saveOrUpdate(entity);

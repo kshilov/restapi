@@ -16,7 +16,7 @@ public class XmlOfferGrant {
   @XmlElement(name = "affiliate")
   public XmlUser affiliate;
   
-  @XmlElement(name = "message")
+  @XmlElement(name = "description")
   public String message;
   
   @XmlElement(name = "back-url")
