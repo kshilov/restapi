@@ -151,25 +151,21 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> advStats(boolean granted, boolean expired, DateTime from, DateTime to, int offset, int limit) {
+  public Pair<List<OverallOfferStats>, Long> advStats(boolean expired, DateTime from, DateTime to, int offset, int limit) {
 
     // default
     String orderBy = "a2";
-    String groupBy = "offer_stat.aff_id, p.first_name, p.last_name";
-    String select = "offer_stat.aff_id a8, p.first_name || ' ' || p.last_name a9";
+    String groupBy = "p.id, p.first_name, p.last_name";
+    String select = "p.id a8, p.first_name || ' ' || p.last_name || ' (' || coalesce(p.organization, '--') || ')' a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
         "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
         "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
-        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
-        "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "and o.id = offer_stat.master " +
-        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "left join user_profile p on offer_stat.aff_id = p.id " +
+        "left join offer_stat on offer_stat.creation_time between :from and :to and o.id = offer_stat.master " +
+        "left join user_profile p on o.user_id = p.id " +
         (expired ? "left join offer_action oa on oa.stat_id = offer_stat.id " : "") +
         "where o.parent_id is null " +
-        (granted ? "and g.state = 'APPROVED' " : "") +
         (expired ? "and cast(now() as date) - cast(oa.creation_time as date) > o.hold_days " : "") +
         "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
 

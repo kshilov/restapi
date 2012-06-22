@@ -158,9 +158,9 @@ public class OfferStatTest extends RestTest {
   }
 
   @Test
-  public void getAdvertiserAllStatsGranted() {
+  public void getAdvertiserAllStats() {
     // 5 shows, 2 clicks
-    stats = heymoose().getAdvertiserAllStats(true, false);
+    stats = heymoose().getAdvertiserAllStats(false);
     assertEquals(1L, stats.count);
     assertNotNull(stats.stats);
     assertEquals(20L, stats.stats.get(0).shows);
@@ -169,29 +169,9 @@ public class OfferStatTest extends RestTest {
   }
 
   @Test
-  public void getAdvertiserAllStatsGrantedExpired() {
+  public void getAdvertiserAllStatsExpired() {
     // 5 shows, 2 clicks
-    stats = heymoose().getAdvertiserAllStats(true, true);
-    assertEquals(0L, stats.count);
-    assertNotNull(stats.stats);
-  }
-
-  @Test
-  public void getAdvertiserAllStatsNonGranted() {
-    // 5 shows, 2 clicks
-    stats = heymoose().getAdvertiserAllStats(false, false);
-    assertEquals(1L, stats.count);
-    assertNotNull(stats.stats);
-    assertEquals(20L, stats.stats.get(0).shows);
-    assertEquals(8L, stats.stats.get(0).clicks);
-    assertEquals(4L, stats.stats.get(0).leads);
-  }
-
-  @Test
-  // has no sense, but should work
-  public void getAdvertiserAllStatsNonGrantedExpired() {
-    // 5 shows, 2 clicks
-    stats = heymoose().getAdvertiserAllStats(false, true);
+    stats = heymoose().getAdvertiserAllStats(true);
     assertEquals(0L, stats.count);
     assertNotNull(stats.stats);
   }

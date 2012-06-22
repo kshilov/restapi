@@ -108,10 +108,9 @@ public class OfferStatsResource {
   }
 
   @GET
-  @Path("advertiser/all")
+  @Path("advertisers/all")
   @Transactional
   public OverallOfferStatsList allAdvertiserStats(
-      @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("expired") @DefaultValue("false") boolean expired,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
@@ -120,7 +119,7 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.advStats(granted, expired, new DateTime(from), new DateTime(to), offset, limit);
+    Pair<List<OverallOfferStats>, Long> p = stats.advStats(expired, new DateTime(from), new DateTime(to), offset, limit);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
