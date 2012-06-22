@@ -16,7 +16,7 @@ public final class XmlErrorInfo {
 
   public XmlErrorInfo(ErrorInfo info) {
     this.affiliateId = info.affiliateId();
-    this.message = info.message();
+    this.message = info.description();
   }
 
 

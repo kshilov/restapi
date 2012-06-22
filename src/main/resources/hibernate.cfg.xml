@@ -23,5 +23,6 @@
     <mapping class="com.heymoose.domain.accounting.AccountingEntry"/>
     <mapping class="com.heymoose.domain.accounting.AccountingTransaction"/>
     <mapping class="com.heymoose.domain.affiliate.OfferAction"/>
+    <mapping class="com.heymoose.domain.affiliate.ErrorInfo" />
   </session-factory>
 </hibernate-configuration>
