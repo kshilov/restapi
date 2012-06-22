@@ -392,30 +392,26 @@ public class ApiResource {
     throw new WebApplicationException(cause, Response.status(status).entity(json).build());
   }
 
-  private void storeError(URI uri, Throwable cause) {
+  /**
+   * Method is not `private`, because {@link Transactional} interceptor does not
+   * work in this case.
+   * @param uri
+   * @param cause
+   */
+  @Transactional
+  protected void storeError(URI uri, Throwable cause) {
     Map<String, String> params = queryParams();
 
-    Long affId = null;
     String affIdString = params.get("aff_id");
-    if (affIdString != null)
-      affId = Long.valueOf(params.get("aff_id"));
+    if (affIdString == null) // anonymous affiliate ... do we care?
+      return;
+    Long affId = Long.valueOf(params.get("aff_id"));
 
-    String description = String.format(
-        "%s %s", cause.getClass().getName(), cause.getMessage());
+    String uriPart = String.format("%s?%s", uri.getPath(), uri.getQuery());
 
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
-    cause.printStackTrace(printWriter);
-    String stackTrace = stringWriter.toString();
-
-    ErrorInfo info = new ErrorInfo()
-        .setAffiliateId(affId)
-        .setLastOccurred(DateTime.now())
-        .setUri(uri.toString())
-        .setDescription(description)
-        .setStackTrace(stringWriter.toString());
-
-    repo.put(info);
+    ErrorInfo info = ErrorInfo.fromException(
+        affId, uriPart, DateTime.now(), cause);
+    repo.session().saveOrUpdate(info);
 
   }
 

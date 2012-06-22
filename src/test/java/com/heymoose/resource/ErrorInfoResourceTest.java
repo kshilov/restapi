@@ -7,6 +7,7 @@ import com.heymoose.domain.affiliate.ErrorInfo;
 import com.heymoose.domain.affiliate.ErrorInfoRepository;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlErrorsInfo;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.List;
@@ -67,7 +68,11 @@ public final class ErrorInfoResourceTest {
   @Test
   public void returnsDataAsXmlIfExists() throws Exception {
     Long affiliateId = 1L;
-    ErrorInfo info = new ErrorInfo(affiliateId, new Exception("Message"));
+    ErrorInfo info = ErrorInfo.fromException(
+        affiliateId,
+        "http://url.com",
+        DateTime.now(),
+        new Exception("Message"));
 
     ErrorInfoRepository repository = repoWithError(info);
 
