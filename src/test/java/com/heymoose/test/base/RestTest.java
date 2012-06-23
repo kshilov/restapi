@@ -4,14 +4,18 @@ import com.google.inject.Injector;
 import com.heymoose.server.Launcher;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import java.io.IOException;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Criterion;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 @Ignore
 public class RestTest {
@@ -64,6 +68,29 @@ public class RestTest {
     session.close();
   }
 
+  @SuppressWarnings("unchecked")
+  protected static <T> List<T> select(Class<T> cls,
+                                          Criterion... criterionList) {
+    SessionFactory sessionFactory = injector()
+        .getInstance(SessionFactory.class);
+    Session session = sessionFactory.openSession();
+    Transaction tx = session.beginTransaction();
+    try {
+      Criteria criteria = session.createCriteria(cls);
+      for (Criterion criterion : criterionList) {
+        criteria.add(criterion);
+      }
+      List<T> result = criteria.list();
+      tx.commit();
+      return result;
+    } catch (Throwable e) {
+      tx.rollback();
+      throw new RuntimeException(e);
+    } finally {
+      session.close();
+    }
+  }
+
   public static void reset() {
     SessionFactory sessionFactory = injector().getInstance(SessionFactory.class);
     Session session = sessionFactory.openSession();
@@ -81,6 +108,7 @@ public class RestTest {
       session.createQuery("delete from User").executeUpdate();
       session.createQuery("delete from Category").executeUpdate();
       session.createSQLQuery("delete from ip_segment").executeUpdate();
+      session.createSQLQuery("delete from error_info").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       e.printStackTrace();

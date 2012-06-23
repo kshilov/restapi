@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import com.google.common.base.Objects;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -114,5 +115,11 @@ public final class ErrorInfo {
     return this;
   }
 
-
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(ErrorInfo.class)
+        .add("affiliateId", affiliateId())
+        .add("uri", uri())
+        .add("description", description()).toString();
+  }
 }

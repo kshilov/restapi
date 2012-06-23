@@ -10,6 +10,7 @@ import com.heymoose.domain.affiliate.counter.BufferedClicks;
 import com.heymoose.domain.affiliate.counter.BufferedShows;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
+import com.heymoose.resource.xml.XmlErrorsInfo;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlUser;
@@ -21,13 +22,15 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.representation.Form;
-import java.net.URI;
-import static java.util.Arrays.asList;
-import java.util.List;
-import java.util.Set;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 @Ignore
 public class Heymoose {
@@ -352,6 +355,17 @@ public class Heymoose {
     }
     if (paging != null) wr = paging.addToWebQuery(wr);
     return wr.get(OverallOfferStatsList.class);
+  }
+
+  public void errorClick(Long affiliateId) {
+    client.path("api")
+        .queryParam("method", "click")
+        .queryParam("aff_id", String.valueOf(affiliateId))
+        .get(ClientResponse.class); // no off_id
+  }
+
+  public XmlErrorsInfo listApiErrors(Long affiliateId) {
+    return client.path("errors").get(XmlErrorsInfo.class);
   }
 
   public void flushBufferedCounters() {
