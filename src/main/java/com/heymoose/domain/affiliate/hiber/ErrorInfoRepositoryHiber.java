@@ -29,8 +29,8 @@ public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
     Criteria criteria = sessionProvider.get().createCriteria(ErrorInfo.class);
 
     return criteria.add(Restrictions.eq("key.affiliateId", affiliateId))
-        .add(Restrictions.ge("lastOccurred", from.toDate()))
-        .add(Restrictions.lt("lastOccurred", to.toDate()))
+        .add(Restrictions.ge("lastOccurred", from))
+        .add(Restrictions.lt("lastOccurred", to))
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
