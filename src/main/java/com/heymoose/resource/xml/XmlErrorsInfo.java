@@ -7,12 +7,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@XmlRootElement(name = "ErrorsInfo")
+@XmlRootElement(name = "errors")
 public final class XmlErrorsInfo {
 
   @XmlAttribute(name = "count")
   public Long count;
 
-  @XmlElement(name = "ErrorInfo")
+  @XmlElement(name = "error")
   public List<XmlErrorInfo> list = Lists.newArrayList();
 }

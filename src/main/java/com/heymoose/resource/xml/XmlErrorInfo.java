@@ -5,17 +5,23 @@ import com.heymoose.domain.affiliate.ErrorInfo;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-/**
- * @author Andrey Salomatin
- */
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+
+@XmlRootElement(name = "error")
 public final class XmlErrorInfo {
 
   private static DateTimeFormatter ISO = ISODateTimeFormat.dateTime();
 
+  @XmlValue
   public Long affiliateId;
+  @XmlValue
   public String description;
+  @XmlValue
   public String uri;
+  @XmlValue
   public String lastOccurred;
+  @XmlValue
   public String stackTrace;
 
   public XmlErrorInfo() { }
