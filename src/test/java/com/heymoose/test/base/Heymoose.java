@@ -365,7 +365,9 @@ public class Heymoose {
   }
 
   public XmlErrorsInfo listApiErrors(Long affiliateId) {
-    return client.path("errors").get(XmlErrorsInfo.class);
+    return client.path("errors")
+        .queryParam("aff_id", String.valueOf(affiliateId))
+        .get(XmlErrorsInfo.class);
   }
 
   public void flushBufferedCounters() {

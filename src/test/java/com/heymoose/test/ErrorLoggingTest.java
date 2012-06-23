@@ -2,9 +2,11 @@ package com.heymoose.test;
 
 import com.google.common.base.Strings;
 import com.heymoose.domain.affiliate.ErrorInfo;
+import com.heymoose.resource.xml.XmlErrorInfo;
 import com.heymoose.resource.xml.XmlErrorsInfo;
 import com.heymoose.test.base.RestTest;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.After;
 import org.junit.Test;
 
@@ -58,5 +60,35 @@ public final class ErrorLoggingTest extends RestTest {
 
     assertEquals(0, (long) xml.count);
     assertEquals(0, xml.list.size());
+  }
+
+  @Test
+  public void returnsOccurredErrorCorrectly() throws Exception {
+    Long affiliateId = 1L;
+
+    heymoose().errorClick(affiliateId);
+    XmlErrorsInfo xmlErrorList = heymoose().listApiErrors(affiliateId);
+    XmlErrorInfo xmlError = xmlErrorList.list.get(0);
+
+    ErrorInfo error = select(ErrorInfo.class).get(0);
+    assertEquals(error.affiliateId(), xmlError.affiliateId);
+    assertEquals(error.lastOccurred(),
+        ISODateTimeFormat.dateTime().parseDateTime(xmlError.lastOccurred));
+    assertEquals(error.description(), xmlError.description);
+    assertEquals(error.uri(), xmlError.uri);
+  }
+
+  @Test
+  public void filtersByAffiliate() throws Exception {
+    Long affiliateId = 1L;
+
+    heymoose().errorClick(affiliateId);
+    heymoose().errorClick(affiliateId + 1);
+    XmlErrorsInfo xmlErrorList = heymoose().listApiErrors(affiliateId);
+    XmlErrorInfo xmlError = xmlErrorList.list.get(0);
+
+    assertEquals(1, xmlErrorList.list.size());
+    assertEquals(1, (long) xmlErrorList.count);
+    assertEquals(affiliateId, xmlError.affiliateId);
   }
 }
