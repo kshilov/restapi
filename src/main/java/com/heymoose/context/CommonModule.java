@@ -16,6 +16,7 @@ import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Category;
 import com.heymoose.domain.affiliate.ErrorInfo;
+import com.heymoose.domain.affiliate.ErrorInfoRepository;
 import com.heymoose.domain.affiliate.IpSegment;
 import com.heymoose.domain.affiliate.KeywordPattern;
 import com.heymoose.domain.affiliate.KeywordPatternDao;
@@ -35,6 +36,7 @@ import com.heymoose.domain.affiliate.TrackingImpl;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.counter.BufferedClicks;
 import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.domain.affiliate.hiber.ErrorInfoRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.HibernateRepo;
 import com.heymoose.domain.affiliate.hiber.OfferGrantRepositoryHiber;
 import com.heymoose.domain.affiliate.hiber.OfferRepositoryHiber;
@@ -69,11 +71,16 @@ public class CommonModule extends AbstractModule {
     bind(OfferRepository.class).to(OfferRepositoryHiber.class);
     bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
+    bind(ErrorInfoRepository.class).to(ErrorInfoRepositoryHiber.class);
 
-    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class, Setting.class, Site.class,
-        BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class, IpSegment.class, Account.class,
-        AdminAccount.class, AccountingEntry.class, AccountingTransaction.class, OfferStat.class, OfferAction.class,
-        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class, KeywordPattern.class, ErrorInfo.class);
+    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class,
+        Setting.class, Site.class,
+        BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class,
+        IpSegment.class, Account.class,
+        AdminAccount.class, AccountingEntry.class, AccountingTransaction.class,
+        OfferStat.class, OfferAction.class,
+        AdminAccountNotConfirmed.class, Token.class, MlmExecution.class,
+        KeywordPattern.class, ErrorInfo.class);
   }
 
   protected void bindEntities(Class... classes) {

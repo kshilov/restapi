@@ -21,16 +21,22 @@ public final class ErrorInfo {
 
   @Embeddable
   private static class ErrorKey implements Serializable {
-    @Column(name = "affiliate_id")
+    @Column(name = AFFILIATE_ID)
     private Long affiliateId;
 
-    @Column(name = "uri", nullable = false)
+    @Column(name = URI, nullable = false)
     private String uri;
 
     @Basic(optional = false)
     private String description;
 
   }
+
+  public static final String AFFILIATE_ID = "affiliate_id";
+  public static final String URI = "uri";
+  public static final String LAST_OCCURRED = "last_occurred";
+  public static final String DESCRIPTION = "description";
+  public static final String STACK_TRACE = "stack_trace";
 
   public static ErrorInfo fromException(Long affiliateId,
                                         String uri,
@@ -57,10 +63,10 @@ public final class ErrorInfo {
   @Id
   private ErrorKey key;
 
-  @Column(name = "last_occurred", nullable = false)
+  @Column(name = LAST_OCCURRED, nullable = false)
   private Date lastOccurred;
 
-  @Column(name = "stack_trace", length = 10000)
+  @Column(name = STACK_TRACE, length = 10000)
   private String stackTrace;
 
 
