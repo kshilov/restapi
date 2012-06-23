@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
 import javax.persistence.Basic;
@@ -11,7 +12,6 @@ import javax.persistence.Table;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.Date;
 
 
 @Entity
@@ -21,22 +21,16 @@ public final class ErrorInfo {
 
   @Embeddable
   private static class ErrorKey implements Serializable {
-    @Column(name = AFFILIATE_ID)
+    @Column(name = "affiliate_id")
     private Long affiliateId;
 
-    @Column(name = URI, nullable = false)
+    @Column(name = "uri", nullable = false)
     private String uri;
 
     @Basic(optional = false)
     private String description;
 
   }
-
-  public static final String AFFILIATE_ID = "affiliate_id";
-  public static final String URI = "uri";
-  public static final String LAST_OCCURRED = "last_occurred";
-  public static final String DESCRIPTION = "description";
-  public static final String STACK_TRACE = "stack_trace";
 
   public static ErrorInfo fromException(Long affiliateId,
                                         String uri,
@@ -63,10 +57,11 @@ public final class ErrorInfo {
   @Id
   private ErrorKey key;
 
-  @Column(name = LAST_OCCURRED, nullable = false)
-  private Date lastOccurred;
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
+  @Column(name = "last_occurred", nullable = false)
+  private DateTime lastOccurred;
 
-  @Column(name = STACK_TRACE, length = 10000)
+  @Column(name = "stack_trace", length = 10000)
   private String stackTrace;
 
 
@@ -110,7 +105,7 @@ public final class ErrorInfo {
   }
 
   public ErrorInfo setLastOccurred(DateTime lastOccurred) {
-    this.lastOccurred = lastOccurred.toDate();
+    this.lastOccurred = lastOccurred;
     return this;
   }
 
