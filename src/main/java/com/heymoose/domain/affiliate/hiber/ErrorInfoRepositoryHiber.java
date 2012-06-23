@@ -12,8 +12,6 @@ import org.joda.time.DateTime;
 import javax.inject.Provider;
 import java.util.List;
 
-import static com.heymoose.domain.affiliate.ErrorInfo.*;
-
 @Singleton
 public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
 
@@ -30,9 +28,9 @@ public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
                               DateTime from, DateTime to) {
     Criteria criteria = sessionProvider.get().createCriteria(ErrorInfo.class);
 
-    return criteria.add(Restrictions.eq(AFFILIATE_ID, affiliateId))
-        .add(Restrictions.ge(LAST_OCCURRED, from))
-        .add(Restrictions.lt(LAST_OCCURRED, to))
+    return criteria.add(Restrictions.eq("key.affiliateId", affiliateId))
+        .add(Restrictions.ge("lastOccurred", from.toDate()))
+        .add(Restrictions.lt("lastOccurred", to.toDate()))
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
