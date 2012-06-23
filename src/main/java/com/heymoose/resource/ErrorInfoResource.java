@@ -1,26 +1,42 @@
 package com.heymoose.resource;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.heymoose.domain.affiliate.ErrorInfo;
 import com.heymoose.domain.affiliate.ErrorInfoRepository;
+import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlErrorsInfo;
 import org.joda.time.DateTime;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
-public final class ErrorInfoResource {
+@Path("errors")
+@Singleton
+public class ErrorInfoResource {
 
   private final ErrorInfoRepository repository;
 
+  @Inject
   public ErrorInfoResource(ErrorInfoRepository repository) {
     this.repository = repository;
   }
 
-  public XmlErrorsInfo list(int offset, int limit, Long affId,
-                            Long startTime, Long endTime) {
-    DateTime dateFrom = new DateTime(startTime);
-    DateTime dateTo = new DateTime(endTime);
-    List<ErrorInfo> result = repository.list(offset, limit, affId, dateFrom, dateTo);
+  @Transactional
+  @GET
+  public XmlErrorsInfo list(@QueryParam("offset") @DefaultValue("0") int offset,
+                            @QueryParam("limit") @DefaultValue("20") int limit,
+                            @QueryParam("aff_id") Long affId,
+                            @QueryParam("from") @DefaultValue("0") Long start,
+                            @QueryParam("to") Long end) {
+    DateTime dateFrom = new DateTime(start);
+    DateTime dateTo = new DateTime(end);
+    List<ErrorInfo> result = repository
+        .list(offset, limit, affId, dateFrom, dateTo);
     return Mappers.toXmlErrorsInfo(result);
   }
 }
