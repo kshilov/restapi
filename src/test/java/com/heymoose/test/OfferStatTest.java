@@ -18,8 +18,10 @@ import org.joda.time.DateTimeUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class OfferStatTest extends RestTest {
 
   private final static String OFFER_CODE = "offer324234";
