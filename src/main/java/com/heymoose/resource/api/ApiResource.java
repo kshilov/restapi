@@ -2,6 +2,7 @@ package com.heymoose.resource.api;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.Banner;
@@ -409,10 +410,20 @@ public class ApiResource {
       return; // no
     Long affId = Long.valueOf(params.get("aff_id"));
 
-    String uriPart = String.format("%s?%s", uri.getPath(), uri.getQuery());
-
-    errorInfoRepo.track(affId, uriPart, DateTime.now(), cause);
-
+    // Build uri part with query string params sorted
+    StringBuilder uriBuilder = new StringBuilder();
+    ImmutableSortedMap<String, String> sortedParams =
+        ImmutableSortedMap.copyOf(params);
+    uriBuilder.append(uri.getPath());
+    uriBuilder.append('?');
+    for (Map.Entry<String, String> param : sortedParams.entrySet()) {
+      uriBuilder.append(param.getKey());
+      uriBuilder.append('=');
+      uriBuilder.append(param.getValue());
+      uriBuilder.append('&');
+    }
+    uriBuilder.setLength(uriBuilder.length() - 1); // remove redundant symbol
+    errorInfoRepo.track(affId, uriBuilder.toString(), DateTime.now(), cause);
   }
 
   private static String fetchStackTrace(Throwable th) {
