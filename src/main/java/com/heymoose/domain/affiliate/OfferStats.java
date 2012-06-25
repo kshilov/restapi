@@ -1,18 +1,20 @@
 package com.heymoose.domain.affiliate;
 
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.joda.time.DateTime;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.Query;
-import org.joda.time.DateTime;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class OfferStats {
@@ -161,9 +163,10 @@ public class OfferStats {
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
         "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
-        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
+        "sum(not_confirmed_revenue * (1 + p2.fee / 100.0)) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
         "left join offer_stat on offer_stat.creation_time between :from and :to and o.id = offer_stat.master " +
         "left join user_profile p on o.user_id = p.id " +
+        "left join user_profile p2 on offer_stat.aff_id = p2.id " +
         (expired ? "left join offer_action oa on oa.stat_id = offer_stat.id " : "") +
         "where o.parent_id is null " +
         (expired ? "and cast(now() as date) - cast(oa.creation_time as date) > o.hold_days " : "") +
