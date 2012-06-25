@@ -13,15 +13,17 @@ public final class XmlErrorInfo {
 
   private static DateTimeFormatter ISO = ISODateTimeFormat.dateTime();
 
-  @XmlElement
+  @XmlElement(name = "affiliate-id")
   public Long affiliateId;
   @XmlElement
   public String description;
   @XmlElement
   public String uri;
-  @XmlElement
+  @XmlElement(name = "last-occurred")
   public String lastOccurred;
-  @XmlElement
+  @XmlElement(name = "occurrence-count")
+  public Long occurrenceCount;
+  @XmlElement(name = "stack-trace")
   public String stackTrace;
 
   public XmlErrorInfo() { }
@@ -31,6 +33,7 @@ public final class XmlErrorInfo {
     this.description = info.description();
     this.uri = info.uri();
     this.lastOccurred = info.lastOccurred().toString(ISO);
+    this.occurrenceCount = info.occurrenceCount();
     this.stackTrace = info.stackTrace();
   }
 
@@ -42,6 +45,7 @@ public final class XmlErrorInfo {
         description,
         uri,
         lastOccurred,
+        occurrenceCount,
         stackTrace);
   }
 
@@ -53,6 +57,7 @@ public final class XmlErrorInfo {
           && Objects.equal(this.description, that.description)
           && Objects.equal(this.uri, that.uri)
           && Objects.equal(this.lastOccurred, that.lastOccurred)
+          && Objects.equal(this.occurrenceCount, that.occurrenceCount)
           && Objects.equal(this.stackTrace, that.stackTrace);
     }
     return false;
