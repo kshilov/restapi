@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
-import com.heymoose.domain.affiliate.ErrorInfo;
+import com.heymoose.domain.affiliate.ErrorInfoRepository;
 import com.heymoose.domain.affiliate.GeoTargeting;
 import com.heymoose.domain.affiliate.KeywordPatternDao;
 import com.heymoose.domain.affiliate.Offer;
@@ -68,13 +68,14 @@ public class ApiResource {
   private final GeoTargeting geoTargeting;
   private final OfferGrantRepository offerGrants;
   private final KeywordPatternDao keywordPatternDao;
+  private final ErrorInfoRepository errorInfoRepo;
 
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider, Provider<UriInfo> uriInfoProvider,
                      Tracking tracking, Repo repo, GeoTargeting geoTargeting, OfferGrantRepository offerGrants,
-                     KeywordPatternDao keywordPatternDao) {
+                     KeywordPatternDao keywordPatternDao, ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
     this.uriInfoProvider = uriInfoProvider;
     this.tracking = tracking;
@@ -82,6 +83,7 @@ public class ApiResource {
     this.geoTargeting = geoTargeting;
     this.offerGrants = offerGrants;
     this.keywordPatternDao = keywordPatternDao;
+    this.errorInfoRepo = errorInfoRepo;
   }
 
   @GET
@@ -409,9 +411,7 @@ public class ApiResource {
 
     String uriPart = String.format("%s?%s", uri.getPath(), uri.getQuery());
 
-    ErrorInfo info = ErrorInfo.fromException(
-        affId, uriPart, DateTime.now(), cause);
-    repo.session().saveOrUpdate(info);
+    errorInfoRepo.track(affId, uriPart, DateTime.now(), cause);
 
   }
 

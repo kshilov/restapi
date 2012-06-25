@@ -30,6 +30,12 @@ public final class ErrorInfoResourceTest {
                                 DateTime from, DateTime to) {
       return map.get(affiliateId);
     }
+
+    @Override
+    public boolean track(Long affiliateId, String uri, DateTime date,
+                         Throwable cause) {
+      throw new UnsupportedOperationException();
+    }
   }
 
   @Test
