@@ -179,6 +179,7 @@ public class OfferActions {
       accounting.cancel(affEntry.transaction());
       accounting.cancel(admEntry.transaction());
       action.stat().addToNotConfirmedRevenue(affEntry.amount().negate());
+      action.stat().subtractFromConfirmedRevenue(affEntry.amount().negate());
     }
   }
 

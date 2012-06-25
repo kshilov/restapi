@@ -179,6 +179,13 @@ public class OfferStat extends BaseEntity {
     confirmedRevenue = confirmedRevenue.add(amount);
   }
 
+  public void subtractFromConfirmedRevenue(BigDecimal amount) {
+    checkArgument(amount.signum() == 1);
+    if (confirmedRevenue == null)
+      confirmedRevenue = new BigDecimal(0);
+    confirmedRevenue = confirmedRevenue.subtract(amount);
+  }
+
   public void addToNotConfirmedRevenue(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (notConfirmedRevenue == null)
