@@ -62,6 +62,9 @@ public final class ErrorInfo {
   @Column(name = "last_occurred", nullable = false)
   private DateTime lastOccurred;
 
+  @Column(name = "occurrence_count", nullable = false)
+  private Long occurrenceCount = 1L;
+
   @Column(name = "stack_trace", length = 10000)
   private String stackTrace;
 
@@ -90,6 +93,14 @@ public final class ErrorInfo {
     return key.uri;
   }
 
+  public Long occurrenceCount() {
+    return occurrenceCount;
+  }
+
+  public ErrorKey id() {
+    return key;
+  }
+
   public ErrorInfo setAffiliateId(Long affiliateId) {
     this.key.affiliateId = affiliateId;
     return this;
@@ -112,6 +123,21 @@ public final class ErrorInfo {
 
   public ErrorInfo setStackTrace(String stackTrace) {
     this.stackTrace = stackTrace;
+    return this;
+  }
+
+  public ErrorInfo setOccurrenceCount(Long count) {
+    this.occurrenceCount = count;
+    return this;
+  }
+
+  public ErrorInfo fillFromErrorInfo(ErrorInfo that) {
+    this.setAffiliateId(that.affiliateId());
+    this.setUri(that.uri());
+    this.setDescription(that.description());
+    this.setLastOccurred(that.lastOccurred());
+    this.setOccurrenceCount(that.occurrenceCount());
+    this.setStackTrace(that.stackTrace());
     return this;
   }
 

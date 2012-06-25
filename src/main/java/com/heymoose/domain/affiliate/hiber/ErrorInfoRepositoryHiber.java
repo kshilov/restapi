@@ -35,4 +35,21 @@ public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
         .setMaxResults(limit)
         .list();
   }
+
+  @Override
+  public boolean track(Long affiliateId, String uri, DateTime date,
+                       Throwable cause) {
+    Session session = sessionProvider.get();
+    ErrorInfo errorInfo = ErrorInfo.fromException(affiliateId, uri, date, cause);
+    ErrorInfo savedError = (ErrorInfo) session.get(
+        ErrorInfo.class, errorInfo.id());
+    if (savedError != null) {
+      errorInfo.setOccurrenceCount(savedError.occurrenceCount() + 1);
+      savedError.fillFromErrorInfo(errorInfo);
+      session.update(savedError);
+      return false;
+    }
+    session.save(errorInfo);
+    return true;
+  }
 }
