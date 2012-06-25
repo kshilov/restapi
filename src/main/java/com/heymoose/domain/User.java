@@ -66,10 +66,10 @@ public class User extends IdEntity {
   @Basic(optional = false)
   private String passwordHash;
 
-  @Column(name = "first_name", nullable = false)
+  @Column(name = "first_name")
   private String firstName;
   
-  @Column(name = "last_name", nullable = false)
+  @Column(name = "last_name")
   private String lastName;
   
   @Basic
@@ -112,20 +112,12 @@ public class User extends IdEntity {
 
   protected User() {}
 
-  public User(String email, String passwordHash, String firstName, String lastName, String organization,
-              String phone, URI sourceUrl, MessengerType messengerType, String messengerUid, String wmr,
-              Long referrerId) {
-    checkNotNull(email, passwordHash, firstName, lastName);
+  public User(String email, String passwordHash, String organization, String phone, Long referrerId) {
+    checkNotNull(email, passwordHash);
     this.email = email;
     this.passwordHash = passwordHash;
-    this.firstName = firstName;
-    this.lastName = lastName;
     this.organization = organization;
     this.phone = phone;
-    this.sourceUrl = sourceUrl != null ? sourceUrl.toString() : null;
-    this.messengerType = messengerType;
-    this.messengerUid = messengerUid;
-    this.wmr = wmr;
     this.referrerId = referrerId;
     this.confirmed = false;
     this.blocked = false;

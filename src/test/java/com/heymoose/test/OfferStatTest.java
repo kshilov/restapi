@@ -39,7 +39,7 @@ public class OfferStatTest extends RestTest {
   private static Long lastOfferId = 0L;
 
   private static long doRegisterAdvertiser() {
-    long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
+    long advertiserId = heymoose().registerUser("u@u.ru", "ads");
     heymoose().addRoleToUser(advertiserId, Role.ADVERTISER);
     heymoose().confirmUser(advertiserId);
     heymoose().addToCustomerAccount(advertiserId, ADV_BALANCE);
@@ -47,7 +47,7 @@ public class OfferStatTest extends RestTest {
   }
 
   private static long doRegisterAffiliate() {
-    long affId = heymoose().registerUser("af1@af.ru", "dsfs", "F", "L", "777");
+    long affId = heymoose().registerUser("af1@af.ru", "dsfs");
     heymoose().addRoleToUser(affId, Role.AFFILIATE);
     heymoose().confirmUser(affId);
     return affId;

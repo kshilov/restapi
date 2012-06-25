@@ -75,23 +75,15 @@ public class UserResource {
   @POST
   @Transactional
   public Response register(@FormParam("email") String email,
-                           @FormParam("passwordHash") String passwordHash,
-                           @FormParam("firstName") String firstName,
-                           @FormParam("lastName") String lastName,
+                           @FormParam("password_hash") String passwordHash,
                            @FormParam("organization") String organization,
                            @FormParam("phone") String phone,
-                           @FormParam("sourceUrl") String sourceUrl,
-                           @FormParam("messengerType") MessengerType messengerType,
-                           @FormParam("messengerUid") String messengerUid,
-                           @FormParam("wmr") String wmr,
                            @FormParam("referrer") Long referrerId) {
-    checkNotNull(email, passwordHash, firstName, lastName);
+    checkNotNull(email, passwordHash);
     User existing = users.byEmail(email);
     if (existing != null)
       return Response.status(409).build();
-    URI uriSourceUrl = sourceUrl != null ? URI.create(sourceUrl) : null;
-    User newUser = new User(email, passwordHash, firstName, lastName, organization,
-        phone, uriSourceUrl, messengerType, messengerUid, wmr, referrerId);
+    User newUser = new User(email, passwordHash, organization, phone, referrerId);
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id()))).build();
   }
@@ -158,23 +150,23 @@ public class UserResource {
     Form params = context.getRequest().getEntity(Form.class);
     if (params.containsKey("email"))
       user.setEmail(params.getFirst("email"));
-    if (params.containsKey("passwordHash"))
-      user.changePasswordHash(params.getFirst("passwordHash"));
-    if (params.containsKey("firstName"))
-      user.setFirstName(params.getFirst("firstName"));
-    if (params.containsKey("lastName"))
-      user.setLastName(params.getFirst("lastName"));
+    if (params.containsKey("password_hash"))
+      user.changePasswordHash(params.getFirst("password_hash"));
+    if (params.containsKey("first_name"))
+      user.setFirstName(params.getFirst("first_name"));
+    if (params.containsKey("last_name"))
+      user.setLastName(params.getFirst("last_name"));
     if (params.containsKey("organization"))
       user.setOrganization(nullableParam(params.getFirst("organization")));
     if (params.containsKey("phone"))
       user.setPhone(nullableParam(params.getFirst("phone")));
-    if (params.containsKey("sourceUrl")) {
-      String sourceUrlParam = params.getFirst("sourceUrl");
+    if (params.containsKey("source_url")) {
+      String sourceUrlParam = params.getFirst("source_url");
       user.setSourceUrl(!isNull(sourceUrlParam) ? URI.create(sourceUrlParam) : null);
     }
-    if (params.containsKey("messengerType")) {
-      String messengerTypeParam = params.getFirst("messengerType");
-      String messengerUidParam = params.containsKey("messengerUid") ? params.getFirst("messengerUid") : "";
+    if (params.containsKey("messenger_type")) {
+      String messengerTypeParam = params.getFirst("messenger_type");
+      String messengerUidParam = params.containsKey("messenger_uid") ? params.getFirst("messenger_uid") : "";
       if (!isNull(messengerTypeParam)) {
         if (isNull(messengerUidParam))
           throw new WebApplicationException(400);

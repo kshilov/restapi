@@ -115,8 +115,8 @@ public class OfferStats {
 
     // default
     String orderBy = "a2";
-    String groupBy = "offer_stat.aff_id, p.first_name, p.last_name";
-    String select = "offer_stat.aff_id a8, p.first_name || ' ' || p.last_name a9";
+    String groupBy = "offer_stat.aff_id, p.email";
+    String select = "offer_stat.aff_id a8, p.email a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
@@ -157,8 +157,8 @@ public class OfferStats {
 
     // default
     String orderBy = "a2";
-    String groupBy = "p.id, p.first_name, p.last_name, p.organization";
-    String select = "p.id a8, p.first_name || ' ' || p.last_name || ' (' || coalesce(p.organization, '--') || ')' a9";
+    String groupBy = "p.id, p.email, p.organization";
+    String select = "p.id a8, p.email || ' (' || coalesce(p.organization, '--') || ')' a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
@@ -200,16 +200,16 @@ public class OfferStats {
   @Transactional
   public List<OverallOfferStats> topAffiliates(DateTime from, DateTime to, int offset, int limit) {
     String sql =
-        "select offer_stat.aff_id id, p.first_name || ' ' || p.last_name n, sum(confirmed_revenue) r " +
-            "from offer o " +
-            "join offer_grant g on g.offer_id = o.id " +
-            "left join offer_stat on offer_stat.creation_time between :from and :to " +
-            "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
-            "left join user_profile p on offer_stat.aff_id = p.id " +
-            "where o.parent_id is null and g.state = 'APPROVED' " +
-            "group by offer_stat.aff_id, p.first_name, p.last_name " +
-            "order by r desc, id asc " +
-            "offset :offset limit :limit";
+        "select offer_stat.aff_id id, p.email e, sum(confirmed_revenue) r " +
+        "from offer o " +
+        "join offer_grant g on g.offer_id = o.id " +
+        "left join offer_stat on offer_stat.creation_time between :from and :to " +
+        "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
+        "left join user_profile p on offer_stat.aff_id = p.id " +
+        "where o.parent_id is null and g.state = 'APPROVED' " +
+        "group by offer_stat.aff_id, p.email " +
+        "order by r desc, id asc " +
+        "offset :offset limit :limit";
 
     Query query = repo.session().createSQLQuery(sql);
     @SuppressWarnings("unchecked")
@@ -239,8 +239,8 @@ public class OfferStats {
 
     // default
     String orderBy = "a2";
-    String groupBy = "offer_stat.aff_id, p.first_name, p.last_name";
-    String select = "offer_stat.aff_id a8, p.first_name || ' ' || p.last_name a9";
+    String groupBy = "offer_stat.aff_id, p.email";
+    String select = "offer_stat.aff_id a8, p.email a9";
 
     // sql
     String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +

@@ -67,13 +67,10 @@ public class Heymoose {
     this.client = client;
   }
 
-  public long registerUser(String email, String passwordHash, String firstName, String lastName, String phone) {
+  public long registerUser(String email, String passwordHash) {
     Form form = new Form();
     form.add("email", email);
-    form.add("passwordHash", passwordHash);
-    form.add("firstName", firstName);
-    form.add("lastName", lastName);
-    form.add("phone", phone);
+    form.add("password_hash", passwordHash);
     ClientResponse response = client.path("users").post(ClientResponse.class, form);
     if (response.getStatus() >= 300) throw new UniformInterfaceException(response);
     return Long.valueOf(response.getLocation().getPath().replaceFirst("/users/", ""));
@@ -81,7 +78,7 @@ public class Heymoose {
 
   public void updateUser(long userId, String passwordHash) {
     Form form = new Form();
-    form.add("passwordHash", passwordHash);
+    form.add("password_hash", passwordHash);
     client.path("users").path(Long.toString(userId)).put(form);
   }
 
