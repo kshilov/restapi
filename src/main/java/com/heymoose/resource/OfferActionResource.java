@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
@@ -49,5 +50,11 @@ public class OfferActionResource {
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;
+  }
+
+  @GET
+  @Path("fix")
+  public void fix() {
+    actions.fix();
   }
 }

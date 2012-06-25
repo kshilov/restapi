@@ -8,5 +8,6 @@ public enum AccountingEvent {
   OFFER_ACCOUNT_ADD,
   ROBOKASSA_ADD,
   OFFER_ACCOUNT_REMOVE,
-  MLM
+  MLM,
+  CANCELLED
 }

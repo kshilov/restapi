@@ -21,4 +21,11 @@ public class AccountingTransaction extends IdEntity  {
   public Long id() {
     return id;
   }
+
+  @Override
+  public String toString() {
+    return "AccountingTransaction{" +
+        "id=" + id +
+        '}';
+  }
 }

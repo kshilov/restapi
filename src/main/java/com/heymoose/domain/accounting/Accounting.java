@@ -85,7 +85,7 @@ public class Accounting {
     );
     AccountingTransaction reverseTx = new AccountingTransaction();
     for (AccountingEntry entry : entries) {
-      AccountingEntry reverseEntry = new AccountingEntry(entry.account(), entry.amount().negate());
+      AccountingEntry reverseEntry = new AccountingEntry(entry.account(), entry.amount().negate(), AccountingEvent.CANCELLED, entry.id(), null);
       reverseEntry.setTransaction(reverseTx);
       repo.put(reverseEntry);
       applyEntry(reverseEntry);

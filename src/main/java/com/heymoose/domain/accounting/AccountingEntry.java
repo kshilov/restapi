@@ -88,4 +88,17 @@ public class AccountingEntry extends ModifiableEntity {
   public String descr() {
     return descr;
   }
+
+  @Override
+  public String toString() {
+    return "AccountingEntry{" +
+        "id=" + id +
+        ", account=" + account +
+        ", amount=" + amount +
+        ", event=" + event +
+        ", sourceId=" + sourceId +
+        ", descr='" + descr + '\'' +
+        ", transaction=" + transaction +
+        '}';
+  }
 }
