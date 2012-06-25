@@ -35,10 +35,11 @@ public final class ErrorLoggingTest extends RestTest {
     assertTrue(savedError.lastOccurred().isAfter(testStartTime));
     assertFalse(Strings.isNullOrEmpty(savedError.description()));
     assertFalse(Strings.isNullOrEmpty(savedError.stackTrace()));
+    assertEquals(1, (long) savedError.occurrenceCount());
   }
 
   @Test
-  public void doesNotStoreDuplicatesOnlyUpdatesLastOccurredField()
+  public void doesNotStoreDuplicatesOnlyUpdatesOccurrence()
       throws Exception {
     Long affiliateId = 1L;
 
@@ -48,8 +49,10 @@ public final class ErrorLoggingTest extends RestTest {
 
     List<ErrorInfo> savedErrorList = select(ErrorInfo.class);
     assertEquals(1, savedErrorList.size());
-    DateTime secondErrorTime = savedErrorList.get(0).lastOccurred();
+    ErrorInfo secondError = savedErrorList.get(0);
+    DateTime secondErrorTime = secondError.lastOccurred();
     assertTrue(secondErrorTime.isAfter(firstErrorTime));
+    assertEquals(2, (long) secondError.occurrenceCount());
     log.info("First error time: [{}]. Second error time: [{}]",
         firstErrorTime, secondErrorTime);
   }
@@ -76,6 +79,7 @@ public final class ErrorLoggingTest extends RestTest {
         ISODateTimeFormat.dateTime().parseDateTime(xmlError.lastOccurred));
     assertEquals(error.description(), xmlError.description);
     assertEquals(error.uri(), xmlError.uri);
+    assertEquals(error.occurrenceCount(), xmlError.occurrenceCount);
   }
 
   @Test
