@@ -36,6 +36,7 @@ public class ErrorInfoResource {
     DateTime dateTo = new DateTime(end);
     List<ErrorInfo> result = repository
         .list(offset, limit, dateFrom, dateTo);
-    return Mappers.toXmlErrorsInfo(result);
+    Long count = repository.count(dateFrom ,dateTo);
+    return Mappers.toXmlErrorsInfo(result, count);
   }
 }

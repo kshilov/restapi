@@ -9,6 +9,8 @@ public interface ErrorInfoRepository {
   List<ErrorInfo> list(int offset, int limit,
                        DateTime from, DateTime to);
 
+  Long count(DateTime from, DateTime to);
+
   /**
    * Track error.
    * <br/>

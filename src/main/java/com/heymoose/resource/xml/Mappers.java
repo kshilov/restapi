@@ -330,12 +330,13 @@ public class Mappers {
     return new XmlErrorInfo(error);
   }
 
-  public static XmlErrorsInfo toXmlErrorsInfo(Iterable<ErrorInfo> info) {
+  public static XmlErrorsInfo toXmlErrorsInfo(Iterable<ErrorInfo> info,
+                                              Long count) {
     XmlErrorsInfo xmlInfo = new XmlErrorsInfo();
     for (ErrorInfo error : info) {
       xmlInfo.list.add(toXmlErrorInfo(error));
     }
-    xmlInfo.count = (long) xmlInfo.list.size();
+    xmlInfo.count = count;
     return xmlInfo;
   }
 }
