@@ -6,6 +6,7 @@ import com.heymoose.domain.affiliate.ErrorInfo;
 import com.heymoose.domain.affiliate.ErrorInfoRepository;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
@@ -30,6 +31,7 @@ public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
 
     return criteria.add(Restrictions.ge("lastOccurred", from))
         .add(Restrictions.lt("lastOccurred", to))
+        .addOrder(Order.desc("lastOccurred"))
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
