@@ -22,6 +22,7 @@ import static com.heymoose.resource.api.ApiExceptions.badValue;
 import static com.heymoose.resource.api.ApiExceptions.illegalState;
 import static com.heymoose.resource.api.ApiExceptions.notFound;
 import static com.heymoose.resource.api.ApiExceptions.nullParam;
+import com.heymoose.util.QueryUtil;
 import static com.heymoose.util.QueryUtil.appendQueryParam;
 import com.sun.jersey.api.core.HttpRequestContext;
 import java.io.IOException;
@@ -217,8 +218,19 @@ public class ApiResource {
     String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, sourceId, subs, affParams, referer, keywords);
 
     // location
-    Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
-    URI location = (banner != null && banner.url() != null) ? URI.create(banner.url()) : URI.create(offer.url());
+    URI location = null;
+    String ulp = params.get("ulp");
+    if (ulp != null) {
+      try {
+        location = QueryUtil.removeQueryParam(URI.create(ulp), "ulp");
+      } catch (IllegalArgumentException e) {
+        location = null;
+      }
+    }
+    if (location == null) {
+      Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
+      location = (banner != null && banner.url() != null) ? URI.create(banner.url()) : URI.create(offer.url());
+    }
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
     Response.ResponseBuilder response = Response.status(302).location(location);

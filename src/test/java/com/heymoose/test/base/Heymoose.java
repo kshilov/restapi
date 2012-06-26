@@ -168,6 +168,17 @@ public class Heymoose {
     return wr.get(ClientResponse.class).getLocation();
   }
 
+  public URI clickWithUlp(long offerId, long affId, String sourceId, Subs subs, String ulp) {
+    WebResource wr = client.path("api")
+        .queryParam("method", "click")
+        .queryParam("offer_id", Long.toString(offerId))
+        .queryParam("aff_id", Long.toString(affId));
+    if (sourceId != null) wr = wr.queryParam("source_id", sourceId);
+    if (ulp != null) wr = wr.queryParam("ulp", ulp);
+    wr = subs.addToQuery(wr);
+    return wr.get(ClientResponse.class).getLocation();
+  }
+
   public URI click(long offerId, long affId, String sourceId, Subs subs, String referer) {
     Heymoose.referer = referer;
     WebResource wr = client.path("api")

@@ -9,10 +9,9 @@ import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
-import com.heymoose.util.NameValuePair;
+import com.heymoose.util.QueryUtil;
 import com.heymoose.util.URLEncodedUtils;
 import java.net.URI;
-import java.util.List;
 import org.joda.time.DateTimeUtils;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -159,7 +158,7 @@ public class OfferTest extends RestTest {
     long affId = doRegisterAffiliate();
     doCreateGrant(offerId, affId);
     URI location = doClick(offerId, affId, null, Subs.empty());
-    String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
+    String token = QueryUtil.extractParam(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
     XmlUser aff = heymoose().getUser(affId);
@@ -176,18 +175,11 @@ public class OfferTest extends RestTest {
     URI location = doClick(offerId, affId, "test-sourceId",
         new Subs( "test-subId", null, "test-subId3", null, "test-subId5")
     );
-    String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
+    String token = QueryUtil.extractParam(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
     XmlUser aff = heymoose().getUser(affId);
     int fee = aff.fee;
     assertEquals(CPA * (100 - fee) / 100.0, aff.affiliateAccountNotConfirmed.balance, 0.000001);
-  }
-
-  private static String extractParams(List<NameValuePair> pairs, String param) {
-    for (NameValuePair pair : pairs)
-      if (pair.fst.equals(param))
-        return pair.snd;
-    return null;
   }
 }

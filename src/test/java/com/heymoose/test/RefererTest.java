@@ -8,11 +8,10 @@ import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.test.base.RestTest;
-import com.heymoose.util.NameValuePair;
 import com.heymoose.util.Pair;
+import com.heymoose.util.QueryUtil;
 import com.heymoose.util.URLEncodedUtils;
 import java.net.URI;
-import java.util.List;
 import java.util.Random;
 import org.joda.time.DateTimeUtils;
 import static org.junit.Assert.assertEquals;
@@ -69,13 +68,6 @@ public class RefererTest extends RestTest {
     long grantId = heymoose().createGrant(offerId, affId, "msg", baseUrl() + "/postback");
     heymoose().unblockGrant(grantId);
     heymoose().approveGrant(grantId);
-  }
-
-  private static String extractParams(List<NameValuePair> pairs, String param) {
-    for (NameValuePair pair : pairs)
-      if (pair.fst.equals(param))
-        return pair.snd;
-    return null;
   }
 
   @BeforeClass
@@ -138,7 +130,7 @@ public class RefererTest extends RestTest {
         assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
 
         // action
-        String token = extractParams(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
+        String token = QueryUtil.extractParam(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
         assertEquals(200, heymoose().action(token, "tx1", advertiserId, offerCode));
       }
     }
