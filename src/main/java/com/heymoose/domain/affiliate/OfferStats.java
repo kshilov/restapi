@@ -6,7 +6,6 @@ import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -342,10 +341,6 @@ public class OfferStats {
         subs[j++] = "offer_stat.sub_id" + (i == 0 ? "" : i);
       }
     }
-
-    // at least one grouping or one filtered values should exist
-    if (j == 0 && "".equals(filter))
-      return new Pair<List<OverallOfferStats>, Long>(new ArrayList<OverallOfferStats>(), 0L);
 
     // clauses
     String orderBy, groupBy, select;
