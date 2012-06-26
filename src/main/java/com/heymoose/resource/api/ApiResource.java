@@ -405,11 +405,6 @@ public class ApiResource {
   protected void storeError(URI uri, Throwable cause) {
     Map<String, String> params = queryParams();
 
-    String affIdString = params.get("aff_id");
-    if (affIdString == null) // anonymous affiliate ... do we care?
-      return; // no
-    Long affId = Long.valueOf(params.get("aff_id"));
-
     // Build uri part with query string params sorted
     StringBuilder uriBuilder = new StringBuilder();
     ImmutableSortedMap<String, String> sortedParams =
@@ -423,7 +418,7 @@ public class ApiResource {
       uriBuilder.append('&');
     }
     uriBuilder.setLength(uriBuilder.length() - 1); // remove redundant symbol
-    errorInfoRepo.track(affId, uriBuilder.toString(), DateTime.now(), cause);
+    errorInfoRepo.track(uriBuilder.toString(), DateTime.now(), cause);
   }
 
   private static String fetchStackTrace(Throwable th) {

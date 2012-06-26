@@ -24,12 +24,11 @@ public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
 
   @SuppressWarnings("unchecked")
   @Override
-  public List<ErrorInfo> list(int offset, int limit, Long affiliateId,
+  public List<ErrorInfo> list(int offset, int limit,
                               DateTime from, DateTime to) {
     Criteria criteria = sessionProvider.get().createCriteria(ErrorInfo.class);
 
-    return criteria.add(Restrictions.eq("key.affiliateId", affiliateId))
-        .add(Restrictions.ge("lastOccurred", from))
+    return criteria.add(Restrictions.ge("lastOccurred", from))
         .add(Restrictions.lt("lastOccurred", to))
         .setFirstResult(offset)
         .setMaxResults(limit)
@@ -37,16 +36,20 @@ public final class ErrorInfoRepositoryHiber implements ErrorInfoRepository {
   }
 
   @Override
-  public boolean track(Long affiliateId, String uri, DateTime date,
-                       Throwable cause) {
+  public boolean track(String uri, DateTime date, Throwable cause) {
     Session session = sessionProvider.get();
-    ErrorInfo errorInfo = ErrorInfo.fromException(affiliateId, uri, date, cause);
-    ErrorInfo savedError = (ErrorInfo) session.get(
-        ErrorInfo.class, errorInfo.id());
-    if (savedError != null) {
-      errorInfo.setOccurrenceCount(savedError.occurrenceCount() + 1);
-      savedError.fillFromErrorInfo(errorInfo);
-      session.update(savedError);
+    ErrorInfo errorInfo = ErrorInfo.fromException(uri, date, cause);
+    String sql = "update ErrorInfo " +
+        "set occurrenceCount = occurrenceCount + 1, " +
+        "lastOccurred = :date " +
+        "where uri = :uri " +
+        "and description = :description";
+    int rowsAffected = session.createQuery(sql)
+        .setParameter("date", errorInfo.lastOccurred())
+        .setString("uri", errorInfo.uri())
+        .setParameter("description", errorInfo.description())
+        .executeUpdate();
+    if (rowsAffected != 0) {
       return false;
     }
     session.save(errorInfo);

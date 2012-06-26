@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface ErrorInfoRepository {
 
-  List<ErrorInfo> list(int offset, int limit, Long affiliateId,
-                              DateTime from, DateTime to);
+  List<ErrorInfo> list(int offset, int limit,
+                       DateTime from, DateTime to);
 
   /**
    * Track error.
@@ -24,5 +24,5 @@ public interface ErrorInfoRepository {
    *
    * @return true if error is new, false otherwise
    */
-  boolean track(Long affiliateId, String uri, DateTime date, Throwable cause);
+  boolean track(String uri, DateTime date, Throwable cause);
 }
