@@ -17,12 +17,10 @@ import org.joda.time.DateTime;
 @Singleton
 public class OfferStats {
 
-  //private final Provider<Session> sessionProvider;
   private final Repo repo;
 
   @Inject
-  public OfferStats(/*Provider<Session> sessionProvider,*/ Repo repo) {
-    //this.sessionProvider = sessionProvider;
+  public OfferStats(Repo repo) {
     this.repo = repo;
   }
 
@@ -333,7 +331,6 @@ public class OfferStats {
     for (int i = 0; i < subsFilter.size(); i++) {
       if (subsFilter.get(i) != null) {
         filter += "and sub_id" + (i == 0 ? "" : i) + " = :sub_id" + i + " ";
-        grouping.set(i, false); // do not group where value is filtered
       }
     }
 
@@ -342,24 +339,37 @@ public class OfferStats {
     int j = 0;
     for (int i = 0; i < grouping.size(); i++) {
       if (grouping.get(i)) {
-        subs[j] = "offer_stat.sub_id" + (i == 0 ? "" : i);
-        j++;
+        subs[j++] = "offer_stat.sub_id" + (i == 0 ? "" : i);
       }
     }
 
-    // at least one grouping of not-filtered values should exist
-    if (j == 0) return new Pair<List<OverallOfferStats>, Long>(new ArrayList<OverallOfferStats>(), 0L);
+    // at least one grouping or one filtered values should exist
+    if (j == 0 && "".equals(filter))
+      return new Pair<List<OverallOfferStats>, Long>(new ArrayList<OverallOfferStats>(), 0L);
 
     // clauses
-    String orderBy = "a9";
-    String groupBy = StringUtils.join(subs, ", ", 0, j);
-    String select = (j == 1) ? "0 a8, " + subs[0] + " a9"
-        : "0 a8, concat(" + StringUtils.join(subs, ", ' / ', ", 0, j) + ") a9";
+    String orderBy, groupBy, select;
+    if (j == 0) {
+      orderBy = "a9";
+      groupBy = null;
+      select = "show_count a1, coalesce(click_count, 0) a2, " +
+          "leads_count a3, sales_count a4, confirmed_revenue a5, " +
+          "not_confirmed_revenue a6, canceled_revenue a7, " +
+          "0 a8, concat(offer_stat.sub_id, ' / ', offer_stat.sub_id1, ' / ', " +
+          "offer_stat.sub_id2, ' / ', offer_stat.sub_id3, ' / ', offer_stat.sub_id4) a9";
+    } else {
+      orderBy = "a9";
+      groupBy = StringUtils.join(subs, ", ", 0, j);
+      select = "sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
+          "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
+          "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " +
+          (j == 1 ?
+              "0 a8, " + subs[0] + " a9"
+              : "0 a8, concat(" + StringUtils.join(subs, ", ' / ', ", 0, j) + ") a9");
+    }
 
     // sql
-    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
-        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
-        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
+    String sql = "select " + select + " from offer o " +
         (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
         "left join offer_stat on offer_stat.creation_time between :from and :to " +
         "and o.id = offer_stat.master " +
@@ -369,7 +379,8 @@ public class OfferStats {
         (granted ? "and g.state = 'APPROVED' " : "") +
         (affId != null ? "and offer_stat.aff_id = :affId " : "") +
         (offerId != null ? "and o.id = :offerId " : "") +
-        "group by " + groupBy + " order by " + orderBy + " offset :offset limit :limit";
+        (groupBy != null ? "group by " + groupBy + " " : "") +
+        "order by " + orderBy + " offset :offset limit :limit";
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));
