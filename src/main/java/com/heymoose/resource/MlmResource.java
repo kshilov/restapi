@@ -23,4 +23,11 @@ public class MlmResource {
     mlm.doExport();
     return Response.ok().build();
   }
+  
+  @GET
+  @Path("cancel")
+  public Response cancelAll() {
+    mlm.cancelAll();
+    return Response.ok().build();
+  }
 }

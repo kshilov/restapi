@@ -2,6 +2,7 @@ package com.heymoose.domain.mlm;
 
 import com.heymoose.domain.User;
 import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -75,5 +76,16 @@ public class Mlm {
       log.info("transferring {} from user[{}] to user[{}]", new Object[]{revenue.doubleValue(), user.affiliateAccount().id(), referrer.affiliateAccount().id()});
       accounting.transferMoney(user.affiliateAccount(), referrer.affiliateAccount(), revenue, AccountingEvent.MLM, userId);
     }
+  }
+  
+  @Transactional
+  public void cancelAll() {
+    List<AccountingEntry> entries = repo.session()
+        .createQuery("from AccountingEntry where amount > 0 and event = :event")
+        .setParameter("event", AccountingEvent.MLM)
+        .list();
+    
+    for (AccountingEntry entry : entries)
+      accounting.cancel(entry.transaction());
   }
 }

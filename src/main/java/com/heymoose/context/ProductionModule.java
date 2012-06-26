@@ -79,7 +79,8 @@ public class ProductionModule extends AbstractModule {
     Scheduler scheduler = new Scheduler(3, 0, new Job() {
       @Override
       public void run(DateTime plannedStartTime) throws Exception {
-        mlm.doExport();
+        // Disabled temporarily
+        //mlm.doExport();
       }
     });
     scheduler.schedule();
