@@ -31,6 +31,7 @@ public final class ErrorLoggingTest extends RestTest {
 
     ErrorInfo savedError = savedErrorList.get(0);
     log.info("Error saved: {}", savedError);
+    assertNotNull(savedError.id());
     assertTrue(savedError.lastOccurred().isAfter(testStartTime));
     assertFalse(Strings.isNullOrEmpty(savedError.description()));
     assertFalse(Strings.isNullOrEmpty(savedError.stackTrace()));
@@ -73,6 +74,7 @@ public final class ErrorLoggingTest extends RestTest {
     XmlErrorInfo xmlError = xmlErrorList.list.get(0);
 
     ErrorInfo error = select(ErrorInfo.class).get(0);
+    assertEquals(error.id(), xmlError.id);
     assertEquals(error.lastOccurred(),
         ISODateTimeFormat.dateTime().parseDateTime(xmlError.lastOccurred));
     assertEquals(error.description(), xmlError.description);
