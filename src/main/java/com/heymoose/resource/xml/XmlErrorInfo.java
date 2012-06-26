@@ -5,6 +5,7 @@ import com.heymoose.domain.affiliate.ErrorInfo;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -13,7 +14,7 @@ public final class XmlErrorInfo {
 
   private static DateTimeFormatter ISO = ISODateTimeFormat.dateTime();
 
-  @XmlElement
+  @XmlAttribute
   public Long id;
   @XmlElement
   public String description;
