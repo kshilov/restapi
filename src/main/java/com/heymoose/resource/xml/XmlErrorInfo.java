@@ -14,6 +14,8 @@ public final class XmlErrorInfo {
   private static DateTimeFormatter ISO = ISODateTimeFormat.dateTime();
 
   @XmlElement
+  public Long id;
+  @XmlElement
   public String description;
   @XmlElement
   public String uri;
@@ -27,6 +29,7 @@ public final class XmlErrorInfo {
   public XmlErrorInfo() { }
 
   public XmlErrorInfo(ErrorInfo info) {
+    this.id = info.id();
     this.description = info.description();
     this.uri = info.uri();
     this.lastOccurred = info.lastOccurred().toString(ISO);
