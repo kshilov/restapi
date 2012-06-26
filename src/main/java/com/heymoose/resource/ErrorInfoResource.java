@@ -30,13 +30,12 @@ public class ErrorInfoResource {
   @GET
   public XmlErrorsInfo list(@QueryParam("offset") @DefaultValue("0") int offset,
                             @QueryParam("limit") @DefaultValue("20") int limit,
-                            @QueryParam("aff_id") Long affId,
                             @QueryParam("from") @DefaultValue("0") Long start,
                             @QueryParam("to") Long end) {
     DateTime dateFrom = new DateTime(start);
     DateTime dateTo = new DateTime(end);
     List<ErrorInfo> result = repository
-        .list(offset, limit, affId, dateFrom, dateTo);
+        .list(offset, limit, dateFrom, dateTo);
     return Mappers.toXmlErrorsInfo(result);
   }
 }

@@ -13,8 +13,6 @@ public final class XmlErrorInfo {
 
   private static DateTimeFormatter ISO = ISODateTimeFormat.dateTime();
 
-  @XmlElement(name = "affiliate-id")
-  public Long affiliateId;
   @XmlElement
   public String description;
   @XmlElement
@@ -29,7 +27,6 @@ public final class XmlErrorInfo {
   public XmlErrorInfo() { }
 
   public XmlErrorInfo(ErrorInfo info) {
-    this.affiliateId = info.affiliateId();
     this.description = info.description();
     this.uri = info.uri();
     this.lastOccurred = info.lastOccurred().toString(ISO);
@@ -41,7 +38,6 @@ public final class XmlErrorInfo {
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        affiliateId,
         description,
         uri,
         lastOccurred,
@@ -53,8 +49,7 @@ public final class XmlErrorInfo {
   public boolean equals(Object o) {
     if (o instanceof XmlErrorInfo) {
       XmlErrorInfo that = (XmlErrorInfo) o;
-      return Objects.equal(this.affiliateId, that.affiliateId)
-          && Objects.equal(this.description, that.description)
+      return Objects.equal(this.description, that.description)
           && Objects.equal(this.uri, that.uri)
           && Objects.equal(this.lastOccurred, that.lastOccurred)
           && Objects.equal(this.occurrenceCount, that.occurrenceCount)

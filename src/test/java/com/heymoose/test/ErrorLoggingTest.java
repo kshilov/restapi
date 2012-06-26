@@ -31,7 +31,6 @@ public final class ErrorLoggingTest extends RestTest {
 
     ErrorInfo savedError = savedErrorList.get(0);
     log.info("Error saved: {}", savedError);
-    assertEquals(1L, (long) savedError.affiliateId());
     assertTrue(savedError.lastOccurred().isAfter(testStartTime));
     assertFalse(Strings.isNullOrEmpty(savedError.description()));
     assertFalse(Strings.isNullOrEmpty(savedError.stackTrace()));
@@ -74,25 +73,10 @@ public final class ErrorLoggingTest extends RestTest {
     XmlErrorInfo xmlError = xmlErrorList.list.get(0);
 
     ErrorInfo error = select(ErrorInfo.class).get(0);
-    assertEquals(error.affiliateId(), xmlError.affiliateId);
     assertEquals(error.lastOccurred(),
         ISODateTimeFormat.dateTime().parseDateTime(xmlError.lastOccurred));
     assertEquals(error.description(), xmlError.description);
     assertEquals(error.uri(), xmlError.uri);
     assertEquals(error.occurrenceCount(), xmlError.occurrenceCount);
-  }
-
-  @Test
-  public void filtersByAffiliate() throws Exception {
-    Long affiliateId = 1L;
-
-    heymoose().errorClick(affiliateId);
-    heymoose().errorClick(affiliateId + 1);
-    XmlErrorsInfo xmlErrorList = heymoose().listApiErrors(affiliateId);
-    XmlErrorInfo xmlError = xmlErrorList.list.get(0);
-
-    assertEquals(1, xmlErrorList.list.size());
-    assertEquals(1, (long) xmlErrorList.count);
-    assertEquals(affiliateId, xmlError.affiliateId);
   }
 }
