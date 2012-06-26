@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
@@ -13,11 +14,20 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class OfferStats {
+
+  public static final String CANCELED = "canceled";
+  public static final String NOT_CONFIRMED_PARTNER = "not_confirmed_partner";
+  public static final String NOT_CONFIRMED_FEE = "not_confirmed_fee";
+  public static final String NOT_CONFIRMED_SUM = "not_confirmed_sum";
+  public static final String CONFIRMED_PARTNER = "confirmed_partner";
+  public static final String CONFIRMED_FEE = "confirmed_fee";
+  public static final String CONFIRMED_SUM = "confirmed_sum";
 
   //private final Provider<Session> sessionProvider;
   private final Repo repo;
@@ -499,7 +509,8 @@ public class OfferStats {
     return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
 
-  public Object overallStats(DateTime from, DateTime to) {
+  @SuppressWarnings("unchecked")
+  public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
     String sql =
         "select " +
           "sum(canceled_revenue)                                 canceled, " +
@@ -515,7 +526,20 @@ public class OfferStats {
           "user_profile p_aff on offer_stat.aff_id = p_aff.id " +
         "where " +
           "creation_time between :from and :to";
-    return null;
+    Object[] queryResult = (Object[]) repo.session()
+        .createSQLQuery(sql)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .list().get(0);
+    return ImmutableMap.<String, BigDecimal>builder()
+        .put(CANCELED, (BigDecimal) queryResult[0])
+        .put(NOT_CONFIRMED_PARTNER, (BigDecimal) queryResult[1])
+        .put(NOT_CONFIRMED_FEE, (BigDecimal) queryResult[2])
+        .put(NOT_CONFIRMED_SUM, (BigDecimal) queryResult[3])
+        .put(CONFIRMED_PARTNER, (BigDecimal) queryResult[4])
+        .put(CONFIRMED_FEE, (BigDecimal) queryResult[5])
+        .put(CONFIRMED_SUM, (BigDecimal) queryResult[6])
+        .build();
   }
 
   private static Long extractLong(Object val) {
