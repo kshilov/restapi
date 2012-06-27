@@ -513,7 +513,7 @@ public class OfferStats {
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
     String sql =
         "select " +
-          "sum(canceled_revenue)                                 canceled, " +
+          "sum(canceled_revenue * (1 + p_aff.fee / 100.0))       canceled, " +
           "sum(not_confirmed_revenue)                            not_confirmed_affiliate, " +
           "sum(not_confirmed_revenue * (p_aff.fee / 100.0))      not_confirmed_fee, " +
           "sum(not_confirmed_revenue * (1 + p_aff.fee / 100.0))  not_confirmed_sum, " +
