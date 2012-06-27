@@ -555,6 +555,8 @@ public class OfferStats {
   }
 
   private static BigDecimal scaledDecimal(Object object) {
+    if (object == null)
+      return new BigDecimal("0.00");
     BigDecimal decimal = (BigDecimal) object;
     return decimal.setScale(2, BigDecimal.ROUND_UP);
   }
