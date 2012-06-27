@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
@@ -13,11 +14,20 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class OfferStats {
+
+  public static final String CANCELED = "canceled";
+  public static final String NOT_CONFIRMED_PARTNER = "not_confirmed_partner";
+  public static final String NOT_CONFIRMED_FEE = "not_confirmed_fee";
+  public static final String NOT_CONFIRMED_SUM = "not_confirmed_sum";
+  public static final String CONFIRMED_PARTNER = "confirmed_partner";
+  public static final String CONFIRMED_FEE = "confirmed_fee";
+  public static final String CONFIRMED_SUM = "confirmed_sum";
 
   //private final Provider<Session> sessionProvider;
   private final Repo repo;
@@ -499,6 +509,39 @@ public class OfferStats {
     return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
 
+  @SuppressWarnings("unchecked")
+  public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
+    String sql =
+        "select " +
+          "sum(canceled_revenue)                                 canceled, " +
+          "sum(not_confirmed_revenue)                            not_confirmed_partner, " +
+          "sum(not_confirmed_revenue * (p_aff.fee / 100.0))      not_confirmed_fee, " +
+          "sum(not_confirmed_revenue * (1 + p_aff.fee / 100.0))  not_confirmed_sum, " +
+          "sum(confirmed_revenue)                                confirmed_partner, " +
+          "sum(confirmed_revenue * (p_aff.fee / 100.0))          confirmed_fee, " +
+          "sum(confirmed_revenue * (1 + p_aff.fee / 100.0))      confirmed_sum " +
+        "from " +
+          "offer_stat " +
+        "left join " +
+          "user_profile p_aff on offer_stat.aff_id = p_aff.id " +
+        "where " +
+          "creation_time between :from and :to";
+    Object[] queryResult = (Object[]) repo.session()
+        .createSQLQuery(sql)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .list().get(0);
+    return ImmutableMap.<String, BigDecimal>builder()
+        .put(CANCELED, scaledDecimal(queryResult[0]))
+        .put(NOT_CONFIRMED_PARTNER, scaledDecimal(queryResult[1]))
+        .put(NOT_CONFIRMED_FEE, scaledDecimal(queryResult[2]))
+        .put(NOT_CONFIRMED_SUM, scaledDecimal(queryResult[3]))
+        .put(CONFIRMED_PARTNER, scaledDecimal(queryResult[4]))
+        .put(CONFIRMED_FEE, scaledDecimal(queryResult[5]))
+        .put(CONFIRMED_SUM, scaledDecimal(queryResult[6]))
+        .build();
+  }
+
   private static Long extractLong(Object val) {
     if (val == null)
       return 0L;
@@ -509,6 +552,11 @@ public class OfferStats {
     if (val instanceof Integer)
       return ((Integer) val).longValue();
     throw new IllegalStateException();
+  }
+
+  private static BigDecimal scaledDecimal(Object object) {
+    BigDecimal decimal = (BigDecimal) object;
+    return decimal.setScale(2, BigDecimal.ROUND_UP);
   }
 
   private static double extractDouble(Object val) {

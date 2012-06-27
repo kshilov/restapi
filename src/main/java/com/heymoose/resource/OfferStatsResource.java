@@ -4,18 +4,23 @@ import com.heymoose.domain.affiliate.OfferStats;
 import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
+import com.heymoose.resource.xml.XmlTotalStats;
 import com.heymoose.util.Pair;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
-import static java.util.Arrays.asList;
-import java.util.List;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static java.util.Arrays.asList;
 
 @Singleton
 @Path("stats")
@@ -256,5 +261,16 @@ public class OfferStatsResource {
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
+  }
+
+  @GET
+  @Path("total")
+  @Transactional
+  public XmlTotalStats totalStats(
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to) {
+    Map<String, BigDecimal> statsData = stats.totalStats(
+        new DateTime(from), new DateTime(to));
+    return new XmlTotalStats(statsData);
   }
 }

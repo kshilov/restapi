@@ -3,6 +3,7 @@ target
 *.ipr
 *.iws
 *.ids
+*.swp
 debian/backend*
 debian/files
 debian/stamp-makefile-build
