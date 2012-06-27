@@ -14,7 +14,7 @@ public final class XmlTotalStats {
   private static final class XmlDestination {
 
     @XmlElement
-    public BigDecimal partner;
+    public BigDecimal affiliate;
     @XmlElement
     public BigDecimal fee;
     @XmlElement
@@ -31,12 +31,12 @@ public final class XmlTotalStats {
   public XmlTotalStats(Map<String, BigDecimal> map) {
     confirmed = new XmlDestination();
     confirmed.fee = map.get(CONFIRMED_FEE);
-    confirmed.partner = map.get(CONFIRMED_PARTNER);
+    confirmed.affiliate = map.get(CONFIRMED_AFFILIATE);
     confirmed.sum = map.get(CONFIRMED_SUM);
 
     notConfirmed = new XmlDestination();
     notConfirmed.fee = map.get(NOT_CONFIRMED_FEE);
-    notConfirmed.partner = map.get(NOT_CONFIRMED_PARTNER);
+    notConfirmed.affiliate = map.get(NOT_CONFIRMED_AFFILIATE);
     notConfirmed.sum = map.get(NOT_CONFIRMED_SUM);
 
     canceled = new XmlDestination();

@@ -22,10 +22,10 @@ import static com.google.common.collect.Lists.newArrayList;
 public class OfferStats {
 
   public static final String CANCELED = "canceled";
-  public static final String NOT_CONFIRMED_PARTNER = "not_confirmed_partner";
+  public static final String NOT_CONFIRMED_AFFILIATE = "not_confirmed_affiliate";
   public static final String NOT_CONFIRMED_FEE = "not_confirmed_fee";
   public static final String NOT_CONFIRMED_SUM = "not_confirmed_sum";
-  public static final String CONFIRMED_PARTNER = "confirmed_partner";
+  public static final String CONFIRMED_AFFILIATE = "confirmed_affiliate";
   public static final String CONFIRMED_FEE = "confirmed_fee";
   public static final String CONFIRMED_SUM = "confirmed_sum";
 
@@ -514,10 +514,10 @@ public class OfferStats {
     String sql =
         "select " +
           "sum(canceled_revenue)                                 canceled, " +
-          "sum(not_confirmed_revenue)                            not_confirmed_partner, " +
+          "sum(not_confirmed_revenue)                            not_confirmed_affiliate, " +
           "sum(not_confirmed_revenue * (p_aff.fee / 100.0))      not_confirmed_fee, " +
           "sum(not_confirmed_revenue * (1 + p_aff.fee / 100.0))  not_confirmed_sum, " +
-          "sum(confirmed_revenue)                                confirmed_partner, " +
+          "sum(confirmed_revenue)                                confirmed_affiliate, " +
           "sum(confirmed_revenue * (p_aff.fee / 100.0))          confirmed_fee, " +
           "sum(confirmed_revenue * (1 + p_aff.fee / 100.0))      confirmed_sum " +
         "from " +
@@ -533,10 +533,10 @@ public class OfferStats {
         .list().get(0);
     return ImmutableMap.<String, BigDecimal>builder()
         .put(CANCELED, scaledDecimal(queryResult[0]))
-        .put(NOT_CONFIRMED_PARTNER, scaledDecimal(queryResult[1]))
+        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(queryResult[1]))
         .put(NOT_CONFIRMED_FEE, scaledDecimal(queryResult[2]))
         .put(NOT_CONFIRMED_SUM, scaledDecimal(queryResult[3]))
-        .put(CONFIRMED_PARTNER, scaledDecimal(queryResult[4]))
+        .put(CONFIRMED_AFFILIATE, scaledDecimal(queryResult[4]))
         .put(CONFIRMED_FEE, scaledDecimal(queryResult[5]))
         .put(CONFIRMED_SUM, scaledDecimal(queryResult[6]))
         .build();
