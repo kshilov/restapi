@@ -532,13 +532,13 @@ public class OfferStats {
         .setParameter("to", to.toDate())
         .list().get(0);
     return ImmutableMap.<String, BigDecimal>builder()
-        .put(CANCELED, (BigDecimal) queryResult[0])
-        .put(NOT_CONFIRMED_PARTNER, (BigDecimal) queryResult[1])
-        .put(NOT_CONFIRMED_FEE, (BigDecimal) queryResult[2])
-        .put(NOT_CONFIRMED_SUM, (BigDecimal) queryResult[3])
-        .put(CONFIRMED_PARTNER, (BigDecimal) queryResult[4])
-        .put(CONFIRMED_FEE, (BigDecimal) queryResult[5])
-        .put(CONFIRMED_SUM, (BigDecimal) queryResult[6])
+        .put(CANCELED, scaledDecimal(queryResult[0]))
+        .put(NOT_CONFIRMED_PARTNER, scaledDecimal(queryResult[1]))
+        .put(NOT_CONFIRMED_FEE, scaledDecimal(queryResult[2]))
+        .put(NOT_CONFIRMED_SUM, scaledDecimal(queryResult[3]))
+        .put(CONFIRMED_PARTNER, scaledDecimal(queryResult[4]))
+        .put(CONFIRMED_FEE, scaledDecimal(queryResult[5]))
+        .put(CONFIRMED_SUM, scaledDecimal(queryResult[6]))
         .build();
   }
 
@@ -552,6 +552,11 @@ public class OfferStats {
     if (val instanceof Integer)
       return ((Integer) val).longValue();
     throw new IllegalStateException();
+  }
+
+  private static BigDecimal scaledDecimal(Object object) {
+    BigDecimal decimal = (BigDecimal) object;
+    return decimal.setScale(2, BigDecimal.ROUND_UP);
   }
 
   private static double extractDouble(Object val) {
