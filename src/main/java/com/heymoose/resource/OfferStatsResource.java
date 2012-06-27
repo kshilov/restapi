@@ -263,6 +263,7 @@ public class OfferStatsResource {
     return list;
   }
 
+  @GET
   @Path("total")
   @Transactional
   public XmlTotalStats totalStats(

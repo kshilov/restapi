@@ -11,7 +11,7 @@ import static com.heymoose.domain.affiliate.OfferStats.*;
 public final class XmlTotalStats {
 
   @XmlRootElement(name = "stat")
-  private final class XmlDestination {
+  private static final class XmlDestination {
 
     @XmlElement
     public BigDecimal partner;
@@ -23,7 +23,7 @@ public final class XmlTotalStats {
 
   @XmlElement
   public XmlDestination confirmed;
-  @XmlElement
+  @XmlElement(name = "not-confirmed")
   public XmlDestination notConfirmed;
   @XmlElement
   public XmlDestination canceled;
@@ -42,4 +42,6 @@ public final class XmlTotalStats {
     canceled = new XmlDestination();
     canceled.sum = map.get(CANCELED);
   }
+
+  protected XmlTotalStats() { }
 }
