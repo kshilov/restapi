@@ -282,7 +282,7 @@ public class User extends IdEntity {
   }
   
   public boolean active() {
-    return confirmed && !blocked;
+    return !blocked;
   }
   
   public DateTime registerTime() {
