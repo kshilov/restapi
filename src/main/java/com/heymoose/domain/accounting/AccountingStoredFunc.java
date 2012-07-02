@@ -40,14 +40,14 @@ public final class AccountingStoredFunc implements Accounting {
   public void transferMoney(Account src, Account dst, BigDecimal amount,
                             AccountingEvent event, Long sourceId,
                             String descr) {
-    Long transactionId = (Long) repo.session().createSQLQuery(
+    Object transactionId = repo.session().createSQLQuery(
           "select transfer_money("
-          + "amount       := :amount, "
-          + "description  := :descr, "
-          + "event        := :event, "
-          + "source_id    := :source_id, "
-          + "account_from_id  := :account_from_id, "
-          + "account_to_id    := :account_to_id"
+            + ":amount, "
+            + "cast(:descr as varchar(255)), "
+            + ":event, "
+            + ":source_id, "
+            + ":account_from_id, "
+            + ":account_to_id"
           + ");")
         .setParameter("amount", amount)
         .setParameter("descr", descr)
