@@ -27,6 +27,13 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public Integer approveExpired(Offer offer) {
     DateTime start = DateTime.now();
+
+    if (offer != null) {
+      return repo.session()
+          .createSQLQuery("select approve_expired(:offer_id)")
+          .setParameter("offer_id", offer.id)
+          .list().size();
+    }
     int size = repo.session()
         .createSQLQuery("select approve_expired();")
         .list().size();

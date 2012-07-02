@@ -149,6 +149,28 @@ $$ language sql;
 
 
 /*
+  approve_expired by offer id
+*/
+create or replace function approve_expired(offer_id bigint) returns setof bigint as $$
+  select
+    approve(action.id)
+  from offer
+  left join offer_action action
+  on action.offer_id = offer.id
+  where
+    cast(now() as date) - cast(action.creation_time as date) > offer.hold_days
+    and action.state = 0
+    and action.offer_id in (
+      select $1
+      union
+      select id
+      from offer
+      where parent_id = $1
+    );
+$$ language sql;
+
+
+/*
   index
 */
 create index accounting_entry_source_id_event on accounting_entry(source_id, event);
