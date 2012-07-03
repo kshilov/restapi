@@ -515,44 +515,30 @@ public class OfferStats {
 
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
-    String sql =
-        "select " +
-          "sum(canceled_revenue * (1 + p_aff.fee / 100.0))       canceled, " +
-          "sum(not_confirmed_revenue)                            not_confirmed_affiliate, " +
-          "sum(not_confirmed_revenue * (p_aff.fee / 100.0))      not_confirmed_fee, " +
-          "sum(not_confirmed_revenue * (1 + p_aff.fee / 100.0))  not_confirmed_sum, " +
-          "sum(confirmed_revenue)                                confirmed_affiliate, " +
-          "sum(confirmed_revenue * (p_aff.fee / 100.0))          confirmed_fee, " +
-          "sum(confirmed_revenue * (1 + p_aff.fee / 100.0))      confirmed_sum " +
-        "from " +
-          "offer_stat " +
-        "left join " +
-          "user_profile p_aff on offer_stat.aff_id = p_aff.id " +
-        "where " +
-          "creation_time between :from and :to";
-    Object[] query1Result = (Object[]) repo.session()
-        .createSQLQuery(sql)
+    String totalQuery = SqlLoader.get("total_stat");
+    Object[] totalQueryResult = (Object[]) repo.session()
+        .createSQLQuery(totalQuery)
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
-    String sql2 = SqlLoader.get("expired_actions_stat");
-    Object[] query2Result = (Object[]) repo.session()
-        .createSQLQuery(sql2)
+    String expiredQuery = SqlLoader.get("expired_actions_stat");
+    Object[] expiredQueryResult = (Object[]) repo.session()
+        .createSQLQuery(expiredQuery)
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
 
     return ImmutableMap.<String, BigDecimal>builder()
-        .put(CANCELED, scaledDecimal(query1Result[0]))
-        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(query1Result[1]))
-        .put(NOT_CONFIRMED_FEE, scaledDecimal(query1Result[2]))
-        .put(NOT_CONFIRMED_SUM, scaledDecimal(query1Result[3]))
-        .put(CONFIRMED_AFFILIATE, scaledDecimal(query1Result[4]))
-        .put(CONFIRMED_FEE, scaledDecimal(query1Result[5]))
-        .put(CONFIRMED_SUM, scaledDecimal(query1Result[6]))
-        .put(EXPIRED_AFFILIATE, scaledDecimal(query2Result[0]))
-        .put(EXPIRED_FEE, scaledDecimal(query2Result[1]))
-        .put(EXPIRED_SUM, scaledDecimal(query2Result[2]))
+        .put(CANCELED, scaledDecimal(totalQueryResult[0]))
+        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(totalQueryResult[1]))
+        .put(NOT_CONFIRMED_FEE, scaledDecimal(totalQueryResult[2]))
+        .put(NOT_CONFIRMED_SUM, scaledDecimal(totalQueryResult[3]))
+        .put(CONFIRMED_AFFILIATE, scaledDecimal(totalQueryResult[4]))
+        .put(CONFIRMED_FEE, scaledDecimal(totalQueryResult[5]))
+        .put(CONFIRMED_SUM, scaledDecimal(totalQueryResult[6]))
+        .put(EXPIRED_AFFILIATE, scaledDecimal(expiredQueryResult[0]))
+        .put(EXPIRED_FEE, scaledDecimal(expiredQueryResult[1]))
+        .put(EXPIRED_SUM, scaledDecimal(expiredQueryResult[2]))
         .build();
   }
 
