@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
+import com.heymoose.util.SqlLoader;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.joda.time.DateTime;
@@ -28,6 +29,9 @@ public class OfferStats {
   public static final String CONFIRMED_AFFILIATE = "confirmed_affiliate";
   public static final String CONFIRMED_FEE = "confirmed_fee";
   public static final String CONFIRMED_SUM = "confirmed_sum";
+  public static final String EXPIRED_AFFILIATE = "expired_affiliate";
+  public static final String EXPIRED_FEE ="expired_fee";
+  public static final String EXPIRED_SUM = "expired_sum";
 
   //private final Provider<Session> sessionProvider;
   private final Repo repo;
@@ -526,19 +530,29 @@ public class OfferStats {
           "user_profile p_aff on offer_stat.aff_id = p_aff.id " +
         "where " +
           "creation_time between :from and :to";
-    Object[] queryResult = (Object[]) repo.session()
+    Object[] query1Result = (Object[]) repo.session()
         .createSQLQuery(sql)
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
+    String sql2 = SqlLoader.get("expired_actions_stat");
+    Object[] query2Result = (Object[]) repo.session()
+        .createSQLQuery(sql2)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .list().get(0);
+
     return ImmutableMap.<String, BigDecimal>builder()
-        .put(CANCELED, scaledDecimal(queryResult[0]))
-        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(queryResult[1]))
-        .put(NOT_CONFIRMED_FEE, scaledDecimal(queryResult[2]))
-        .put(NOT_CONFIRMED_SUM, scaledDecimal(queryResult[3]))
-        .put(CONFIRMED_AFFILIATE, scaledDecimal(queryResult[4]))
-        .put(CONFIRMED_FEE, scaledDecimal(queryResult[5]))
-        .put(CONFIRMED_SUM, scaledDecimal(queryResult[6]))
+        .put(CANCELED, scaledDecimal(query1Result[0]))
+        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(query1Result[1]))
+        .put(NOT_CONFIRMED_FEE, scaledDecimal(query1Result[2]))
+        .put(NOT_CONFIRMED_SUM, scaledDecimal(query1Result[3]))
+        .put(CONFIRMED_AFFILIATE, scaledDecimal(query1Result[4]))
+        .put(CONFIRMED_FEE, scaledDecimal(query1Result[5]))
+        .put(CONFIRMED_SUM, scaledDecimal(query1Result[6]))
+        .put(EXPIRED_AFFILIATE, scaledDecimal(query2Result[0]))
+        .put(EXPIRED_FEE, scaledDecimal(query2Result[1]))
+        .put(EXPIRED_SUM, scaledDecimal(query2Result[2]))
         .build();
   }
 

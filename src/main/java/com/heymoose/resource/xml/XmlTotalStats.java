@@ -27,6 +27,8 @@ public final class XmlTotalStats {
   public XmlDestination notConfirmed;
   @XmlElement
   public XmlDestination canceled;
+  @XmlElement
+  public XmlDestination expired;
 
   public XmlTotalStats(Map<String, BigDecimal> map) {
     confirmed = new XmlDestination();
@@ -38,6 +40,11 @@ public final class XmlTotalStats {
     notConfirmed.fee = map.get(NOT_CONFIRMED_FEE);
     notConfirmed.affiliate = map.get(NOT_CONFIRMED_AFFILIATE);
     notConfirmed.sum = map.get(NOT_CONFIRMED_SUM);
+
+    expired = new XmlDestination();
+    expired.fee = map.get(EXPIRED_FEE);
+    expired.affiliate = map.get(EXPIRED_AFFILIATE);
+    expired.sum = map.get(EXPIRED_SUM);
 
     canceled = new XmlDestination();
     canceled.sum = map.get(CANCELED);
