@@ -92,7 +92,17 @@ public class OfferStats {
       Long affiliateId, DateTime from, DateTime to, int offset, int limit) {
 
     String sqlName = "offer_stats_by_affiliate";
-    return executeStatsQuery(sqlName, from, to, offset, limit, ImmutableMap.of("aff_id", affiliateId));
+    return executeStatsQuery(sqlName, from, to, offset, limit,
+        ImmutableMap.of("aff_id", affiliateId));
+  }
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> offerStatsByAdvertiser(
+      Long advertiserId, DateTime from, DateTime to, int offset, int limit) {
+
+    String sqlName = "offer_stats_by_advertiser";
+    return executeStatsQuery(sqlName, from, to, offset, limit,
+        ImmutableMap.of("adv_id", advertiserId));
   }
   @Transactional
   public Pair<List<OverallOfferStats>, Long> offerStats(
@@ -600,7 +610,7 @@ public class OfferStats {
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
                                                                 DateTime from, DateTime to,
                                                                 int offset, int limit,
-                                                                Map<String, ? extends Object> parameterMap) {
+                                                                Map<String, ?> parameterMap) {
 
     String sql = SqlLoader.get(queryName);
 
