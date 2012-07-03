@@ -77,60 +77,22 @@ public class OfferStats {
   public Pair<List<OverallOfferStats>, Long> allOfferStats(
       boolean granted, DateTime from, DateTime to, int offset, int limit) {
 
-    String sql;
+    String sqlName;
     if (granted) {
-      sql = SqlLoader.get("offer_stats_all_granted");
+      sqlName = "offer_stats_all_granted";
     }
     else {
-      sql = SqlLoader.get("offer_stats_all");
+      sqlName = "offer_stats_all";
     }
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> result = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list());
-    return new Pair<List<OverallOfferStats>, Long>(result, count);
+    return executeStatsQuery(sqlName, from, to, offset, limit);
   }
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> offerStatsByAffiliate(
       Long affiliateId, DateTime from, DateTime to, int offset, int limit) {
 
-    String sql = SqlLoader.get("offer_stats_by_affiliate");
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("aff_id", affiliateId)
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> result = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("aff_id", affiliateId)
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list());
-    return new Pair<List<OverallOfferStats>, Long>(result, count);
+    String sqlName = "offer_stats_by_affiliate";
+    return executeStatsQuery(sqlName, from, to, offset, limit, ImmutableMap.of("aff_id", affiliateId));
   }
   @Transactional
   public Pair<List<OverallOfferStats>, Long> offerStats(
@@ -627,6 +589,45 @@ public class OfferStats {
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
+  }
+
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
+                                                                DateTime from, DateTime to,
+                                                                int offset, int limit) {
+    return executeStatsQuery(queryName, from, to, offset, limit, ImmutableMap.<String, Object>of());
+  }
+
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
+                                                                DateTime from, DateTime to,
+                                                                int offset, int limit,
+                                                                Map<String, ? extends Object> parameterMap) {
+
+    String sql = SqlLoader.get(queryName);
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    for (Map.Entry<String, ?> parameter : parameterMap.entrySet()) {
+      countQuery.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    Long count = extractLong(countQuery
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    for (Map.Entry<String, ?> parameter : parameterMap.entrySet()) {
+      query.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    @SuppressWarnings("unchecked")
+    List<OverallOfferStats> result = toStats(query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list());
+    return new Pair<List<OverallOfferStats>, Long>(result, count);
   }
   private static Long extractLong(Object val) {
     if (val == null)
