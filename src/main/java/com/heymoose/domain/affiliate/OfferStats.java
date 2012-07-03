@@ -104,6 +104,34 @@ public class OfferStats {
         .list());
     return new Pair<List<OverallOfferStats>, Long>(result, count);
   }
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> offerStatsByAffiliate(
+      Long affiliateId, DateTime from, DateTime to, int offset, int limit) {
+
+    String sql = SqlLoader.get("offer_stats_by_affiliate");
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    Long count = extractLong(countQuery
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("aff_id", affiliateId)
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    @SuppressWarnings("unchecked")
+    List<OverallOfferStats> result = toStats(query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("aff_id", affiliateId)
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list());
+    return new Pair<List<OverallOfferStats>, Long>(result, count);
+  }
   @Transactional
   public Pair<List<OverallOfferStats>, Long> offerStats(
       boolean granted, Long affId, Long advId, DateTime from, DateTime to, int offset, int limit) {
