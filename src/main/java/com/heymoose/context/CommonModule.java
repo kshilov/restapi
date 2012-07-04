@@ -10,7 +10,9 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.AccountingHiber;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
@@ -22,6 +24,8 @@ import com.heymoose.domain.affiliate.KeywordPattern;
 import com.heymoose.domain.affiliate.KeywordPatternDao;
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferAction;
+import com.heymoose.domain.affiliate.OfferActions;
+import com.heymoose.domain.affiliate.OfferActionsStoredFunc;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferLoader;
@@ -64,6 +68,8 @@ public class CommonModule extends AbstractModule {
     bind(BufferedShows.class);
     bind(BufferedClicks.class);
     bind(KeywordPatternDao.class);
+    bind(Accounting.class).to(AccountingHiber.class);
+    bind(OfferActions.class).to(OfferActionsStoredFunc.class);
 
     bind(Tracking.class).to(TrackingImpl.class);
     bind(Repo.class).to(HibernateRepo.class);
