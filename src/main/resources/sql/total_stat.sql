@@ -17,7 +17,7 @@ and entry_fee.account_id = fee_acc.account_id
 
 left join accounting_entry canceled_fee
 on canceled_fee.source_id = entry_fee.id
-and canceled_fee.account_id = affiliate.affiliate_account_not_confirmed_id
+and canceled_fee.account_id = fee_acc.account_id
 and canceled_fee.event = 8 /* CANCELED TRANSACTIONS */
 
 left join accounting_entry entry_aff
