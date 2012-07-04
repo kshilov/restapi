@@ -1,8 +1,7 @@
 select
-  coalesce(sum(entry_fee.amount), 0.00) + coalesce(sum(canceled_fee.amount), 0.00) fee,
-  coalesce(sum(entry_aff.amount), 0.00) + coalesce(sum(canceled_aff.amount), 0.00) affiliate,
-  coalesce(sum(entry_fee.amount), 0.00) + coalesce(sum(canceled_fee.amount), 0.00) +
-  coalesce(sum(entry_aff.amount), 0.00) + coalesce(sum(canceled_aff.amount), 0.00) total
+  coalesce(sum(entry_fee.amount), 0.00) fee,
+  coalesce(sum(entry_aff.amount), 0.00) affiliate,
+  coalesce(sum(entry_fee.amount), 0.00) + coalesce(sum(entry_aff.amount), 0.00) total
 from offer_action action
 
 left join admin_account_not_confirmed fee_acc
@@ -34,4 +33,6 @@ and canceled_aff.event = 8 /* CANCELED TRANSACTIONS */
 where
   action.creation_time between :from and :to
   and action.state = :action_state
+  and canceled_fee.source_id is null
+  and canceled_aff.source_id is null
 
