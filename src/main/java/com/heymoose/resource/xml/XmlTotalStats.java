@@ -47,7 +47,9 @@ public final class XmlTotalStats {
     expired.sum = map.get(EXPIRED_SUM);
 
     canceled = new XmlDestination();
-    canceled.sum = map.get(CANCELED);
+    canceled.fee = map.get(CANCELED_FEE);
+    canceled.affiliate = map.get(CANCELED_AFFILIATE);
+    canceled.sum = map.get(CANCELED_SUM);
   }
 
   protected XmlTotalStats() { }

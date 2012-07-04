@@ -1,6 +1,7 @@
 package com.heymoose.domain.affiliate;
 
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.Pair;
@@ -22,7 +23,9 @@ import static com.google.common.collect.Lists.newArrayList;
 @Singleton
 public class OfferStats {
 
-  public static final String CANCELED = "canceled";
+  public static final String CANCELED_SUM = "canceled_sum";
+  public static final String CANCELED_AFFILIATE = "canceled_affiliate";
+  public static final String CANCELED_FEE = "canceled_fee";
   public static final String NOT_CONFIRMED_AFFILIATE = "not_confirmed_affiliate";
   public static final String NOT_CONFIRMED_FEE = "not_confirmed_fee";
   public static final String NOT_CONFIRMED_SUM = "not_confirmed_sum";
@@ -515,33 +518,55 @@ public class OfferStats {
 
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
-    String totalQuery = SqlLoader.get("total_stat");
-    Object[] totalQueryResult = (Object[]) repo.session()
-        .createSQLQuery(totalQuery)
-        .setParameter("from", from.toDate())
-        .setParameter("to", to.toDate())
-        .list().get(0);
-    String expiredQuery = SqlLoader.get("expired_actions_stat");
+    String expiredQuery = "expired_actions_stat";
+
+    Object[] canceled = totalStats(
+        OfferActionState.CANCELED,
+        AccountingEvent.ACTION_CANCELED, from, to);
+
+    Object[] notConfirmed = totalStats(
+        OfferActionState.NOT_APPROVED,
+        AccountingEvent.ACTION_CREATED, from, to);
+
+    Object[] confirmed = totalStats(
+      OfferActionState.APPROVED,
+      AccountingEvent.ACTION_APPROVED, from ,to);
+
     Object[] expiredQueryResult = (Object[]) repo.session()
-        .createSQLQuery(expiredQuery)
+        .createSQLQuery(SqlLoader.get(expiredQuery))
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
 
     return ImmutableMap.<String, BigDecimal>builder()
-        .put(CANCELED, scaledDecimal(totalQueryResult[0]))
-        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(totalQueryResult[1]))
-        .put(NOT_CONFIRMED_FEE, scaledDecimal(totalQueryResult[2]))
-        .put(NOT_CONFIRMED_SUM, scaledDecimal(totalQueryResult[3]))
-        .put(CONFIRMED_AFFILIATE, scaledDecimal(totalQueryResult[4]))
-        .put(CONFIRMED_FEE, scaledDecimal(totalQueryResult[5]))
-        .put(CONFIRMED_SUM, scaledDecimal(totalQueryResult[6]))
+        .put(CANCELED_FEE, scaledDecimal(canceled[0]).negate())
+        .put(CANCELED_AFFILIATE, scaledDecimal(canceled[1]).negate())
+        .put(CANCELED_SUM, scaledDecimal(canceled[2]).negate())
+        .put(NOT_CONFIRMED_FEE, scaledDecimal(notConfirmed[0]))
+        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(notConfirmed[1]))
+        .put(NOT_CONFIRMED_SUM, scaledDecimal(notConfirmed[2]))
+        .put(CONFIRMED_FEE, scaledDecimal(confirmed[0]).negate())
+        .put(CONFIRMED_AFFILIATE, scaledDecimal(confirmed[1]).negate())
+        .put(CONFIRMED_SUM, scaledDecimal(confirmed[2]).negate())
         .put(EXPIRED_AFFILIATE, scaledDecimal(expiredQueryResult[0]))
         .put(EXPIRED_FEE, scaledDecimal(expiredQueryResult[1]))
         .put(EXPIRED_SUM, scaledDecimal(expiredQueryResult[2]))
         .build();
   }
 
+  private Object[] totalStats(OfferActionState actionState,
+                              AccountingEvent event,
+                              DateTime from, DateTime to) {
+
+    String totalQuery = SqlLoader.get("total_stat");
+    return (Object[]) repo.session()
+        .createSQLQuery(totalQuery)
+        .setParameter("action_state", actionState.ordinal())
+        .setParameter("entry_event", event.ordinal())
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .list().get(0);
+  }
   private static Long extractLong(Object val) {
     if (val == null)
       return 0L;
