@@ -120,10 +120,11 @@ public class AccountingHiber implements Accounting {
 
   @Override
   public Withdraw withdraw(Account account, BigDecimal amount) {
-    AccountingEntry entry = new AccountingEntry(account, amount.negate());
-    applyEntry(entry);
     Withdraw withdraw = new Withdraw(account, amount);
     repo.put(withdraw);
+    AccountingEntry entry = new AccountingEntry(account, amount.negate(), AccountingEvent.WITHDRAW, withdraw.id(), null);
+    repo.put(entry);
+    applyEntry(entry);
     return withdraw;
   }
 
