@@ -1,21 +1,20 @@
 package com.heymoose.test;
 
-import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Region;
 import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.test.base.RestTest;
-import com.heymoose.util.URIUtils;
-import com.heymoose.util.URLEncodedUtils;
+import org.joda.time.DateTimeUtils;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import org.joda.time.DateTimeUtils;
+
+import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
 
 public class ClickTest extends RestTest {
 
@@ -33,7 +32,7 @@ public class ClickTest extends RestTest {
   }
 
   private long doRegisterAdvertiser() {
-    long advertiserId = heymoose().registerUser("u@u.ru", "ads", "F", "L", "777");
+    long advertiserId = heymoose().registerUser("u@u.ru", "ads");
     heymoose().addRoleToUser(advertiserId, Role.ADVERTISER);
     heymoose().confirmUser(advertiserId);
     heymoose().addToCustomerAccount(advertiserId, ADV_BALANCE);
@@ -41,7 +40,7 @@ public class ClickTest extends RestTest {
   }
 
   private long doRegisterAffiliate() {
-    long affId = heymoose().registerUser("af1@af.ru", "dsfs", "F", "L", "777");
+    long affId = heymoose().registerUser("af1@af.ru", "dsfs");
     heymoose().addRoleToUser(affId, Role.AFFILIATE);
     heymoose().confirmUser(affId);
     return affId;
@@ -52,7 +51,7 @@ public class ClickTest extends RestTest {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
-        true, newHashSet(Region.RUSSIA), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
+        true, newHashSet("RU"), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis());
     heymoose().approveOffer(offerId);
     return offerId;
   }
