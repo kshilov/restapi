@@ -60,14 +60,14 @@ public class OfferStats {
       double confirmedRevenue = extractDouble(record[4]);
       double notConfirmedRevenue = extractDouble(record[5]);
       double canceledRevenue = extractDouble(record[6]);
-      long offerId = extractLong(record[7]);
+      long id = extractLong(record[7]);
       String name = (String) record[8];
       double ctr = extractDouble(record[9]);
       double cr = extractDouble(record[10]);
       double ecpc = extractDouble(record[11]);
       double ecpm = extractDouble(record[12]);
 
-      result.add(new OverallOfferStats(offerId, name, shows, clicks, leads, sales,
+      result.add(new OverallOfferStats(id, name, shows, clicks, leads, sales,
           confirmedRevenue, notConfirmedRevenue, canceledRevenue, ctr, cr, ecpc, ecpm));
     }
     return result;
@@ -161,45 +161,8 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> affStats(boolean granted, DateTime from, DateTime to, int offset, int limit) {
-
-    // default
-    String orderBy = "a2";
-    String groupBy = "offer_stat.aff_id, p.email";
-    String select = "offer_stat.aff_id a8, p.email a9";
-
-    // sql
-    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
-        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
-        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
-        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
-        "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "and o.id = offer_stat.master " +
-        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "left join user_profile p on offer_stat.aff_id = p.id " +
-        "where o.parent_id is null " +
-        (granted ? "and g.state = 'APPROVED' " : "") +
-        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> stats = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list()
-    );
-    return new Pair<List<OverallOfferStats>, Long>(stats, count);
+  public Pair<List<OverallOfferStats>, Long> affStats(DateTime from, DateTime to, int offset, int limit) {
+    return executeStatsQuery("affiliate_stats", from, to, offset, limit);
   }
 
   @Transactional
@@ -604,7 +567,8 @@ public class OfferStats {
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
                                                                 DateTime from, DateTime to,
                                                                 int offset, int limit) {
-    return executeStatsQuery(queryName, from, to, offset, limit, ImmutableMap.<String, Object>of());
+    return executeStatsQuery(queryName, from, to, offset, limit,
+        ImmutableMap.<String, Object>of());
   }
 
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
