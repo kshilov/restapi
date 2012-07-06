@@ -51,6 +51,12 @@ from
     ${if granted}
       and g.state = 'APPROVED'
     ${end}
+    ${if filterByAffiliate}
+      and offer_stat.aff_id = :aff_id
+    ${end}
+    ${if filterByAdvertiser}
+     and o.user_id = :adv_id
+    ${end}
 
   group by
     ${if byOffer}
