@@ -29,11 +29,12 @@ public final class SqlLoader {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static final String getTemplate(String templateName,
-                                         Map<String, Object> params) {
+                                         Map<String, ?> params) {
     return TEMPLATE_ENGINE.transform(
         load(FOLDER + templateName + TEMPLATE_EXTENSION),
-        params);
+        (Map<String, Object>) params);
   }
 
   private static final String load(String relativePath) {
