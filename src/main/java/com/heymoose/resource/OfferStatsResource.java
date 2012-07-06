@@ -66,8 +66,8 @@ public class OfferStatsResource {
     checkNotNull(affId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p
-        = stats.offerStats(granted, affId, null, new DateTime(from), new DateTime(to), offset, limit);
+    Pair<List<OverallOfferStats>, Long> p = stats.affOfferStats(
+        affId, new DateTime(from), new DateTime(to), offset, limit);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -76,7 +76,7 @@ public class OfferStatsResource {
   @GET
   @Path("offers/adv")
   @Transactional
-  public OverallOfferStatsList offersByAdvertizerStats(
+  public OverallOfferStatsList offersByAdvertiserStats(
       @QueryParam("adv_id") Long advId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("from") @DefaultValue("0") Long from,
@@ -87,8 +87,8 @@ public class OfferStatsResource {
     checkNotNull(advId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p
-        = stats.offerStats(granted, null, advId, new DateTime(from), new DateTime(to), offset, limit);
+    Pair<List<OverallOfferStats>, Long> p = stats.advOfferStats(
+        advId, new DateTime(from), new DateTime(to), offset, limit);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;

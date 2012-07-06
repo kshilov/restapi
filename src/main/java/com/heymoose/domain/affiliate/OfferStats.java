@@ -84,6 +84,36 @@ public class OfferStats {
         ImmutableMap.<String, Object>of());
   }
 
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> affOfferStats(Long affiliateId,
+                                                           DateTime from,
+                                                           DateTime to,
+                                                           int offset,
+                                                           int limit) {
+    Map<String, Object> templateParams =
+        ImmutableMap.<String, Object>of(
+            "byOffer", true,
+            "filterByAffiliate", true);
+    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
+    return executeStatsQuery(sql, from, to, offset, limit,
+        ImmutableMap.<String, Object>of("aff_id", affiliateId));
+  }
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> advOfferStats(Long advertiserId,
+                                                           DateTime from,
+                                                           DateTime to,
+                                                           int offset,
+                                                           int limit) {
+    Map<String, Object> templateParams =
+        ImmutableMap.<String, Object>of(
+            "byOffer", true,
+            "filterByAdvertiser", true);
+    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
+    return executeStatsQuery(sql, from, to, offset, limit,
+        ImmutableMap.<String, Object>of("adv_id", advertiserId));
+  }
+
 
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
                                                                 DateTime from, DateTime to,
