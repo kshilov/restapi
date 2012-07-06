@@ -76,7 +76,9 @@ public class OfferStats {
                                                            int offset,
                                                            int limit) {
     Map<String, Object> templateParams =
-        ImmutableMap.<String, Object>of("byOffer", true);
+        ImmutableMap.<String, Object>of(
+            "byOffer", true,
+            "granted", granted);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, from, to, offset, limit,
         ImmutableMap.<String, Object>of());
