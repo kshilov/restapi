@@ -1,5 +1,8 @@
 package com.heymoose.resource;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.heymoose.domain.affiliate.OfferStats;
 import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.hibernate.Transactional;
@@ -18,9 +21,9 @@ import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.heymoose.util.WebAppUtil.checkNotNull;
-import static java.util.Arrays.asList;
 
 @Singleton
 @Path("stats")
@@ -213,10 +216,26 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
+    ImmutableMap.Builder<String, String> filterBuilder = ImmutableMap.builder();
+    putIfNotNull(filterBuilder, "sub_id", subId);
+    putIfNotNull(filterBuilder, "sub_id1", subId1);
+    putIfNotNull(filterBuilder, "sub_id2", subId2);
+    putIfNotNull(filterBuilder, "sub_id3", subId3);
+    putIfNotNull(filterBuilder, "sub_id4", subId4);
+    ImmutableSet.Builder<String> groupBySetBuilder = ImmutableSet.builder();
+    addIfTrue(groupBySetBuilder, "sub_id", groupSubId);
+    addIfTrue(groupBySetBuilder, "sub_id1", groupSubId1);
+    addIfTrue(groupBySetBuilder, "sub_id2", groupSubId2);
+    addIfTrue(groupBySetBuilder, "sub_id3", groupSubId3);
+    addIfTrue(groupBySetBuilder, "sub_id4", groupSubId4);
+
+    Map<String, String> filter = filterBuilder.build();
+    // not group by filter fields
+    Set<String> groupBy = Sets.difference(
+        groupBySetBuilder.build(),
+        filter.entrySet());
     Pair<List<OverallOfferStats>, Long> p = stats.subIdStats(
-        granted, affId, offerId,
-        asList(subId, subId1, subId2, subId3, subId4),
-        asList(groupSubId, groupSubId1, groupSubId2, groupSubId3, groupSubId4),
+        affId, offerId, filter, groupBy,
         new DateTime(from), new DateTime(to), offset, limit);
     list.stats.addAll(p.fst);
     list.count = p.snd;
@@ -275,4 +294,19 @@ public class OfferStatsResource {
         new DateTime(from), new DateTime(to));
     return new XmlTotalStats(statsData);
   }
+
+  private void putIfNotNull(ImmutableMap.Builder<String, String> builder,
+                            String key, String value) {
+    if (value != null) {
+      builder.put(key, value);
+    }
+  }
+
+  private void addIfTrue(ImmutableSet.Builder<String> builder,
+                         String value, boolean test) {
+    if (test) {
+      builder.add(value);
+    }
+  }
+
 }
