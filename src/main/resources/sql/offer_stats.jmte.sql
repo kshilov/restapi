@@ -152,6 +152,6 @@ from
   ) as sums
 
 order by
-  clicks_count desc
+  ${ordering} ${direction}
 
 offset :offset limit :limit

@@ -8,6 +8,7 @@ import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlTotalStats;
+import com.heymoose.util.OrderingDirection;
 import com.heymoose.util.Pair;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -44,12 +45,15 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.allOfferStats(
-        granted, new DateTime(from), new DateTime(to), offset, limit);
+        granted, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -64,13 +68,16 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     checkNotNull(affId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.affOfferStats(
-        affId, new DateTime(from), new DateTime(to), offset, limit);
+        affId, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -85,13 +92,16 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     checkNotNull(advId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.advOfferStats(
-        advId, new DateTime(from), new DateTime(to), offset, limit);
+        advId, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -105,12 +115,15 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.affStats(
-        new DateTime(from), new DateTime(to), offset, limit);
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -124,12 +137,15 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.advStats(
-        new DateTime(from), new DateTime(to), offset, limit);
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -159,13 +175,16 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     checkNotNull(offerId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.affStatsByOffer(
-        offerId, new DateTime(from), new DateTime(to), offset, limit);
+        offerId, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -181,12 +200,15 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.sourceIdStats(
-        affId, offerId, new DateTime(from), new DateTime(to), offset, limit);
+        affId, offerId, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -212,7 +234,9 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
@@ -236,7 +260,8 @@ public class OfferStatsResource {
         filter.entrySet());
     Pair<List<OverallOfferStats>, Long> p = stats.subIdStats(
         affId, offerId, filter, groupBy,
-        new DateTime(from), new DateTime(to), offset, limit);
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -252,12 +277,15 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p =stats.refererStats(
-        affId, offerId, new DateTime(from), new DateTime(to), offset, limit);
+        affId, offerId, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -273,12 +301,15 @@ public class OfferStatsResource {
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit) {
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") OfferStats.Ordering ordering,
+      @QueryParam("direction") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
     Pair<List<OverallOfferStats>, Long> p = stats.keywordsStats(
-        affId, offerId, new DateTime(from), new DateTime(to), offset, limit);
+        affId, offerId, new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
