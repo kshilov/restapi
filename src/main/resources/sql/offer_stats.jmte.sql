@@ -82,6 +82,9 @@ from
     ${if filterByAdvertiser}
      and o.user_id = :adv_id
     ${end}
+    ${if filterByOffer}
+      and o.id = :offer_id
+    ${end}
 
   group by
     ${if groupByOffer}
