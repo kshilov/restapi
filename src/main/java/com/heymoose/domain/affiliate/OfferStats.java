@@ -48,7 +48,7 @@ public class OfferStats {
   private List<OverallOfferStats> toStats(List<Object[]> dbResult) {
     List<OverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
-      // a1 - a7
+
       long shows = extractLong(record[0]);
       long clicks = extractLong(record[1]);
       long leads = extractLong(record[2]);
@@ -56,20 +56,64 @@ public class OfferStats {
       double confirmedRevenue = extractDouble(record[4]);
       double notConfirmedRevenue = extractDouble(record[5]);
       double canceledRevenue = extractDouble(record[6]);
-      // calculations
-      Double ctr = (shows == 0) ? null : clicks * 100.0 / shows;
-      Double cr = (clicks == 0) ? null : (leads + sales) * 100.0 / clicks;
-      Double ecpc = (clicks == 0) ? null : (confirmedRevenue + notConfirmedRevenue) / clicks;
-      Double ecpm = (shows == 0) ? null : (confirmedRevenue + notConfirmedRevenue) * 1000.0 / shows;
+      long id = extractLong(record[7]);
+      String name = (String) record[8];
+      double ctr = extractDouble(record[9]);
+      double cr = extractDouble(record[10]);
+      double ecpc = extractDouble(record[11]);
+      double ecpm = extractDouble(record[12]);
 
-      long offerId = extractLong(record[7]); // a8
-      String name = (String) record[8]; // a9
-
-      result.add(new OverallOfferStats(offerId, name, shows, clicks, leads, sales,
+      result.add(new OverallOfferStats(id, name, shows, clicks, leads, sales,
           confirmedRevenue, notConfirmedRevenue, canceledRevenue, ctr, cr, ecpc, ecpm));
     }
     return result;
   }
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> allOfferStats(boolean granted,
+                                                           DateTime from,
+                                                           DateTime to,
+                                                           int offset,
+                                                           int limit) {
+    Map<String, Object> templateParams =
+        ImmutableMap.<String, Object>of("byOffer", true);
+    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
+    return executeStatsQuery(sql, from, to, offset, limit,
+        ImmutableMap.<String, Object>of());
+  }
+
+
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
+                                                                DateTime from, DateTime to,
+                                                                int offset, int limit,
+                                                                Map<String, ?> parameterMap) {
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    for (Map.Entry<String, ?> parameter : parameterMap.entrySet()) {
+      countQuery.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    Long count = extractLong(countQuery
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    for (Map.Entry<String, ?> parameter : parameterMap.entrySet()) {
+      query.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    @SuppressWarnings("unchecked")
+    List<OverallOfferStats> result = toStats(query
+        .setTimestamp("from", from.toDate())
+        .setTimestamp("to", to.toDate())
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list());
+    return new Pair<List<OverallOfferStats>, Long>(result, count);
+  }
+
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> offerStats(
@@ -606,7 +650,7 @@ public class OfferStats {
 
   private String countSql(String sql) {
     sql = sql.replaceFirst("select .* from ", "select count(*) from ");
-    sql = sql.substring(0, sql.lastIndexOf(" order by "));
+    sql = sql.substring(0, sql.lastIndexOf("order by"));
     return "select count(*) from (" + sql + ") c";
   }
 }
