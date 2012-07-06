@@ -27,13 +27,13 @@ from
     sum(not_confirmed_revenue)    not_confirmed_revenue,
     sum(canceled_revenue)         canceled_revenue,
     ${if byOffer}
-      o.id offer_id
+      o.id offer_id, o.name offer_name
     ${end}
   from
     offer o
   left join
     offer_stat
-    on offer_stat.creation_time between '2012-06-01' and '2012-06-10'
+    on offer_stat.creation_time between :from and :to
     and o.id = offer_stat.master
   where
     o.parent_id is null
@@ -44,4 +44,4 @@ from
   ) as sums
 order by
   clicks_count desc
-offset 0 limit 20;
+offset :offset limit :limit
