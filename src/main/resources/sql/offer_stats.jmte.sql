@@ -26,22 +26,39 @@ from
     sum(confirmed_revenue)        confirmed_revenue,
     sum(not_confirmed_revenue)    not_confirmed_revenue,
     sum(canceled_revenue)         canceled_revenue,
+
     ${if byOffer}
       o.id offer_id, o.name offer_name
     ${end}
+
   from
     offer o
+
+  ${if granted}
+    join offer_grant g on g.offer_id = o.id
+  ${end}
+
   left join
     offer_stat
     on offer_stat.creation_time between :from and :to
     and o.id = offer_stat.master
+    ${if granted}
+      and g.aff_id = offer_stat.aff_id
+    ${end}
+
   where
     o.parent_id is null
+    ${if granted}
+      and g.state = 'APPROVED'
+    ${end}
+
   group by
     ${if byOffer}
       o.id, o.name
     ${end}
   ) as sums
+
 order by
   clicks_count desc
+
 offset :offset limit :limit
