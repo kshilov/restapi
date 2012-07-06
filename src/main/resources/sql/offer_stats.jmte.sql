@@ -27,7 +27,7 @@ from
     sum(not_confirmed_revenue)    not_confirmed_revenue,
     sum(canceled_revenue)         canceled_revenue,
 
-    ${if byOffer}
+    ${if groupByOffer}
       o.id offer_id, o.name offer_name
     ${end}
 
@@ -59,7 +59,7 @@ from
     ${end}
 
   group by
-    ${if byOffer}
+    ${if groupByOffer}
       o.id, o.name
     ${end}
   ) as sums
