@@ -52,11 +52,15 @@ from
     ${if groupBySub}
       ${foreach groupBySub sub}
         ${if last_sub}
-          ${sub}
+          0, ${sub}
         ${else}
-          ${sub} || ', '
+          0, ${sub} || ', '
         ${end}
       ${end}
+    ${end}
+
+    ${if groupByReferer}
+      0, offer_stat.referer
     ${end}
 
   from
@@ -131,6 +135,10 @@ from
           ${sub},
         ${end}
       ${end}
+    ${end}
+
+    ${if groupByReferer}
+      offer_stat.referer
     ${end}
 
   ) as sums
