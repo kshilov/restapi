@@ -45,6 +45,10 @@ from
       p.id a8, p.email || ' (' || coalesce(p.organization, '--') || ')' a9
     ${end}
 
+    ${if groupBySourceId}
+      0, offer_stat.source_id
+    ${end}
+
   from
     offer o
 
@@ -97,6 +101,10 @@ from
 
     ${if groupByAdvertiser}
       p.id, p.email, p.organization
+    ${end}
+
+    ${if groupBySourceId}
+      offer_stat.source_id
     ${end}
 
   ) as sums
