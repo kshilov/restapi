@@ -77,7 +77,7 @@ public class OfferStats {
                                                            int limit) {
     Map<String, Object> templateParams =
         ImmutableMap.<String, Object>of(
-            "byOffer", true,
+            "groupByOffer", true,
             "granted", granted);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, from, to, offset, limit,
@@ -92,7 +92,7 @@ public class OfferStats {
                                                            int limit) {
     Map<String, Object> templateParams =
         ImmutableMap.<String, Object>of(
-            "byOffer", true,
+            "groupByOffer", true,
             "filterByAffiliate", true);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, from, to, offset, limit,
@@ -107,7 +107,7 @@ public class OfferStats {
                                                            int limit) {
     Map<String, Object> templateParams =
         ImmutableMap.<String, Object>of(
-            "byOffer", true,
+            "groupByOffer", true,
             "filterByAdvertiser", true);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, from, to, offset, limit,
