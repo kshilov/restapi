@@ -121,6 +121,17 @@ public class OfferStats {
     return executeStatsQuery(sql, from, to, offset, limit);
   }
 
+
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> advStats(DateTime from, DateTime to,
+                                                      int offset, int limit) {
+    String sql = SqlLoader.getTemplate(
+        "offer_stats",
+        ImmutableMap.of("groupByAdvertiser", true));
+    return executeStatsQuery(sql, from, to, offset, limit);
+  }
+
+
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
                                                                 DateTime from, DateTime to,
                                                                 int offset, int limit) {
@@ -157,49 +168,6 @@ public class OfferStats {
         .setParameter("limit", limit)
         .list());
     return new Pair<List<OverallOfferStats>, Long>(result, count);
-  }
-
-  @Transactional
-  public Pair<List<OverallOfferStats>, Long> advStats(boolean expired, DateTime from, DateTime to, int offset, int limit) {
-
-    // default
-    String orderBy = "a2";
-    String groupBy = "p.id, p.email, p.organization";
-    String select = "p.id a8, p.email || ' (' || coalesce(p.organization, '--') || ')' a9";
-
-    // sql
-    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
-        "sum(leads_count) a3, sum(sales_count) a4, " +
-        "sum(confirmed_revenue * (1 + p_aff.fee / 100.0)) a5, " +
-        "sum(not_confirmed_revenue * (1 + p_aff.fee / 100.0)) a6, " +
-        "sum(canceled_revenue * (1 + p_aff.fee / 100.0)) a7, " + select + " from offer o " +
-        "left join offer_stat on offer_stat.creation_time between :from and :to and o.id = offer_stat.master " +
-        "left join user_profile p on o.user_id = p.id " +
-        "left join user_profile p_aff on offer_stat.aff_id = p_aff.id " +
-        (expired ? "left join offer_action oa on oa.stat_id = offer_stat.id " : "") +
-        "where o.parent_id is null " +
-        (expired ? "and cast(now() as date) - cast(oa.creation_time as date) > o.hold_days " : "") +
-        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> stats = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list()
-    );
-    return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
 
   private String nowSql() {

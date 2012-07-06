@@ -23,9 +23,15 @@ from
     sum(coalesce(click_count, 0)) clicks_count,
     sum(leads_count)              leads_count,
     sum(sales_count)              sales_count,
-    sum(confirmed_revenue)        confirmed_revenue,
-    sum(not_confirmed_revenue)    not_confirmed_revenue,
-    sum(canceled_revenue)         canceled_revenue,
+    ${if groupByAdvertiser}
+      sum(confirmed_revenue  * (1 + p_aff.fee / 100.0))        confirmed_revenue,
+      sum(not_confirmed_revenue  * (1 + p_aff.fee / 100.0))    not_confirmed_revenue,
+      sum(canceled_revenue  * (1 + p_aff.fee / 100.0))         canceled_revenue,
+    ${else}
+      sum(confirmed_revenue)        confirmed_revenue,
+      sum(not_confirmed_revenue)    not_confirmed_revenue,
+      sum(canceled_revenue)         canceled_revenue,
+    ${end}
 
     ${if groupByOffer}
       o.id offer_id, o.name offer_name
@@ -33,6 +39,10 @@ from
 
     ${if groupByAffiliate}
       offer_stat.aff_id, p.email
+    ${end}
+
+    ${if groupByAdvertiser}
+      p.id a8, p.email || ' (' || coalesce(p.organization, '--') || ')' a9
     ${end}
 
   from
@@ -55,6 +65,11 @@ from
     on p.id = offer_stat.aff_id
   ${end}
 
+  ${if groupByAdvertiser}
+    left join user_profile p on o.user_id = p.id
+    left join user_profile p_aff on offer_stat.aff_id = p_aff.id
+  ${end}
+
 
   where
     o.parent_id is null
@@ -75,6 +90,10 @@ from
 
     ${if groupByAffiliate}
       offer_stat.aff_id, p.email
+    ${end}
+
+    ${if groupByAdvertiser}
+      p.id, p.email, p.organization
     ${end}
 
   ) as sums
