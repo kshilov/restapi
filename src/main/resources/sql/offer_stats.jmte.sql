@@ -49,6 +49,16 @@ from
       0, offer_stat.source_id
     ${end}
 
+    ${if groupBySub}
+      ${foreach groupBySub sub}
+        ${if last_sub}
+          ${sub}
+        ${else}
+          ${sub} || ', '
+        ${end}
+      ${end}
+    ${end}
+
   from
     offer o
 
@@ -89,6 +99,11 @@ from
     ${if filterByOffer}
       and o.id = :offer_id
     ${end}
+    ${if filterBySub}
+      ${foreach filterBySub sub}
+        and ${sub} = :${sub}
+      ${end}
+    ${end}
 
   group by
     ${if groupByOffer}
@@ -105,6 +120,17 @@ from
 
     ${if groupBySourceId}
       offer_stat.source_id
+    ${end}
+
+
+    ${if groupBySub}
+      ${foreach groupBySub sub}
+        ${if last_sub}
+          ${sub}
+        ${else}
+          ${sub},
+        ${end}
+      ${end}
     ${end}
 
   ) as sums

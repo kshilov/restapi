@@ -15,8 +15,10 @@ import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -242,77 +244,29 @@ public class OfferStats {
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> subIdStats(
-      boolean granted, Long affId, Long offerId, List<String> subsFilter,
-      List<Boolean> grouping, DateTime from, DateTime to, int offset, int limit) {
-
-    // filter
-    String filter = "";
-    for (int i = 0; i < subsFilter.size(); i++) {
-      if (subsFilter.get(i) != null) {
-        filter += "and sub_id" + (i == 0 ? "" : i) + " = :sub_id" + i + " ";
-        grouping.set(i, false); // do not group where value is filtered
-      }
-    }
-
-    // grouping
-    String[] subs = new String[5];
-    int j = 0;
-    for (int i = 0; i < grouping.size(); i++) {
-      if (grouping.get(i)) {
-        subs[j] = "offer_stat.sub_id" + (i == 0 ? "" : i);
-        j++;
-      }
-    }
+      Long affId, Long offerId, Map<String, String> filter,
+      Set<String> grouping, DateTime from, DateTime to, int offset, int limit) {
 
     // at least one grouping of not-filtered values should exist
-    if (j == 0) return new Pair<List<OverallOfferStats>, Long>(new ArrayList<OverallOfferStats>(), 0L);
+    if (grouping.size() == 0)
+      return new Pair<List<OverallOfferStats>, Long>(
+          Collections.<OverallOfferStats>emptyList(), 0L);
 
-    // clauses
-    String orderBy = "a9";
-    String groupBy = StringUtils.join(subs, ", ", 0, j);
-    String select = (j == 1) ? "0 a8, " + subs[0] + " a9"
-        : "0 a8, concat(" + StringUtils.join(subs, ", ' / ', ", 0, j) + ") a9";
-
-    // sql
-    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
-        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
-        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
-        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
-        "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "and o.id = offer_stat.master " +
-        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "where o.parent_id is null " +
-        filter +
-        (granted ? "and g.state = 'APPROVED' " : "") +
-        (affId != null ? "and offer_stat.aff_id = :affId " : "") +
-        (offerId != null ? "and o.id = :offerId " : "") +
-        "group by " + groupBy + " order by " + orderBy + " offset :offset limit :limit";
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    if (affId != null) countQuery.setParameter("affId", affId);
-    if (offerId != null) countQuery.setParameter("offerId", offerId);
-    addSubsParametersToQuery(subsFilter, countQuery);
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    if (affId != null) query.setParameter("affId", affId);
-    if (offerId != null) query.setParameter("offerId", offerId);
-    addSubsParametersToQuery(subsFilter, query);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> stats = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list()
-    );
-    return new Pair<List<OverallOfferStats>, Long>(stats, count);
+    ImmutableMap.Builder<String, Object> templateParams = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
+    if (affId != null) {
+      templateParams.put("filterByAffiliate", true);
+      queryParams.put("aff_id", affId);
+    }
+    if (offerId != null) {
+      templateParams.put("filterByOffer", true);
+      queryParams.put("offer_id", offerId);
+    }
+    templateParams.put("groupBySub", grouping);
+    templateParams.put("filterBySub", filter.keySet());
+    queryParams.putAll(filter);
+    String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
+    return executeStatsQuery(sql, from, to, offset, limit, queryParams.build());
   }
 
   @Transactional
