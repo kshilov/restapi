@@ -75,8 +75,7 @@ public class OfferStats {
                                                            DateTime to,
                                                            int offset,
                                                            int limit) {
-    Map<String, Object> templateParams =
-        ImmutableMap.<String, Object>of(
+    Map<String, ?> templateParams = ImmutableMap.of(
             "groupByOffer", true,
             "granted", granted);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
@@ -90,8 +89,7 @@ public class OfferStats {
                                                            DateTime to,
                                                            int offset,
                                                            int limit) {
-    Map<String, Object> templateParams =
-        ImmutableMap.<String, Object>of(
+    Map<String, ?> templateParams = ImmutableMap.of(
             "groupByOffer", true,
             "filterByAffiliate", true);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
@@ -105,8 +103,7 @@ public class OfferStats {
                                                            DateTime to,
                                                            int offset,
                                                            int limit) {
-    Map<String, Object> templateParams =
-        ImmutableMap.<String, Object>of(
+    Map<String, ?> templateParams = ImmutableMap.of(
             "groupByOffer", true,
             "filterByAdvertiser", true);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
@@ -114,6 +111,22 @@ public class OfferStats {
         ImmutableMap.<String, Object>of("adv_id", advertiserId));
   }
 
+  @Transactional
+  public Pair<List<OverallOfferStats>, Long> affStats(DateTime from, DateTime to,
+                                                      int offset, int limit) {
+
+    String sql = SqlLoader.getTemplate(
+        "offer_stats",
+        ImmutableMap.of("groupByAffiliate", true));
+    return executeStatsQuery(sql, from, to, offset, limit);
+  }
+
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
+                                                                DateTime from, DateTime to,
+                                                                int offset, int limit) {
+    return executeStatsQuery(sql, from, to, offset, limit,
+        ImmutableMap.<String, Object>of());
+  }
 
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
                                                                 DateTime from, DateTime to,
@@ -144,105 +157,6 @@ public class OfferStats {
         .setParameter("limit", limit)
         .list());
     return new Pair<List<OverallOfferStats>, Long>(result, count);
-  }
-
-
-  @Transactional
-  public Pair<List<OverallOfferStats>, Long> offerStats(
-      boolean granted, Long affId, Long advId, DateTime from, DateTime to, int offset, int limit) {
-
-    // default
-    String orderBy = "a2";
-    String groupBy = "o.id, o.name";
-    String select = "o.id a8, o.name a9";
-    // particular
-    if (affId != null && granted) {
-      orderBy = "g.creation_time";
-      groupBy = "o.id, o.name, g.creation_time";
-    }
-    if (advId != null) {
-      orderBy = "a8";
-    }
-
-    // sql
-    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
-        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
-        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
-        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
-        "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "and o.id = offer_stat.master " +
-        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "where o.parent_id is null " +
-        (granted ? "and g.state = 'APPROVED' " : "") +
-        (affId != null ? "and offer_stat.aff_id = :affId " : "") +
-        (advId != null ? "and o.user_id = :advId " : "") +
-        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    if (affId != null) countQuery.setParameter("affId", affId);
-    if (advId != null) countQuery.setParameter("advId", advId);
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    if (affId != null) query.setParameter("affId", affId);
-    if (advId != null) query.setParameter("advId", advId);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> stats = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list()
-    );
-    return new Pair<List<OverallOfferStats>, Long>(stats, count);
-  }
-
-  @Transactional
-  public Pair<List<OverallOfferStats>, Long> affStats(boolean granted, DateTime from, DateTime to, int offset, int limit) {
-
-    // default
-    String orderBy = "a2";
-    String groupBy = "offer_stat.aff_id, p.email";
-    String select = "offer_stat.aff_id a8, p.email a9";
-
-    // sql
-    String sql = "select sum(show_count) a1, sum(coalesce(click_count, 0)) a2, " +
-        "sum(leads_count) a3, sum(sales_count) a4, sum(confirmed_revenue) a5, " +
-        "sum(not_confirmed_revenue) a6, sum(canceled_revenue) a7, " + select + " from offer o " +
-        (granted ? "join offer_grant g on g.offer_id = o.id " : "") +
-        "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "and o.id = offer_stat.master " +
-        (granted ? "and g.aff_id = offer_stat.aff_id " : "") +
-        "left join user_profile p on offer_stat.aff_id = p.id " +
-        "where o.parent_id is null " +
-        (granted ? "and g.state = 'APPROVED' " : "") +
-        "group by " + groupBy + " order by " + orderBy + " desc offset :offset limit :limit";
-
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .uniqueResult()
-    );
-
-    // query with offset and limit
-    Query query = repo.session().createSQLQuery(sql);
-    @SuppressWarnings("unchecked")
-    List<OverallOfferStats> stats = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
-        .list()
-    );
-    return new Pair<List<OverallOfferStats>, Long>(stats, count);
   }
 
   @Transactional

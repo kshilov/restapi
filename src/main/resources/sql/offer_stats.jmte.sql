@@ -31,6 +31,10 @@ from
       o.id offer_id, o.name offer_name
     ${end}
 
+    ${if groupByAffiliate}
+      offer_stat.aff_id, p.email
+    ${end}
+
   from
     offer o
 
@@ -45,6 +49,12 @@ from
     ${if granted}
       and g.aff_id = offer_stat.aff_id
     ${end}
+
+  ${if groupByAffiliate}
+    left join user_profile p
+    on p.id = offer_stat.aff_id
+  ${end}
+
 
   where
     o.parent_id is null
@@ -62,6 +72,11 @@ from
     ${if groupByOffer}
       o.id, o.name
     ${end}
+
+    ${if groupByAffiliate}
+      offer_stat.aff_id, p.email
+    ${end}
+
   ) as sums
 
 order by
