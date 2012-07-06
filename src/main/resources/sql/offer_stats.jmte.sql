@@ -63,6 +63,10 @@ from
       0, offer_stat.referer
     ${end}
 
+    ${if groupByKeywords}
+      0, offer_stat.keywords
+    ${end}
+
   from
     offer o
 
@@ -139,6 +143,10 @@ from
 
     ${if groupByReferer}
       offer_stat.referer
+    ${end}
+
+    ${if groupByKeywords}
+     offer_stat.keywords
     ${end}
 
   ) as sums

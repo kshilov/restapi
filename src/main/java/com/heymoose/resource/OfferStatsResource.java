@@ -277,8 +277,8 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p
-        = stats.keywordsStats(granted, affId, offerId, new DateTime(from), new DateTime(to), offset, limit);
+    Pair<List<OverallOfferStats>, Long> p = stats.keywordsStats(
+        affId, offerId, new DateTime(from), new DateTime(to), offset, limit);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
