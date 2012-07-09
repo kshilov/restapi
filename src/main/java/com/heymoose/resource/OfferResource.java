@@ -263,6 +263,8 @@ public class OfferResource {
       offer.setCookieTtl(Integer.parseInt(form.getFirst("cookie_ttl")));
     if (form.containsKey("launch_time"))
       offer.setLaunchTime(new DateTime(Long.parseLong(form.getFirst("launch_time"))));
+    if (form.containsKey("allow_deeplink"))
+      offer.setAllowDeeplink(Boolean.parseBoolean(form.getFirst("allow_deeplink")));
     if (form.containsKey("categories")) {
       List<Long> categIds = newArrayList();
       for (String strId : form.get("categories"))

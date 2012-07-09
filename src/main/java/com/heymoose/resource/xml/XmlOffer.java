@@ -83,6 +83,9 @@ public class XmlOffer {
   @XmlElement(name = "launch-time")
   public String launchTime;
   
+  @XmlElement(name = "allow-deeplink")
+  public Boolean allowDeeplink;
+  
   @XmlElement(name = "title")
   public String title;
   

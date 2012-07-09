@@ -108,8 +108,8 @@ public class Offer extends BaseOffer {
   @Column(name = "token_param_name", nullable = true)
   private String tokenParamName;
 
-  @Basic
-  protected boolean allowDeeplink;
+  @Column(name = "allow_deeplink", nullable = true)
+  protected Boolean allowDeeplink;
 
   protected Offer() {
   }
@@ -328,7 +328,7 @@ public class Offer extends BaseOffer {
     return ids;
   }
 
-  public boolean allowDeeplink() {
+  public Boolean allowDeeplink() {
     return allowDeeplink;
   }
 
