@@ -1,7 +1,7 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.affiliate.Category;
-import com.heymoose.domain.affiliate.SubCategory;
+import com.heymoose.domain.affiliate.CategoryGroup;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
@@ -28,23 +28,22 @@ public class CategoryResource {
     this.repo = repo;
   }
 
-  @Path("parent")
+  @Path("group")
   @PUT
   @Transactional
-  public String saveParent(@FormParam("id") Long id,
-                           @FormParam("name") String name) {
-    Category category = new Category(id, name);
-    repo.session().saveOrUpdate(category);
-    return category.id().toString();
+  public String saveGroup(@FormParam("id") Long id,
+                          @FormParam("name") String name) {
+    CategoryGroup group = new CategoryGroup(id, name);
+    repo.session().saveOrUpdate(group);
+    return group.id().toString();
   }
 
-  @Path("sub")
   @PUT
   @Transactional
   public String saveSub(@FormParam("id") Long id,
                         @FormParam("name") String name,
-                        @FormParam("category_id") Long categoryId) {
-    SubCategory sub = new SubCategory(id, name, categoryId);
+                        @FormParam("category_group_id") Long categoryGroupId) {
+    Category sub = new Category(id, name, categoryGroupId);
     repo.session().saveOrUpdate(sub);
     return sub.id().toString();
   }

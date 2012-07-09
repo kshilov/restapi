@@ -3,20 +3,20 @@ package com.heymoose.domain.affiliate;
 import com.heymoose.domain.base.IdEntity;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.util.Set;
 
 @Entity
 @Table(name = "category")
-public class Category extends IdEntity {
+public final class Category extends IdEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category-seq")
@@ -26,22 +26,25 @@ public class Category extends IdEntity {
   @Basic(optional = false)
   private String name;
 
-  @OneToMany(targetEntity = SubCategory.class, fetch = FetchType.LAZY,
-      cascade = CascadeType.ALL, mappedBy = "categoryId")
-  private Set<SubCategory> subCategoryList;
+  @Column(name = "category_group_id", nullable = false)
+  private Long categoryGroupId;
+
+  @ManyToOne(targetEntity = CategoryGroup.class, fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "id", insertable = false, updatable = false)
+  private CategoryGroup categoryGroup;
+
+  protected Category() { }
+  public Category(Long id, String name, Long categoryGroupId) {
+    this.id = id;
+    this.name = name;
+    this.categoryGroupId = categoryGroupId;
+  }
 
   @Override
   public Long id() {
     return id;
   }
-  
-  protected Category() {}
-  
-  public Category(Long id, String name) {
-    this.id = id;
-    this.name = name;
-  }
-  
+
   public String name() {
     return name;
   }

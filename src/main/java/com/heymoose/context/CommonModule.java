@@ -17,6 +17,7 @@ import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.affiliate.Banner;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.CategoryGroup;
 import com.heymoose.domain.affiliate.ErrorInfo;
 import com.heymoose.domain.affiliate.ErrorInfoRepository;
 import com.heymoose.domain.affiliate.IpSegment;
@@ -32,7 +33,6 @@ import com.heymoose.domain.affiliate.OfferLoader;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferStat;
 import com.heymoose.domain.affiliate.Site;
-import com.heymoose.domain.affiliate.SubCategory;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.Token;
@@ -83,7 +83,7 @@ public class CommonModule extends AbstractModule {
     bindEntities(Offer.class, User.class, Banner.class, Withdraw.class,
         Setting.class, Site.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class,
-        Category.class, SubCategory.class,
+        Category.class, CategoryGroup.class,
         IpSegment.class, Account.class,
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class,
         OfferStat.class, OfferAction.class,
