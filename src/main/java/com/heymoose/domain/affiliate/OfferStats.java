@@ -164,14 +164,14 @@ public class OfferStats {
     ImmutableMap.Builder<String, Object> templateParams = templateParamsBuilder(common);
     ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
     if (affId != null) {
-      templateParams.put("filterByAffiliate", Boolean.FALSE);
+      templateParams.put("filterByAffiliate", true);
       queryParams.put("aff_id", affId);
     }
     if (offerId != null) {
       templateParams.put("filterByOffer", true);
       queryParams.put("offer_id", offerId);
     }
-    templateParams.put("groupBySourceId", Boolean.TRUE);
+    templateParams.put("groupBySourceId", true);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
 
     return executeStatsQuery(sql, common, queryParams.build());
