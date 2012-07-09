@@ -218,11 +218,6 @@ public class OfferStats {
       Long affId, Long offerId, Map<String, String> filter,
       Set<String> grouping, CommonParams common) {
 
-    // at least one grouping of not-filtered values should exist
-    if (grouping.size() == 0)
-      return new Pair<List<OverallOfferStats>, Long>(
-          Collections.<OverallOfferStats>emptyList(), 0L);
-
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common);
     ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
