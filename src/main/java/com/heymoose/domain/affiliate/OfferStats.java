@@ -1,6 +1,7 @@
 package com.heymoose.domain.affiliate;
 
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.context.CommonModule;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -8,6 +9,7 @@ import com.heymoose.util.OrderingDirection;
 import com.heymoose.util.Pair;
 import com.heymoose.util.SqlLoader;
 import org.hibernate.Query;
+import org.hibernate.annotations.Immutable;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -28,6 +30,27 @@ public class OfferStats {
     DESCR, SHOWS_COUNT, CLICKS_COUNT, LEADS_COUNT, SALES_COUNT,
     CONFIRMED_REVENUE, NOT_CONFIRMED_REVENUE, CANCELED_REVENUE,
     CTR, CR, ECPC, ECPM
+  }
+
+  public static final class CommonParams {
+    private final DateTime from;
+    private final DateTime to;
+    private final int offset;
+    private final int limit;
+    private final Ordering ordering;
+    private final OrderingDirection direction;
+
+    public CommonParams(DateTime from, DateTime to,
+                        int offset, int limit,
+                        Ordering ordering, OrderingDirection direction) {
+      this.from = from;
+      this.to = to;
+      this.offset = offset;
+      this.limit = limit;
+      this.ordering = ordering;
+      this.direction = direction;
+    }
+
   }
 
   public static final String CANCELED_SUM = "canceled_sum";
@@ -78,111 +101,69 @@ public class OfferStats {
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> allOfferStats(boolean granted,
-                                                           DateTime from,
-                                                           DateTime to,
-                                                           int offset,
-                                                           int limit,
-                                                           Ordering ordering,
-                                                           OrderingDirection direction) {
-    Map<String, ?> templateParams = ImmutableMap.of(
-            "groupByOffer", true,
-            "granted", granted,
-            "ordering", ordering,
-            "direction", direction);
+                                                           CommonParams commonParams) {
+    Map<String, ?> templateParams = templateParamsBuilder(commonParams)
+            .put("groupByOffer", true)
+            .put("granted", granted).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, from, to, offset, limit,
-        ImmutableMap.<String, Object>of());
+    return executeStatsQuery(sql, commonParams);
   }
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> affOfferStats(Long affiliateId,
-                                                           DateTime from,
-                                                           DateTime to,
-                                                           int offset,
-                                                           int limit,
-                                                           Ordering ordering,
-                                                           OrderingDirection direction) {
-    Map<String, ?> templateParams = ImmutableMap.of(
-            "groupByOffer", true,
-            "filterByAffiliate", true,
-            "ordering", ordering,
-            "direction", direction);
+                                                           CommonParams common) {
+    Map<String, ?> templateParams = templateParamsBuilder(common)
+            .put("groupByOffer", true)
+            .put("filterByAffiliate", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, from, to, offset, limit,
-        ImmutableMap.<String, Object>of("aff_id", affiliateId));
+    return executeStatsQuery(sql, common, ImmutableMap.of("aff_id", affiliateId));
   }
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> advOfferStats(Long advertiserId,
-                                                           DateTime from,
-                                                           DateTime to,
-                                                           int offset,
-                                                           int limit,
-                                                           Ordering ordering,
-                                                           OrderingDirection direction) {
-    Map<String, ?> templateParams = ImmutableMap.of(
-            "groupByOffer", true,
-            "filterByAdvertiser", true,
-            "ordering", ordering,
-            "direction", direction);
+                                                           CommonParams common) {
+    Map<String, ?> templateParams = templateParamsBuilder(common)
+            .put("groupByOffer", true)
+            .put("filterByAdvertiser", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, from, to, offset, limit,
-        ImmutableMap.<String, Object>of("adv_id", advertiserId));
+    return executeStatsQuery(sql, common,  ImmutableMap.of("adv_id", advertiserId));
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> affStats(DateTime from, DateTime to,
-                                                      int offset, int limit,
-                                                      Ordering ordering,
-                                                      OrderingDirection direction) {
+  public Pair<List<OverallOfferStats>, Long> affStats(CommonParams common) {
 
-    Map<String, ?> templateParams = ImmutableMap.of(
-        "groupByAffiliate", true,
-        "ordering", ordering,
-        "direction", direction);
+    Map<String, ?> templateParams = templateParamsBuilder(common)
+        .put("groupByAffiliate", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, from, to, offset, limit);
+    return executeStatsQuery(sql, common);
   }
 
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> advStats(DateTime from, DateTime to,
-                                                      int offset, int limit,
-                                                      Ordering ordering,
-                                                      OrderingDirection direction) {
-    Map<String, ?> templateParams = ImmutableMap.of(
-        "groupByAffiliate", true,
-        "ordering", ordering,
-        "direction", direction);
+  public Pair<List<OverallOfferStats>, Long> advStats(CommonParams common) {
+    Map<String, ?> templateParams = templateParamsBuilder(common)
+        .put("groupByAffiliate", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, from, to, offset, limit);
+    return executeStatsQuery(sql, common);
   }
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> affStatsByOffer(
-      long offerId, DateTime from, DateTime to, int offset, int limit,
-      Ordering ordering, OrderingDirection direction) {
+      long offerId, CommonParams common) {
 
-    Map<String, ?> templateParams = ImmutableMap.of(
-        "groupByAffiliate", true,
-        "filterByOffer", true,
-        "ordering", ordering,
-        "direaction", direction);
+    Map<String, ?> templateParams = templateParamsBuilder(common)
+        .put("groupByAffiliate", true)
+        .put("filterByOffer", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, from, to, offset, limit,
-        ImmutableMap.of("offer_id", offerId));
+    return executeStatsQuery(sql, common, ImmutableMap.of("offer_id", offerId));
   }
 
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> sourceIdStats(Long affId,
                                                            Long offerId,
-                                                           DateTime from,
-                                                           DateTime to,
-                                                           int offset, int limit,
-                                                            Ordering ordering,
-                                                            OrderingDirection direction) {
-    ImmutableMap.Builder<String, Object> templateParams = ImmutableMap.builder();
+                                                           CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams = templateParamsBuilder(common);
     ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
     if (affId != null) {
       templateParams.put("filterByAffiliate", Boolean.FALSE);
@@ -193,11 +174,9 @@ public class OfferStats {
       queryParams.put("offer_id", offerId);
     }
     templateParams.put("groupBySourceId", Boolean.TRUE);
-    templateParams.put("ordering", ordering);
-    templateParams.put("direction", direction);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
 
-    return executeStatsQuery(sql, from, to, offset, limit, queryParams.build());
+    return executeStatsQuery(sql, common, queryParams.build());
   }
 
   @Transactional
@@ -239,15 +218,15 @@ public class OfferStats {
   @Transactional
   public Pair<List<OverallOfferStats>, Long> subIdStats(
       Long affId, Long offerId, Map<String, String> filter,
-      Set<String> grouping, DateTime from, DateTime to, int offset, int limit,
-      Ordering ordering, OrderingDirection direction) {
+      Set<String> grouping, CommonParams common) {
 
     // at least one grouping of not-filtered values should exist
     if (grouping.size() == 0)
       return new Pair<List<OverallOfferStats>, Long>(
           Collections.<OverallOfferStats>emptyList(), 0L);
 
-    ImmutableMap.Builder<String, Object> templateParams = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common);
     ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
     if (affId != null) {
       templateParams.put("filterByAffiliate", true);
@@ -259,19 +238,16 @@ public class OfferStats {
     }
     templateParams.put("groupBySub", grouping);
     templateParams.put("filterBySub", filter.keySet());
-    templateParams.put("ordering", ordering);
-    templateParams.put("direction", direction);
     queryParams.putAll(filter);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-    return executeStatsQuery(sql, from, to, offset, limit, queryParams.build());
+    return executeStatsQuery(sql, common, queryParams.build());
   }
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> refererStats(
-      Long affId, Long offerId, DateTime from, DateTime to,
-      int offset, int limit,
-      Ordering ordering, OrderingDirection direction) {
-    ImmutableMap.Builder<String, Object> templateParams = ImmutableMap.builder();
+      Long affId, Long offerId, CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common);
     ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
     if (affId != null) {
       templateParams.put("filterByAffiliate", true);
@@ -282,19 +258,16 @@ public class OfferStats {
       queryParams.put("offer_id", offerId);
     }
     templateParams.put("groupByReferer", true);
-    templateParams.put("ordering", ordering);
-    templateParams.put("direction", direction);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-    return executeStatsQuery(sql, from, to, offset, limit, queryParams.build());
+    return executeStatsQuery(sql, common, queryParams.build());
   }
 
   @Transactional
   public Pair<List<OverallOfferStats>, Long> keywordsStats(
-      Long affId, Long offerId, DateTime from, DateTime to,
-      int offset, int limit,
-      Ordering ordering, OrderingDirection direction) {
+      Long affId, Long offerId, CommonParams common) {
 
-    ImmutableMap.Builder<String, Object> templateParams = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common);
     ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
     if (affId != null) {
       templateParams.put("filterByAffiliate", true);
@@ -305,10 +278,8 @@ public class OfferStats {
       queryParams.put("offer_id", offerId);
     }
     templateParams.put("groupByKeywords", true);
-    templateParams.put("ordering", ordering);
-    templateParams.put("direction", direction);
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-    return executeStatsQuery(sql, from, to, offset, limit, queryParams.build());
+    return executeStatsQuery(sql, common, queryParams.build());
   }
 
   @SuppressWarnings("unchecked")
@@ -364,43 +335,43 @@ public class OfferStats {
   }
 
 
-
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
-                                                                DateTime from, DateTime to,
-                                                                int offset, int limit) {
-    return executeStatsQuery(sql, from, to, offset, limit,
-        ImmutableMap.<String, Object>of());
+                                                                CommonParams common) {
+    return executeStatsQuery(sql, common, ImmutableMap.<String, Object>of());
   }
-
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
-                                                                DateTime from, DateTime to,
-                                                                int offset, int limit,
-                                                                Map<String, ?> parameterMap) {
-
+                                                                CommonParams common,
+                                                                Map<String, ?> custom) {
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(countSql(sql));
-    for (Map.Entry<String, ?> parameter : parameterMap.entrySet()) {
+    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
       countQuery.setParameter(parameter.getKey(), parameter.getValue());
     }
     Long count = extractLong(countQuery
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
         .uniqueResult()
     );
 
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
-    for (Map.Entry<String, ?> parameter : parameterMap.entrySet()) {
+    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
       query.setParameter(parameter.getKey(), parameter.getValue());
     }
     @SuppressWarnings("unchecked")
     List<OverallOfferStats> result = toStats(query
-        .setTimestamp("from", from.toDate())
-        .setTimestamp("to", to.toDate())
-        .setParameter("offset", offset)
-        .setParameter("limit", limit)
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .setParameter("offset", common.offset)
+        .setParameter("limit", common.limit)
         .list());
     return new Pair<List<OverallOfferStats>, Long>(result, count);
+  }
+  private static ImmutableMap.Builder<String, Object> templateParamsBuilder(
+      CommonParams common) {
+    return ImmutableMap.<String, Object>builder()
+        .put("ordering", common.ordering)
+        .put("direction", common.direction);
   }
 
 
