@@ -1,36 +1,36 @@
 select
   *,
   case shows_count
-    when 0 then null
+    when 0 then 0.00
     else clicks_count * 100.0 / shows_count
   end ctr,
   case clicks_count
-    when 0 then null
+    when 0 then 0.00
     else (leads_count + sales_count) * 100.0 / clicks_count
   end cr,
   case clicks_count
-    when 0 then null
+    when 0 then 0.00
     else (confirmed_revenue + not_confirmed_revenue) / clicks_count
   end ecpc,
   case shows_count
-    when 0 then null
+    when 0 then 0.00
     else (confirmed_revenue + not_confirmed_revenue) * 1000.0 / shows_count
   end ecpm
 from
   (
   select
-    sum(show_count)               shows_count,
-    sum(coalesce(click_count, 0)) clicks_count,
-    sum(leads_count)              leads_count,
-    sum(sales_count)              sales_count,
+    coalesce(sum(show_count),   0) shows_count,
+    coalesce(sum(click_count),  0) clicks_count,
+    coalesce(sum(leads_count),  0) leads_count,
+    coalesce(sum(sales_count),  0) sales_count,
     ${if groupByAdvertiser}
-      sum(confirmed_revenue  * (1 + p_aff.fee / 100.0))        confirmed_revenue,
-      sum(not_confirmed_revenue  * (1 + p_aff.fee / 100.0))    not_confirmed_revenue,
-      sum(canceled_revenue  * (1 + p_aff.fee / 100.0))         canceled_revenue,
+      coalesce(sum(confirmed_revenue  * (1 + p_aff.fee / 100.0),      0.00) confirmed_revenue,
+      coalesce(sum(not_confirmed_revenue  * (1 + p_aff.fee / 100.0)), 0.00) not_confirmed_revenue,
+      coalesce(sum(canceled_revenue  * (1 + p_aff.fee / 100.0)),      0.00) canceled_revenue,
     ${else}
-      sum(confirmed_revenue)        confirmed_revenue,
-      sum(not_confirmed_revenue)    not_confirmed_revenue,
-      sum(canceled_revenue)         canceled_revenue,
+      coalesce(sum(confirmed_revenue),      0.00) confirmed_revenue,
+      coalesce(sum(not_confirmed_revenue),  0.00) not_confirmed_revenue,
+      coalesce(sum(canceled_revenue),       0.00) canceled_revenue,
     ${end}
 
     ${if groupByOffer}
