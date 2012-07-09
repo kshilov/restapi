@@ -1,7 +1,6 @@
 package com.heymoose.domain.affiliate;
 
 import com.google.common.collect.ImmutableMap;
-import com.heymoose.context.CommonModule;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
@@ -9,7 +8,6 @@ import com.heymoose.util.OrderingDirection;
 import com.heymoose.util.Pair;
 import com.heymoose.util.SqlLoader;
 import org.hibernate.Query;
-import org.hibernate.annotations.Immutable;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
