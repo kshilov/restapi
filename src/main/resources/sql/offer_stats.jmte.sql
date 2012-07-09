@@ -50,11 +50,12 @@ from
     ${end}
 
     ${if groupBySub}
+      0 id,
       ${foreach groupBySub sub}
         ${if last_sub}
-          0 id, ${sub} descr
+          ${sub} descr
         ${else}
-          0 id, ${sub} || ', ' descr
+          ${sub} || ', ' ||
         ${end}
       ${end}
     ${end}
