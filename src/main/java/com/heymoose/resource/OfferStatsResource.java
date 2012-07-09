@@ -51,9 +51,10 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.allOfferStats(
-        granted, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.allOfferStats(granted, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -75,9 +76,10 @@ public class OfferStatsResource {
     checkNotNull(affId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.affOfferStats(
-        affId, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.affOfferStats(affId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -99,9 +101,10 @@ public class OfferStatsResource {
     checkNotNull(advId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.advOfferStats(
-        advId, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.advOfferStats(advId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -121,9 +124,10 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.affStats(
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.affStats(common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -143,9 +147,10 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.advStats(
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.advStats(common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -182,9 +187,10 @@ public class OfferStatsResource {
     checkNotNull(offerId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.affStatsByOffer(
-        offerId, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.affStatsByOffer(offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -206,9 +212,11 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.sourceIdStats(
-        affId, offerId, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.sourceIdStats(
+        affId, offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -258,10 +266,11 @@ public class OfferStatsResource {
     Set<String> groupBy = Sets.difference(
         groupBySetBuilder.build(),
         filter.entrySet());
-    Pair<List<OverallOfferStats>, Long> p = stats.subIdStats(
-        affId, offerId, filter, groupBy,
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.subIdStats(
+        affId, offerId, filter, groupBy, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -283,9 +292,11 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p =stats.refererStats(
-        affId, offerId, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p =stats.refererStats(
+        affId, offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -307,9 +318,11 @@ public class OfferStatsResource {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
-    Pair<List<OverallOfferStats>, Long> p = stats.keywordsStats(
-        affId, offerId, new DateTime(from), new DateTime(to),
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
+    Pair<List<OverallOfferStats>, Long> p = stats.keywordsStats(
+        affId, offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
