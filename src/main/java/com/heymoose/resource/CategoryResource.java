@@ -40,12 +40,13 @@ public class CategoryResource {
 
   @PUT
   @Transactional
-  public String saveSub(@FormParam("id") Long id,
-                        @FormParam("name") String name,
-                        @FormParam("category_group_id") Long categoryGroupId) {
-    Category sub = new Category(id, name, categoryGroupId);
-    repo.session().saveOrUpdate(sub);
-    return sub.id().toString();
+  public String saveCategory(@FormParam("id") Long id,
+                             @FormParam("name") String name,
+                             @FormParam("category_group_id")
+                             Long categoryGroupId) {
+    Category category = new Category(id, name, categoryGroupId);
+    repo.session().saveOrUpdate(category);
+    return category.id().toString();
   }
 
   @GET
