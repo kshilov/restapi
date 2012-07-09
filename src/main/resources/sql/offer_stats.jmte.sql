@@ -53,9 +53,9 @@ from
       0 id,
       ${foreach groupBySub sub}
         ${if last_sub}
-          ${sub} descr
+          coalesce(offer_stat.${sub}, '') descr
         ${else}
-          ${sub} || ', ' ||
+          coalesce(offer_stat.${sub}, '') || ' / ' ||
         ${end}
       ${end}
     ${end}
@@ -110,7 +110,7 @@ from
     ${end}
     ${if filterBySub}
       ${foreach filterBySub sub}
-        and ${sub} = :${sub}
+        and offer_stat.${sub} = :${sub}
       ${end}
     ${end}
 
