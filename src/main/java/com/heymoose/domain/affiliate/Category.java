@@ -30,7 +30,7 @@ public final class Category extends IdEntity {
   private Long categoryGroupId;
 
   @ManyToOne(targetEntity = CategoryGroup.class, fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "id", insertable = false, updatable = false)
+  @JoinColumn(name = "category_group_id", insertable = false, updatable = false)
   private CategoryGroup categoryGroup;
 
   protected Category() { }
