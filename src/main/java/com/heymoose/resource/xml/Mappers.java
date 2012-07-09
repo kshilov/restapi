@@ -187,6 +187,7 @@ public class Mappers {
     xmlOffer.creationTime = offer.creationTime().toString();
     if (offer.launchTime() != null)
       xmlOffer.launchTime = offer.launchTime().toString();
+    xmlOffer.allowDeeplink = offer.allowDeeplink();
     xmlOffer.title = offer.title();
     xmlOffer.url = offer.url();
     xmlOffer.siteUrl = offer.siteUrl();
