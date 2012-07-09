@@ -32,6 +32,7 @@ import com.heymoose.domain.affiliate.OfferLoader;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferStat;
 import com.heymoose.domain.affiliate.Site;
+import com.heymoose.domain.affiliate.SubCategory;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.Token;
@@ -81,7 +82,8 @@ public class CommonModule extends AbstractModule {
 
     bindEntities(Offer.class, User.class, Banner.class, Withdraw.class,
         Setting.class, Site.class,
-        BaseOffer.class, SubOffer.class, OfferGrant.class, Category.class,
+        BaseOffer.class, SubOffer.class, OfferGrant.class,
+        Category.class, SubCategory.class,
         IpSegment.class, Account.class,
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class,
         OfferStat.class, OfferAction.class,

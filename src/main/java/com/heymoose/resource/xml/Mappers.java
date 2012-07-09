@@ -331,7 +331,7 @@ public class Mappers {
   public static XmlCategory toXmlCategory(Category category) {
     XmlCategory xmlCategory = new XmlCategory();
     xmlCategory.id = category.id();
-    xmlCategory.grouping = category.grouping();
+    xmlCategory.grouping = null;
     xmlCategory.name = category.name();
     return xmlCategory;
   }

@@ -1,13 +1,18 @@
 package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.base.IdEntity;
+
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Set;
 
 @Entity
 @Table(name = "category")
@@ -19,10 +24,11 @@ public class Category extends IdEntity {
   private Long id;
 
   @Basic(optional = false)
-  private String grouping;
-
-  @Basic(optional = false)
   private String name;
+
+  @OneToMany(targetEntity = SubCategory.class, fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL, mappedBy = "categoryId")
+  private Set<SubCategory> subCategoryList;
 
   @Override
   public Long id() {
@@ -31,16 +37,12 @@ public class Category extends IdEntity {
   
   protected Category() {}
   
-  public Category(String name, String grouping) {
+  public Category(Long id, String name) {
+    this.id = id;
     this.name = name;
-    this.grouping = grouping;
   }
   
   public String name() {
     return name;
-  }
-
-  public String grouping() {
-    return grouping;
   }
 }
