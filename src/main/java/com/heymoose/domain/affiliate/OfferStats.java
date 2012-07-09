@@ -550,6 +550,7 @@ public class OfferStats {
         .build();
   }
 
+<<<<<<< HEAD
   private Object[] totalStats(OfferActionState actionState,
                               AccountingEvent event,
                               DateTime from, DateTime to) {
@@ -569,6 +570,12 @@ public class OfferStats {
                                                                 int offset, int limit) {
     return executeStatsQuery(queryName, from, to, offset, limit,
         ImmutableMap.<String, Object>of());
+=======
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
+                                                                DateTime from, DateTime to,
+                                                                int offset, int limit) {
+    return executeStatsQuery(queryName, from, to, offset, limit, ImmutableMap.<String, Object>of());
+>>>>>>> 42deb414a5e1b3888a26798863a972aee894e782
   }
 
   private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String queryName,
