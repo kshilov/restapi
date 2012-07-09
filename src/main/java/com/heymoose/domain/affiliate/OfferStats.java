@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
@@ -14,7 +15,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -217,6 +217,11 @@ public class OfferStats {
   public Pair<List<OverallOfferStats>, Long> subIdStats(
       Long affId, Long offerId, Map<String, String> filter,
       Set<String> grouping, CommonParams common) {
+
+    // empty response if no grouping given
+    if (grouping.size() == 0)
+      return new Pair<List<OverallOfferStats>, Long>(
+          ImmutableList.<OverallOfferStats>of(), 0L);
 
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common);
