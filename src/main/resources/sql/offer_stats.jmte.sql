@@ -34,37 +34,37 @@ from
     ${end}
 
     ${if groupByOffer}
-      o.id offer_id, o.name offer_name
+      o.id id, o.name descr
     ${end}
 
     ${if groupByAffiliate}
-      offer_stat.aff_id, p.email
+      offer_stat.aff_id id, p.email descr
     ${end}
 
     ${if groupByAdvertiser}
-      p.id a8, p.email || ' (' || coalesce(p.organization, '--') || ')' a9
+      p.id id, p.email || ' (' || coalesce(p.organization, '--') || ')' descr
     ${end}
 
     ${if groupBySourceId}
-      0, offer_stat.source_id
+      0 id, offer_stat.source_id descr
     ${end}
 
     ${if groupBySub}
       ${foreach groupBySub sub}
         ${if last_sub}
-          0, ${sub}
+          0 id, ${sub} descr
         ${else}
-          0, ${sub} || ', '
+          0 id, ${sub} || ', ' descr
         ${end}
       ${end}
     ${end}
 
     ${if groupByReferer}
-      0, offer_stat.referer
+      0 id, offer_stat.referer descr
     ${end}
 
     ${if groupByKeywords}
-      0, offer_stat.keywords
+      0 id, offer_stat.keywords descr
     ${end}
 
   from

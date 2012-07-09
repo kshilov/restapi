@@ -25,7 +25,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class OfferStats {
 
   public static enum Ordering {
-    SHOWS_COUNT, CLICKS_COUNT, LEADS_COUNT, SALES_COUNT,
+    DESCR, SHOWS_COUNT, CLICKS_COUNT, LEADS_COUNT, SALES_COUNT,
     CONFIRMED_REVENUE, NOT_CONFIRMED_REVENUE, CANCELED_REVENUE,
     CTR, CR, ECPC, ECPM
   }
