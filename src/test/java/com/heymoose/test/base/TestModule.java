@@ -27,18 +27,18 @@ public class TestModule extends AbstractModule {
     for (Class klass : classes)
       config.addAnnotatedClass(klass);
 
-    /*
+    /* */
    config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
    config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/hm_test");
    config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");
    config.setProperty("hibernate.connection.username", "postgres");
    config.setProperty("hibernate.connection.password", "qwerty");
-   config.setProperty("hibernate.hbm2ddl.auto", "update");
-    */
+   config.setProperty("hibernate.hbm2ddl.auto", "none");  // "update"
+    /* */
 
-    config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
-    config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
-    config.setProperty("hibernate.hbm2ddl.auto", "create");
+    //config.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
+    //config.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:heymoose");
+    //config.setProperty("hibernate.hbm2ddl.auto", "create");
 
     config.setProperty("hibernate.show_sql", "true");
     config.setProperty("hibernate.format_sql", "false");

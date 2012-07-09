@@ -159,7 +159,9 @@ public class OfferResource {
                        @FormParam("code") String code,
                        @FormParam("hold_days") Integer holdDays,
                        @FormParam("cookie_ttl") Integer cookieTtl,
-                       @FormParam("launch_time") Long unixLaunchTime) {
+                       @FormParam("launch_time") Long unixLaunchTime,
+                       @FormParam("allow_deeplink") @DefaultValue("false") boolean allowDeeplink
+  ) {
     checkNotNull(advertiserId, payMethod, name, description, shortDescription, url, siteUrl,
         title, code, holdDays, cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
@@ -200,7 +202,7 @@ public class OfferResource {
 
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description, shortDescription,
         payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
-        regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime);
+        regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime, allowDeeplink);
     offers.put(offer);
 
     if (balance.signum() > 0)

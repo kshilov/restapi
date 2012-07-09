@@ -116,7 +116,7 @@ public class Heymoose {
                           double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
                           URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
                           boolean reentrant, Set<String> regions, Set<Long> categories,
-                          String code, int holdDays, int cookieTtl, Long launchTime) {
+                          String code, int holdDays, int cookieTtl, Long launchTime, boolean allowDeeplink) {
     Form form = new Form();
     form.add("advertiser_id", advertiserId);
     form.add("pay_method", payMethod);
@@ -132,6 +132,7 @@ public class Heymoose {
     form.add("title", title);
     form.add("allow_negative_balance", allowNegativeBalance);
     form.add("auto_approve", autoApprove);
+    form.add("allow_deeplink", allowDeeplink);
     form.add("reentrant", reentrant);
     for (String region : regions)
       form.add("regions", region);

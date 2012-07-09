@@ -7,7 +7,6 @@ import com.heymoose.domain.accounting.Account;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.net.URI;
-
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
@@ -19,8 +18,6 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -55,13 +52,13 @@ public class Offer extends BaseOffer {
 
   @Basic
   protected String description;
-  
+
   @Column(name = "short_description")
   protected String shortDescription;
-  
+
   @Basic
   protected BigDecimal cr;
-  
+
   @Basic
   protected boolean showcase;
 
@@ -97,13 +94,13 @@ public class Offer extends BaseOffer {
 
   @Basic
   private String url;
-  
+
   @Column(name = "site_url")
   private String siteUrl;
 
   @Column(name = "cookie_ttl")
   private int cookieTtl = 30;
-  
+
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "launch_time", nullable = true)
   private DateTime launchTime;
@@ -111,13 +108,17 @@ public class Offer extends BaseOffer {
   @Column(name = "token_param_name", nullable = true)
   private String tokenParamName;
 
-  protected Offer() {}
+  @Basic
+  protected boolean allowDeeplink;
+
+  protected Offer() {
+  }
 
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description, String shortDescription,
-                  PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
-                  String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
-                  Iterable<String> regions, Iterable<Category> categories, String logoFileName,
-                  String code, int holdDays, int cookieTtl, DateTime launchTime) {
+               PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
+               String title, String url, String siteUrl, boolean autoApprove, boolean reentrant,
+               Iterable<String> regions, Iterable<Category> categories, String logoFileName,
+               String code, int holdDays, int cookieTtl, DateTime launchTime, boolean allowDeeplink) {
 
     super(payMethod, cpaPolicy, cost, cost2, percent, title, autoApprove, reentrant, code, holdDays);
     checkNotNull(url, siteUrl, advertiser, name, description, shortDescription, payMethod, cookieTtl, launchTime);
@@ -137,20 +138,21 @@ public class Offer extends BaseOffer {
     this.regions = newHashSet(regions);
     this.categories = newTreeSet(categories);
     this.account = new Account(allowNegativeBalance);
+    this.allowDeeplink = allowDeeplink;
   }
 
   public String url() {
     return url;
   }
-  
+
   public void setUrl(URI url) {
     this.url = url.toString();
   }
-  
+
   public String siteUrl() {
     return siteUrl;
   }
-  
+
   public void setSiteUrl(URI siteUrl) {
     this.siteUrl = siteUrl.toString();
   }
@@ -182,7 +184,7 @@ public class Offer extends BaseOffer {
       return emptySet();
     return unmodifiableSet(regions);
   }
-  
+
   public void setRegions(Iterable<String> regions) {
     this.regions = newHashSet(regions);
   }
@@ -192,7 +194,7 @@ public class Offer extends BaseOffer {
       return emptySet();
     return unmodifiableSet(categories);
   }
-  
+
   public void setCategories(Iterable<Category> categories) {
     this.categories = newTreeSet(categories);
   }
@@ -212,7 +214,7 @@ public class Offer extends BaseOffer {
   public String name() {
     return name;
   }
-  
+
   public void setName(String name) {
     checkNotNull(name);
     this.name = name;
@@ -221,32 +223,32 @@ public class Offer extends BaseOffer {
   public String description() {
     return description;
   }
-  
+
   public void setDescription(String description) {
     checkNotNull(description);
     this.description = description;
   }
-  
+
   public String shortDescription() {
     return shortDescription;
   }
-  
+
   public void setShortDescription(String shortDescription) {
     this.shortDescription = shortDescription;
   }
-  
+
   public BigDecimal cr() {
     return cr;
   }
-  
+
   public void setCr(BigDecimal cr) {
     this.cr = cr;
   }
-  
+
   public boolean showcase() {
     return showcase;
   }
-  
+
   public void setShowcase(boolean showcase) {
     this.showcase = showcase;
   }
@@ -254,7 +256,7 @@ public class Offer extends BaseOffer {
   public String logoFileName() {
     return logoFileName;
   }
-  
+
   public void setLogoFileName(String logoFileName) {
     this.logoFileName = logoFileName;
   }
@@ -300,11 +302,11 @@ public class Offer extends BaseOffer {
   public int cookieTtl() {
     return cookieTtl;
   }
-  
+
   public DateTime launchTime() {
     return launchTime;
   }
-  
+
   public void setLaunchTime(DateTime launchTime) {
     this.launchTime = launchTime;
   }
@@ -318,11 +320,19 @@ public class Offer extends BaseOffer {
   public void setTokenParamName(String tokenParamName) {
     this.tokenParamName = tokenParamName;
   }
-  
+
   public Set<Long> subofferIds() {
     Set<Long> ids = newHashSet(id);
     for (SubOffer suboffer : suboffers)
       ids.add(suboffer.id());
     return ids;
+  }
+
+  public boolean allowDeeplink() {
+    return allowDeeplink;
+  }
+
+  public void setAllowDeeplink(boolean allowDeeplink) {
+    this.allowDeeplink = allowDeeplink;
   }
 }

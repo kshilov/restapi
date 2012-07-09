@@ -57,7 +57,7 @@ public class OfferStatTest extends RestTest {
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL),
         "title", false, false, true, newHashSet("RU"), newHashSet(categoryId),
-        offerCode, 30, 180, DateTimeUtils.currentTimeMillis());
+        offerCode, 30, 180, DateTimeUtils.currentTimeMillis(), false);
     heymoose().approveOffer(offerId);
     return new Pair<Long, String>(offerId, offerCode);
   }
