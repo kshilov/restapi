@@ -54,7 +54,8 @@ public class OfferActionResource {
 
   @GET
   @Path("fix")
-  public void fix() {
+  public String fix() {
     actions.fix();
+    return "OK";
   }
 }
