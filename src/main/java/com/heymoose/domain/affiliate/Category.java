@@ -48,4 +48,8 @@ public final class Category extends IdEntity {
   public String name() {
     return name;
   }
+
+  public CategoryGroup group() {
+    return categoryGroup;
+  }
 }

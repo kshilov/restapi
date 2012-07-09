@@ -1,6 +1,5 @@
 package com.heymoose.test;
 
-import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
@@ -10,11 +9,14 @@ import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
 import com.heymoose.util.QueryUtil;
 import com.heymoose.util.URLEncodedUtils;
-import java.net.URI;
 import org.joda.time.DateTimeUtils;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URI;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.assertEquals;
 
 public class OfferTest extends RestTest {
 
@@ -47,7 +49,8 @@ public class OfferTest extends RestTest {
   }
 
   private long doCreateOffer(long advertiserId) {
-    sqlUpdate("insert into category(id, grouping, name) values(1, 'Group1', 'Category1')");
+    sqlUpdate("insert into category_group(id, name) values(1, 'Group1')");
+    sqlUpdate("insert into category(id, category_group_id, name) values(1, 1, 'Category1')");
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
