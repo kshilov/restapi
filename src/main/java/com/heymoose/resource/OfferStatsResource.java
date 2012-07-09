@@ -70,8 +70,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     checkNotNull(affId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
@@ -95,8 +95,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     checkNotNull(advId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
@@ -119,8 +119,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
@@ -142,8 +142,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
@@ -181,8 +181,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     checkNotNull(offerId);
     if (to == null) to = DateTimeUtils.currentTimeMillis();
@@ -207,8 +207,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
@@ -243,8 +243,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
@@ -287,8 +287,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
@@ -313,8 +313,8 @@ public class OfferStatsResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
-      @QueryParam("ordering") OfferStats.Ordering ordering,
-      @QueryParam("direction") OrderingDirection direction) {
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
     OverallOfferStatsList list = new OverallOfferStatsList();
