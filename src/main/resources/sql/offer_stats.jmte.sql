@@ -75,7 +75,7 @@ from
     join offer_grant g on g.offer_id = o.id
   ${end}
 
-  left join
+  join
     offer_stat
     on offer_stat.creation_time between :from and :to
     and o.id = offer_stat.master
