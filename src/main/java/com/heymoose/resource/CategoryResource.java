@@ -17,6 +17,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import java.util.List;
 
 @Path("categories")
@@ -31,7 +32,7 @@ public class CategoryResource {
   }
 
   @POST
-  @Path("group")
+  @Path("groups")
   @Transactional
   public String createGroup(@FormParam("name") String name) {
     CategoryGroup group = new CategoryGroup(name);
@@ -40,9 +41,9 @@ public class CategoryResource {
   }
 
   @PUT
-  @Path("group")
+  @Path("groups/{id}")
   @Transactional
-  public String updateGroup(@FormParam("id") Long id,
+  public String updateGroup(@PathParam("id") Long id,
                             @FormParam("name") String name) {
     CategoryGroup group = new CategoryGroup(id, name);
     repo.session().update(group);
@@ -50,7 +51,7 @@ public class CategoryResource {
   }
 
   @GET
-  @Path("group")
+  @Path("groups")
   @Transactional
   @SuppressWarnings("unchecked")
   public XmlCategoryGroups listGroups() {
@@ -70,8 +71,9 @@ public class CategoryResource {
   }
 
   @PUT
+  @Path("{id}")
   @Transactional
-  public String updateCategory(@FormParam("id") Long id,
+  public String updateCategory(@PathParam("id") Long id,
                                @FormParam("name") String name,
                                @FormParam("category_group_id")
                                Long categoryGroupId) {
