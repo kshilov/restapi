@@ -124,7 +124,6 @@ public class AccountingHiber implements Accounting {
     repo.put(withdraw);
     AccountingEntry entry = new AccountingEntry(account, amount.negate(), AccountingEvent.WITHDRAW, withdraw.id(), null);
     repo.put(entry);
-    applyEntry(entry);
     return withdraw;
   }
 

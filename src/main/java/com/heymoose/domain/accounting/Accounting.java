@@ -1,7 +1,6 @@
 package com.heymoose.domain.accounting;
 
 import com.heymoose.domain.Withdraw;
-
 import java.math.BigDecimal;
 import java.util.List;
 
