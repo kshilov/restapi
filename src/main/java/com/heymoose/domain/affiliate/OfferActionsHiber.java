@@ -1,12 +1,15 @@
 package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.AdminAccountAccessor;
+import com.heymoose.domain.User;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
+import java.math.BigDecimal;
+import javax.inject.Named;
 import org.hibernate.Query;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -32,13 +35,15 @@ public class OfferActionsHiber implements OfferActions {
   private final Accounting accounting;
   private final Repo repo;
   private final AdminAccountAccessor adminAccountAccessor;
+  private final double mlmRatio;
 
   @Inject
   public OfferActionsHiber(Accounting accounting, Repo repo,
-                           AdminAccountAccessor adminAccountAccessor) {
+                           AdminAccountAccessor adminAccountAccessor, @Named("mlm-ratio") double mlmRatio) {
     this.accounting = accounting;
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
+    this.mlmRatio = mlmRatio;
   }
 
   @Override
@@ -106,10 +111,21 @@ public class OfferActionsHiber implements OfferActions {
         );
         action.stat().approveMoney(entry.amount().negate());
       } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
+        double adminRatio = 1.0;
+        if (action.affiliate().referrerId() != null) {
+          adminRatio = 1.0 - mlmRatio;
+          accounting.transferMoney(
+              adminAccountAccessor.getAdminAccountNotConfirmed(),
+              repo.get(User.class, action.affiliate().referrerId()).advertiserAccount(),
+              entry.amount().negate().multiply(new BigDecimal(mlmRatio)),
+              AccountingEvent.MLM,
+              action.id()
+          );
+        }
         accounting.transferMoney(
             adminAccountAccessor.getAdminAccountNotConfirmed(),
             adminAccountAccessor.getAdminAccount(),
-            entry.amount().negate(),
+            entry.amount().negate().multiply(new BigDecimal(adminRatio)),
             AccountingEvent.ACTION_APPROVED,
             action.id()
         );

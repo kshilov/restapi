@@ -1,5 +1,6 @@
 package com.heymoose.domain.mlm;
 
+import com.heymoose.domain.AdminAccountAccessor;
 import com.heymoose.domain.User;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -24,12 +25,15 @@ public class Mlm {
   private final Repo repo;
   private final Accounting accounting;
   private final double mlmRatio;
+  private final AdminAccountAccessor adminAccountAccessor;
 
   @Inject
-  public Mlm(Repo repo, Accounting accounting, @Named("mlm-ratio") double mlmRatio) {
+  public Mlm(Repo repo, Accounting accounting, @Named("mlm-ratio") double mlmRatio,
+             AdminAccountAccessor adminAccountAccessor) {
     this.repo = repo;
     this.accounting = accounting;
     this.mlmRatio = mlmRatio;
+    this.adminAccountAccessor = adminAccountAccessor;
   }
 
   @Transactional
