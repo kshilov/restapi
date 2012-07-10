@@ -41,6 +41,10 @@ public class CategoryGroup extends IdEntity {
     this.id = id;
     this.name = name;
   }
+
+  public CategoryGroup(String name) {
+    this.name = name;
+  }
   
   public String name() {
     return name;

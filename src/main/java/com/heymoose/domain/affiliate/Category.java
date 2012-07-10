@@ -34,8 +34,14 @@ public final class Category extends IdEntity {
   private CategoryGroup categoryGroup;
 
   protected Category() { }
+
   public Category(Long id, String name, Long categoryGroupId) {
     this.id = id;
+    this.name = name;
+    this.categoryGroupId = categoryGroupId;
+  }
+
+  public Category(String name, Long categoryGroupId) {
     this.name = name;
     this.categoryGroupId = categoryGroupId;
   }

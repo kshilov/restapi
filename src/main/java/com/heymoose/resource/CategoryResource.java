@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import java.util.List;
@@ -28,24 +29,42 @@ public class CategoryResource {
     this.repo = repo;
   }
 
+  @POST
   @Path("group")
-  @PUT
   @Transactional
-  public String saveGroup(@FormParam("id") Long id,
-                          @FormParam("name") String name) {
-    CategoryGroup group = new CategoryGroup(id, name);
-    repo.session().saveOrUpdate(group);
+  public String createGroup(@FormParam("name") String name) {
+    CategoryGroup group = new CategoryGroup(name);
+    repo.session().save(group);
     return group.id().toString();
   }
 
   @PUT
+  @Path("group")
   @Transactional
-  public String saveCategory(@FormParam("id") Long id,
-                             @FormParam("name") String name,
-                             @FormParam("category_group_id")
-                             Long categoryGroupId) {
+  public String updateGroup(@FormParam("id") Long id,
+                            @FormParam("name") String name) {
+    CategoryGroup group = new CategoryGroup(id, name);
+    repo.session().update(group);
+    return group.id().toString();
+  }
+
+  @POST
+  @Transactional
+  public String createCategory(@FormParam("name") String name,
+                               @FormParam("category_group_id") Long groupId) {
+    Category category = new Category(name, groupId);
+    repo.session().save(category);
+    return category.id().toString();
+  }
+
+  @PUT
+  @Transactional
+  public String updateCategory(@FormParam("id") Long id,
+                               @FormParam("name") String name,
+                               @FormParam("category_group_id")
+                               Long categoryGroupId) {
     Category category = new Category(id, name, categoryGroupId);
-    repo.session().saveOrUpdate(category);
+    repo.session().update(category);
     return category.id().toString();
   }
 
