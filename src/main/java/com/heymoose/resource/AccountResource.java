@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.User;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
@@ -89,6 +90,19 @@ public class AccountResource {
     Account account = existing(id);
     List<Withdraw> withdraws = accounting.withdraws(account);
     return Mappers.toXmlWithdraws(account.id(), withdraws);
+  }
+
+  @GET
+  @Transactional
+  @Path("aff/{id}/withdraws")
+  public XmlWithdraws withdrawsListByAff(@PathParam("id") long affId) {
+    User user = repo.get(User.class, affId);
+    Account affAccount = user.affiliateAccount();
+    if (affAccount == null)
+      throw notFound();
+
+    List<Withdraw> withdraws = accounting.withdraws(affAccount);
+    return Mappers.toXmlWithdraws(affAccount.id(), withdraws);
   }
 
   @PUT
