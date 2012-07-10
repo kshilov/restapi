@@ -28,7 +28,7 @@ public class CategoryGroup extends IdEntity {
 
   @OneToMany(targetEntity = Category.class, fetch = FetchType.LAZY,
       cascade = CascadeType.ALL, mappedBy = "categoryGroupId")
-  private Set<Category> categoryList;
+  private Set<Category> categorySet;
 
   @Override
   public Long id() {
@@ -48,5 +48,9 @@ public class CategoryGroup extends IdEntity {
   
   public String name() {
     return name;
+  }
+
+  public Set<Category> categorySet() {
+    return this.categorySet;
   }
 }

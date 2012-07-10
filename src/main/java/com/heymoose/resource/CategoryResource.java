@@ -6,6 +6,7 @@ import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlCategories;
+import com.heymoose.resource.xml.XmlCategoryGroups;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 
@@ -46,6 +47,17 @@ public class CategoryResource {
     CategoryGroup group = new CategoryGroup(id, name);
     repo.session().update(group);
     return group.id().toString();
+  }
+
+  @GET
+  @Path("group")
+  @Transactional
+  @SuppressWarnings("unchecked")
+  public XmlCategoryGroups listGroups() {
+    List<CategoryGroup> groupList = repo.session()
+        .createCriteria(CategoryGroup.class)
+        .list();
+    return new XmlCategoryGroups(groupList);
   }
 
   @POST
