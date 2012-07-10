@@ -45,11 +45,11 @@ public class CategoryResource {
   @PUT
   @Path("groups/{id}")
   @Transactional
-  public String updateGroup(@PathParam("id") Long id,
+  public Response updateGroup(@PathParam("id") Long id,
                             @FormParam("name") String name) {
     CategoryGroup group = new CategoryGroup(id, name);
     repo.session().update(group);
-    return group.id().toString();
+    return Response.ok().build();
   }
 
   @DELETE
@@ -89,13 +89,13 @@ public class CategoryResource {
   @PUT
   @Path("{id}")
   @Transactional
-  public String updateCategory(@PathParam("id") Long id,
+  public Response updateCategory(@PathParam("id") Long id,
                                @FormParam("name") String name,
                                @FormParam("category_group_id")
                                Long categoryGroupId) {
     Category category = new Category(id, name, categoryGroupId);
     repo.session().update(category);
-    return category.id().toString();
+    return Response.ok().build();
   }
 
   @DELETE
