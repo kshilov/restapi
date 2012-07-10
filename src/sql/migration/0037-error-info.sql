@@ -32,12 +32,18 @@ CREATE TABLE error_info (
 ALTER TABLE public.error_info OWNER TO postgres;
 
 --
--- Data for Name: error_info; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Name: error_info_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-COPY error_info (id, description, last_occurred, occurrence_count, stack_trace, uri) FROM stdin;
-\.
+CREATE SEQUENCE error_info_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
 
+
+ALTER TABLE public.error_info_seq OWNER TO postgres;
 
 --
 -- Name: error_info_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
@@ -45,6 +51,24 @@ COPY error_info (id, description, last_occurred, occurrence_count, stack_trace, 
 
 ALTER TABLE ONLY error_info
     ADD CONSTRAINT error_info_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: error_info; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE error_info FROM PUBLIC;
+REVOKE ALL ON TABLE error_info FROM postgres;
+GRANT ALL ON TABLE error_info TO postgres;
+
+
+--
+-- Name: error_info_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON SEQUENCE error_info_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE error_info_seq FROM postgres;
+GRANT ALL ON SEQUENCE error_info_seq TO postgres;
 
 
 --
