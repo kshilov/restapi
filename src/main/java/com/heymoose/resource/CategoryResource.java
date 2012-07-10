@@ -57,6 +57,7 @@ public class CategoryResource {
   public XmlCategoryGroups listGroups() {
     List<CategoryGroup> groupList = repo.session()
         .createCriteria(CategoryGroup.class)
+        .addOrder(Order.asc("id"))
         .list();
     return new XmlCategoryGroups(groupList);
   }
