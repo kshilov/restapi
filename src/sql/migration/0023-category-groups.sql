@@ -39,7 +39,9 @@ alter table category
 drop column grouping;
 
 alter table only category
-    add constraint fk302bcfed0fcda6f foreign key (category_group_id) references category_group(id);
+    add constraint fk302bcfed0fcda6f foreign key (category_group_id)
+    references category_group(id)
+    on delete cascade;
 
 alter table category
 alter column category_group_id

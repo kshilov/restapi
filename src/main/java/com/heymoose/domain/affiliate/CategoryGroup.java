@@ -1,6 +1,8 @@
 package com.heymoose.domain.affiliate;
 
 import com.heymoose.domain.base.IdEntity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -30,6 +32,7 @@ public class CategoryGroup extends IdEntity {
   @OneToMany(targetEntity = Category.class, fetch = FetchType.LAZY,
       cascade = CascadeType.ALL, mappedBy = "categoryGroupId")
   @OrderBy("id")
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Set<Category> categorySet;
 
   @Override
