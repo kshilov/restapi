@@ -24,7 +24,7 @@ from
     coalesce(sum(leads_count),  0) leads_count,
     coalesce(sum(sales_count),  0) sales_count,
     ${if groupByAdvertiser}
-      coalesce(sum(confirmed_revenue  * (1 + p_aff.fee / 100.0),      0.00) confirmed_revenue,
+      coalesce(sum(confirmed_revenue  * (1 + p_aff.fee / 100.0)),     0.00) confirmed_revenue,
       coalesce(sum(not_confirmed_revenue  * (1 + p_aff.fee / 100.0)), 0.00) not_confirmed_revenue,
       coalesce(sum(canceled_revenue  * (1 + p_aff.fee / 100.0)),      0.00) canceled_revenue,
     ${else}
