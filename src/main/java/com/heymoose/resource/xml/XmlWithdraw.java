@@ -18,4 +18,10 @@ public class XmlWithdraw {
 
   @XmlElement(name = "done")
   public Boolean done;
+
+  @XmlAttribute(name = "aff-id")
+  public Long affId;
+
+  @XmlElement(name = "aff-email")
+  public String affEmail;
 }

@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.User;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
@@ -12,6 +13,7 @@ import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlAccountingEntries;
 import com.heymoose.resource.xml.XmlWithdraws;
+import com.heymoose.util.SqlLoader;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,6 +28,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -59,9 +62,9 @@ public class AccountResource {
   @GET
   @Path("{id}/entries")
   @Transactional
-  public XmlAccountingEntries entriesList(@PathParam("id") Long accountId,
-                                          @QueryParam("offset") @DefaultValue("0") int offset,
-                                          @QueryParam("limit") @DefaultValue("20") int limit) {
+  public XmlAccountingEntries entryList(@PathParam("id") Long accountId,
+                                        @QueryParam("offset") @DefaultValue("0") int offset,
+                                        @QueryParam("limit") @DefaultValue("20") int limit) {
     DetachedCriteria criteria = DetachedCriteria.forClass(AccountingEntry.class)
         .add(Restrictions.eq("account.id", accountId))
         .addOrder(Order.desc("creationTime"));
@@ -86,7 +89,7 @@ public class AccountResource {
   @GET
   @Transactional
   @Path("{id}/withdraws")
-  public XmlWithdraws withdrawsList(@PathParam("id") long id) {
+  public XmlWithdraws withdrawList(@PathParam("id") long id) {
     Account account = existing(id);
     List<Withdraw> withdraws = accounting.withdraws(account);
     return Mappers.toXmlWithdraws(account.id(), withdraws);
@@ -95,7 +98,7 @@ public class AccountResource {
   @GET
   @Transactional
   @Path("aff/{id}/withdraws")
-  public XmlWithdraws withdrawsListByAff(@PathParam("id") long affId) {
+  public XmlWithdraws withdrawListByAff(@PathParam("id") long affId) {
     User user = repo.get(User.class, affId);
     Account affAccount = user.affiliateAccount();
     if (affAccount == null)
@@ -103,6 +106,35 @@ public class AccountResource {
 
     List<Withdraw> withdraws = accounting.withdraws(affAccount);
     return Mappers.toXmlWithdraws(affAccount.id(), withdraws);
+  }
+
+  @GET
+  @Transactional
+  @Path("withdraws")
+  public XmlWithdraws allWithdrawList(@QueryParam("offset") @DefaultValue("0") int offset,
+                                      @QueryParam("limit") @DefaultValue("20") int limit) {
+    String sql = SqlLoader.getTemplate("withdraw_stats", ImmutableMap.<String, Object>builder().build());
+
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
+    Long count = SqlLoader.extractLong(countQuery.uniqueResult());
+
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    @SuppressWarnings("unchecked")
+    List<Object[]> withdraws = query
+        .setParameter("offset", offset)
+        .setParameter("limit", limit)
+        .list();
+
+    // stats on non approved
+    String hql = "select count(*), sum(w.amount) from Withdraw w where w.done=:done";
+    @SuppressWarnings("unchecked")
+    List<Object[]> nonApprovedStat = repo.session().createQuery(hql)
+        .setParameter("done", false)
+        .list();
+
+    return Mappers.toXmlWithdraws(withdraws, count, nonApprovedStat.get(0)[0], nonApprovedStat.get(0)[1]);
   }
 
   @PUT
@@ -144,7 +176,7 @@ public class AccountResource {
 
   private AccountingEntry existingAccountingEntry(AccountingEvent event, long sourceId) {
     DetachedCriteria criteria = DetachedCriteria.forClass(AccountingEntry.class)
-        .add(Restrictions.eq("source_id", sourceId))
+        .add(Restrictions.eq("sourceId", sourceId))
         .add(Restrictions.eq("event", event));
     AccountingEntry entry = repo.byCriteria(criteria);
     if (entry == null)

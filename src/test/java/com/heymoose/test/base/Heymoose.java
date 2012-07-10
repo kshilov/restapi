@@ -13,6 +13,7 @@ import com.heymoose.resource.xml.XmlErrorsInfo;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlUser;
+import com.heymoose.resource.xml.XmlWithdraws;
 import com.heymoose.util.Paging;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
@@ -21,15 +22,13 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.representation.Form;
+import java.net.URI;
+import static java.util.Arrays.asList;
+import java.util.List;
+import java.util.Set;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
-
-import static java.util.Arrays.asList;
 
 @Ignore
 public class Heymoose {
@@ -387,4 +386,34 @@ public class Heymoose {
     injector.getInstance(BufferedShows.class).flushAll();
     injector.getInstance(BufferedClicks.class).flushAll();
   }
+
+  // withdraw
+
+  public long createWithdraw(Long affAccountId) {
+    String response = client.path("account").path(Long.toString(affAccountId)).path("withdraws").post(String.class);
+    return Long.valueOf(response);
+  }
+
+  public void transfer(Long from, Long to, Double amount) {
+    Form form = new Form();
+    form.add("from", from);
+    form.add("to", to);
+    form.add("amount", amount);
+    client.path("account").path("transfer").post(form);
+  }
+
+  public void approveWithdraw(Long affAccountId, Long withdrawId) {
+    client.path("account").path(Long.toString(affAccountId)).path("withdraws").path(Long.toString(withdrawId)).put();
+  }
+
+  public XmlWithdraws getAllWithdrawStats(Paging paging) {
+    WebResource wr = client.path("account").path("withdraws");
+    if (paging != null) wr = paging.addToWebQuery(wr);
+    return wr.get(XmlWithdraws.class);
+  }
+
+  public XmlWithdraws getWithdrawByAff(Long affId) {
+    return client.path("account").path("aff").path(Long.toString(affId)).path("withdraws").get(XmlWithdraws.class);
+  }
+
 }
