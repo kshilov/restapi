@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class CategoryGroup extends IdEntity {
 
   @OneToMany(targetEntity = Category.class, fetch = FetchType.LAZY,
       cascade = CascadeType.ALL, mappedBy = "categoryGroupId")
+  @OrderBy("id")
   private Set<Category> categorySet;
 
   @Override
