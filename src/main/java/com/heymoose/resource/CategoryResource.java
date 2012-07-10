@@ -9,6 +9,7 @@ import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlCategoryGroups;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,7 +56,15 @@ public class CategoryResource {
   @DELETE
   @Path("groups/{id}")
   @Transactional
+  @SuppressWarnings("unchecked")
   public Response deleteGroup(@PathParam("id") Long id) {
+    List<Category> categoryList = repo.session()
+        .createCriteria(Category.class)
+        .add(Restrictions.eq("categoryGroupId", id))
+        .list();
+    for (Category category : categoryList) {
+      deleteCategoryAndReferences(category.id());
+    }
     int rows = repo.session()
         .createQuery("delete from CategoryGroup where id = :id")
         .setParameter("id", id)
@@ -102,11 +111,7 @@ public class CategoryResource {
   @Path("{id}")
   @Transactional
   public Response deleteCategory(@PathParam("id") Long id) {
-    int rows = repo.session()
-        .createQuery("delete from Category where id = :id")
-        .setParameter("id", id)
-        .executeUpdate();
-    if (rows == 1)
+    if (deleteCategoryAndReferences(id))
       return Response.ok().build();
     return Response.status(404).build();
   }
@@ -118,5 +123,20 @@ public class CategoryResource {
         .addOrder(Order.asc("id"));
     List<Category> categories = repo.allByCriteria(criteria);
     return Mappers.toXmlCategories(categories);
+  }
+
+  private boolean deleteCategoryAndReferences(Long id) {
+    repo.session()
+        .createSQLQuery("delete from offer_category where category_id = :id")
+        .setParameter("id", id)
+        .executeUpdate();
+    repo.session()
+        .createSQLQuery("delete from site_category where category_id = :id")
+        .setParameter("id", id)
+        .executeUpdate();
+    return repo.session()
+        .createQuery("delete from Category where id = :id")
+        .setParameter("id", id)
+        .executeUpdate() == 1;
   }
 }

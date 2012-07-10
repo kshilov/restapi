@@ -32,7 +32,6 @@ public class CategoryGroup extends IdEntity {
   @OneToMany(targetEntity = Category.class, fetch = FetchType.LAZY,
       cascade = CascadeType.ALL, mappedBy = "categoryGroupId")
   @OrderBy("id")
-  @OnDelete(action = OnDeleteAction.CASCADE)
   private Set<Category> categorySet;
 
   @Override
