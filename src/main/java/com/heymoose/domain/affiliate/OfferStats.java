@@ -140,7 +140,7 @@ public class OfferStats {
   @Transactional
   public Pair<List<OverallOfferStats>, Long> advStats(CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
-        .put("groupByAffiliate", true).build();
+        .put("groupByAdvertiser", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, common);
   }
