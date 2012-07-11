@@ -22,33 +22,33 @@ public final class SqlLoader {
 
   private static final Map<String, String> cache = Maps.newHashMap();
 
-  public static final String getSql(String sqlName) {
-    synchronized (cache) {
-      String sql = cache.get(sqlName);
-      if (sql == null) {
-        sql = load(FOLDER + sqlName + SQL_EXTENSION);
-        cache.put(sqlName, sql);
-      }
-      return sql;
-    }
+  public static String getSql(String sqlName) {
+    return load(FOLDER + sqlName + SQL_EXTENSION);
   }
 
   @SuppressWarnings("unchecked")
-  public static final String getTemplate(String templateName,
+  public static String getTemplate(String templateName,
                                          Map<String, ?> params) {
     return TEMPLATE_ENGINE.transform(
         load(FOLDER + templateName + TEMPLATE_EXTENSION),
         (Map<String, Object>) params);
   }
 
-  private static final String load(String relativePath) {
-    try {
-      return Resources.toString(
-          CLASS_LOADER.getResource(relativePath),
-          Charset.defaultCharset());
-    } catch (Exception e) {
-      String msg = String.format("File '%s' not found.", relativePath);
-      throw new RuntimeException(msg, e);
+  private static String load(String relativePath) {
+    synchronized (cache) {
+      String script = cache.get(relativePath);
+      if (script == null) {
+        try {
+          script = Resources.toString(
+              CLASS_LOADER.getResource(relativePath),
+              Charset.defaultCharset());
+          cache.put(relativePath, script);
+        } catch (Exception e) {
+          String msg = String.format("File '%s' not found.", relativePath);
+          throw new RuntimeException(msg, e);
+        }
+      }
+      return script;
     }
   }
 
