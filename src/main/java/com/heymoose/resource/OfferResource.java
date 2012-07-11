@@ -96,7 +96,7 @@ public class OfferResource {
         .setLaunched(launched)
         .setShowcase(showcase);
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit, filter);
-    long count = this.offers.count(approved, active, launched, showcase, advertiserId);
+    long count = this.offers.count(filter);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
       for (Offer offer : offers)

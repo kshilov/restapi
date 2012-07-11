@@ -28,13 +28,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
                               OfferFilter filter) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
 
-    addRestrictionIfNotNull(criteria, "advertiser.id", filter.advertiserId());
-    addRestrictionIfNotNull(criteria, "approved", filter.approved());
-    addRestrictionIfNotNull(criteria, "active", filter.active());
-    addRestrictionIfNotNull(criteria, "showcase", filter.showcase());
-    if (filter.launched() != null)
-      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
-
+    fillCriteriaFromFilter(criteria, filter);
     setOrdering(criteria, ord, asc);
     return criteria
         .setFirstResult(offset)
@@ -44,7 +38,13 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   @Override
   public long count(OfferFilter filter) {
-    return 0;
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+
+    fillCriteriaFromFilter(criteria, filter);
+
+    return Long.parseLong(criteria
+        .setProjection(Projections.rowCount())
+        .uniqueResult().toString());
   }
 
 
@@ -151,5 +151,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       return criteria.add(Restrictions.eq(paramName, value));
     }
     return criteria;
+  }
+
+  private static Criteria fillCriteriaFromFilter(Criteria criteria,
+                                                 OfferFilter filter) {
+    addRestrictionIfNotNull(criteria, "advertiser.id", filter.advertiserId());
+    addRestrictionIfNotNull(criteria, "approved", filter.approved());
+    addRestrictionIfNotNull(criteria, "active", filter.active());
+    addRestrictionIfNotNull(criteria, "showcase", filter.showcase());
+    if (filter.launched() != null)
+      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+    return criteria;
+
   }
 }
