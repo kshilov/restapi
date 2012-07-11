@@ -118,9 +118,9 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
     addEqRestrictionIfNotNull(criteria, "payMethod", filter.payMethod());
-    if (filter.regionIdList() != null)
+    if (filter.regionIdList().size() > 0)
       criteria.add(Restrictions.in("regions", filter.regionIdList()));
-    if (filter.categoryIdList() != null)
+    if (filter.categoryIdList().size() > 0)
       criteria.add(Restrictions.in("categories", filter.categoryIdList()));
     return criteria;
 
