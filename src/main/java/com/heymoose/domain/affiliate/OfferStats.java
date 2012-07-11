@@ -294,7 +294,7 @@ public class OfferStats {
         AccountingEvent.ACTION_APPROVED, from, to);
 
     Object[] expiredQueryResult = (Object[]) repo.session()
-        .createSQLQuery(SqlLoader.get(expiredQuery))
+        .createSQLQuery(SqlLoader.getSql(expiredQuery))
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
@@ -319,7 +319,7 @@ public class OfferStats {
                               AccountingEvent event,
                               DateTime from, DateTime to) {
 
-    String totalQuery = SqlLoader.get("total_stat");
+    String totalQuery = SqlLoader.getSql("total_stat");
     return (Object[]) repo.session()
         .createSQLQuery(totalQuery)
         .setParameter("action_state", actionState.ordinal())

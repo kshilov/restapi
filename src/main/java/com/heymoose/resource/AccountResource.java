@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.User;
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
@@ -8,14 +7,15 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
-import static com.heymoose.resource.Exceptions.notFound;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlAccountingEntries;
 import com.heymoose.resource.xml.XmlWithdraws;
 import com.heymoose.util.SqlLoader;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
-import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -27,10 +27,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import org.hibernate.Query;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import java.math.BigDecimal;
+import java.util.List;
+
+import static com.heymoose.resource.Exceptions.notFound;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("account")
 @Singleton
@@ -108,7 +109,7 @@ public class AccountResource {
   @Path("withdraws")
   public XmlWithdraws allWithdrawList(@QueryParam("offset") @DefaultValue("0") int offset,
                                       @QueryParam("limit") @DefaultValue("20") int limit) {
-    String sql = SqlLoader.getTemplate("withdraw_stats", ImmutableMap.<String, Object>builder().build());
+    String sql = SqlLoader.getSql("withdraw_stats");
 
     // count without offset and limit
     Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));

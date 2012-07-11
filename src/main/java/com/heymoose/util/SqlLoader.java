@@ -4,12 +4,13 @@ package com.heymoose.util;
 import com.floreysoft.jmte.Engine;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import org.joda.time.DateTime;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.Map;
-import org.joda.time.DateTime;
 
 public final class SqlLoader {
   private static final String FOLDER = "sql/";
@@ -21,7 +22,7 @@ public final class SqlLoader {
 
   private static final Map<String, String> cache = Maps.newHashMap();
 
-  public static final String get(String sqlName) {
+  public static final String getSql(String sqlName) {
     synchronized (cache) {
       String sql = cache.get(sqlName);
       if (sql == null) {
