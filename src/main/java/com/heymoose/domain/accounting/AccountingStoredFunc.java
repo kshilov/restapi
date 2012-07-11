@@ -81,6 +81,11 @@ public final class AccountingStoredFunc implements Accounting {
   public Withdraw withdraw(Account account, BigDecimal amount) {
     return accountingHiber.withdraw(account, amount);
   }
+  
+  @Override
+  public void approveWithdraw(Withdraw withdraw) {
+    accountingHiber.approveWithdraw(withdraw);
+  };
 
   @Override
   public List<Withdraw> withdraws(Account account) {

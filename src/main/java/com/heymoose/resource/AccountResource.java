@@ -6,7 +6,6 @@ import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
-import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -99,11 +98,7 @@ public class AccountResource {
   @Transactional
   @Path("aff/{id}/withdraws")
   public XmlWithdraws withdrawListByAff(@PathParam("id") long affId) {
-    User user = repo.get(User.class, affId);
-    Account affAccount = user.affiliateAccount();
-    if (affAccount == null)
-      throw notFound();
-
+    Account affAccount = existingAffiliateAccount(affId);
     List<Withdraw> withdraws = accounting.withdraws(affAccount);
     return Mappers.toXmlWithdraws(affAccount.id(), withdraws);
   }
@@ -143,9 +138,7 @@ public class AccountResource {
   public void approveWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
     Account account = existing(id);
     Withdraw withdraw = existingWithdraw(account, withdrawId);
-    AccountingEntry entry = existingAccountingEntry(AccountingEvent.WITHDRAW, withdrawId);
-    accounting.applyEntry(entry);
-    withdraw.approve();
+    accounting.approveWithdraw(withdraw);
   }
 
   @DELETE
@@ -158,6 +151,16 @@ public class AccountResource {
     Account account = existing(id);
     Withdraw withdraw = existingWithdraw(account, withdrawId);
     accounting.deleteWithdraw(withdraw, comment);
+  }
+  
+  private Account existingAffiliateAccount(long id) {
+    User user = repo.get(User.class, id);
+    if (user == null)
+      throw notFound();
+    Account account = user.affiliateAccount();
+    if (account == null)
+      throw notFound();
+    return account;
   }
 
   private Withdraw existingWithdraw(Account account, long id) {
@@ -172,15 +175,5 @@ public class AccountResource {
     if (account == null)
       throw notFound();
     return account;
-  }
-
-  private AccountingEntry existingAccountingEntry(AccountingEvent event, long sourceId) {
-    DetachedCriteria criteria = DetachedCriteria.forClass(AccountingEntry.class)
-        .add(Restrictions.eq("sourceId", sourceId))
-        .add(Restrictions.eq("event", event));
-    AccountingEntry entry = repo.byCriteria(criteria);
-    if (entry == null)
-      throw notFound();
-    return entry;
   }
 }

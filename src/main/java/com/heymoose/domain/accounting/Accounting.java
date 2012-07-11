@@ -21,6 +21,8 @@ public interface Accounting {
   AccountingEntry getLastEntry(Account account);
 
   Withdraw withdraw(Account account, BigDecimal amount);
+  
+  void approveWithdraw(Withdraw withdraw);
 
   List<Withdraw> withdraws(Account account);
 
