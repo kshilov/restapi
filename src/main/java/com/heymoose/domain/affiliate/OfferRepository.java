@@ -10,11 +10,6 @@ public interface OfferRepository extends Repository<Offer> {
 
   long count(OfferFilter filter);
 
-  Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                       Boolean approved, Boolean active, Boolean launched, Boolean showcase,
-                       Long advertiserId);
-  long count(Boolean approved, Boolean active, Boolean launched, Boolean showcase, Long advertiserId);
-  
   Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                    long affiliateId, Boolean active);
   long countRequested(long affiliateId, Boolean active);

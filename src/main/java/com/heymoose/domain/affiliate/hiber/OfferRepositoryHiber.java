@@ -49,50 +49,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
 
   @Override
-  public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                              Boolean approved, Boolean active, Boolean launched, Boolean showcase,
-                              Long advertiserId) {
-    Criteria criteria = hiber().createCriteria(getEntityClass());
-    
-    if (advertiserId != null)
-      criteria.add(Restrictions.eq("advertiser.id", advertiserId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
-    if (launched != null)
-      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
-    if (showcase != null)
-      criteria.add(Restrictions.eq("showcase", showcase));
-    
-    setOrdering(criteria, ord, asc);
-    return criteria
-        .setFirstResult(offset)
-        .setMaxResults(limit)
-        .list();
-  }
-
-  @Override
-  public long count(Boolean approved, Boolean active, Boolean launched, Boolean showcase, Long advertiserId) {
-    Criteria criteria = hiber().createCriteria(getEntityClass());
-    
-    if (advertiserId != null)
-      criteria.add(Restrictions.eq("advertiser.id", advertiserId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
-    if (launched != null)
-      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
-    if (showcase != null)
-      criteria.add(Restrictions.eq("showcase", showcase));
-    
-    return Long.parseLong(criteria
-        .setProjection(Projections.rowCount())
-        .uniqueResult().toString());
-  }
-  
-  @Override
   public Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                           long affiliateId, Boolean active) {
     Criteria criteria = hiber()
@@ -159,7 +115,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     addRestrictionIfNotNull(criteria, "approved", filter.approved());
     addRestrictionIfNotNull(criteria, "active", filter.active());
     addRestrictionIfNotNull(criteria, "showcase", filter.showcase());
-    if (filter.launched() != null)
+    if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
     return criteria;
 
