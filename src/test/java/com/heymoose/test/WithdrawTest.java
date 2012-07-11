@@ -111,7 +111,7 @@ public class WithdrawTest extends RestTest {
     //
     assertTrue(affWithdraws.withdraws.get(0).done);
     assertFalse(affWithdraws.withdraws.get(1).done);
-    assertEquals(30d, affWithdraws.withdraws.get(0).amount, 0.001d);
+    assertEquals(10d, affWithdraws.withdraws.get(0).amount, 0.001d);
     assertEquals(20d, affWithdraws.withdraws.get(1).amount, 0.001d);
     assertNull(affWithdraws.withdraws.get(0).affEmail);
     assertNull(affWithdraws.withdraws.get(1).affEmail);
@@ -127,7 +127,7 @@ public class WithdrawTest extends RestTest {
     //
     assertTrue(allWithdrawStats.withdraws.get(0).done);
     assertFalse(allWithdrawStats.withdraws.get(1).done);
-    assertEquals(30d, allWithdrawStats.withdraws.get(0).amount, 0.001d);
+    assertEquals(10d, allWithdrawStats.withdraws.get(0).amount, 0.001d);
     assertEquals(20d, allWithdrawStats.withdraws.get(1).amount, 0.001d);
     assertEquals(AFF_EMAIL, allWithdrawStats.withdraws.get(0).affEmail);
     assertEquals(AFF_EMAIL, allWithdrawStats.withdraws.get(1).affEmail);
