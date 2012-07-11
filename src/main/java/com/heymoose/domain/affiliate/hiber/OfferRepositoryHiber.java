@@ -8,6 +8,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -118,10 +119,20 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
     addEqRestrictionIfNotNull(criteria, "payMethod", filter.payMethod());
-    if (filter.regionIdList().size() > 0)
-      criteria.add(Restrictions.in("regions", filter.regionIdList()));
-    if (filter.categoryIdList().size() > 0)
-      criteria.add(Restrictions.in("categories", filter.categoryIdList()));
+
+    for (String region : filter.regionList()) {
+      criteria.add(Restrictions.sqlRestriction(
+          "exists (select * from offer_region r " +
+              "where {alias}.id = r.offer_id and region = ?)",
+          region, StandardBasicTypes.STRING));
+    }
+
+    for (Long category : filter.categoryIdList()) {
+      criteria.add(Restrictions.sqlRestriction(
+          "exists (select * from offer_category c " +
+              "where {alias}.id = c.offer_id and category_id = ?)",
+          category, StandardBasicTypes.LONG));
+    }
     return criteria;
 
   }

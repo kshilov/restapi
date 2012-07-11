@@ -12,7 +12,7 @@ public final class OfferFilter {
   private Boolean active;
   private Boolean launched;
   private Boolean showcase;
-  private List<Long> regionIdList;
+  private List<String> regionList;
   private List<Long> categoryIdList;
   private PayMethod payMethod;
 
@@ -50,8 +50,8 @@ public final class OfferFilter {
     return this;
   }
 
-  public OfferFilter setRegionList(List<Long> regionList) {
-    this.regionIdList = regionList;
+  public OfferFilter setRegionList(List<String> regionList) {
+    this.regionList = regionList;
     return this;
   }
 
@@ -89,8 +89,8 @@ public final class OfferFilter {
     return showcase;
   }
 
-  public List<Long> regionIdList() {
-    return regionIdList;
+  public List<String> regionList() {
+    return regionList;
   }
 
   public List<Long> categoryIdList() {

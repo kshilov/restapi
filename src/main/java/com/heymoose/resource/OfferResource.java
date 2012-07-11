@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.google.common.base.Strings;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
@@ -90,7 +89,7 @@ public class OfferResource {
                         @QueryParam("advertiser_id") Long advertiserId,
                         @QueryParam("aff_id") Long affiliateId,
                         @QueryParam("pay_method") String payMethod,
-                        @QueryParam("region") List<Long> regionList,
+                        @QueryParam("region") List<String> regionList,
                         @QueryParam("category") List<Long> categoryList) {
     OfferFilter filter = new OfferFilter()
         .setActive(active)
