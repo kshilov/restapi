@@ -2,24 +2,21 @@ package com.heymoose.domain.affiliate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.OrderingDirection;
 import com.heymoose.util.Pair;
 import com.heymoose.util.SqlLoader;
-import org.hibernate.Query;
-import org.joda.time.DateTime;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.hibernate.Query;
+import org.joda.time.DateTime;
 
 @Singleton
 public class OfferStats {
@@ -61,7 +58,7 @@ public class OfferStats {
   public static final String CONFIRMED_FEE = "confirmed_fee";
   public static final String CONFIRMED_SUM = "confirmed_sum";
   public static final String EXPIRED_AFFILIATE = "expired_affiliate";
-  public static final String EXPIRED_FEE ="expired_fee";
+  public static final String EXPIRED_FEE = "expired_fee";
   public static final String EXPIRED_SUM = "expired_sum";
 
   //private final Provider<Session> sessionProvider;
@@ -77,19 +74,19 @@ public class OfferStats {
     List<OverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
 
-      long shows = extractLong(record[0]);
-      long clicks = extractLong(record[1]);
-      long leads = extractLong(record[2]);
-      long sales = extractLong(record[3]);
-      double confirmedRevenue = extractDouble(record[4]);
-      double notConfirmedRevenue = extractDouble(record[5]);
-      double canceledRevenue = extractDouble(record[6]);
-      long id = extractLong(record[7]);
+      long shows = SqlLoader.extractLong(record[0]);
+      long clicks = SqlLoader.extractLong(record[1]);
+      long leads = SqlLoader.extractLong(record[2]);
+      long sales = SqlLoader.extractLong(record[3]);
+      double confirmedRevenue = SqlLoader.extractDouble(record[4]);
+      double notConfirmedRevenue = SqlLoader.extractDouble(record[5]);
+      double canceledRevenue = SqlLoader.extractDouble(record[6]);
+      long id = SqlLoader.extractLong(record[7]);
       String name = (String) record[8];
-      double ctr = extractDouble(record[9]);
-      double cr = extractDouble(record[10]);
-      double ecpc = extractDouble(record[11]);
-      double ecpm = extractDouble(record[12]);
+      double ctr = SqlLoader.extractDouble(record[9]);
+      double cr = SqlLoader.extractDouble(record[10]);
+      double ecpc = SqlLoader.extractDouble(record[11]);
+      double ecpm = SqlLoader.extractDouble(record[12]);
 
       result.add(new OverallOfferStats(id, name, shows, clicks, leads, sales,
           confirmedRevenue, notConfirmedRevenue, canceledRevenue, ctr, cr, ecpc, ecpm));
@@ -101,8 +98,8 @@ public class OfferStats {
   public Pair<List<OverallOfferStats>, Long> allOfferStats(boolean granted,
                                                            CommonParams commonParams) {
     Map<String, ?> templateParams = templateParamsBuilder(commonParams)
-            .put("groupByOffer", true)
-            .put("granted", granted).build();
+        .put("groupByOffer", true)
+        .put("granted", granted).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, commonParams);
   }
@@ -111,8 +108,8 @@ public class OfferStats {
   public Pair<List<OverallOfferStats>, Long> affOfferStats(Long affiliateId,
                                                            CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
-            .put("groupByOffer", true)
-            .put("filterByAffiliate", true).build();
+        .put("groupByOffer", true)
+        .put("filterByAffiliate", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, common, ImmutableMap.of("aff_id", affiliateId));
   }
@@ -121,10 +118,10 @@ public class OfferStats {
   public Pair<List<OverallOfferStats>, Long> advOfferStats(Long advertiserId,
                                                            CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
-            .put("groupByOffer", true)
-            .put("filterByAdvertiser", true).build();
+        .put("groupByOffer", true)
+        .put("filterByAdvertiser", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, common,  ImmutableMap.of("adv_id", advertiserId));
+    return executeStatsQuery(sql, common, ImmutableMap.of("adv_id", advertiserId));
   }
 
   @Transactional
@@ -181,15 +178,15 @@ public class OfferStats {
   public List<OverallOfferStats> topAffiliates(DateTime from, DateTime to, int offset, int limit) {
     String sql =
         "select offer_stat.aff_id id, p.email e, sum(confirmed_revenue) r " +
-        "from offer o " +
-        "join offer_grant g on g.offer_id = o.id " +
-        "left join offer_stat on offer_stat.creation_time between :from and :to " +
-        "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
-        "left join user_profile p on offer_stat.aff_id = p.id " +
-        "where o.parent_id is null and g.state = 'APPROVED' " +
-        "group by offer_stat.aff_id, p.email " +
-        "order by r desc, id asc " +
-        "offset :offset limit :limit";
+            "from offer o " +
+            "join offer_grant g on g.offer_id = o.id " +
+            "left join offer_stat on offer_stat.creation_time between :from and :to " +
+            "  and o.id = offer_stat.master and g.aff_id = offer_stat.aff_id " +
+            "left join user_profile p on offer_stat.aff_id = p.id " +
+            "where o.parent_id is null and g.state = 'APPROVED' " +
+            "group by offer_stat.aff_id, p.email " +
+            "order by r desc, id asc " +
+            "offset :offset limit :limit";
 
     Query query = repo.session().createSQLQuery(sql);
     @SuppressWarnings("unchecked")
@@ -202,11 +199,11 @@ public class OfferStats {
 
     List<OverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
-      long id = extractLong(record[0]);
+      long id = SqlLoader.extractLong(record[0]);
       if (id == 0L)
         continue;
       String name = (String) record[1];
-      double confirmedRevenue = extractDouble(record[2]);
+      double confirmedRevenue = SqlLoader.extractDouble(record[2]);
       result.add(new OverallOfferStats(id, name, confirmedRevenue));
     }
     return result;
@@ -293,28 +290,28 @@ public class OfferStats {
         AccountingEvent.ACTION_CREATED, from, to);
 
     Object[] confirmed = totalStats(
-      OfferActionState.APPROVED,
-      AccountingEvent.ACTION_APPROVED, from ,to);
+        OfferActionState.APPROVED,
+        AccountingEvent.ACTION_APPROVED, from, to);
 
     Object[] expiredQueryResult = (Object[]) repo.session()
-        .createSQLQuery(SqlLoader.get(expiredQuery))
+        .createSQLQuery(SqlLoader.getSql(expiredQuery))
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
 
     return ImmutableMap.<String, BigDecimal>builder()
-        .put(CANCELED_FEE, scaledDecimal(canceled[0]).negate())
-        .put(CANCELED_AFFILIATE, scaledDecimal(canceled[1]).negate())
-        .put(CANCELED_SUM, scaledDecimal(canceled[2]).negate())
-        .put(NOT_CONFIRMED_FEE, scaledDecimal(notConfirmed[0]))
-        .put(NOT_CONFIRMED_AFFILIATE, scaledDecimal(notConfirmed[1]))
-        .put(NOT_CONFIRMED_SUM, scaledDecimal(notConfirmed[2]))
-        .put(CONFIRMED_FEE, scaledDecimal(confirmed[0]).negate())
-        .put(CONFIRMED_AFFILIATE, scaledDecimal(confirmed[1]).negate())
-        .put(CONFIRMED_SUM, scaledDecimal(confirmed[2]).negate())
-        .put(EXPIRED_AFFILIATE, scaledDecimal(expiredQueryResult[0]))
-        .put(EXPIRED_FEE, scaledDecimal(expiredQueryResult[1]))
-        .put(EXPIRED_SUM, scaledDecimal(expiredQueryResult[2]))
+        .put(CANCELED_FEE, SqlLoader.scaledDecimal(canceled[0]).negate())
+        .put(CANCELED_AFFILIATE, SqlLoader.scaledDecimal(canceled[1]).negate())
+        .put(CANCELED_SUM, SqlLoader.scaledDecimal(canceled[2]).negate())
+        .put(NOT_CONFIRMED_FEE, SqlLoader.scaledDecimal(notConfirmed[0]))
+        .put(NOT_CONFIRMED_AFFILIATE, SqlLoader.scaledDecimal(notConfirmed[1]))
+        .put(NOT_CONFIRMED_SUM, SqlLoader.scaledDecimal(notConfirmed[2]))
+        .put(CONFIRMED_FEE, SqlLoader.scaledDecimal(confirmed[0]).negate())
+        .put(CONFIRMED_AFFILIATE, SqlLoader.scaledDecimal(confirmed[1]).negate())
+        .put(CONFIRMED_SUM, SqlLoader.scaledDecimal(confirmed[2]).negate())
+        .put(EXPIRED_AFFILIATE, SqlLoader.scaledDecimal(expiredQueryResult[0]))
+        .put(EXPIRED_FEE, SqlLoader.scaledDecimal(expiredQueryResult[1]))
+        .put(EXPIRED_SUM, SqlLoader.scaledDecimal(expiredQueryResult[2]))
         .build();
   }
 
@@ -322,7 +319,7 @@ public class OfferStats {
                               AccountingEvent event,
                               DateTime from, DateTime to) {
 
-    String totalQuery = SqlLoader.get("total_stat");
+    String totalQuery = SqlLoader.getSql("total_stat");
     return (Object[]) repo.session()
         .createSQLQuery(totalQuery)
         .setParameter("action_state", actionState.ordinal())
@@ -333,19 +330,19 @@ public class OfferStats {
   }
 
 
-  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
-                                                                CommonParams common) {
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql, CommonParams common) {
     return executeStatsQuery(sql, common, ImmutableMap.<String, Object>of());
   }
-  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql,
-                                                                CommonParams common,
-                                                                Map<String, ?> custom) {
+
+  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(
+      String sql, CommonParams common, Map<String, ?> custom) {
+
     // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(countSql(sql));
+    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
     for (Map.Entry<String, ?> parameter : custom.entrySet()) {
       countQuery.setParameter(parameter.getKey(), parameter.getValue());
     }
-    Long count = extractLong(countQuery
+    Long count = SqlLoader.extractLong(countQuery
         .setTimestamp("from", common.from.toDate())
         .setTimestamp("to", common.to.toDate())
         .uniqueResult()
@@ -365,46 +362,11 @@ public class OfferStats {
         .list());
     return new Pair<List<OverallOfferStats>, Long>(result, count);
   }
+
   private static ImmutableMap.Builder<String, Object> templateParamsBuilder(
       CommonParams common) {
     return ImmutableMap.<String, Object>builder()
         .put("ordering", common.ordering)
         .put("direction", common.direction);
-  }
-
-
-  private static Long extractLong(Object val) {
-    if (val == null)
-      return 0L;
-    if (val instanceof BigInteger)
-      return ((BigInteger) val).longValue();
-    if (val instanceof BigDecimal)
-      return ((BigDecimal) val).longValue();
-    if (val instanceof Integer)
-      return ((Integer) val).longValue();
-    throw new IllegalStateException();
-  }
-
-  private static BigDecimal scaledDecimal(Object object) {
-    if (object == null)
-      return new BigDecimal("0.00");
-    BigDecimal decimal = (BigDecimal) object;
-    return decimal.setScale(2, BigDecimal.ROUND_UP);
-  }
-
-  private static double extractDouble(Object val) {
-    if (val == null)
-      return 0.0;
-    if (val instanceof BigInteger)
-      return ((BigInteger) val).doubleValue();
-    if (val instanceof BigDecimal)
-      return ((BigDecimal) val).doubleValue();
-    throw new IllegalStateException();
-  }
-
-  private String countSql(String sql) {
-    sql = sql.replaceFirst("select .* from ", "select count(*) from ");
-    sql = sql.substring(0, sql.lastIndexOf("order by"));
-    return "select count(*) from (" + sql + ") c";
   }
 }

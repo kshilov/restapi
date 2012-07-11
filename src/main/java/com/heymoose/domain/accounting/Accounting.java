@@ -1,7 +1,6 @@
 package com.heymoose.domain.accounting;
 
 import com.heymoose.domain.Withdraw;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -22,6 +21,8 @@ public interface Accounting {
   AccountingEntry getLastEntry(Account account);
 
   Withdraw withdraw(Account account, BigDecimal amount);
+  
+  void approveWithdraw(Withdraw withdraw);
 
   List<Withdraw> withdraws(Account account);
 

@@ -12,13 +12,15 @@ import com.heymoose.domain.affiliate.ErrorInfo;
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.SubOffer;
-
+import com.heymoose.util.SqlLoader;
+import java.util.List;
 import java.util.Map;
 
 public class Mappers {
-  
-  private Mappers() {}
-  
+
+  private Mappers() {
+  }
+
   public enum Details {
     ONLY_ID,
     ONLY_ENTITY,
@@ -26,24 +28,24 @@ public class Mappers {
     WITH_RELATED_ENTITIES,
     WITH_RELATED_LISTS
   }
-  
+
   private static boolean needFields(Details d) {
     return (d == Details.ONLY_ENTITY
-         || d == Details.WITH_RELATED_IDS
-         || d == Details.WITH_RELATED_ENTITIES
-         || d == Details.WITH_RELATED_LISTS);
+        || d == Details.WITH_RELATED_IDS
+        || d == Details.WITH_RELATED_ENTITIES
+        || d == Details.WITH_RELATED_LISTS);
   }
-  
+
   private static boolean needRelated(Details d) {
     return (d == Details.WITH_RELATED_IDS
-         || d == Details.WITH_RELATED_ENTITIES
-         || d == Details.WITH_RELATED_LISTS);
+        || d == Details.WITH_RELATED_ENTITIES
+        || d == Details.WITH_RELATED_LISTS);
   }
-  
+
   private static boolean needRelatedLists(Details d) {
     return d == Details.WITH_RELATED_LISTS;
   }
-  
+
   private static Details relatedDetails(Details d) {
     if (d == Details.WITH_RELATED_ENTITIES ||
         d == Details.WITH_RELATED_LISTS)
@@ -54,11 +56,11 @@ public class Mappers {
   private static Details relatedListDetails(Details d) {
     return Details.ONLY_ENTITY;
   }
-  
+
   public static XmlUsers toXmlUsers(Iterable<User> users) {
     return toXmlUsers(users, Details.WITH_RELATED_IDS);
   }
-  
+
   public static XmlUsers toXmlUsers(Iterable<User> users, Details d) {
     XmlUsers xmlUsers = new XmlUsers();
     for (User user : users)
@@ -73,7 +75,7 @@ public class Mappers {
   public static XmlUser toXmlUser(User user, Details d) {
     XmlUser xmlUser = new XmlUser();
     xmlUser.id = user.id();
-    
+
     if (needFields(d)) {
       xmlUser.fee = user.fee();
       xmlUser.email = user.email();
@@ -93,7 +95,7 @@ public class Mappers {
       xmlUser.blocked = user.blocked();
       xmlUser.blockReason = user.blockReason();
       xmlUser.registerTime = user.registerTime().toString();
-      
+
       if (user.advertiserAccount() != null) {
         xmlUser.customerAccount = toXmlAccount(user.advertiserAccount());
         xmlUser.advertiserAccount = toXmlAccount(user.advertiserAccount());
@@ -120,7 +122,7 @@ public class Mappers {
     xmlAccount.allowNegativeBalance = account.allowNegativeBalance();
     return xmlAccount;
   }
-  
+
   public static XmlAccountingEntry toXmlAccountingEntry(AccountingEntry entry) {
     XmlAccountingEntry xmlEntry = new XmlAccountingEntry();
     xmlEntry.id = entry.id();
@@ -131,7 +133,7 @@ public class Mappers {
     xmlEntry.creationTime = entry.creationTime().toString();
     return xmlEntry;
   }
-  
+
   public static XmlAccountingEntries toXmlAccountingEntries(Iterable<AccountingEntry> entries, Long count) {
     XmlAccountingEntries xmlEntries = new XmlAccountingEntries();
     xmlEntries.count = count;
@@ -145,7 +147,25 @@ public class Mappers {
     xmlCount.count = count;
     return xmlCount;
   }
-  
+
+  public static XmlWithdraws toXmlWithdraws(List<Object[]> withdraws, Long count, Object nonApprovedCount, Object nonApprovedTotal) {
+    XmlWithdraws xmlWithdraws = new XmlWithdraws();
+    xmlWithdraws.count = count;
+    xmlWithdraws.nonApprovedCount = SqlLoader.extractLong(nonApprovedCount);
+    xmlWithdraws.nonApprovedTotal = SqlLoader.extractDouble(nonApprovedTotal);
+    for (Object[] withdraw : withdraws) {
+      XmlWithdraw xmlWithdraw = new XmlWithdraw();
+      xmlWithdraw.id = SqlLoader.extractLong(withdraw[0]);
+      xmlWithdraw.amount = SqlLoader.extractDouble(withdraw[1]);
+      xmlWithdraw.timestamp = SqlLoader.extractDateTime(withdraw[2]).toString();
+      xmlWithdraw.done = SqlLoader.extractBoolean(withdraw[3]);
+      xmlWithdraw.affId = SqlLoader.extractLong(withdraw[4]);
+      xmlWithdraw.affEmail = SqlLoader.extractString(withdraw[5]);
+      xmlWithdraws.withdraws.add(xmlWithdraw);
+    }
+    return xmlWithdraws;
+  }
+
   public static XmlWithdraws toXmlWithdraws(long accountId, Iterable<Withdraw> withdraws) {
     XmlWithdraws xmlWithdraws = new XmlWithdraws();
     xmlWithdraws.accountId = accountId;
@@ -162,8 +182,8 @@ public class Mappers {
     xmlWithdraw.timestamp = withdraw.timestamp().toString();
     return xmlWithdraw;
   }
-  
-  
+
+
   public static XmlOffer toXmlOffer(Offer offer) {
     XmlOffer xmlOffer = new XmlOffer();
     xmlOffer.id = offer.id();
@@ -197,28 +217,28 @@ public class Mappers {
     xmlOffer.holdDays = offer.holdDays();
     xmlOffer.cookieTtl = offer.cookieTtl();
     xmlOffer.tokenParamName = offer.tokenParamName();
-    
+
     for (SubOffer suboffer : offer.suboffers())
       xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
 
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
-    
+
     for (Banner banner : offer.banners())
       xmlOffer.banners.add(toXmlBanner(banner));
-    
+
     for (String region : offer.regions())
       xmlOffer.regions.add(region);
-    
+
     return xmlOffer;
   }
-  
+
   public static XmlOffer toXmlGrantedNewOffer(OfferGrant grant) {
     XmlOffer xmlOffer = toXmlOffer(grant.offer());
     xmlOffer.grant = toXmlOfferGrant(grant, false);
     return xmlOffer;
   }
-  
+
   public static XmlOffers toXmlOffers(Iterable<Offer> offers, Long count) {
     XmlOffers xmlOffers = new XmlOffers();
     xmlOffers.count = count;
@@ -226,7 +246,7 @@ public class Mappers {
       xmlOffers.offers.add(toXmlOffer(offer));
     return xmlOffers;
   }
-  
+
   public static XmlOffers toXmlOffers(Iterable<Offer> offers,
                                       Map<Long, OfferGrant> grants, Long count) {
     XmlOffers xmlOffers = toXmlOffers(offers, count);
@@ -235,7 +255,7 @@ public class Mappers {
         xmlOffer.grant = toXmlOfferGrant(grants.get(xmlOffer.id), false);
     return xmlOffers;
   }
-  
+
   public static XmlOffers toXmlGrantedOffers(Iterable<OfferGrant> grants, Long count) {
     XmlOffers xmlOffers = new XmlOffers();
     xmlOffers.count = count;
@@ -243,7 +263,7 @@ public class Mappers {
       xmlOffers.offers.add(toXmlGrantedNewOffer(grant));
     return xmlOffers;
   }
-  
+
   public static XmlSubOffer toXmlSubOffer(SubOffer offer) {
     XmlSubOffer xmlSubOffer = new XmlSubOffer();
     xmlSubOffer.id = offer.id();
@@ -261,7 +281,7 @@ public class Mappers {
     xmlSubOffer.holdDays = offer.holdDays();
     return xmlSubOffer;
   }
-  
+
   public static XmlSubOffers toXmlSubOffers(Iterable<SubOffer> suboffers, Long count) {
     XmlSubOffers xmlSubOffers = new XmlSubOffers();
     xmlSubOffers.count = count;
@@ -269,7 +289,7 @@ public class Mappers {
       xmlSubOffers.suboffers.add(toXmlSubOffer(suboffer));
     return xmlSubOffers;
   }
-  
+
   public static XmlOfferGrant toXmlOfferGrant(OfferGrant grant, boolean full) {
     XmlOfferGrant xmlOfferGrant = new XmlOfferGrant();
     xmlOfferGrant.id = grant.id();
@@ -292,7 +312,7 @@ public class Mappers {
     }
     return xmlOfferGrant;
   }
-  
+
   public static XmlOfferGrants toXmlOfferGrants(Iterable<OfferGrant> grants, Long count, boolean full) {
     XmlOfferGrants xmlOfferGrants = new XmlOfferGrants();
     xmlOfferGrants.count = count;
@@ -315,7 +335,7 @@ public class Mappers {
     xmlCategory.name = category.name();
     return xmlCategory;
   }
-  
+
   public static XmlBanner toXmlBanner(Banner banner) {
     XmlBanner xmlBanner = new XmlBanner();
     xmlBanner.id = banner.id();

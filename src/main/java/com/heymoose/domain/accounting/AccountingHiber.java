@@ -2,6 +2,7 @@ package com.heymoose.domain.accounting;
 
 import com.heymoose.domain.Withdraw;
 import com.heymoose.domain.affiliate.base.Repo;
+import static com.heymoose.resource.Exceptions.conflict;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -120,13 +121,21 @@ public class AccountingHiber implements Accounting {
 
   @Override
   public Withdraw withdraw(Account account, BigDecimal amount) {
+    if (amount.signum() < 1 || account.balance().compareTo(amount) < 0)
+      throw conflict();
     Withdraw withdraw = new Withdraw(account, amount);
     repo.put(withdraw);
-    AccountingEntry entry = new AccountingEntry(account, amount.negate(), AccountingEvent.WITHDRAW, withdraw.id(), null);
+    AccountingEntry entry = new AccountingEntry(account, amount.negate(),
+        AccountingEvent.WITHDRAW, withdraw.id(), null);
     repo.put(entry);
     applyEntry(entry);
     return withdraw;
   }
+  
+  @Override
+  public void approveWithdraw(Withdraw withdraw) {
+    withdraw.approve();
+  };
 
   @Override
   public List<Withdraw> withdraws(Account account) {

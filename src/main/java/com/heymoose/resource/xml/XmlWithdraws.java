@@ -14,4 +14,14 @@ public class XmlWithdraws {
 
   @XmlElement(name = "withdraw")
   public List<XmlWithdraw> withdraws = newArrayList();
+
+  @XmlAttribute(name = "count")
+  public Long count;
+
+  @XmlAttribute(name = "non-approved-count")
+  public Long nonApprovedCount;
+
+  @XmlAttribute(name = "non-approved-total")
+  public Double nonApprovedTotal;
+
 }
