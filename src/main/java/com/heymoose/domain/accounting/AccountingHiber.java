@@ -121,21 +121,19 @@ public class AccountingHiber implements Accounting {
 
   @Override
   public Withdraw withdraw(Account account, BigDecimal amount) {
-    if (account.balance().compareTo(amount) < 0)
+    if (amount.signum() < 1 || account.balance().compareTo(amount) < 0)
       throw conflict();
     Withdraw withdraw = new Withdraw(account, amount);
     repo.put(withdraw);
+    AccountingEntry entry = new AccountingEntry(account, amount.negate(),
+        AccountingEvent.WITHDRAW, withdraw.id(), null);
+    repo.put(entry);
+    applyEntry(entry);
     return withdraw;
   }
   
   @Override
   public void approveWithdraw(Withdraw withdraw) {
-    if (withdraw.account().balance().compareTo(withdraw.amount()) < 0)
-      throw conflict();
-    AccountingEntry entry = new AccountingEntry(withdraw.account(), withdraw.amount().negate(),
-        AccountingEvent.WITHDRAW, withdraw.id(), null);
-    repo.put(entry);
-    applyEntry(entry);
     withdraw.approve();
   };
 
