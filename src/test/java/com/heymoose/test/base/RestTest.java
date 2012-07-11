@@ -107,6 +107,7 @@ public class RestTest {
       session.createSQLQuery("delete from user_role").executeUpdate();
       session.createQuery("delete from User").executeUpdate();
       session.createQuery("delete from Category").executeUpdate();
+      session.createQuery("delete from CategoryGroup").executeUpdate();
       session.createSQLQuery("delete from ip_segment").executeUpdate();
       session.createSQLQuery("delete from error_info").executeUpdate();
       session.createQuery("delete from Withdraw").executeUpdate();

@@ -47,7 +47,8 @@ public class ClickTest extends RestTest {
   }
 
   private long doCreateOffer(long advertiserId, boolean allowDeeplink) {
-    sqlUpdate("insert into category(id, grouping, name) values(1, 'Group1', 'Category1')");
+    sqlUpdate("insert into category_group(id, name) values(1, 'Grouping1')");
+    sqlUpdate("insert into category(id, category_group_id, name) values(1, 1, 'Category1')");
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
