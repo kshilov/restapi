@@ -100,9 +100,9 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
       criteria.addOrder(order("id", asc));
   }
 
-  private static Criteria addRestrictionIfNotNull(Criteria criteria,
-                                                  String paramName,
-                                                  Object value) {
+  private static Criteria addEqRestrictionIfNotNull(Criteria criteria,
+                                                    String paramName,
+                                                    Object value) {
     if (value != null) {
       return criteria.add(Restrictions.eq(paramName, value));
     }
@@ -111,12 +111,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
 
   private static Criteria fillCriteriaFromFilter(Criteria criteria,
                                                  OfferFilter filter) {
-    addRestrictionIfNotNull(criteria, "advertiser.id", filter.advertiserId());
-    addRestrictionIfNotNull(criteria, "approved", filter.approved());
-    addRestrictionIfNotNull(criteria, "active", filter.active());
-    addRestrictionIfNotNull(criteria, "showcase", filter.showcase());
+    addEqRestrictionIfNotNull(criteria, "advertiser.id", filter.advertiserId());
+    addEqRestrictionIfNotNull(criteria, "approved", filter.approved());
+    addEqRestrictionIfNotNull(criteria, "active", filter.active());
+    addEqRestrictionIfNotNull(criteria, "showcase", filter.showcase());
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+    addEqRestrictionIfNotNull(criteria, "payMethod", filter.payMethod());
+    if (filter.regionIdList() != null)
+      criteria.add(Restrictions.in("regions", filter.regionIdList()));
+    if (filter.categoryIdList() != null)
+      criteria.add(Restrictions.in("categories", filter.categoryIdList()));
     return criteria;
 
   }

@@ -1,5 +1,9 @@
 package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.PayMethod;
+
+import java.util.List;
+
 public final class OfferFilter {
 
   private Long affiliateId;
@@ -8,6 +12,9 @@ public final class OfferFilter {
   private Boolean active;
   private Boolean launched;
   private Boolean showcase;
+  private List<Long> regionIdList;
+  private List<Long> categoryIdList;
+  private PayMethod payMethod;
 
   public OfferFilter() {
 
@@ -43,6 +50,21 @@ public final class OfferFilter {
     return this;
   }
 
+  public OfferFilter setRegionList(List<Long> regionList) {
+    this.regionIdList = regionList;
+    return this;
+  }
+
+  public OfferFilter setCategoryList(List<Long> categoryList) {
+    this.categoryIdList = categoryList;
+    return this;
+  }
+
+  public OfferFilter setPayMethod(PayMethod m) {
+    this.payMethod = m;
+    return this;
+  }
+
   public Long affiliateId() {
     return affiliateId;
   }
@@ -67,4 +89,15 @@ public final class OfferFilter {
     return showcase;
   }
 
+  public List<Long> regionIdList() {
+    return regionIdList;
+  }
+
+  public List<Long> categoryIdList() {
+    return this.categoryIdList;
+  }
+
+  public PayMethod payMethod() {
+    return this.payMethod;
+  }
 }

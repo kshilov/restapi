@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.google.common.base.Strings;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
@@ -87,14 +88,21 @@ public class OfferResource {
                         @QueryParam("launched") Boolean launched,
                         @QueryParam("showcase") Boolean showcase,
                         @QueryParam("advertiser_id") Long advertiserId,
-                        @QueryParam("aff_id") Long affiliateId) {
+                        @QueryParam("aff_id") Long affiliateId,
+                        @QueryParam("pay_method") String payMethod,
+                        @QueryParam("region") List<Long> regionList,
+                        @QueryParam("category") List<Long> categoryList) {
     OfferFilter filter = new OfferFilter()
         .setActive(active)
         .setAdvertiserId(advertiserId)
         .setAffiliateId(affiliateId)
         .setApproved(approved)
         .setLaunched(launched)
-        .setShowcase(showcase);
+        .setShowcase(showcase)
+        .setRegionList(regionList)
+        .setCategoryList(categoryList);
+    if (payMethod != null)
+      filter.setPayMethod(PayMethod.valueOf(payMethod.toUpperCase()));
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit, filter);
     long count = this.offers.count(filter);
     if (affiliateId != null && count > 0) {
