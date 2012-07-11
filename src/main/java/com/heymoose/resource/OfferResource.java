@@ -1,7 +1,5 @@
 package com.heymoose.resource;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import com.heymoose.domain.User;
 import com.heymoose.domain.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
@@ -19,21 +17,16 @@ import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.hibernate.Transactional;
-import static com.heymoose.resource.Exceptions.badRequest;
-import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
 import com.heymoose.resource.xml.XmlSubOffers;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
+import org.joda.time.DateTime;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -48,7 +41,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import org.joda.time.DateTime;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.heymoose.resource.Exceptions.*;
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 @Path("offers")
 @Singleton
@@ -86,8 +88,14 @@ public class OfferResource {
                         @QueryParam("showcase") Boolean showcase,
                         @QueryParam("advertiser_id") Long advertiserId,
                         @QueryParam("aff_id") Long affiliateId) {
-    Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit,
-        approved, active, launched, showcase, advertiserId);
+    OfferFilter filter = new OfferFilter()
+        .setActive(active)
+        .setAdvertiserId(advertiserId)
+        .setAffiliateId(affiliateId)
+        .setApproved(approved)
+        .setLaunched(launched)
+        .setShowcase(showcase);
+    Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit, filter);
     long count = this.offers.count(approved, active, launched, showcase, advertiserId);
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();

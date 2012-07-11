@@ -2,15 +2,17 @@ package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
@@ -19,6 +21,32 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   public OfferRepositoryHiber(Provider<Session> sessionProvider) {
     super(sessionProvider);
   }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
+                              OfferFilter filter) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+
+    addRestrictionIfNotNull(criteria, "advertiser.id", filter.advertiserId());
+    addRestrictionIfNotNull(criteria, "approved", filter.approved());
+    addRestrictionIfNotNull(criteria, "active", filter.active());
+    addRestrictionIfNotNull(criteria, "showcase", filter.showcase());
+    if (filter.launched() != null)
+      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+
+    setOrdering(criteria, ord, asc);
+    return criteria
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
+
+  @Override
+  public long count(OfferFilter filter) {
+    return 0;
+  }
+
 
   @Override
   public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
@@ -114,5 +142,14 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     
     if (ord != Ordering.ID)
       criteria.addOrder(order("id", asc));
+  }
+
+  private static Criteria addRestrictionIfNotNull(Criteria criteria,
+                                                  String paramName,
+                                                  Object value) {
+    if (value != null) {
+      return criteria.add(Restrictions.eq(paramName, value));
+    }
+    return criteria;
   }
 }
