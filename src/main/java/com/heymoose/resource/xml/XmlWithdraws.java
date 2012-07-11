@@ -21,7 +21,7 @@ public class XmlWithdraws {
   @XmlAttribute(name = "non-approved-count")
   public Long nonApprovedCount;
 
-  @XmlElement(name = "non-approved-total")
+  @XmlAttribute(name = "non-approved-total")
   public Double nonApprovedTotal;
 
 }

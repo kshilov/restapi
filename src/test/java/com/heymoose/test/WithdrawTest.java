@@ -100,7 +100,7 @@ public class WithdrawTest extends RestTest {
     // 2nd, approved
     heymoose().transfer(advAccountId, affAccountId, 10.0);
     lastWithdrawId = heymoose().createWithdraw(affAccountId);
-    heymoose().approveWithdraw(affAccountId, lastWithdrawId);
+    heymoose().approveWithdraw(lastWithdrawId);
 
     XmlWithdraws affWithdraws = heymoose().getWithdrawByAff(affId);
     assertNotNull(affWithdraws);

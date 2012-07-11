@@ -402,8 +402,8 @@ public class Heymoose {
     client.path("account").path("transfer").post(form);
   }
 
-  public void approveWithdraw(Long affAccountId, Long withdrawId) {
-    client.path("account").path(Long.toString(affAccountId)).path("withdraws").path(Long.toString(withdrawId)).put();
+  public void approveWithdraw(Long withdrawId) {
+    client.path("account").path("withdraws").path(Long.toString(withdrawId)).put();
   }
 
   public XmlWithdraws getAllWithdrawStats(Paging paging) {

@@ -135,22 +135,19 @@ public class AccountResource {
 
   @PUT
   @Transactional
-  @Path("{id}/withdraws/{withdrawId}")
-  public void approveWithdraw(@PathParam("id") long id, @PathParam("withdrawId") long withdrawId) {
-    Account account = existing(id);
-    Withdraw withdraw = existingWithdraw(account, withdrawId);
+  @Path("withdraws/{id}")
+  public void approveWithdraw(@PathParam("id") long id) {
+    Withdraw withdraw = existingWithdraw(id);
     accounting.approveWithdraw(withdraw);
   }
 
   @DELETE
   @Transactional
-  @Path("{id}/withdraws/{withdrawId}")
-  public void deleteDeveloperWithdraw(@PathParam("id") long id,
-                                      @PathParam("withdrawId") long withdrawId,
-                                      @FormParam("comment") String comment) {
+  @Path("withdraws/{id}")
+  public void deleteWithdraw(@PathParam("id") long id,
+                             @FormParam("comment") String comment) {
     checkNotNull(comment);
-    Account account = existing(id);
-    Withdraw withdraw = existingWithdraw(account, withdrawId);
+    Withdraw withdraw = existingWithdraw(id);
     accounting.deleteWithdraw(withdraw, comment);
   }
   
@@ -163,9 +160,9 @@ public class AccountResource {
       throw notFound();
     return account;
   }
-
-  private Withdraw existingWithdraw(Account account, long id) {
-    Withdraw withdraw = accounting.withdrawOfAccount(account, id);
+  
+  private Withdraw existingWithdraw(long id) {
+    Withdraw withdraw = repo.get(Withdraw.class, id);
     if (withdraw == null)
       throw notFound();
     return withdraw;
