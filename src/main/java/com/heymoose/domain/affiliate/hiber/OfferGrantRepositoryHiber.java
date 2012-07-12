@@ -17,6 +17,7 @@ import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -150,13 +151,21 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
 
       if (filter.payMethod() != null) {
         criteria.createAlias("offer", "offer");
-        Criterion parentPayMethodMatches =
-            Restrictions.eq("offer.payMethod", filter.payMethod());
+        Criterion parentPayMethodMatches = Restrictions.and(
+            Restrictions.eq("offer.payMethod", filter.payMethod()),
+            Restrictions.eq("offer.cpaPolicy", filter.cpaPolicy()));
         Criterion subPayMethodMatches =
             Restrictions.sqlRestriction(
                 "exists (select * from offer " +
-                    "where parent_id = {alias}.offer_id and pay_method = ?)",
-                filter.payMethod().toString(), StandardBasicTypes.STRING);
+                    "where parent_id = {alias}.offer_id " +
+                    "and pay_method = ? " +
+                    "and cpa_policy = ?)",
+                new String[] {
+                    filter.payMethod().toString(),
+                    filter.cpaPolicy().toString() },
+                new Type[] {
+                    StandardBasicTypes.STRING,
+                    StandardBasicTypes.STRING });
         criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
       }
 

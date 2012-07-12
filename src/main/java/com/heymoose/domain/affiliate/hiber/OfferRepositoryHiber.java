@@ -10,6 +10,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -113,13 +114,21 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
     if (filter.payMethod() != null) {
-      Criterion parentPayMethodMatches =
-          Restrictions.eq("payMethod", filter.payMethod());
+      Criterion parentPayMethodMatches = Restrictions.and(
+          Restrictions.eq("payMethod", filter.payMethod()),
+          Restrictions.eq("cpaPolicy", filter.cpaPolicy()));
       Criterion subPayMethodMatches =
           Restrictions.sqlRestriction(
               "exists (select * from offer " +
-                  "where parent_id = {alias}.id and pay_method = ?)",
-              filter.payMethod().toString(), StandardBasicTypes.STRING);
+                  "where parent_id = {alias}.id " +
+                  "and pay_method = ? " +
+                  "and cpa_policy = ?)",
+              new String[] {
+                  filter.payMethod().toString(),
+                  filter.cpaPolicy().toString() },
+              new Type[] {
+                  StandardBasicTypes.STRING,
+                  StandardBasicTypes.STRING });
       criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
     }
 

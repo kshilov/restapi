@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.domain.affiliate.PayMethod;
 
@@ -15,6 +16,7 @@ public final class OfferGrantFilter {
   private List<String> regionList;
   private List<Long> categoryIdList;
   private PayMethod payMethod;
+  private CpaPolicy cpaPolicy;
 
   public OfferGrantFilter() { }
 
@@ -87,6 +89,11 @@ public final class OfferGrantFilter {
     return this;
   }
 
+  public OfferGrantFilter setCpaPolicy(CpaPolicy cpa) {
+    this.cpaPolicy = cpa;
+    return this;
+  }
+
   public List<String> regionList() {
     return regionList;
   }
@@ -97,5 +104,9 @@ public final class OfferGrantFilter {
 
   public PayMethod payMethod() {
     return this.payMethod;
+  }
+
+  public CpaPolicy cpaPolicy() {
+    return this.cpaPolicy;
   }
 }

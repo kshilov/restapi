@@ -90,6 +90,7 @@ public class OfferResource {
                         @QueryParam("advertiser_id") Long advertiserId,
                         @QueryParam("aff_id") Long affiliateId,
                         @QueryParam("pay_method") String payMethod,
+                        @QueryParam("cpa_policy") String cpaPolicy,
                         @QueryParam("region") List<String> regionList,
                         @QueryParam("category") List<Long> categoryList) {
     OfferFilter filter = new OfferFilter()
@@ -101,8 +102,13 @@ public class OfferResource {
         .setShowcase(showcase)
         .setRegionList(regionList)
         .setCategoryList(categoryList);
+
     if (payMethod != null)
       filter.setPayMethod(PayMethod.valueOf(payMethod.toUpperCase()));
+
+    if (cpaPolicy != null)
+      filter.setCpaPolicy(CpaPolicy.valueOf(cpaPolicy.toUpperCase()));
+
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit, filter);
     long count = this.offers.count(filter);
     if (affiliateId != null && count > 0) {
@@ -125,6 +131,7 @@ public class OfferResource {
                                  @QueryParam("aff_id") long affiliateId,
                                  @QueryParam("active") Boolean active,
                                  @QueryParam("pay_method") String payMethod,
+                                 @QueryParam("cpa_policy") String cpaPolicy,
                                  @QueryParam("region") List<String> regionList,
                                  @QueryParam("category") List<Long> categoryList) {
     OfferGrantFilter filter = new OfferGrantFilter()
@@ -132,8 +139,13 @@ public class OfferResource {
         .setAffiliateId(affiliateId)
         .setRegionList(regionList)
         .setCategoryList(categoryList);
+
     if (payMethod != null)
       filter.setPayMethod(PayMethod.valueOf(payMethod.toUpperCase()));
+
+    if (cpaPolicy != null)
+      filter.setCpaPolicy(CpaPolicy.valueOf(cpaPolicy.toUpperCase()));
+
     return Mappers.toXmlGrantedOffers(
         offerGrants.list(ord, asc, offset, limit, filter),
         offerGrants.count(filter)

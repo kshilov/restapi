@@ -1,5 +1,6 @@
 package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public final class OfferFilter {
   private List<String> regionList;
   private List<Long> categoryIdList;
   private PayMethod payMethod;
+  private CpaPolicy cpaPolicy;
 
   public OfferFilter() {
 
@@ -65,6 +67,11 @@ public final class OfferFilter {
     return this;
   }
 
+  public OfferFilter setCpaPolicy(CpaPolicy policy) {
+    this.cpaPolicy = policy;
+    return this;
+  }
+
   public Long affiliateId() {
     return affiliateId;
   }
@@ -99,5 +106,9 @@ public final class OfferFilter {
 
   public PayMethod payMethod() {
     return this.payMethod;
+  }
+
+  public CpaPolicy cpaPolicy() {
+    return this.cpaPolicy;
   }
 }
