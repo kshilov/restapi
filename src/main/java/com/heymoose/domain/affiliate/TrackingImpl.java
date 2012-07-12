@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -119,11 +120,11 @@ public class TrackingImpl implements Tracking {
       if (existent != null && (existent.transactionId().equals(transactionId) || !offer.reentrant()))
         continue;
       PayMethod payMethod = offer.payMethod();
-      CpaPolicy cpaPolicy = offer.cpaPolicy();
       if (payMethod != PayMethod.CPA)
         throw new IllegalArgumentException("Not CPA offer: " + offer.id());
       BigDecimal cost;
       BigDecimal cost2 = null;
+      CpaPolicy cpaPolicy = offer.cpaPolicy();
       if (cpaPolicy == CpaPolicy.PERCENT) {
         Optional<Double> price = offers.get(offer);
         if (!price.isPresent())
@@ -137,7 +138,7 @@ public class TrackingImpl implements Tracking {
       } else throw new IllegalStateException();
       if (existent != null && cost2 != null)
         cost = cost2;
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - source.affiliate().fee()) / 100.0));
+      BigDecimal amount = cost.divide(new BigDecimal((100 + source.affiliate().fee()) / 100.0), 2, RoundingMode.CEILING);
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
           source.bannerId(),
