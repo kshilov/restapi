@@ -122,7 +122,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
               filter.payMethod().toString(), StandardBasicTypes.STRING);
       criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
     }
-    addEqRestrictionIfNotNull(criteria, "payMethod", filter.payMethod());
 
     for (String region : filter.regionList()) {
       criteria.add(Restrictions.sqlRestriction(

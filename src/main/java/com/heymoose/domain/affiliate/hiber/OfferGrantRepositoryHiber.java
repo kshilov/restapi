@@ -13,9 +13,11 @@ import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -113,6 +115,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Iterable<OfferGrant> list(Ordering ord, boolean asc,
                                    int offset, int limit,
                                    OfferGrantFilter filter) {
@@ -197,6 +200,32 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
       else
         criteria.add(Restrictions.not(or));
     }
+
+      if (filter.payMethod() != null) {
+        criteria.createAlias("offer", "offer");
+        Criterion parentPayMethodMatches =
+            Restrictions.eq("offer.payMethod", filter.payMethod());
+        Criterion subPayMethodMatches =
+            Restrictions.sqlRestriction(
+                "exists (select * from offer " +
+                    "where parent_id = {alias}.offer_id and pay_method = ?)",
+                filter.payMethod().toString(), StandardBasicTypes.STRING);
+        criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
+      }
+
+      for (String region : filter.regionList()) {
+        criteria.add(Restrictions.sqlRestriction(
+            "exists (select * from offer_region r " +
+                "where {alias}.offer_id = r.offer_id and region = ?)",
+            region, StandardBasicTypes.STRING));
+      }
+
+      for (Long category : filter.categoryIdList()) {
+        criteria.add(Restrictions.sqlRestriction(
+            "exists (select * from offer_category c " +
+                "where {alias}.offer_id = c.offer_id and category_id = ?)",
+            category, StandardBasicTypes.LONG));
+      }
   }
   
 }

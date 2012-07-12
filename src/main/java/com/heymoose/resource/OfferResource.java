@@ -18,6 +18,7 @@ import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.SubOfferRepository;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.repository.OfferFilter;
+import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
@@ -122,10 +123,20 @@ public class OfferResource {
                                  @QueryParam("ord") @DefaultValue("ID") Ordering ord,
                                  @QueryParam("asc") @DefaultValue("false") boolean asc,
                                  @QueryParam("aff_id") long affiliateId,
-                                 @QueryParam("active") Boolean active) {
+                                 @QueryParam("active") Boolean active,
+                                 @QueryParam("pay_method") String payMethod,
+                                 @QueryParam("region") List<String> regionList,
+                                 @QueryParam("category") List<Long> categoryList) {
+    OfferGrantFilter filter = new OfferGrantFilter()
+        .setActive(active)
+        .setAffiliateId(affiliateId)
+        .setRegionList(regionList)
+        .setCategoryList(categoryList);
+    if (payMethod != null)
+      filter.setPayMethod(PayMethod.valueOf(payMethod.toUpperCase()));
     return Mappers.toXmlGrantedOffers(
-        offerGrants.list(ord, asc, offset, limit, null, affiliateId, null, active, null),
-        offerGrants.count(null, affiliateId, null, active, null)
+        offerGrants.list(ord, asc, offset, limit, filter),
+        offerGrants.count(filter)
     );
   }
 

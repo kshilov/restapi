@@ -1,6 +1,9 @@
 package com.heymoose.domain.affiliate.repository;
 
 import com.heymoose.domain.affiliate.OfferGrantState;
+import com.heymoose.domain.affiliate.PayMethod;
+
+import java.util.List;
 
 public final class OfferGrantFilter {
   private Long affiliateId;
@@ -9,6 +12,9 @@ public final class OfferGrantFilter {
   private Boolean blocked;
   private Boolean moderation;
   private OfferGrantState state;
+  private List<String> regionList;
+  private List<Long> categoryIdList;
+  private PayMethod payMethod;
 
   public OfferGrantFilter() { }
 
@@ -64,5 +70,32 @@ public final class OfferGrantFilter {
   public OfferGrantFilter setBlocked(Boolean blocked) {
     this.blocked = blocked;
     return this;
+  }
+
+  public OfferGrantFilter setRegionList(List<String> regionList) {
+    this.regionList = regionList;
+    return this;
+  }
+
+  public OfferGrantFilter setCategoryList(List<Long> categoryList) {
+    this.categoryIdList = categoryList;
+    return this;
+  }
+
+  public OfferGrantFilter setPayMethod(PayMethod m) {
+    this.payMethod = m;
+    return this;
+  }
+
+  public List<String> regionList() {
+    return regionList;
+  }
+
+  public List<Long> categoryIdList() {
+    return this.categoryIdList;
+  }
+
+  public PayMethod payMethod() {
+    return this.payMethod;
   }
 }
