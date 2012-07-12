@@ -8,14 +8,14 @@ import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.domain.affiliate.OfferRepository;
 import com.heymoose.domain.affiliate.OfferRepository.Ordering;
+import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-import java.net.URI;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -30,6 +30,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+
+import static com.heymoose.util.WebAppUtil.checkNotNull;
 
 
 @Path("grants")
@@ -61,9 +64,15 @@ public class OfferGrantResource {
                              @QueryParam("blocked") Boolean blocked,
                              @QueryParam("moderation") Boolean moderation,
                              @QueryParam("full") @DefaultValue("false") boolean full) {
+    OfferGrantFilter filter = new OfferGrantFilter()
+        .setOfferId(offerId)
+        .setAffiliateId(affiliateId)
+        .setState(state)
+        .setModeration(moderation)
+        .setBlocked(blocked);
     return Mappers.toXmlOfferGrants(
-        offerGrants.list(ord, asc, offset, limit, offerId, affiliateId, state, blocked, moderation),
-        offerGrants.count(offerId, affiliateId, state, blocked, moderation), full
+        offerGrants.list(ord, asc, offset, limit, filter),
+        offerGrants.count(filter), full
     );
   }
 

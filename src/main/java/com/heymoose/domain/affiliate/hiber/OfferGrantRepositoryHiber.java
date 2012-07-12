@@ -5,7 +5,6 @@ import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferGrantState;
 import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.base.Repo;
@@ -51,6 +50,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
   
   @Override
+  @SuppressWarnings("unchecked")
   public Map<Long, OfferGrant> byOffersAndAffiliate(Iterable<Long> offerIds, long affiliateId) {
     Iterable<OfferGrant> grants = (Iterable<OfferGrant>) hiber()
         .createCriteria(getEntityClass())
@@ -86,35 +86,6 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   @Override
-  public Iterable<OfferGrant> list(Ordering ord, boolean asc, int offset, int limit,
-                                 Long offerId, Long affiliateId, OfferGrantState state,
-                                 Boolean blocked, Boolean moderation) {
-    Criteria criteria = hiber().createCriteria(getEntityClass());
-    
-    if (offerId != null)
-      criteria.add(Restrictions.eq("offer.id", offerId));
-    if (affiliateId != null)
-      criteria.add(Restrictions.eq("affiliate.id", affiliateId));
-    if (state != null)
-      criteria.add(Restrictions.eq("state", state));
-    if (blocked != null)
-      criteria.add(Restrictions.eq("blocked", blocked));
-    if (moderation != null) {
-      LogicalExpression or = Restrictions.or(Restrictions.isNull("blockReason"), Restrictions.eq("blockReason", "")); 
-      if (moderation)
-        criteria.add(or);
-      else
-        criteria.add(Restrictions.not(or));
-    }
-    
-    setOrdering(criteria, ord, asc);
-    return criteria
-        .setFirstResult(offset)
-        .setMaxResults(limit)
-        .list();
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   public Iterable<OfferGrant> list(Ordering ord, boolean asc,
                                    int offset, int limit,
@@ -141,30 +112,6 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
         .uniqueResult().toString());
   }
 
-  @Override
-  public long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked, Boolean moderation) {
-    Criteria criteria = hiber().createCriteria(getEntityClass());
-    
-    if (offerId != null)
-      criteria.add(Restrictions.eq("offer.id", offerId));
-    if (affiliateId != null)
-      criteria.add(Restrictions.eq("affiliate.id", affiliateId));
-    if (state != null)
-      criteria.add(Restrictions.eq("state", state));
-    if (blocked != null)
-      criteria.add(Restrictions.eq("blocked", blocked));
-    if (moderation != null) {
-      LogicalExpression or = Restrictions.or(Restrictions.isNull("blockReason"), Restrictions.eq("blockReason", "")); 
-      if (moderation)
-        criteria.add(or);
-      else
-        criteria.add(Restrictions.not(or));
-    }
-    
-    return Long.parseLong(criteria
-        .setProjection(Projections.rowCount())
-        .uniqueResult().toString());
-  }
 
   private static void setOrdering(Criteria criteria, Ordering ord, boolean asc) {
     switch (ord) {
