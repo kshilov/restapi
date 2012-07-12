@@ -6,6 +6,7 @@ import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
@@ -118,6 +119,16 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     addEqRestrictionIfNotNull(criteria, "showcase", filter.showcase());
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+    if (filter.payMethod() != null) {
+      Criterion parentPayMethodMatches =
+          Restrictions.eq("payMethod", filter.payMethod());
+      Criterion subPayMethodMatches =
+          Restrictions.sqlRestriction(
+              "exists (select * from offer " +
+                  "where parent_id = {alias}.id and pay_method = ?)",
+              filter.payMethod().toString(), StandardBasicTypes.STRING);
+      criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
+    }
     addEqRestrictionIfNotNull(criteria, "payMethod", filter.payMethod());
 
     for (String region : filter.regionList()) {
