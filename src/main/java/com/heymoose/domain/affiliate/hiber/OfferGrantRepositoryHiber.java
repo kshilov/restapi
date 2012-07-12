@@ -1,25 +1,29 @@
 package com.heymoose.domain.affiliate.hiber;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Offer;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferGrantState;
+import com.heymoose.domain.affiliate.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
-import java.util.Map;
-import javax.inject.Inject;
-import javax.inject.Provider;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.heymoose.util.HibernateUtil.addEqRestrictionIfNotNull;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements OfferGrantRepository {
 
@@ -109,6 +113,32 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   @Override
+  public Iterable<OfferGrant> list(Ordering ord, boolean asc,
+                                   int offset, int limit,
+                                   OfferGrantFilter filter) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+
+    fillCriteriaFromFilter(criteria, filter);
+
+    setOrdering(criteria, ord, asc);
+    return criteria
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
+
+  @Override
+  public long count(OfferGrantFilter filter) {
+    Criteria criteria = hiber().createCriteria(getEntityClass());
+
+    fillCriteriaFromFilter(criteria, filter);
+
+    return Long.parseLong(criteria
+        .setProjection(Projections.rowCount())
+        .uniqueResult().toString());
+  }
+
+  @Override
   public long count(Long offerId, Long affiliateId, OfferGrantState state, Boolean blocked, Boolean moderation) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
     
@@ -150,6 +180,23 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     
     if (ord != Ordering.GRANT_ID)
       criteria.addOrder(order("id", asc));
+  }
+
+  private void fillCriteriaFromFilter(Criteria criteria, OfferGrantFilter filter) {
+    addEqRestrictionIfNotNull(criteria, "offer.id", filter.offerId());
+    addEqRestrictionIfNotNull(criteria, "affiliate.id", filter.affiliateId());
+    addEqRestrictionIfNotNull(criteria, "state", filter.state());
+    addEqRestrictionIfNotNull(criteria, "blocked", filter.blocked());
+
+    if (filter.moderation() != null) {
+      LogicalExpression or = Restrictions.or(
+          Restrictions.isNull("blockReason"),
+          Restrictions.eq("blockReason", ""));
+      if (filter.moderation())
+        criteria.add(or);
+      else
+        criteria.add(Restrictions.not(or));
+    }
   }
   
 }

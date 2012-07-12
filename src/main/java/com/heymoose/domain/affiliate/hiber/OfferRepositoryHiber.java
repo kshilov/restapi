@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import static com.heymoose.util.HibernateUtil.addEqRestrictionIfNotNull;
+
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
   
@@ -100,15 +102,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     
     if (ord != Ordering.ID)
       criteria.addOrder(order("id", asc));
-  }
-
-  private static Criteria addEqRestrictionIfNotNull(Criteria criteria,
-                                                    String paramName,
-                                                    Object value) {
-    if (value != null) {
-      return criteria.add(Restrictions.eq(paramName, value));
-    }
-    return criteria;
   }
 
   private static Criteria fillCriteriaFromFilter(Criteria criteria,
