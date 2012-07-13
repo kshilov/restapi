@@ -3,7 +3,6 @@ package com.heymoose.resource.api;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSortedMap;
-import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.Banner;
@@ -20,25 +19,16 @@ import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.Tracking;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
-import static com.heymoose.resource.api.ApiExceptions.badValue;
-import static com.heymoose.resource.api.ApiExceptions.illegalState;
-import static com.heymoose.resource.api.ApiExceptions.notFound;
-import static com.heymoose.resource.api.ApiExceptions.nullParam;
 import com.heymoose.util.QueryUtil;
-import static com.heymoose.util.QueryUtil.appendQueryParam;
 import com.sun.jersey.api.core.HttpRequestContext;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import static java.util.Arrays.asList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -49,14 +39,23 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static com.heymoose.resource.api.ApiExceptions.*;
+import static com.heymoose.util.QueryUtil.appendQueryParam;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 @Path("api")
 @Singleton
@@ -126,13 +125,13 @@ public class ApiResource {
     String txId = safeGetParam(params, "transaction_id");
     String sOffer = safeGetParam(params, "offer");
     String sToken = params.get("token");
-    if (sToken == null)
+    if (sToken == null || sToken.length() != 32)
       sToken = cookies().get("hm_token_" + advertiserId);
     if (sToken == null)
       throw nullParam("token");
     Token token = repo.byHQL(Token.class, "from Token where value = ?", sToken);
     if (token == null)
-      throw notFound(Token.class, token);
+      throw notFound(Token.class, sToken);
     String[] pairs = sOffer.split(",");
     Map<BaseOffer, Optional<Double>> offers = newHashMap();
     for (String pair : pairs) {
