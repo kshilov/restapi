@@ -2,6 +2,7 @@ package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
 import org.hibernate.Criteria;
@@ -111,9 +112,11 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     addEqRestrictionIfNotNull(criteria, "approved", filter.approved());
     addEqRestrictionIfNotNull(criteria, "active", filter.active());
     addEqRestrictionIfNotNull(criteria, "showcase", filter.showcase());
+
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
-    if (filter.payMethod() != null) {
+
+    if (filter.payMethod() == PayMethod.CPA) {
       Criterion parentPayMethodMatches = Restrictions.and(
           Restrictions.eq("payMethod", filter.payMethod()),
           Restrictions.eq("cpaPolicy", filter.cpaPolicy()));
@@ -129,6 +132,19 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
               new Type[] {
                   StandardBasicTypes.STRING,
                   StandardBasicTypes.STRING });
+      criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
+    }
+
+    if (filter.payMethod() == PayMethod.CPC) {
+      Criterion parentPayMethodMatches =
+          Restrictions.eq("payMethod", filter.payMethod());
+      Criterion subPayMethodMatches =
+          Restrictions.sqlRestriction(
+              "exists (select * from offer " +
+                  "where parent_id = {alias}.id " +
+                  "and pay_method = ? )",
+              filter.payMethod().toString(),
+              StandardBasicTypes.STRING);
       criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
     }
 

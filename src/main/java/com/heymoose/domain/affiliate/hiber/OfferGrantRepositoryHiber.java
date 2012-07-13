@@ -6,6 +6,7 @@ import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
 import com.heymoose.domain.affiliate.OfferGrantRepository;
 import com.heymoose.domain.affiliate.OfferRepository.Ordering;
+import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
@@ -149,7 +150,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
         criteria.add(Restrictions.not(or));
     }
 
-      if (filter.payMethod() != null) {
+      if (filter.payMethod() == PayMethod.CPA) {
         criteria.createAlias("offer", "offer");
         Criterion parentPayMethodMatches = Restrictions.and(
             Restrictions.eq("offer.payMethod", filter.payMethod()),
@@ -169,7 +170,22 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
         criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
       }
 
-      for (String region : filter.regionList()) {
+    if (filter.payMethod() == PayMethod.CPC) {
+      criteria.createAlias("offer", "offer");
+      Criterion parentPayMethodMatches =
+          Restrictions.eq("offer.payMethod", filter.payMethod());
+      Criterion subPayMethodMatches =
+          Restrictions.sqlRestriction(
+              "exists (select * from offer " +
+                  "where parent_id = {alias}.offer_id " +
+                  "and pay_method = ? )",
+              filter.payMethod().toString(),
+              StandardBasicTypes.STRING);
+      criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
+    }
+
+
+    for (String region : filter.regionList()) {
         criteria.add(Restrictions.sqlRestriction(
             "exists (select * from offer_region r " +
                 "where {alias}.offer_id = r.offer_id and region = ?)",
