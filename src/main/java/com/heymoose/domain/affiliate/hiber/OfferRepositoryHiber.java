@@ -2,15 +2,23 @@ package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.PayMethod;
+import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
+import org.joda.time.DateTime;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.joda.time.DateTime;
+
+import static com.heymoose.util.HibernateUtil.addEqRestrictionIfNotNull;
 
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
@@ -21,22 +29,12 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                              Boolean approved, Boolean active, Boolean launched, Boolean showcase,
-                              Long advertiserId) {
+                              OfferFilter filter) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
-    
-    if (advertiserId != null)
-      criteria.add(Restrictions.eq("advertiser.id", advertiserId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
-    if (launched != null)
-      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
-    if (showcase != null)
-      criteria.add(Restrictions.eq("showcase", showcase));
-    
+
+    fillCriteriaFromFilter(criteria, filter);
     setOrdering(criteria, ord, asc);
     return criteria
         .setFirstResult(offset)
@@ -45,25 +43,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
   }
 
   @Override
-  public long count(Boolean approved, Boolean active, Boolean launched, Boolean showcase, Long advertiserId) {
+  public long count(OfferFilter filter) {
     Criteria criteria = hiber().createCriteria(getEntityClass());
-    
-    if (advertiserId != null)
-      criteria.add(Restrictions.eq("advertiser.id", advertiserId));
-    if (approved != null)
-      criteria.add(Restrictions.eq("approved", approved));
-    if (active != null)
-      criteria.add(Restrictions.eq("active", active));
-    if (launched != null)
-      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
-    if (showcase != null)
-      criteria.add(Restrictions.eq("showcase", showcase));
-    
+
+    fillCriteriaFromFilter(criteria, filter);
+
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())
         .uniqueResult().toString());
   }
-  
+
+
   @Override
   public Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                           long affiliateId, Boolean active) {
@@ -114,5 +104,64 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements Offe
     
     if (ord != Ordering.ID)
       criteria.addOrder(order("id", asc));
+  }
+
+  private static Criteria fillCriteriaFromFilter(Criteria criteria,
+                                                 OfferFilter filter) {
+    addEqRestrictionIfNotNull(criteria, "advertiser.id", filter.advertiserId());
+    addEqRestrictionIfNotNull(criteria, "approved", filter.approved());
+    addEqRestrictionIfNotNull(criteria, "active", filter.active());
+    addEqRestrictionIfNotNull(criteria, "showcase", filter.showcase());
+
+    if (filter.launched() != null && filter.launched())
+      criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+
+    if (filter.payMethod() == PayMethod.CPA) {
+      Criterion parentPayMethodMatches = Restrictions.and(
+          Restrictions.eq("payMethod", filter.payMethod()),
+          Restrictions.eq("cpaPolicy", filter.cpaPolicy()));
+      Criterion subPayMethodMatches =
+          Restrictions.sqlRestriction(
+              "exists (select * from offer " +
+                  "where parent_id = {alias}.id " +
+                  "and pay_method = ? " +
+                  "and cpa_policy = ?)",
+              new String[] {
+                  filter.payMethod().toString(),
+                  filter.cpaPolicy().toString() },
+              new Type[] {
+                  StandardBasicTypes.STRING,
+                  StandardBasicTypes.STRING });
+      criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
+    }
+
+    if (filter.payMethod() == PayMethod.CPC) {
+      Criterion parentPayMethodMatches =
+          Restrictions.eq("payMethod", filter.payMethod());
+      Criterion subPayMethodMatches =
+          Restrictions.sqlRestriction(
+              "exists (select * from offer " +
+                  "where parent_id = {alias}.id " +
+                  "and pay_method = ? )",
+              filter.payMethod().toString(),
+              StandardBasicTypes.STRING);
+      criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
+    }
+
+    for (String region : filter.regionList()) {
+      criteria.add(Restrictions.sqlRestriction(
+          "exists (select * from offer_region r " +
+              "where {alias}.id = r.offer_id and region = ?)",
+          region, StandardBasicTypes.STRING));
+    }
+
+    for (Long category : filter.categoryIdList()) {
+      criteria.add(Restrictions.sqlRestriction(
+          "exists (select * from offer_category c " +
+              "where {alias}.id = c.offer_id and category_id = ?)",
+          category, StandardBasicTypes.LONG));
+    }
+    return criteria;
+
   }
 }

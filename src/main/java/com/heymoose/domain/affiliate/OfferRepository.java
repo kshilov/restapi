@@ -1,13 +1,15 @@
 package com.heymoose.domain.affiliate;
 
+import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.base.Repository;
 
 public interface OfferRepository extends Repository<Offer> {
+
   Iterable<Offer> list(Ordering ord, boolean asc, int offset, int limit,
-                       Boolean approved, Boolean active, Boolean launched, Boolean showcase,
-                       Long advertiserId);
-  long count(Boolean approved, Boolean active, Boolean launched, Boolean showcase, Long advertiserId);
-  
+                       OfferFilter filter);
+
+  long count(OfferFilter filter);
+
   Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                    long affiliateId, Boolean active);
   long countRequested(long affiliateId, Boolean active);
