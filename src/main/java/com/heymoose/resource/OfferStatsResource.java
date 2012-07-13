@@ -3,7 +3,7 @@ package com.heymoose.resource;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.heymoose.domain.affiliate.OfferStats;
+import com.heymoose.domain.affiliate.sql.OfferStats;
 import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;

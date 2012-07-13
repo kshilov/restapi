@@ -1,11 +1,15 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.AdminAccountAccessor;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.affiliate.Offer;
+import com.heymoose.domain.affiliate.OfferAction;
+import com.heymoose.domain.affiliate.OfferActionState;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.repository.OfferActions;
 import com.heymoose.hibernate.Transactional;
 import org.hibernate.Query;
 import org.joda.time.DateTime;

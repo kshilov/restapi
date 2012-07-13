@@ -1,5 +1,6 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.ErrorInfo;
 import org.joda.time.DateTime;
 
 import java.util.List;

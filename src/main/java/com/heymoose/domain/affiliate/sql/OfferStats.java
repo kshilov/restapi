@@ -1,22 +1,26 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.sql;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.affiliate.OfferActionState;
+import com.heymoose.domain.affiliate.OverallOfferStats;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.OrderingDirection;
 import com.heymoose.util.Pair;
 import com.heymoose.util.SqlLoader;
+import org.hibernate.Query;
+import org.joda.time.DateTime;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.hibernate.Query;
-import org.joda.time.DateTime;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class OfferStats {

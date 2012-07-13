@@ -1,6 +1,12 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.repository;
 
 import com.google.common.base.Optional;
+import com.heymoose.domain.affiliate.BaseOffer;
+import com.heymoose.domain.affiliate.OfferAction;
+import com.heymoose.domain.affiliate.OfferStat;
+import com.heymoose.domain.affiliate.Subs;
+import com.heymoose.domain.affiliate.Token;
+
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;

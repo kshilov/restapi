@@ -3,7 +3,7 @@ package com.heymoose.domain.affiliate.hiber;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.domain.affiliate.ErrorInfo;
-import com.heymoose.domain.affiliate.ErrorInfoRepository;
+import com.heymoose.domain.affiliate.repository.ErrorInfoRepository;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;

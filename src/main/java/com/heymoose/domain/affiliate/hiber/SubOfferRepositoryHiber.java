@@ -1,7 +1,7 @@
 package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.affiliate.SubOffer;
-import com.heymoose.domain.affiliate.SubOfferRepository;
+import com.heymoose.domain.affiliate.repository.SubOfferRepository;
 import com.heymoose.domain.hiber.RepositoryHiber;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -12,7 +12,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @Singleton
-public class SubOfferRepositoryHiber extends RepositoryHiber<SubOffer> implements SubOfferRepository {
+public class SubOfferRepositoryHiber extends RepositoryHiber<SubOffer> implements
+    SubOfferRepository {
 
   @Inject
   public SubOfferRepositoryHiber(Provider<Session> sessionProvider) {

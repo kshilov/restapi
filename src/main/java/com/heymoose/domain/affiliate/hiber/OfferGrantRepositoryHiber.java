@@ -4,8 +4,8 @@ import com.heymoose.domain.User;
 import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
+import com.heymoose.domain.affiliate.repository.OfferGrantRepository;
+import com.heymoose.domain.affiliate.repository.OfferRepository.Ordering;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.base.Repo;
@@ -28,7 +28,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.heymoose.util.HibernateUtil.addEqRestrictionIfNotNull;
 
-public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements OfferGrantRepository {
+public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements
+    OfferGrantRepository {
 
   private final Repo repo;
 

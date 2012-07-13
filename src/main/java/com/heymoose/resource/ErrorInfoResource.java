@@ -3,7 +3,7 @@ package com.heymoose.resource;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.domain.affiliate.ErrorInfo;
-import com.heymoose.domain.affiliate.ErrorInfoRepository;
+import com.heymoose.domain.affiliate.repository.ErrorInfoRepository;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlErrorsInfo;

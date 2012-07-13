@@ -1,17 +1,19 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.hiber;
 
+import com.heymoose.domain.affiliate.KeywordPattern;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.NameValuePair;
 import com.heymoose.util.URLEncodedUtils;
+import org.joda.time.DateTime;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.joda.time.DateTime;
 
 @Singleton
 public class KeywordPatternDao {

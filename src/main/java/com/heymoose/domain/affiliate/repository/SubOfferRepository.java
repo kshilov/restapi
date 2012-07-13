@@ -1,5 +1,6 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.base.Repository;
 
 public interface SubOfferRepository extends Repository<SubOffer> {

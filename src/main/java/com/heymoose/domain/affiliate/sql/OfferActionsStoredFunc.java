@@ -1,8 +1,12 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.sql;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.heymoose.domain.affiliate.Offer;
+import com.heymoose.domain.affiliate.OfferAction;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.hiber.OfferActionsHiber;
+import com.heymoose.domain.affiliate.repository.OfferActions;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
@@ -31,7 +35,7 @@ public final class OfferActionsStoredFunc implements OfferActions {
     if (offer != null) {
       return repo.session()
           .createSQLQuery("select approve_expired(:offer_id)")
-          .setParameter("offer_id", offer.id)
+          .setParameter("offer_id", offer.id())
           .list().size();
     }
     int size = repo.session()

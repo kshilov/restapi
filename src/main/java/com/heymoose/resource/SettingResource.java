@@ -1,6 +1,6 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.affiliate.KeywordPatternDao;
+import com.heymoose.domain.affiliate.hiber.KeywordPatternDao;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.xml.XmlSettings;

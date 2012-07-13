@@ -1,7 +1,7 @@
 package com.heymoose.domain.affiliate.hiber;
 
 import com.heymoose.domain.affiliate.Offer;
-import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.repository.OfferRepository;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.hiber.RepositoryHiber;
@@ -21,7 +21,8 @@ import javax.inject.Singleton;
 import static com.heymoose.util.HibernateUtil.addEqRestrictionIfNotNull;
 
 @Singleton
-public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements OfferRepository {
+public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
+    OfferRepository {
   
   @Inject
   public OfferRepositoryHiber(Provider<Session> sessionProvider) {

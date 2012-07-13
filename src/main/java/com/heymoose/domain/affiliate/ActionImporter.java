@@ -2,24 +2,27 @@ package com.heymoose.domain.affiliate;
 
 import com.google.common.base.Optional;
 import com.heymoose.domain.affiliate.base.Repo;
+import com.heymoose.domain.affiliate.repository.Tracking;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.api.ApiRequestException;
-import static com.heymoose.util.QueryUtil.appendQueryParam;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Map;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
+
+import static com.heymoose.util.QueryUtil.appendQueryParam;
 
 @Singleton
 public class ActionImporter implements Runnable {

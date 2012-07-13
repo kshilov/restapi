@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import static com.heymoose.domain.affiliate.OfferStats.*;
+import static com.heymoose.domain.affiliate.sql.OfferStats.*;
 
 @XmlRootElement(name = "stats")
 public final class XmlTotalStats {

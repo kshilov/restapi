@@ -1,5 +1,7 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.Offer;
+import com.heymoose.domain.affiliate.OfferAction;
 import com.heymoose.hibernate.Transactional;
 
 import java.util.Set;

@@ -1,8 +1,8 @@
 package com.heymoose.resource;
 
 import com.heymoose.domain.affiliate.Offer;
-import com.heymoose.domain.affiliate.OfferActions;
-import com.heymoose.domain.affiliate.OfferRepository;
+import com.heymoose.domain.affiliate.repository.OfferActions;
+import com.heymoose.domain.affiliate.repository.OfferRepository;
 import com.heymoose.hibernate.Transactional;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.Set;

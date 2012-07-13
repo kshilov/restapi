@@ -1,5 +1,6 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.repository;
 
+import com.heymoose.domain.affiliate.Offer;
 import com.heymoose.domain.affiliate.repository.OfferFilter;
 import com.heymoose.domain.base.Repository;
 

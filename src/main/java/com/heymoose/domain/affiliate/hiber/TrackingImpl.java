@@ -1,15 +1,35 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.hiber;
 
 import com.google.common.base.Optional;
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.AdminAccountAccessor;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.affiliate.BaseOffer;
+import com.heymoose.domain.affiliate.CpaPolicy;
+import com.heymoose.domain.affiliate.Offer;
+import com.heymoose.domain.affiliate.OfferAction;
+import com.heymoose.domain.affiliate.OfferGrant;
+import com.heymoose.domain.affiliate.OfferStat;
+import com.heymoose.domain.affiliate.PayMethod;
+import com.heymoose.domain.affiliate.Subs;
+import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.counter.BufferedClicks;
 import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.domain.affiliate.repository.OfferGrantRepository;
+import com.heymoose.domain.affiliate.repository.Tracking;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.QueryUtil;
+import org.apache.commons.io.IOUtils;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,15 +39,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.apache.commons.io.IOUtils;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class TrackingImpl implements Tracking {
@@ -138,7 +151,9 @@ public class TrackingImpl implements Tracking {
       } else throw new IllegalStateException();
       if (existent != null && cost2 != null)
         cost = cost2;
-      BigDecimal amount = cost.divide(new BigDecimal((100 + source.affiliate().fee()) / 100.0), 2, RoundingMode.CEILING);
+      BigDecimal amount = cost.divide(
+          new BigDecimal((100 + source.affiliate().fee()) / 100.0), 2,
+          RoundingMode.CEILING);
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
           source.bannerId(),
