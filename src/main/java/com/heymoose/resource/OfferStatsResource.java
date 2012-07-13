@@ -3,9 +3,9 @@ package com.heymoose.resource;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.heymoose.domain.affiliate.OfferStats;
-import com.heymoose.domain.affiliate.OverallOfferStats;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.infrastructure.OfferStats;
+import com.heymoose.resource.xml.XmlOverallOfferStats;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlTotalStats;
 import com.heymoose.util.OrderingDirection;
@@ -54,7 +54,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.allOfferStats(granted, common);
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.allOfferStats(granted, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -79,7 +79,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.affOfferStats(affId, common);
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.affOfferStats(affId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -104,7 +104,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.advOfferStats(advId, common);
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.advOfferStats(advId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -127,7 +127,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.affStats(common);
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.affStats(common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -150,7 +150,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.advStats(common);
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.advStats(common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -190,7 +190,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.affStatsByOffer(offerId, common);
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.affStatsByOffer(offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
@@ -215,7 +215,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.sourceIdStats(
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.sourceIdStats(
         affId, offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
@@ -269,7 +269,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.subIdStats(
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.subIdStats(
         affId, offerId, filter, groupBy, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
@@ -295,7 +295,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p =stats.refererStats(
+    Pair<List<XmlOverallOfferStats>, Long> p =stats.refererStats(
         affId, offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;
@@ -321,7 +321,7 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<OverallOfferStats>, Long> p = stats.keywordsStats(
+    Pair<List<XmlOverallOfferStats>, Long> p = stats.keywordsStats(
         affId, offerId, common);
     list.stats.addAll(p.fst);
     list.count = p.snd;

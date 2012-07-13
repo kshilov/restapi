@@ -1,12 +1,12 @@
 package com.heymoose.test.base;
 
 import com.google.inject.Injector;
-import com.heymoose.domain.Role;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Subs;
-import com.heymoose.domain.affiliate.counter.BufferedClicks;
-import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.domain.model.Role;
+import com.heymoose.domain.model.offer.CpaPolicy;
+import com.heymoose.domain.model.offer.PayMethod;
+import com.heymoose.domain.model.offer.Subs;
+import com.heymoose.domain.model.counter.BufferedClicks;
+import com.heymoose.domain.model.counter.BufferedShows;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlErrorsInfo;

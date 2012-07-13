@@ -1,7 +1,7 @@
 package com.heymoose.test;
 
 import com.google.common.base.Strings;
-import com.heymoose.domain.affiliate.ErrorInfo;
+import com.heymoose.domain.model.errorinfo.ErrorInfo;
 import com.heymoose.resource.xml.XmlErrorInfo;
 import com.heymoose.resource.xml.XmlErrorsInfo;
 import com.heymoose.test.base.RestTest;

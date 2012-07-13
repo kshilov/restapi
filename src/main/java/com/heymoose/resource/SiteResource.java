@@ -1,12 +1,13 @@
 package com.heymoose.resource;
 
 import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.User;
-import com.heymoose.domain.affiliate.Category;
-import com.heymoose.domain.affiliate.Lang;
-import com.heymoose.domain.affiliate.Site;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
+
+import com.heymoose.domain.model.Lang;
+import com.heymoose.domain.model.Site;
+import com.heymoose.domain.model.User;
+import com.heymoose.domain.model.offer.Category;
+import com.heymoose.domain.model.base.Repo;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.List;

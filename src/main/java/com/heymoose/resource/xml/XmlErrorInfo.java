@@ -1,7 +1,7 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.base.Objects;
-import com.heymoose.domain.affiliate.ErrorInfo;
+import com.heymoose.domain.model.errorinfo.ErrorInfo;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 

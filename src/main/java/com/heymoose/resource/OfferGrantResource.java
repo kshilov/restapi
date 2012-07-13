@@ -1,15 +1,15 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.Offer;
-import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferGrantState;
-import com.heymoose.domain.affiliate.OfferRepository;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
-import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.model.User;
+import com.heymoose.domain.model.UserRepository;
+import com.heymoose.domain.model.grant.OfferGrant;
+import com.heymoose.domain.model.grant.OfferGrantFilter;
+import com.heymoose.domain.model.grant.OfferGrantRepository;
+import com.heymoose.domain.model.grant.OfferGrantState;
+import com.heymoose.domain.model.offer.Offer;
+import com.heymoose.domain.model.offer.OfferRepository;
+import com.heymoose.domain.model.offer.OfferRepository.Ordering;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;

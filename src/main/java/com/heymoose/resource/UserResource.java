@@ -1,15 +1,15 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.AdminAccountAccessor;
-import com.heymoose.domain.affiliate.MessengerType;
-import com.heymoose.domain.Role;
-import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.UserRepository.Ordering;
-import com.heymoose.domain.accounting.Account;
-import com.heymoose.domain.accounting.Accounting;
-import com.heymoose.domain.accounting.AccountingEntry;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.model.AdminAccountAccessor;
+import com.heymoose.domain.model.MessengerType;
+import com.heymoose.domain.model.Role;
+import com.heymoose.domain.model.User;
+import com.heymoose.domain.model.UserRepository;
+import com.heymoose.domain.model.UserRepository.Ordering;
+import com.heymoose.domain.model.accounting.Account;
+import com.heymoose.domain.service.Accounting;
+import com.heymoose.domain.model.accounting.AccountingEntry;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;

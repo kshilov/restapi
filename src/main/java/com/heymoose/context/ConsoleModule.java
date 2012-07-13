@@ -1,6 +1,7 @@
 package com.heymoose.context;
 
-import com.heymoose.domain.affiliate.ActionImporter;
+import com.heymoose.infrastructure.ActionImporter;
+
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

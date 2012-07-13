@@ -4,8 +4,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.heymoose.domain.affiliate.counter.BufferedClicks;
-import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.domain.model.counter.BufferedClicks;
+import com.heymoose.domain.model.counter.BufferedShows;
 import javax.servlet.ServletContextEvent;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 

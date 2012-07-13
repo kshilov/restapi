@@ -1,9 +1,9 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.affiliate.Category;
-import com.heymoose.domain.affiliate.CategoryGroup;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.model.offer.Category;
+import com.heymoose.domain.model.offer.CategoryGroup;
+import com.heymoose.domain.model.base.Repo;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlCategoryGroups;

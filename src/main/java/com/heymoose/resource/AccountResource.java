@@ -1,12 +1,12 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.User;
-import com.heymoose.domain.Withdraw;
-import com.heymoose.domain.accounting.Account;
-import com.heymoose.domain.accounting.Accounting;
-import com.heymoose.domain.accounting.AccountingEntry;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.model.User;
+import com.heymoose.domain.model.Withdraw;
+import com.heymoose.domain.model.accounting.Account;
+import com.heymoose.domain.service.Accounting;
+import com.heymoose.domain.model.accounting.AccountingEntry;
+import com.heymoose.domain.model.base.Repo;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlAccountingEntries;
 import com.heymoose.resource.xml.XmlWithdraws;

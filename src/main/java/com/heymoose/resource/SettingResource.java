@@ -1,8 +1,8 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.affiliate.KeywordPatternDao;
-import com.heymoose.domain.settings.Settings;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.infrastructure.hibernate.KeywordPatternDao;
+import com.heymoose.domain.model.settings.Settings;
+import com.heymoose.infrastructure.hibernate.Transactional;
 import com.heymoose.resource.xml.XmlSettings;
 import static com.heymoose.util.WebAppUtil.checkNotNull;
 import java.util.Map;

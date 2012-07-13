@@ -1,9 +1,9 @@
 package com.heymoose.test;
 
-import com.heymoose.domain.Role;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Subs;
+import com.heymoose.domain.model.Role;
+import com.heymoose.domain.model.offer.CpaPolicy;
+import com.heymoose.domain.model.offer.PayMethod;
+import com.heymoose.domain.model.offer.Subs;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;

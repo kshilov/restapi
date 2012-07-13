@@ -6,11 +6,12 @@ import com.google.inject.Stage;
 import com.heymoose.context.CommonModule;
 import com.heymoose.context.ConsoleModule;
 import com.heymoose.context.SettingsModule;
-import com.heymoose.domain.affiliate.ActionImporter;
-import com.heymoose.domain.affiliate.counter.BufferedClicks;
-import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.infrastructure.ActionImporter;
+import com.heymoose.domain.model.counter.BufferedClicks;
+import com.heymoose.domain.model.counter.BufferedShows;
 import java.net.URL;
 import java.util.HashMap;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
