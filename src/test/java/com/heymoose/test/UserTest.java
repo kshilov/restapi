@@ -1,6 +1,6 @@
 package com.heymoose.test;
 
-import com.heymoose.domain.model.Role;
+import com.heymoose.domain.user.Role;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
 import com.sun.jersey.api.client.UniformInterfaceException;

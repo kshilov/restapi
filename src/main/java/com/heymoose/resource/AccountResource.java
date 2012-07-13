@@ -1,16 +1,16 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.model.User;
-import com.heymoose.domain.model.Withdraw;
-import com.heymoose.domain.model.accounting.Account;
-import com.heymoose.domain.service.Accounting;
-import com.heymoose.domain.model.accounting.AccountingEntry;
-import com.heymoose.domain.model.base.Repo;
-import com.heymoose.infrastructure.hibernate.Transactional;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.accounting.Withdraw;
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlAccountingEntries;
 import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.util.SqlLoader;
+import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -31,7 +31,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.heymoose.resource.Exceptions.notFound;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Path("account")
 @Singleton

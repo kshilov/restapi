@@ -1,18 +1,18 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import com.heymoose.domain.model.Banner;
-import com.heymoose.domain.model.Role;
-import com.heymoose.domain.model.User;
-import com.heymoose.domain.model.Withdraw;
-import com.heymoose.domain.model.accounting.Account;
-import com.heymoose.domain.model.accounting.AccountingEntry;
-import com.heymoose.domain.model.errorinfo.ErrorInfo;
-import com.heymoose.domain.model.offer.Category;
-import com.heymoose.domain.model.grant.OfferGrant;
-import com.heymoose.domain.model.offer.Offer;
-import com.heymoose.domain.model.offer.SubOffer;
-import com.heymoose.util.SqlLoader;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.accounting.Withdraw;
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.errorinfo.ErrorInfo;
+import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.infrastructure.util.SqlLoader;
 import java.util.List;
 import java.util.Map;
 

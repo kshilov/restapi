@@ -1,11 +1,11 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.model.accounting.Account;
-import com.heymoose.domain.service.Accounting;
-import com.heymoose.domain.model.accounting.AccountingEntry;
-import com.heymoose.domain.model.accounting.AccountingEvent;
-import com.heymoose.domain.model.base.Repo;
-import com.heymoose.infrastructure.hibernate.Transactional;
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.persistence.Transactional;
 import static com.heymoose.resource.Exceptions.badRequest;
 import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.resource.Exceptions.unauthorized;

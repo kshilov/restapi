@@ -3,9 +3,9 @@ package com.heymoose.test.base;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.heymoose.context.CommonModule;
-import com.heymoose.context.JerseyModule;
-import com.heymoose.context.ResourceModule;
+import com.heymoose.infrastructure.context.CommonModule;
+import com.heymoose.infrastructure.context.JerseyModule;
+import com.heymoose.infrastructure.context.ResourceModule;
 import org.junit.Ignore;
 
 @Ignore

@@ -1,7 +1,7 @@
 package com.heymoose.resource.api;
 
-import com.heymoose.domain.model.Role;
-import com.heymoose.domain.model.base.IdEntity;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.base.IdEntity;
 
 public class ApiExceptions {
 

@@ -1,8 +1,8 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Lists;
-import com.heymoose.domain.model.offer.Category;
-import com.heymoose.domain.model.offer.CategoryGroup;
+import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.offer.CategoryGroup;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

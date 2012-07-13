@@ -1,14 +1,14 @@
 package com.heymoose.test;
 
-import com.heymoose.domain.model.Role;
-import com.heymoose.domain.model.offer.CpaPolicy;
-import com.heymoose.domain.model.offer.PayMethod;
-import com.heymoose.domain.model.offer.Subs;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.domain.offer.Subs;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
-import com.heymoose.util.QueryUtil;
-import com.heymoose.util.URLEncodedUtils;
+import com.heymoose.infrastructure.util.QueryUtil;
+import com.heymoose.infrastructure.util.URLEncodedUtils;
 import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;

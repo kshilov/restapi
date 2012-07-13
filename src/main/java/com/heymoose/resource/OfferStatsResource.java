@@ -3,13 +3,13 @@ package com.heymoose.resource;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.heymoose.infrastructure.OfferStats;
+import com.heymoose.infrastructure.service.OfferStats;
 import com.heymoose.resource.xml.XmlOverallOfferStats;
-import com.heymoose.infrastructure.hibernate.Transactional;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlTotalStats;
-import com.heymoose.util.OrderingDirection;
-import com.heymoose.util.Pair;
+import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.Pair;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Singleton
 @Path("stats")

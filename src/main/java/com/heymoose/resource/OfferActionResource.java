@@ -1,10 +1,10 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.service.OfferActions;
-import com.heymoose.domain.model.offer.Offer;
-import com.heymoose.domain.model.offer.OfferRepository;
-import com.heymoose.infrastructure.hibernate.Transactional;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import com.heymoose.domain.action.OfferActions;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferRepository;
+import com.heymoose.infrastructure.persistence.Transactional;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;

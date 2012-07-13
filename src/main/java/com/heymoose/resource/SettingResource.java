@@ -1,10 +1,10 @@
 package com.heymoose.resource;
 
-import com.heymoose.infrastructure.hibernate.KeywordPatternDao;
-import com.heymoose.domain.model.settings.Settings;
-import com.heymoose.infrastructure.hibernate.Transactional;
+import com.heymoose.infrastructure.persistence.KeywordPatternDao;
+import com.heymoose.domain.settings.Settings;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.XmlSettings;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;

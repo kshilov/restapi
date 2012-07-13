@@ -1,15 +1,15 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.model.User;
-import com.heymoose.domain.model.UserRepository;
-import com.heymoose.domain.model.grant.OfferGrant;
-import com.heymoose.domain.model.grant.OfferGrantFilter;
-import com.heymoose.domain.model.grant.OfferGrantRepository;
-import com.heymoose.domain.model.grant.OfferGrantState;
-import com.heymoose.domain.model.offer.Offer;
-import com.heymoose.domain.model.offer.OfferRepository;
-import com.heymoose.domain.model.offer.OfferRepository.Ordering;
-import com.heymoose.infrastructure.hibernate.Transactional;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.user.UserRepository;
+import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.grant.OfferGrantFilter;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.grant.OfferGrantState;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferRepository;
+import com.heymoose.domain.offer.OfferRepository.Ordering;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;
@@ -32,7 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 
 @Path("grants")

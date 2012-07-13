@@ -1,7 +1,7 @@
 package com.heymoose.test.base;
 
 import com.google.inject.Injector;
-import com.heymoose.server.Launcher;
+import com.heymoose.infrastructure.server.Launcher;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import org.hibernate.Criteria;

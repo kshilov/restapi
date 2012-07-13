@@ -1,6 +1,6 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.model.mlm.Mlm;
+import com.heymoose.infrastructure.service.Mlm;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;

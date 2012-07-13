@@ -4,26 +4,26 @@
 
 <hibernate-configuration>
   <session-factory>
-    <mapping class="com.heymoose.domain.model.offer.Offer"/>
-    <mapping class="com.heymoose.domain.model.User"/>
-    <mapping class="com.heymoose.domain.model.Banner"/>
-    <mapping class="com.heymoose.domain.model.Withdraw"/>
-    <mapping class="com.heymoose.domain.model.settings.Setting"/>
-    <mapping class="com.heymoose.domain.model.statistics.OfferStat"/>
-    <mapping class="com.heymoose.domain.model.Site"/>
-    <mapping class="com.heymoose.domain.model.offer.BaseOffer"/>
-    <mapping class="com.heymoose.domain.model.offer.SubOffer"/>
-    <mapping class="com.heymoose.domain.model.grant.OfferGrant"/>
-    <mapping class="com.heymoose.domain.model.offer.Category"/>
-    <mapping class="com.heymoose.domain.model.IpSegment"/>
-    <mapping class="com.heymoose.domain.model.Token"/>
-    <mapping class="com.heymoose.domain.model.accounting.Account"/>
-    <mapping class="com.heymoose.domain.model.AdminAccount"/>
-    <mapping class="com.heymoose.domain.model.AdminAccountNotConfirmed"/>
-    <mapping class="com.heymoose.domain.model.accounting.AccountingEntry"/>
-    <mapping class="com.heymoose.domain.model.accounting.AccountingTransaction"/>
-    <mapping class="com.heymoose.domain.model.action.OfferAction"/>
-    <mapping class="com.heymoose.domain.model.errorinfo.ErrorInfo" />
-    <mapping class="com.heymoose.domain.model.offer.CategoryGroup" />
+    <mapping class="com.heymoose.domain.offer.Offer"/>
+    <mapping class="com.heymoose.domain.user.User"/>
+    <mapping class="com.heymoose.domain.offer.Banner"/>
+    <mapping class="com.heymoose.domain.accounting.Withdraw"/>
+    <mapping class="com.heymoose.domain.settings.Setting"/>
+    <mapping class="com.heymoose.domain.statistics.OfferStat"/>
+    <mapping class="com.heymoose.domain.user.Site"/>
+    <mapping class="com.heymoose.domain.offer.BaseOffer"/>
+    <mapping class="com.heymoose.domain.offer.SubOffer"/>
+    <mapping class="com.heymoose.domain.grant.OfferGrant"/>
+    <mapping class="com.heymoose.domain.offer.Category"/>
+    <mapping class="com.heymoose.infrastructure.persistence.IpSegment"/>
+    <mapping class="com.heymoose.domain.statistics.Token"/>
+    <mapping class="com.heymoose.domain.accounting.Account"/>
+    <mapping class="com.heymoose.domain.user.AdminAccount"/>
+    <mapping class="com.heymoose.domain.user.AdminAccountNotConfirmed"/>
+    <mapping class="com.heymoose.domain.accounting.AccountingEntry"/>
+    <mapping class="com.heymoose.domain.accounting.AccountingTransaction"/>
+    <mapping class="com.heymoose.domain.action.OfferAction"/>
+    <mapping class="com.heymoose.domain.errorinfo.ErrorInfo" />
+    <mapping class="com.heymoose.domain.offer.CategoryGroup" />
   </session-factory>
 </hibernate-configuration>
