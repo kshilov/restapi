@@ -1,4 +1,4 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.hiber;
 
 import static com.google.common.collect.Sets.newHashSet;
 import java.math.BigInteger;
@@ -7,6 +7,10 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+
+import com.heymoose.domain.affiliate.Category;
+import com.heymoose.domain.affiliate.Offer;
+import com.heymoose.domain.affiliate.Site;
 import org.hibernate.Session;
 
 @Singleton

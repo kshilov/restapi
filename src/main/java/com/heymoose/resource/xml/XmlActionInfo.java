@@ -1,10 +1,10 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.resource.xml;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "action")
-public class ActionInfo {
+public class XmlActionInfo {
   @XmlElement(name = "token")
   public String token;
 

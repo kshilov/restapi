@@ -7,7 +7,7 @@ import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.Subs;
 import com.heymoose.domain.affiliate.counter.BufferedClicks;
 import com.heymoose.domain.affiliate.counter.BufferedShows;
-import com.heymoose.resource.xml.OverallOfferStatsList;
+import com.heymoose.resource.xml.XmlOverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlErrorsInfo;
 import com.heymoose.resource.xml.XmlOffer;
@@ -241,119 +241,119 @@ public class Heymoose {
 
   // stats
 
-  public OverallOfferStatsList getOffersAllStats(boolean granted) {
+  public XmlOverallOfferStatsList getOffersAllStats(boolean granted) {
     return getOffersAllStats(granted, null);
   }
 
-  public OverallOfferStatsList getOffersAllStats(boolean granted, Paging paging) {
+  public XmlOverallOfferStatsList getOffersAllStats(boolean granted, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("all")
         .queryParam("granted", Boolean.toString(granted));
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getOffersStatsByAffiliate(boolean granted, Long affId) {
+  public XmlOverallOfferStatsList getOffersStatsByAffiliate(boolean granted, Long affId) {
     return getOffersStatsByAffiliate(granted, affId, null);
   }
 
-  public OverallOfferStatsList getOffersStatsByAffiliate(boolean granted, Long affId, Paging paging) {
+  public XmlOverallOfferStatsList getOffersStatsByAffiliate(boolean granted, Long affId, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("aff")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getOffersStatsByAdvertizer(boolean granted, Long advId) {
+  public XmlOverallOfferStatsList getOffersStatsByAdvertizer(boolean granted, Long advId) {
     return getOffersStatsByAdvertizer(granted, advId, null);
   }
 
-  public OverallOfferStatsList getOffersStatsByAdvertizer(boolean granted, Long advId, Paging paging) {
+  public XmlOverallOfferStatsList getOffersStatsByAdvertizer(boolean granted, Long advId, Paging paging) {
     WebResource wr = client.path("stats").path("offers").path("adv")
         .queryParam("granted", Boolean.toString(granted));
     if (advId != null) wr = wr.queryParam("adv_id", advId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getAffiliatesAllStats(boolean granted) {
+  public XmlOverallOfferStatsList getAffiliatesAllStats(boolean granted) {
     return getAffiliatesAllStats(granted, null);
   }
 
-  public OverallOfferStatsList getAffiliatesAllStats(boolean granted, Paging paging) {
+  public XmlOverallOfferStatsList getAffiliatesAllStats(boolean granted, Paging paging) {
     WebResource wr = client.path("stats").path("affiliates").path("all")
         .queryParam("granted", Boolean.toString(granted));
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getAdvertiserAllStats(boolean expired) {
+  public XmlOverallOfferStatsList getAdvertiserAllStats(boolean expired) {
     return getAdvertiserAllStats(expired, null);
   }
 
-  public OverallOfferStatsList getAdvertiserAllStats(boolean expired, Paging paging) {
+  public XmlOverallOfferStatsList getAdvertiserAllStats(boolean expired, Paging paging) {
     WebResource wr = client.path("stats").path("advertisers").path("all")
         .queryParam("expired", Boolean.toString(expired));
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId) {
+  public XmlOverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId) {
     return getAffiliatesStatsByOffer(granted, offerId, null);
   }
 
-  public OverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId, Paging paging) {
+  public XmlOverallOfferStatsList getAffiliatesStatsByOffer(boolean granted, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("affiliates").path("offer")
         .queryParam("granted", Boolean.toString(granted));
     if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Long offerId) {
+  public XmlOverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Long offerId) {
     return getSourceIdStats(granted, affId, offerId, null);
   }
 
-  public OverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Long offerId, Paging paging) {
+  public XmlOverallOfferStatsList getSourceIdStats(boolean granted, Long affId, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("source_ids")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
     if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getRefererStats(boolean granted, Long affId, Long offerId) {
+  public XmlOverallOfferStatsList getRefererStats(boolean granted, Long affId, Long offerId) {
     return getRefererStats(granted, affId, offerId, null);
   }
 
-  public OverallOfferStatsList getRefererStats(boolean granted, Long affId, Long offerId, Paging paging) {
+  public XmlOverallOfferStatsList getRefererStats(boolean granted, Long affId, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("referer")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
     if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Long offerId) {
+  public XmlOverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Long offerId) {
     return getKeywordsStats(granted, affId, offerId, null);
   }
 
-  public OverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Long offerId, Paging paging) {
+  public XmlOverallOfferStatsList getKeywordsStats(boolean granted, Long affId, Long offerId, Paging paging) {
     WebResource wr = client.path("stats").path("keywords")
         .queryParam("granted", Boolean.toString(granted));
     if (affId != null) wr = wr.queryParam("aff_id", affId.toString());
     if (offerId != null) wr = wr.queryParam("offer_id", offerId.toString());
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
-  public OverallOfferStatsList getSubIdStats(boolean granted, Long affId, Long offerId, Subs subs, List<Boolean> grouping) {
+  public XmlOverallOfferStatsList getSubIdStats(boolean granted, Long affId, Long offerId, Subs subs, List<Boolean> grouping) {
     return getSubIdStats(granted, affId, offerId, subs, grouping, null);
   }
 
-  public OverallOfferStatsList getSubIdStats(
+  public XmlOverallOfferStatsList getSubIdStats(
       boolean granted, Long affId, Long offerId, Subs subs, List<Boolean> grouping, Paging paging) {
 
     WebResource wr = client.path("stats").path("sub_ids")
@@ -365,7 +365,7 @@ public class Heymoose {
       if (grouping.get(i)) wr = wr.queryParam("g_sub_id" + (i == 0 ? "" : i), Boolean.toString(grouping.get(i)));
     }
     if (paging != null) wr = paging.addToWebQuery(wr);
-    return wr.get(OverallOfferStatsList.class);
+    return wr.get(XmlOverallOfferStatsList.class);
   }
 
   public void errorClick(Long affiliateId) {

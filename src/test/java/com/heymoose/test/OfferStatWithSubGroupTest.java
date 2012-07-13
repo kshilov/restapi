@@ -5,7 +5,7 @@ import com.heymoose.domain.Role;
 import com.heymoose.domain.affiliate.CpaPolicy;
 import com.heymoose.domain.affiliate.PayMethod;
 import com.heymoose.domain.affiliate.Subs;
-import com.heymoose.resource.xml.OverallOfferStatsList;
+import com.heymoose.resource.xml.XmlOverallOfferStatsList;
 import com.heymoose.test.base.RestTest;
 import com.heymoose.util.Pair;
 import com.heymoose.util.QueryUtil;
@@ -136,7 +136,7 @@ public class OfferStatWithSubGroupTest extends RestTest {
     heymoose().flushBufferedCounters();
   }
 
-  private OverallOfferStatsList stats;
+  private XmlOverallOfferStatsList stats;
 
   @Test
   public void getSourceIdStatsGranted() {

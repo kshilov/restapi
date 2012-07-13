@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.affiliate.OfferActionState;
-import com.heymoose.domain.affiliate.OverallOfferStats;
+import com.heymoose.resource.xml.XmlOverallOfferStats;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.util.OrderingDirection;
@@ -74,8 +74,8 @@ public class OfferStats {
     this.repo = repo;
   }
 
-  private List<OverallOfferStats> toStats(List<Object[]> dbResult) {
-    List<OverallOfferStats> result = newArrayList();
+  private List<XmlOverallOfferStats> toStats(List<Object[]> dbResult) {
+    List<XmlOverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
 
       long shows = SqlLoader.extractLong(record[0]);
@@ -92,14 +92,14 @@ public class OfferStats {
       double ecpc = SqlLoader.extractDouble(record[11]);
       double ecpm = SqlLoader.extractDouble(record[12]);
 
-      result.add(new OverallOfferStats(id, name, shows, clicks, leads, sales,
+      result.add(new XmlOverallOfferStats(id, name, shows, clicks, leads, sales,
           confirmedRevenue, notConfirmedRevenue, canceledRevenue, ctr, cr, ecpc, ecpm));
     }
     return result;
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> allOfferStats(boolean granted,
+  public Pair<List<XmlOverallOfferStats>, Long> allOfferStats(boolean granted,
                                                            CommonParams commonParams) {
     Map<String, ?> templateParams = templateParamsBuilder(commonParams)
         .put("groupByOffer", true)
@@ -109,7 +109,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> affOfferStats(Long affiliateId,
+  public Pair<List<XmlOverallOfferStats>, Long> affOfferStats(Long affiliateId,
                                                            CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
         .put("groupByOffer", true)
@@ -119,7 +119,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> advOfferStats(Long advertiserId,
+  public Pair<List<XmlOverallOfferStats>, Long> advOfferStats(Long advertiserId,
                                                            CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
         .put("groupByOffer", true)
@@ -129,7 +129,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> affStats(CommonParams common) {
+  public Pair<List<XmlOverallOfferStats>, Long> affStats(CommonParams common) {
 
     Map<String, ?> templateParams = templateParamsBuilder(common)
         .put("groupByAffiliate", true).build();
@@ -139,7 +139,7 @@ public class OfferStats {
 
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> advStats(CommonParams common) {
+  public Pair<List<XmlOverallOfferStats>, Long> advStats(CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
         .put("groupByAdvertiser", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
@@ -147,7 +147,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> affStatsByOffer(
+  public Pair<List<XmlOverallOfferStats>, Long> affStatsByOffer(
       long offerId, CommonParams common) {
 
     Map<String, ?> templateParams = templateParamsBuilder(common)
@@ -159,7 +159,7 @@ public class OfferStats {
 
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> sourceIdStats(Long affId,
+  public Pair<List<XmlOverallOfferStats>, Long> sourceIdStats(Long affId,
                                                            Long offerId,
                                                            CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams = templateParamsBuilder(common);
@@ -179,7 +179,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public List<OverallOfferStats> topAffiliates(DateTime from, DateTime to, int offset, int limit) {
+  public List<XmlOverallOfferStats> topAffiliates(DateTime from, DateTime to, int offset, int limit) {
     String sql =
         "select offer_stat.aff_id id, p.email e, sum(confirmed_revenue) r " +
             "from offer o " +
@@ -201,28 +201,28 @@ public class OfferStats {
         .setParameter("limit", limit)
         .list();
 
-    List<OverallOfferStats> result = newArrayList();
+    List<XmlOverallOfferStats> result = newArrayList();
     for (Object[] record : dbResult) {
       long id = SqlLoader.extractLong(record[0]);
       if (id == 0L)
         continue;
       String name = (String) record[1];
       double confirmedRevenue = SqlLoader.extractDouble(record[2]);
-      result.add(new OverallOfferStats(id, name, confirmedRevenue));
+      result.add(new XmlOverallOfferStats(id, name, confirmedRevenue));
     }
     return result;
   }
 
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> subIdStats(
+  public Pair<List<XmlOverallOfferStats>, Long> subIdStats(
       Long affId, Long offerId, Map<String, String> filter,
       Set<String> grouping, CommonParams common) {
 
     // empty response if no grouping given
     if (grouping.size() == 0)
-      return new Pair<List<OverallOfferStats>, Long>(
-          ImmutableList.<OverallOfferStats>of(), 0L);
+      return new Pair<List<XmlOverallOfferStats>, Long>(
+          ImmutableList.<XmlOverallOfferStats>of(), 0L);
 
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common);
@@ -243,7 +243,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> refererStats(
+  public Pair<List<XmlOverallOfferStats>, Long> refererStats(
       Long affId, Long offerId, CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common);
@@ -262,7 +262,7 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<OverallOfferStats>, Long> keywordsStats(
+  public Pair<List<XmlOverallOfferStats>, Long> keywordsStats(
       Long affId, Long offerId, CommonParams common) {
 
     ImmutableMap.Builder<String, Object> templateParams =
@@ -334,11 +334,11 @@ public class OfferStats {
   }
 
 
-  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(String sql, CommonParams common) {
+  private Pair<List<XmlOverallOfferStats>, Long> executeStatsQuery(String sql, CommonParams common) {
     return executeStatsQuery(sql, common, ImmutableMap.<String, Object>of());
   }
 
-  private Pair<List<OverallOfferStats>, Long> executeStatsQuery(
+  private Pair<List<XmlOverallOfferStats>, Long> executeStatsQuery(
       String sql, CommonParams common, Map<String, ?> custom) {
 
     // count without offset and limit
@@ -358,13 +358,13 @@ public class OfferStats {
       query.setParameter(parameter.getKey(), parameter.getValue());
     }
     @SuppressWarnings("unchecked")
-    List<OverallOfferStats> result = toStats(query
+    List<XmlOverallOfferStats> result = toStats(query
         .setTimestamp("from", common.from.toDate())
         .setTimestamp("to", common.to.toDate())
         .setParameter("offset", common.offset)
         .setParameter("limit", common.limit)
         .list());
-    return new Pair<List<OverallOfferStats>, Long>(result, count);
+    return new Pair<List<XmlOverallOfferStats>, Long>(result, count);
   }
 
   private static ImmutableMap.Builder<String, Object> templateParamsBuilder(

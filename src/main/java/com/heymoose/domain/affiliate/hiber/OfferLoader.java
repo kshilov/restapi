@@ -1,5 +1,8 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.hiber;
 
+import com.heymoose.domain.affiliate.BaseOffer;
+import com.heymoose.domain.affiliate.Offer;
+import com.heymoose.domain.affiliate.SubOffer;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import javax.inject.Inject;

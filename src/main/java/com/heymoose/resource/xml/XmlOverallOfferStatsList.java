@@ -1,17 +1,17 @@
 package com.heymoose.resource.xml;
 
-import static com.google.common.collect.Lists.newArrayList;
-import com.heymoose.domain.affiliate.OverallOfferStats;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @XmlRootElement(name = "stats")
-public class OverallOfferStatsList {
+public class XmlOverallOfferStatsList {
   @XmlAttribute(name = "count")
   public long count;
 
   @XmlElement(name = "stat")
-  public List<OverallOfferStats> stats = newArrayList();
+  public List<XmlOverallOfferStats> stats = newArrayList();
 }

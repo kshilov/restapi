@@ -1,7 +1,9 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.hiber;
 
 import com.google.common.collect.Sets;
 import static com.google.common.collect.Sets.newHashSet;
+
+import com.heymoose.domain.affiliate.BaseOffer;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.hibernate.Transactional;
 import static java.util.Collections.emptySet;

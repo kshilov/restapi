@@ -1,4 +1,4 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.resource.xml;
 
 import com.google.common.base.Function;
 import javax.annotation.Nullable;
@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "stat")
-public class OverallOfferStats {
+public class XmlOverallOfferStats {
 
   @XmlElement(name = "id")
   public long id;
@@ -47,19 +47,22 @@ public class OverallOfferStats {
   @XmlElement(name = "ecpm")
   public Double ecpm;
 
-  public static Function<OverallOfferStats, Long> ID = new Function<OverallOfferStats, Long>() {
+  public static Function<XmlOverallOfferStats, Long> ID = new Function<XmlOverallOfferStats, Long>() {
     @Override
-    public Long apply(@Nullable OverallOfferStats overallOfferStats) {
+    public Long apply(@Nullable XmlOverallOfferStats overallOfferStats) {
       return overallOfferStats.id;
     }
   };
 
-  protected OverallOfferStats() {
+  protected XmlOverallOfferStats() {
   }
 
-  public OverallOfferStats(long id, String name, long shows, long clicks, long leads, long sales,
-                           double confirmedRevenue, double notConfirmedRevenue, double canceledRevenue,
-                           Double ctr, Double cr, Double ecpc, Double ecpm) {
+  public XmlOverallOfferStats(long id, String name, long shows, long clicks,
+                              long leads, long sales,
+                              double confirmedRevenue,
+                              double notConfirmedRevenue,
+                              double canceledRevenue,
+                              Double ctr, Double cr, Double ecpc, Double ecpm) {
     this.id = id;
     this.name = name;
     this.shows = shows;
@@ -75,7 +78,7 @@ public class OverallOfferStats {
     this.ecpm = ecpm;
   }
   
-  public OverallOfferStats(long id, String name, double confirmedRevenue) {
+  public XmlOverallOfferStats(long id, String name, double confirmedRevenue) {
     this.id = id;
     this.name = name;
     this.confirmedRevenue = confirmedRevenue;
@@ -84,7 +87,7 @@ public class OverallOfferStats {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("OverallOfferStats{");
+    sb.append("XmlOverallOfferStats{");
     sb.append("id=").append(id);
     sb.append(", name='").append(name).append('\'');
     sb.append(", shows=").append(shows);

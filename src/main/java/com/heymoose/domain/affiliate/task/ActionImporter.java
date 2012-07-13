@@ -1,10 +1,16 @@
-package com.heymoose.domain.affiliate;
+package com.heymoose.domain.affiliate.task;
 
 import com.google.common.base.Optional;
+import com.heymoose.domain.affiliate.BaseOffer;
+import com.heymoose.domain.affiliate.OfferAction;
+import com.heymoose.domain.affiliate.hiber.OfferLoader;
+import com.heymoose.domain.affiliate.Token;
 import com.heymoose.domain.affiliate.base.Repo;
 import com.heymoose.domain.affiliate.repository.Tracking;
 import com.heymoose.hibernate.Transactional;
 import com.heymoose.resource.api.ApiRequestException;
+import com.heymoose.resource.xml.XmlActionInfo;
+import com.heymoose.resource.xml.XmlActionInfos;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +64,9 @@ public class ActionImporter implements Runnable {
   }
 
   @Transactional
-  public void doImport(long advertiserId, ActionInfos actions) throws ApiRequestException {
+  public void doImport(long advertiserId, XmlActionInfos actions) throws ApiRequestException {
     log.info("Importing {} actions", actions.actions.size());
-    for (ActionInfo action : actions.actions) {
+    for (XmlActionInfo action : actions.actions) {
       Token token = repo.byHQL(Token.class, "from Token where value = ?", action.token);
       if (token == null) {
         log.warn("Token {} not found, skiping", action.token);
@@ -83,10 +89,10 @@ public class ActionImporter implements Runnable {
     }
   }
 
-  private static ActionInfos getActions(URL url) throws JAXBException {
-    JAXBContext jaxb = JAXBContext.newInstance(ActionInfos.class);
+  private static XmlActionInfos getActions(URL url) throws JAXBException {
+    JAXBContext jaxb = JAXBContext.newInstance(XmlActionInfos.class);
     Unmarshaller unmarshaller = jaxb.createUnmarshaller();
-    return (ActionInfos) unmarshaller.unmarshal(url);
+    return (XmlActionInfos) unmarshaller.unmarshal(url);
   }
 
   private static URL addStartTime(URL url, int period) throws URISyntaxException, MalformedURLException {

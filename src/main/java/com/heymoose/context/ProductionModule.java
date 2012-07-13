@@ -3,7 +3,7 @@ package com.heymoose.context;
 import static com.google.common.collect.Maps.newHashMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.heymoose.domain.affiliate.ActionImporter;
+import com.heymoose.domain.affiliate.task.ActionImporter;
 import com.heymoose.domain.mlm.Mlm;
 import com.heymoose.job.Job;
 import com.heymoose.job.Scheduler;
