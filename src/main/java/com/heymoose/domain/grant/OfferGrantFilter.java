@@ -1,5 +1,6 @@
 package com.heymoose.domain.grant;
 
+import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 
@@ -12,8 +13,8 @@ public final class OfferGrantFilter {
   private Boolean blocked;
   private Boolean moderation;
   private OfferGrantState state;
-  private List<String> regionList;
-  private List<Long> categoryIdList;
+  private List<String> regionList = ImmutableList.of();
+  private List<Long> categoryIdList = ImmutableList.of();
   private PayMethod payMethod;
   private CpaPolicy cpaPolicy;
 
