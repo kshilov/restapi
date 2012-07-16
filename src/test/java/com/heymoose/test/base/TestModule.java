@@ -30,7 +30,7 @@ public class TestModule extends AbstractModule {
     /*
    config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
    config.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost/hm_test");
-   config.setProperty("hibernate.dialect", "com.heymoose.hibernate.PostgreSQLDialect");
+   config.setProperty("hibernate.dialect", "com.heymoose.infrastructure.hibernate.PostgreSQLDialect");
    config.setProperty("hibernate.connection.username", "postgres");
    config.setProperty("hibernate.connection.password", "qwerty");
    config.setProperty("hibernate.hbm2ddl.auto", "none");  // "update"

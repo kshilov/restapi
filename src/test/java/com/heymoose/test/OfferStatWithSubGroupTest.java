@@ -1,15 +1,15 @@
 package com.heymoose.test;
 
 import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.Role;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Subs;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.domain.offer.Subs;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.test.base.RestTest;
-import com.heymoose.util.Pair;
-import com.heymoose.util.QueryUtil;
-import com.heymoose.util.URLEncodedUtils;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryUtil;
+import com.heymoose.infrastructure.util.URLEncodedUtils;
 import java.net.URI;
 import static java.util.Arrays.asList;
 import java.util.Random;

@@ -1,8 +1,8 @@
 package com.heymoose.resource;
 
 import static com.google.common.collect.Maps.newHashMap;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlRegions;
 import java.util.List;

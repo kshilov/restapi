@@ -1,12 +1,12 @@
 package com.heymoose.test.base;
 
 import com.google.inject.Injector;
-import com.heymoose.domain.Role;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Subs;
-import com.heymoose.domain.affiliate.counter.BufferedClicks;
-import com.heymoose.domain.affiliate.counter.BufferedShows;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.domain.offer.Subs;
+import com.heymoose.infrastructure.counter.BufferedClicks;
+import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlErrorsInfo;
@@ -14,7 +14,7 @@ import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.util.Paging;
+import com.heymoose.infrastructure.util.Paging;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;

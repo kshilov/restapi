@@ -1,8 +1,8 @@
 package com.heymoose.domain.settings;
 
 import static com.google.common.collect.Maps.newHashMap;
-import com.heymoose.hibernate.Transactional;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import com.heymoose.infrastructure.persistence.Transactional;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import java.math.BigDecimal;
 import java.util.Map;
 import javax.inject.Inject;

@@ -1,9 +1,9 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.affiliate.Banner;
-import com.heymoose.domain.affiliate.BannerStore;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.persistence.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
 import java.io.IOException;
 import javax.inject.Inject;

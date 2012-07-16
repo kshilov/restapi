@@ -1,7 +1,7 @@
 package com.heymoose.domain.accounting;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import com.heymoose.domain.affiliate.base.ModifiableEntity;
+import com.heymoose.domain.base.ModifiableEntity;
 import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;

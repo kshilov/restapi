@@ -37,7 +37,7 @@
       <appender-ref ref="API"/>
     </logger>
 
-    <logger name="com.heymoose.domain.affiliate.GeoTargeting" additivity="false">
+    <logger name="com.heymoose.infrastructure.service.GeoTargeting" additivity="false">
       <appender-ref ref="IP"/>
     </logger>
 

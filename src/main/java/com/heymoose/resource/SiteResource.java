@@ -1,14 +1,15 @@
 package com.heymoose.resource;
 
 import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.User;
-import com.heymoose.domain.affiliate.Category;
-import com.heymoose.domain.affiliate.Lang;
-import com.heymoose.domain.affiliate.Site;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.hibernate.Transactional;
+
+import com.heymoose.domain.user.Lang;
+import com.heymoose.domain.user.Site;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.persistence.Transactional;
 import static com.heymoose.resource.Exceptions.notFound;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;

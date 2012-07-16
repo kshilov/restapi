@@ -1,15 +1,15 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
-import com.heymoose.domain.affiliate.Offer;
-import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferGrantState;
-import com.heymoose.domain.affiliate.OfferRepository;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
-import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.user.UserRepository;
+import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.grant.OfferGrantFilter;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.grant.OfferGrantState;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferRepository;
+import com.heymoose.domain.offer.OfferRepository.Ordering;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;
@@ -32,7 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 
 @Path("grants")

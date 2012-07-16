@@ -1,25 +1,25 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.User;
-import com.heymoose.domain.UserRepository;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.user.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
-import com.heymoose.domain.affiliate.Banner;
-import com.heymoose.domain.affiliate.BannerStore;
-import com.heymoose.domain.affiliate.Category;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.Offer;
-import com.heymoose.domain.affiliate.OfferGrant;
-import com.heymoose.domain.affiliate.OfferGrantRepository;
-import com.heymoose.domain.affiliate.OfferRepository;
-import com.heymoose.domain.affiliate.OfferRepository.Ordering;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.SubOffer;
-import com.heymoose.domain.affiliate.SubOfferRepository;
-import com.heymoose.domain.affiliate.base.Repo;
-import com.heymoose.domain.affiliate.repository.OfferFilter;
-import com.heymoose.domain.affiliate.repository.OfferGrantFilter;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.domain.grant.OfferGrantFilter;
+import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferFilter;
+import com.heymoose.domain.offer.OfferRepository;
+import com.heymoose.domain.offer.OfferRepository.Ordering;
+import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.offer.SubOfferRepository;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -51,7 +51,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.heymoose.resource.Exceptions.*;
-import static com.heymoose.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Path("offers")
 @Singleton

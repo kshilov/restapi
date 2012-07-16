@@ -2,9 +2,9 @@ package com.heymoose.resource;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.heymoose.domain.affiliate.ErrorInfo;
-import com.heymoose.domain.affiliate.ErrorInfoRepository;
-import com.heymoose.hibernate.Transactional;
+import com.heymoose.domain.errorinfo.ErrorInfo;
+import com.heymoose.domain.errorinfo.ErrorInfoRepository;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlErrorsInfo;
 import org.joda.time.DateTime;

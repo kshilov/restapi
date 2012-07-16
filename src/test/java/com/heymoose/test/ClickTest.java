@@ -1,9 +1,9 @@
 package com.heymoose.test;
 
-import com.heymoose.domain.Role;
-import com.heymoose.domain.affiliate.CpaPolicy;
-import com.heymoose.domain.affiliate.PayMethod;
-import com.heymoose.domain.affiliate.Subs;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.domain.offer.Subs;
 import com.heymoose.test.base.RestTest;
 import org.joda.time.DateTimeUtils;
 import org.junit.Before;
