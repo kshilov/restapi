@@ -27,6 +27,8 @@ public final class TopShopActionImporterTest {
     assertEquals("hm_2", payment2.token());
     assertEquals(new BigDecimal("100.500"), payment1.price("hm_1_item_1"));
     assertEquals(new BigDecimal("100.501"), payment2.price("hm_2_item_1"));
+    assertEquals("order_1", payment1.transactionId());
+    assertEquals("order_2", payment2.transactionId());
   }
 
   @Test
@@ -47,6 +49,7 @@ public final class TopShopActionImporterTest {
     String xml =
         "<payment>" +
           "<key>key</key>" +
+          "<order_id>order-id</order_id>" +
           "<item_list>" +
             "<item><code>123</code><price>00.01</price></item>" +
           "</item_list>" +
@@ -58,6 +61,7 @@ public final class TopShopActionImporterTest {
         (TopShopXmlConverter.XmlTopShopPayment)
             context.createUnmarshaller().unmarshal(reader);
     assertEquals("key", parsedPayment.key);
+    assertEquals("order-id", parsedPayment.orderId);
     assertEquals("123", parsedPayment.itemListElement.itemList.get(0).code);
     assertEquals("00.01", parsedPayment.itemListElement.itemList.get(0).price);
   }

@@ -28,7 +28,7 @@ public final class TopShopXmlConverter {
     @XmlElement
     public String key;
     @XmlElement(name = "order_id")
-    public Long orderId;
+    public String orderId;
     @XmlElement
     public String cart;
     @XmlElement
@@ -52,7 +52,6 @@ public final class TopShopXmlConverter {
     @XmlElement
     public String price;
   }
-
 
   /**
    * @param inputSupplier input supplier with top shop xml
@@ -78,6 +77,7 @@ public final class TopShopXmlConverter {
           continue;
         TopShopPaymentData paymentData = new TopShopPaymentData();
         paymentData.setToken(token);
+        paymentData.setTransactionId(payment.orderId);
         for (XmlTopShopItem item : payment.itemListElement.itemList) {
           paymentData.addItem(item.code, item.price);
         }
