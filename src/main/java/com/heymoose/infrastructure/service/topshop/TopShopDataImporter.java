@@ -8,6 +8,7 @@ import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.infrastructure.persistence.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-public final class TopShopDataImporter {
+public class TopShopDataImporter {
 
   private static final Logger log =
       LoggerFactory.getLogger(TopShopDataImporter.class);
@@ -33,13 +34,14 @@ public final class TopShopDataImporter {
     this.topShopOfferMap = topShopOfferMap;
   }
 
+  @Transactional
   public void doImport(List<TopShopPaymentData> paymentList) {
     for (TopShopPaymentData payment : paymentList) {
       doImport(payment);
     }
   }
 
-  public void doImport(TopShopPaymentData payment) {
+  private void doImport(TopShopPaymentData payment) {
     Token token = repo.byHQL(Token.class,
         "from Token where value = ?", payment.token());
     if (token == null) {
@@ -60,6 +62,8 @@ public final class TopShopDataImporter {
         ImmutableMap.builder();
     for (Map.Entry<String, BigDecimal> itemPrice : payment.itemPriceMap().entrySet()) {
       Offer offer = repo.get(Offer.class, topShopOfferMap.get(itemPrice.getKey()));
+      log.info("Adding conversion for offer '{}' price '{}'",
+          offer.id(), itemPrice.getValue());
       offerMap.put(offer, Optional.of(itemPrice.getValue().doubleValue()));
     }
     tracking.trackConversion(token, payment.transactionId(), offerMap.build());

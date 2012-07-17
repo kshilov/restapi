@@ -25,8 +25,8 @@ public final class TopShopImport {
     @Provides
     public Map<String, Long> topShopOfferMap() {
       return ImmutableMap.of(
-          "offer-1", 1L,
-          "offer-2", 2L);
+          "hm_1_item_1", 1L,
+          "hm_1_item_2", 2L);
 
     }
   }
