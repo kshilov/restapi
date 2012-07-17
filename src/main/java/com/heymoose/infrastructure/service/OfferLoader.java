@@ -10,15 +10,9 @@ import javax.inject.Singleton;
 
 @Singleton
 public class OfferLoader {
-  private final Repo repo;
-
-  @Inject
-  public OfferLoader(Repo repo) {
-    this.repo = repo;
-  }
 
   @Transactional
-  public BaseOffer findOffer(long advertiserId, String code) {
+  public static BaseOffer findOffer(Repo repo, long advertiserId, String code) {
     SubOffer existentSub = repo.byHQL(
         SubOffer.class,
         "from SubOffer o where o.code = ? and o.parent.advertiser.id = ?",
@@ -36,4 +30,17 @@ public class OfferLoader {
 
     return existentOffer;
   }
+
+  private final Repo repo;
+
+  @Inject
+  public OfferLoader(Repo repo) {
+    this.repo = repo;
+  }
+
+  @Transactional
+  public BaseOffer findOffer(long advertiserId, String code) {
+    return findOffer(repo, advertiserId, code);
+  }
+
 }

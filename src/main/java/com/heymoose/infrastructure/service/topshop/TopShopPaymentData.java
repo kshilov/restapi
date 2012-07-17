@@ -9,10 +9,16 @@ import java.util.Map;
 public final class TopShopPaymentData {
 
   private String heymooseToken;
-  private Map<String, BigDecimal> itemPriceMap = Maps.newHashMap();
+  private String transactionId;
+  private final Map<String, BigDecimal> itemPriceMap = Maps.newHashMap();
 
   public TopShopPaymentData setToken(String token) {
     this.heymooseToken = token;
+    return this;
+  }
+
+  public TopShopPaymentData setTransactionId(String transactionId) {
+    this.transactionId = transactionId;
     return this;
   }
 
@@ -28,6 +34,10 @@ public final class TopShopPaymentData {
 
   public String token() {
     return this.heymooseToken;
+  }
+
+  public String transactionId() {
+    return this.transactionId;
   }
 
   public BigDecimal price(String item) {
