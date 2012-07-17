@@ -1,22 +1,34 @@
 <payment_list>
   <payment>
     <key>
-      http://www.top-shop.ru/product/1599/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=xb2uqskwnayciipxikuuxxrvqtacahrb-jalousie-121x182-black&amp;_hm_token=heymoose_token_100.500
+      http://www.top-shop.ru/product/1599/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=xb2uqskwnayciipxikuuxxrvqtacahrb-jalousie-121x182-black&amp;_hm_token=hm_1
     </key>
     <order_id>108914</order_id>
     <date>2012-05-02 15:01:08</date>
     <cart>100.500</cart>
     <status>30</status>
+    <item_list>
+      <item>
+        <code>hm_1_item_1</code>
+        <price>100.500</price>
+      </item>
+    </item_list>
   </payment>
 
   <payment>
     <key>
-      http://www.top-shop.ru/product/5750/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=xb2uqskwnayciipxikuuxxrvqtacahrb-slim-n-lift-air-bra-retail&amp;_hm_token=heymoose_token_100.501
+      http://www.top-shop.ru/product/5750/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=xb2uqskwnayciipxikuuxxrvqtacahrb-slim-n-lift-air-bra-retail&amp;_hm_token=hm_2
     </key>
     <order_id>109957</order_id>
     <date>2012-05-06 13:29:09</date>
     <cart>100.501</cart>
     <status>10</status>
+    <item_list>
+      <item>
+        <code>hm_2_item_1</code>
+        <price>100.501</price>
+      </item>
+    </item_list>
   </payment>
 
   <payment>
