@@ -20,7 +20,7 @@ if [ `find src/sql/SNAPSHOT -type f | wc -l` != "0" ]; then
 	git mv src/sql/SNAPSHOT/* src/sql/$VERSION
 fi
 ./deploy/set-version.sh $VERSION
-dch -i
+dch -v "${VERSION}-1" "release $VERSION"
 
 git commit -am "prepare release $VERSION"
 git tag $VERSION
