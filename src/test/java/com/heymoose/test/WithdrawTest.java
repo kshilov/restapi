@@ -1,24 +1,22 @@
 package com.heymoose.test;
 
-import static com.google.common.collect.Sets.newHashSet;
-import com.heymoose.domain.user.Role;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
-import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.test.base.RestTest;
+import com.heymoose.domain.user.Role;
 import com.heymoose.infrastructure.util.Paging;
 import com.heymoose.infrastructure.util.Pair;
-import java.net.URI;
-import java.util.Random;
+import com.heymoose.resource.xml.XmlWithdraws;
+import com.heymoose.test.base.RestTest;
 import org.joda.time.DateTimeUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.net.URI;
+import java.util.Random;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.*;
 
 public class WithdrawTest extends RestTest {
 
@@ -57,7 +55,7 @@ public class WithdrawTest extends RestTest {
   private static Pair<Long, String> doCreateOffer(long advertiserId, int seed) {
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
     String offerCode = OFFER_CODE + "-" + seed + "-" + rnd.nextInt(1000);
-    long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
+    long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, null, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL),
         "title", false, false, true, newHashSet("RU"), newHashSet(categoryId),
         offerCode, 30, 180, DateTimeUtils.currentTimeMillis(), false);

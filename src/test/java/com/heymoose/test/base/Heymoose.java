@@ -1,12 +1,13 @@
 package com.heymoose.test.base;
 
 import com.google.inject.Injector;
-import com.heymoose.domain.user.Role;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.user.Role;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
+import com.heymoose.infrastructure.util.Paging;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlErrorsInfo;
@@ -14,7 +15,6 @@ import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.infrastructure.util.Paging;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
@@ -22,13 +22,15 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.representation.Form;
-import java.net.URI;
-import static java.util.Arrays.asList;
-import java.util.List;
-import java.util.Set;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 @Ignore
 public class Heymoose {
@@ -111,7 +113,7 @@ public class Heymoose {
     client.path("users").path(Long.toString(userId)).path("confirmed").put();
   }
 
-  public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
+  public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost, String percent,
                           double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
                           URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
                           boolean reentrant, Set<String> regions, Set<Long> categories,
@@ -121,6 +123,7 @@ public class Heymoose {
     form.add("pay_method", payMethod);
     form.add("cpa_policy", cpaPolicy);
     form.add("cost", cost);
+    form.add("percent", percent);
     form.add("balance", balance);
     form.add("name", name);
     form.add("description", descr);

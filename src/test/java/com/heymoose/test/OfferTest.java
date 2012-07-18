@@ -52,7 +52,7 @@ public class OfferTest extends RestTest {
     sqlUpdate("insert into category_group(id, name) values(1, 'Group1')");
     sqlUpdate("insert into category(id, category_group_id, name) values(1, 1, 'Category1')");
     long categoryId = heymoose().getCategories().categories.iterator().next().id;
-    long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, OFFER_BALANCE,
+    long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.FIXED, CPA, null, OFFER_BALANCE,
         OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
         true, newHashSet("RU"), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils.currentTimeMillis(), false);
     heymoose().approveOffer(offerId);

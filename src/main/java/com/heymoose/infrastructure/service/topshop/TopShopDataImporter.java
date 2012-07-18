@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.name.Named;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
@@ -28,6 +29,7 @@ public class TopShopDataImporter {
 
   @Inject
   public TopShopDataImporter(Repo repo, Tracking tracking,
+                             @Named("top-shop-offer-map")
                              Map<String, Long> topShopOfferMap) {
     this.repo = repo;
     this.tracking = tracking;
