@@ -25,10 +25,12 @@ for DIR in /usr/share/backend/db-migrate/*; do
 	TEST_VER=`basename "$DIR"`
 	if [[ "$TEST_VER" > "$INSTALLED_VERSION" ]]; then
 		echo "applying all script for version "$TEST_VER""
-		for SCRIPT in ${DIR}/*; do
-			echo "applying script "$SCRIPT""
-			psql -U "$PG_USER" -h "$PG_HOST" "$PG_DB" -f "$SCRIPT"
-		done
+		if [ `find "$DIR" -type f | wc -l` != "0" ]; then
+			for SCRIPT in ${DIR}/*; do
+				echo "applying script "$SCRIPT""
+				psql -U "$PG_USER" -h "$PG_HOST" "$PG_DB" -f "$SCRIPT"
+			done
+		fi
 	else
 		echo "skipping all scripts vor version "$TEST_VER""
 	fi
