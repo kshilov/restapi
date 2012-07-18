@@ -5,12 +5,10 @@ import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
-import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopXmlConverter;
@@ -18,7 +16,6 @@ import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
-import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -29,10 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URI;
 import java.util.Map;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static junit.framework.Assert.assertEquals;
 
 public final class TopShopImportTest extends RestTest {
@@ -41,13 +36,8 @@ public final class TopShopImportTest extends RestTest {
   private static final Logger log =
       LoggerFactory.getLogger(TopShopImportTest.class);
 
-  private final static String OFFER_CODE = "offer324234";
-  private final static String OFFER_URL = "http://ya.ru";
-  private final static String OFFER_SITE_URL = "http://yandex.ru";
-  private final static String OFFER_NAME = "Offer1";
   private final static double ADV_BALANCE = 100.0;
   private final static double OFFER_BALANCE = 70.0;
-  private final static double CPA = 30.0;
   private final static double PERCENT = 20.0;
 
   @Before
@@ -55,51 +45,16 @@ public final class TopShopImportTest extends RestTest {
     reset();
   }
 
-  private long doRegisterAdvertiser() {
-    long advertiserId = heymoose().registerUser("u@u.ru", "ads");
-    heymoose().addRoleToUser(advertiserId, Role.ADVERTISER);
-    heymoose().confirmUser(advertiserId);
-    heymoose().addToCustomerAccount(advertiserId, ADV_BALANCE);
-    return advertiserId;
-  }
-
-  private long doRegisterAffiliate() {
-    long affId = heymoose().registerUser("af1@af.ru", "dsfs");
-    heymoose().addRoleToUser(affId, Role.AFFILIATE);
-    heymoose().confirmUser(affId);
-    return affId;
-  }
-
-  private long doCreateOffer(long advertiserId, boolean allowDeeplink) {
-    sqlUpdate("insert into category_group(id, name) values(1, 'Grouping1')");
-    sqlUpdate("insert into category(id, category_group_id, name) values(1, 1, 'Category1')");
-    long categoryId = heymoose().getCategories().categories.iterator().next().id;
-    long offerId = heymoose().createOffer(advertiserId, PayMethod.CPA, CpaPolicy.PERCENT, CPA, String.valueOf(PERCENT), OFFER_BALANCE,
-        OFFER_NAME, "descr", "short descr", "logo", URI.create(OFFER_URL), URI.create(OFFER_SITE_URL), "title", false, false,
-        true, newHashSet("RU"), newHashSet(categoryId), OFFER_CODE, 30, 180, DateTimeUtils
-        .currentTimeMillis(), allowDeeplink);
-    heymoose().approveOffer(offerId);
-    return offerId;
-  }
-
-  private URI doClick(long offerId, long affId, String sourceId, Subs subs, String ulp) {
-    sqlUpdate("insert into ip_segment(id, start_ip_addr, end_ip_addr, start_ip_num, end_ip_num, country_code, country_name) values(1, '127.0.0.1', '127.0.0.1', 2130706433, 2130706433, 'RU', 'Russian')");
-    return heymoose().clickWithUlp(offerId, affId, sourceId, subs, ulp);
-  }
-
-  private void doCreateGrant(long offerId, long affId) {
-    long grantId = heymoose().createGrant(offerId, affId, "msg", baseUrl() + "/postback");
-    heymoose().unblockGrant(grantId);
-    heymoose().approveGrant(grantId);
-  }
 
   @Test
   public void importSinglePaymentTest() throws Exception {
-    long advId = doRegisterAdvertiser();
-    long affId = doRegisterAffiliate();
-    long offerId = doCreateOffer(advId, false);
-    doCreateGrant(offerId, affId);
-    doClick(offerId, affId, null, Subs.empty(), null);
+    long advId = heymoose().doRegisterAdvertiser(ADV_BALANCE);
+    long affId = heymoose().doRegisterAffiliate();
+    long offerId = heymoose().doCreateCpaOffer(
+        CpaPolicy.PERCENT, 0.0, PERCENT,
+        OFFER_BALANCE, advId, "http://something.com",false);
+    heymoose().doCreateGrant(offerId, affId);
+    heymoose().doClick(offerId, affId, null, Subs.empty(), null);
     Token token = select(Token.class).get(0);
     log.info("Token id: {}", token.id());
 
@@ -121,7 +76,7 @@ public final class TopShopImportTest extends RestTest {
             "</item_list>" +
           "</payment>" +
         "</payment_list>";
-    // manually start transaction, because don't use guice
+    // manually start transaction, because not using guice
     Session session = injector().getProvider(Session.class).get();
     Transaction tx = session.beginTransaction();
     try {
@@ -140,7 +95,6 @@ public final class TopShopImportTest extends RestTest {
     BigDecimal cost = new BigDecimal(price * PERCENT / 100.0);
     BigDecimal expectedRevenue = cost.divide(new BigDecimal((100 + affiliate.fee()) / 100.0), 2, RoundingMode.CEILING);
 
-    assertEquals((Long) offerId, createdAction.id());
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());
   }
