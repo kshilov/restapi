@@ -5,10 +5,14 @@ import com.google.common.io.Files;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.heymoose.domain.topshop.TopShopProduct;
 import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
+import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
+import org.hibernate.Transaction;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +20,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
-public final class TopShopImport {
+public class TopShopImport {
 
   private static class TopShopOffersModule extends AbstractModule {
 
@@ -45,5 +50,19 @@ public final class TopShopImport {
     Unmarshaller unmarshaller = context.createUnmarshaller();
     YmlCatalog cat = (YmlCatalog) unmarshaller.unmarshal(reader);
     log.info("{} products found.", cat.getShop().getOffers().getOffer().size());
+
+    Session session = injector.getInstance(Session.class);
+    Transaction tx = session.beginTransaction();
+    try {
+      for (Offer catalogOffer : cat.getShop().getOffers().getOffer()) {
+        TopShopProduct product = new TopShopProduct(
+            Long.valueOf(catalogOffer.getId()));
+        product.setPrice(new BigDecimal(catalogOffer.getPrice()));
+        session.saveOrUpdate(product);
+      }
+      tx.commit();
+    } catch (Exception e) {
+      tx.rollback();
+    }
   }
 }
