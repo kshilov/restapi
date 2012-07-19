@@ -8,10 +8,7 @@
     <cart>100.500</cart>
     <status>30</status>
     <item_list>
-      <item>
-        <code>hm_1_item_1</code>
-        <price>100.500</price>
-      </item>
+      <item>hm_1_item_1</item>
     </item_list>
   </payment>
 
@@ -24,31 +21,8 @@
     <cart>100.501</cart>
     <status>10</status>
     <item_list>
-      <item>
-        <code>hm_2_item_1</code>
-        <price>100.501</price>
-      </item>
+      <item>hm_2_item_1</item>
+      <item>hm_2_item_2</item>
     </item_list>
   </payment>
-
-  <payment>
-    <key>
-      http://www.top-shop.ru/kitchen/shoes-under-aug--9/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=ya-shoes-under-aug--9
-    </key>
-    <order_id>110096</order_id>
-    <date>2012-05-07 09:48:05</date>
-    <cart>629</cart>
-    <status>10</status>
-  </payment>
-
-  <payment>
-    <key>
-      http://www.top-shop.ru/product/6238-clatronic-dm-3127/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=ya-doughnut-maker
-    </key>
-    <order_id>113417</order_id>
-    <date>2012-05-20 12:18:06</date>
-    <cart>1690</cart>
-    <status>10</status>
-  </payment>
-
 </payment_list>

@@ -41,16 +41,7 @@ public final class TopShopXmlConverter {
   public static class XmlTopShopItemList {
 
     @XmlElement(name = "item")
-    public List<XmlTopShopItem> itemList = Lists.newArrayList();
-  }
-
-  @XmlRootElement(name = "item")
-  public static class XmlTopShopItem {
-
-    @XmlElement
-    public String code;
-    @XmlElement
-    public String price;
+    public List<String> itemList = Lists.newArrayList();
   }
 
   /**
@@ -78,8 +69,8 @@ public final class TopShopXmlConverter {
         TopShopPaymentData paymentData = new TopShopPaymentData();
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
-        for (XmlTopShopItem item : payment.itemListElement.itemList) {
-          paymentData.addItem(item.code);
+        for (String item : payment.itemListElement.itemList) {
+          paymentData.addItem(item);
         }
         dataBuilder.add(paymentData);
       }

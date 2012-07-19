@@ -25,24 +25,24 @@ public final class TopShopActionImporterTest {
     assertEquals("hm_1", payment1.token());
     assertEquals("hm_2", payment2.token());
     assertEquals(1, payment1.items().size());
-    assertEquals(1, payment2.items().size());
+    assertEquals(2, payment2.items().size());
     assertEquals("hm_1_item_1", payment1.items().get(0));
     assertEquals("hm_2_item_1", payment2.items().get(0));
+    assertEquals("hm_2_item_2", payment2.items().get(1));
     assertEquals("order_1", payment1.transactionId());
     assertEquals("order_2", payment2.transactionId());
   }
 
   @Test
   public void parseTopShopItemXml() throws Exception {
-    String xml = "<item><code>123</code><price>00.01</price></item>";
+    String xml = "<item_list><item>123</item></item_list>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
-        TopShopXmlConverter.XmlTopShopItem.class);
-    TopShopXmlConverter.XmlTopShopItem parsedItem =
-        (TopShopXmlConverter.XmlTopShopItem)
+        TopShopXmlConverter.XmlTopShopItemList.class);
+    TopShopXmlConverter.XmlTopShopItemList parsedItemList =
+        (TopShopXmlConverter.XmlTopShopItemList)
             context.createUnmarshaller().unmarshal(reader);
-    assertEquals("123", parsedItem.code);
-    assertEquals("00.01", parsedItem.price);
+    assertEquals("123", parsedItemList.itemList.get(0));
   }
 
   @Test
@@ -52,7 +52,7 @@ public final class TopShopActionImporterTest {
           "<key>key</key>" +
           "<order_id>order-id</order_id>" +
           "<item_list>" +
-            "<item><code>123</code><price>00.01</price></item>" +
+            "<item>123</item>" +
           "</item_list>" +
         "</payment>";
     StringReader reader = new StringReader(xml);
@@ -63,7 +63,6 @@ public final class TopShopActionImporterTest {
             context.createUnmarshaller().unmarshal(reader);
     assertEquals("key", parsedPayment.key);
     assertEquals("order-id", parsedPayment.orderId);
-    assertEquals("123", parsedPayment.itemListElement.itemList.get(0).code);
-    assertEquals("00.01", parsedPayment.itemListElement.itemList.get(0).price);
+    assertEquals("123", parsedPayment.itemListElement.itemList.get(0));
   }
 }
