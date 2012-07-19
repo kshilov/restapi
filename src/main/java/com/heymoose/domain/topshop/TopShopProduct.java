@@ -27,7 +27,7 @@ public final class TopShopProduct extends IdEntity {
   @JoinColumn(name = "offer_id", insertable = false, updatable = false)
   private Offer offer;
 
-  @Column
+  @Column(nullable = false)
   private BigDecimal price;
 
   protected TopShopProduct() { }

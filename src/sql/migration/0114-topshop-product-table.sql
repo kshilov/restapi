@@ -1,7 +1,7 @@
 create table topshop_product (
   id bigint not null,
   offer_id bigint references offer(id),
-  price numeric(19,2)
+  price numeric(19,2) not null
 );
 
 alter table topshop_product
