@@ -2,7 +2,7 @@
 
 SETTINGS_FILE='/etc/backend/settings.properties'
 PG_URL=`grep 'hibernate.connection.url' $SETTINGS_FILE | grep -o '\/\/.*\/.*'`
-PG_HOST=`echo "$PG_URL" | cut -d'/' -f3`
+PG_HOST=`echo "$PG_URL" | cut -d'/' -f3 | cut -d':' -f1`
 PG_DB=`echo "$PG_URL" | cut -d'/' -f4`
 PG_USER=`grep 'hibernate.connection.username' $SETTINGS_FILE | grep -o '[^ ]*$'`
 export PGPASSWORD=`grep 'hibernate.connection.password' $SETTINGS_FILE | grep -o '[^ ]*$'`
