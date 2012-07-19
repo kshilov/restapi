@@ -60,7 +60,7 @@ public final class TopShopImportTest extends RestTest {
     Token token = select(Token.class).get(0);
     log.info("Token id: {}", token.id());
 
-    String itemCode = "topshop-item-code";
+    Long itemCode = 123L;
     String txId = "top-shop-order-id";
     Double price = 100.0;
     TopShopDataImporter importer = new TopShopDataImporter(
@@ -74,7 +74,7 @@ public final class TopShopImportTest extends RestTest {
             "<key>http://anyurl.com?_hm_token=" + token.value() + "</key>" +
             "<item_list>" +
               "<item>" +
-                "<code>" + itemCode + "</code>" +
+                "<code>" + itemCode.toString() + "</code>" +
               "</item>" +
             "</item_list>" +
           "</payment>" +
@@ -84,10 +84,9 @@ public final class TopShopImportTest extends RestTest {
     Transaction tx = session.beginTransaction();
     try {
       Repo repo = injector().getInstance(Repo.class);
-      repo.put(new TopShopProduct()
+      repo.put(new TopShopProduct(itemCode)
           .setOffer(repo.get(Offer.class, offerId))
-          .setPrice(new BigDecimal(price))
-          .setTopshopId(itemCode));
+          .setPrice(new BigDecimal(price)));
       List<TopShopPaymentData> data = converter.convert(input(topShopXml));
       importer.doImport(data);
       tx.commit();

@@ -9,7 +9,7 @@ public final class TopShopPaymentData {
 
   private String heymooseToken;
   private String transactionId;
-  private final List<String> itemList = Lists.newArrayList();
+  private final List<Long> itemList = Lists.newArrayList();
 
   public TopShopPaymentData setToken(String token) {
     this.heymooseToken = token;
@@ -21,7 +21,7 @@ public final class TopShopPaymentData {
     return this;
   }
 
-  public TopShopPaymentData addItem(String code) {
+  public TopShopPaymentData addItem(Long code) {
     this.itemList.add(code);
     return this;
   }
@@ -34,7 +34,7 @@ public final class TopShopPaymentData {
     return this.transactionId;
   }
 
-  public List<String> items() {
+  public List<Long> items() {
     return ImmutableList.copyOf(itemList);
   }
 

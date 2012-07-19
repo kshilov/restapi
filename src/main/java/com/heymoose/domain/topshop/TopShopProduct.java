@@ -21,35 +21,27 @@ import java.math.BigDecimal;
 public final class TopShopProduct extends IdEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "topshop-product-seq")
-  @SequenceGenerator(name = "topshop-product-seq", sequenceName = "topshop_product_seq", allocationSize = 1)
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "offer_id", insertable = false, updatable = false)
   private Offer offer;
 
-  @Column(name = "topshop_id")
-  private String topshopId;
-
   @Column
   private BigDecimal price;
+
+  protected TopShopProduct() { }
+
+  public TopShopProduct(Long id) {
+    this.id = id;
+  }
 
   public Offer offer() {
     return offer;
   }
 
-  public String topshopId() {
-    return topshopId;
-  }
-
   public BigDecimal price() {
     return price;
-  }
-
-  public TopShopProduct setTopshopId(String topshopId) {
-    this.topshopId = topshopId;
-    return this;
   }
 
   public TopShopProduct setPrice(BigDecimal price) {

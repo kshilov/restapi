@@ -55,9 +55,9 @@ public class TopShopDataImporter {
 
     ImmutableMap.Builder<BaseOffer, Optional<Double>> offerMap =
         ImmutableMap.builder();
-    for (String itemId : payment.items()) {
+    for (Long itemId : payment.items()) {
       TopShopProduct product = repo.byHQL(TopShopProduct.class,
-          "from TopShopProduct where topshop_id = ?", itemId);
+          "from TopShopProduct where id = ?", itemId);
       log.info("Adding conversion for offer '{}' price '{}'",
           product.offer().id(), product.price());
       offerMap.put(product.offer(), Optional.of(product.price().doubleValue()));

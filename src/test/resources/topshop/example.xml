@@ -8,7 +8,7 @@
     <cart>100.500</cart>
     <status>30</status>
     <item_list>
-      <item>hm_1_item_1</item>
+      <item>11</item>
     </item_list>
   </payment>
 
@@ -21,8 +21,8 @@
     <cart>100.501</cart>
     <status>10</status>
     <item_list>
-      <item>hm_2_item_1</item>
-      <item>hm_2_item_2</item>
+      <item>21</item>
+      <item>22</item>
     </item_list>
   </payment>
 </payment_list>
