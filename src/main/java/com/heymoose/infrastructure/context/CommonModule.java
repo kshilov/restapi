@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.heymoose.domain.topshop.TopShopProduct;
 import com.heymoose.domain.user.AdminAccount;
 import com.heymoose.domain.user.AdminAccountNotConfirmed;
 import com.heymoose.domain.offer.Banner;
@@ -88,7 +89,7 @@ public class CommonModule extends AbstractModule {
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class,
         OfferStat.class, OfferAction.class,
         AdminAccountNotConfirmed.class, Token.class, MlmExecution.class,
-        KeywordPattern.class, ErrorInfo.class);
+        KeywordPattern.class, ErrorInfo.class, TopShopProduct.class);
   }
 
   protected void bindEntities(Class... classes) {

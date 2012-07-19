@@ -2,21 +2,18 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.name.Named;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.domain.topshop.TopShopProduct;
 import com.heymoose.infrastructure.persistence.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 public class TopShopDataImporter {
 
@@ -25,15 +22,11 @@ public class TopShopDataImporter {
 
   private final Repo repo;
   private final Tracking tracking;
-  private final Map<String, Long> topShopOfferMap;
 
   @Inject
-  public TopShopDataImporter(Repo repo, Tracking tracking,
-                             @Named("top-shop-offer-map")
-                             Map<String, Long> topShopOfferMap) {
+  public TopShopDataImporter(Repo repo, Tracking tracking) {
     this.repo = repo;
     this.tracking = tracking;
-    this.topShopOfferMap = topShopOfferMap;
   }
 
   @Transactional
@@ -62,11 +55,12 @@ public class TopShopDataImporter {
 
     ImmutableMap.Builder<BaseOffer, Optional<Double>> offerMap =
         ImmutableMap.builder();
-    for (Map.Entry<String, BigDecimal> itemPrice : payment.itemPriceMap().entrySet()) {
-      Offer offer = repo.get(Offer.class, topShopOfferMap.get(itemPrice.getKey()));
+    for (String itemId : payment.items()) {
+      TopShopProduct product = repo.byHQL(TopShopProduct.class,
+          "from TopShopProduct where topshop_id = ?", itemId);
       log.info("Adding conversion for offer '{}' price '{}'",
-          offer.id(), itemPrice.getValue());
-      offerMap.put(offer, Optional.of(itemPrice.getValue().doubleValue()));
+          product.offer().id(), product.price());
+      offerMap.put(product.offer(), Optional.of(product.price().doubleValue()));
     }
     tracking.trackConversion(token, payment.transactionId(), offerMap.build());
   }

@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.List;
 
@@ -25,8 +24,10 @@ public final class TopShopActionImporterTest {
     TopShopPaymentData payment2 = info.get(1);
     assertEquals("hm_1", payment1.token());
     assertEquals("hm_2", payment2.token());
-    assertEquals(new BigDecimal("100.500"), payment1.price("hm_1_item_1"));
-    assertEquals(new BigDecimal("100.501"), payment2.price("hm_2_item_1"));
+    assertEquals(1, payment1.items().size());
+    assertEquals(1, payment2.items().size());
+    assertEquals("hm_1_item_1", payment1.items().get(0));
+    assertEquals("hm_2_item_1", payment2.items().get(0));
     assertEquals("order_1", payment1.transactionId());
     assertEquals("order_2", payment2.transactionId());
   }

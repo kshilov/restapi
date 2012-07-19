@@ -1,16 +1,15 @@
 package com.heymoose.infrastructure.service.topshop;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
-import java.math.BigDecimal;
-import java.util.Map;
+import java.util.List;
 
 public final class TopShopPaymentData {
 
   private String heymooseToken;
   private String transactionId;
-  private final Map<String, BigDecimal> itemPriceMap = Maps.newHashMap();
+  private final List<String> itemList = Lists.newArrayList();
 
   public TopShopPaymentData setToken(String token) {
     this.heymooseToken = token;
@@ -22,13 +21,8 @@ public final class TopShopPaymentData {
     return this;
   }
 
-  public TopShopPaymentData addItem(String code, BigDecimal price) {
-    this.itemPriceMap.put(code, price);
-    return this;
-  }
-
-  public TopShopPaymentData addItem(String code, String priceAsString) {
-    this.itemPriceMap.put(code, new BigDecimal(priceAsString));
+  public TopShopPaymentData addItem(String code) {
+    this.itemList.add(code);
     return this;
   }
 
@@ -40,12 +34,8 @@ public final class TopShopPaymentData {
     return this.transactionId;
   }
 
-  public BigDecimal price(String item) {
-    return itemPriceMap.get(item);
-  }
-
-  public ImmutableMap<String, BigDecimal> itemPriceMap() {
-    return ImmutableMap.copyOf(itemPriceMap);
+  public List<String> items() {
+    return ImmutableList.copyOf(itemList);
   }
 
 }

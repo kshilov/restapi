@@ -25,5 +25,6 @@
     <mapping class="com.heymoose.domain.action.OfferAction"/>
     <mapping class="com.heymoose.domain.errorinfo.ErrorInfo" />
     <mapping class="com.heymoose.domain.offer.CategoryGroup" />
+    <mapping class="com.heymoose.domain.topshop.TopShopProduct"/>
   </session-factory>
 </hibernate-configuration>

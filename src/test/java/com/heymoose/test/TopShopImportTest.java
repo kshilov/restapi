@@ -1,16 +1,18 @@
 package com.heymoose.test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.domain.topshop.TopShopProduct;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
+import com.heymoose.infrastructure.service.topshop.TopShopPaymentData;
 import com.heymoose.infrastructure.service.topshop.TopShopXmlConverter;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
@@ -26,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Map;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -61,7 +63,9 @@ public final class TopShopImportTest extends RestTest {
     String itemCode = "topshop-item-code";
     String txId = "top-shop-order-id";
     Double price = 100.0;
-    TopShopDataImporter importer = topshop(itemCode, offerId);
+    TopShopDataImporter importer = new TopShopDataImporter(
+        injector().getInstance(Repo.class),
+        injector().getInstance(Tracking.class));
     TopShopXmlConverter converter = new TopShopXmlConverter();
     String topShopXml =
         "<payment_list>" +
@@ -71,7 +75,6 @@ public final class TopShopImportTest extends RestTest {
             "<item_list>" +
               "<item>" +
                 "<code>" + itemCode + "</code>" +
-                "<price>" + price.toString() + "</price>" +
               "</item>" +
             "</item_list>" +
           "</payment>" +
@@ -80,7 +83,13 @@ public final class TopShopImportTest extends RestTest {
     Session session = injector().getProvider(Session.class).get();
     Transaction tx = session.beginTransaction();
     try {
-      importer.doImport(converter.convert(input(topShopXml)));
+      Repo repo = injector().getInstance(Repo.class);
+      repo.put(new TopShopProduct()
+          .setOffer(repo.get(Offer.class, offerId))
+          .setPrice(new BigDecimal(price))
+          .setTopshopId(itemCode));
+      List<TopShopPaymentData> data = converter.convert(input(topShopXml));
+      importer.doImport(data);
       tx.commit();
     } catch (Exception e) {
       tx.rollback();
@@ -97,14 +106,6 @@ public final class TopShopImportTest extends RestTest {
 
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());
-  }
-
-  private TopShopDataImporter topshop(String itemCode, Long offerId) {
-    Map<String, Long> topShopOfferMap = ImmutableMap.of(itemCode, offerId);
-    return new TopShopDataImporter(
-        injector().getInstance(Repo.class),
-        injector().getInstance(Tracking.class),
-        topShopOfferMap);
   }
 
   private InputSupplier<InputStream> input(final String str) {

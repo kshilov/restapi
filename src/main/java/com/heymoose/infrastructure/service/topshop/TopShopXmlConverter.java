@@ -79,7 +79,7 @@ public final class TopShopXmlConverter {
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
         for (XmlTopShopItem item : payment.itemListElement.itemList) {
-          paymentData.addItem(item.code, item.price);
+          paymentData.addItem(item.code);
         }
         dataBuilder.add(paymentData);
       }
