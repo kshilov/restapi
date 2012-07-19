@@ -23,4 +23,4 @@ fi
 dch -v "${VERSION}-1" "release $VERSION"
 
 git commit -am "prepare release $VERSION"
-git tag $VERSION
+git tag -f $VERSION
