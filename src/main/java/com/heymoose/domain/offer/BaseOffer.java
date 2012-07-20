@@ -123,7 +123,6 @@ public abstract class BaseOffer extends BaseEntity {
   
   public void setCost(BigDecimal cost) {
     this.cost = cost;
-    this.percent = null;
   }
 
   public void setCost2(BigDecimal cost2) {
@@ -136,7 +135,6 @@ public abstract class BaseOffer extends BaseEntity {
   
   public void setPercent(BigDecimal percent) {
     this.percent = percent;
-    this.cost = null;
   }
 
   public boolean active() {
