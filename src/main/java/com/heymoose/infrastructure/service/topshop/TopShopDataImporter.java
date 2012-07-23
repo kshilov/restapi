@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
+import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
@@ -24,11 +25,13 @@ public class TopShopDataImporter {
 
   private final Repo repo;
   private final Tracking tracking;
+  private final OfferActions actions;
 
   @Inject
-  public TopShopDataImporter(Repo repo, Tracking tracking) {
+  public TopShopDataImporter(Repo repo, Tracking tracking, OfferActions actions) {
     this.repo = repo;
     this.tracking = tracking;
+    this.actions = actions;
   }
 
   @Transactional
@@ -53,8 +56,7 @@ public class TopShopDataImporter {
       if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
           payment.status().equals(TopShopPaymentData.Status.CANCELED)) {
         log.info("Canceling action {}.", offerAction.id());
-        offerAction.cancel();
-        repo.put(offerAction);
+        actions.cancel(offerAction);
         return;
       }
       log.warn("Token {} was already converted, offerAction={}, skiping",
