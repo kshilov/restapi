@@ -1,14 +1,17 @@
 package com.heymoose.infrastructure.context;
 
-import static com.google.common.collect.Maps.newHashMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.heymoose.infrastructure.service.ActionImporter;
-import com.heymoose.infrastructure.service.Mlm;
 import com.heymoose.infrastructure.job.Job;
 import com.heymoose.infrastructure.job.Scheduler;
+import com.heymoose.infrastructure.service.ActionImporter;
+import com.heymoose.infrastructure.service.Mlm;
 import com.heymoose.infrastructure.util.PropertiesUtil;
-import static com.heymoose.infrastructure.util.PropertiesUtil.subTree;
+import org.hibernate.cfg.Configuration;
+import org.joda.time.DateTime;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -17,10 +20,9 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import org.hibernate.cfg.Configuration;
-import org.joda.time.DateTime;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static com.heymoose.infrastructure.util.PropertiesUtil.subTree;
 
 public class ProductionModule extends AbstractModule {
 
@@ -85,5 +87,10 @@ public class ProductionModule extends AbstractModule {
     });
     scheduler.schedule();
     return scheduler;
+  }
+
+  @Provides @Named("topshop.import.url") @Singleton
+  protected String topshopUrl(@Named("settings") Properties settings) {
+    return settings.get("topshop.import.url").toString();
   }
 }

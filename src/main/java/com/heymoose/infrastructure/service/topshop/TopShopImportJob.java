@@ -1,11 +1,13 @@
 package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.io.InputSupplier;
+import com.google.inject.name.Named;
 import com.heymoose.infrastructure.job.Job;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -22,7 +24,8 @@ public final class TopShopImportJob implements Job {
   private final TopShopDataImporter importer;
   private final TopShopXmlConverter converter = new TopShopXmlConverter();
 
-  public TopShopImportJob(String url, TopShopDataImporter importer) {
+  @Inject
+  public TopShopImportJob(@Named("topshop.import.url") String url, TopShopDataImporter importer) {
     this.importer = importer;
     try {
       this.url = new URL(url);
@@ -33,6 +36,7 @@ public final class TopShopImportJob implements Job {
 
   @Override
   public void run(DateTime plannedStartTime) throws Exception {
+    log.info("** Topshop import started. **");
     URLConnection connection = url.openConnection();
     final InputStream input = connection.getInputStream();
     List<TopShopPaymentData> converted =
