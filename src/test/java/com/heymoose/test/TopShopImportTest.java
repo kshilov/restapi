@@ -77,6 +77,7 @@ public final class TopShopImportTest extends RestTest {
             "<item_list>" +
               "<item>" + itemCode.toString() + "</item>" +
             "</item_list>" +
+            "<status>20</status>" +
           "</payment>" +
         "</payment_list>";
     // manually start transaction, because not using guice
