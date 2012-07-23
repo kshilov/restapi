@@ -5,9 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.domain.topshop.TopShopProduct;
 import com.heymoose.infrastructure.persistence.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,11 +57,12 @@ public class TopShopDataImporter {
     ImmutableMap.Builder<BaseOffer, Optional<Double>> offerMap =
         ImmutableMap.builder();
     for (Long itemId : payment.items()) {
-      TopShopProduct product = repo.byHQL(TopShopProduct.class,
-          "from TopShopProduct where id = ?", itemId);
+      SubOffer topshopOffer = repo.byHQL(SubOffer.class,
+          "from SubOffer where code = ?", itemId.toString());
+      List<Offer> all = repo.allByHQL(Offer.class, "from Offer");
       log.info("Adding conversion for offer '{}' price '{}'",
-          product.offer().id(), product.price());
-      offerMap.put(product.offer(), Optional.of(product.price().doubleValue()));
+          topshopOffer.id(), topshopOffer.cost());
+      offerMap.put(topshopOffer, Optional.of(topshopOffer.cost().doubleValue()));
     }
     tracking.trackConversion(token, payment.transactionId(), offerMap.build());
   }

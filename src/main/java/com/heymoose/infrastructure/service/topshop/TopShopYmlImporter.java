@@ -52,6 +52,16 @@ public class TopShopYmlImporter {
           .put(10, SIX)     // подарки, украшения
           .build();
 
+  public static SubOffer topshopSubOffer(Offer parent, BigDecimal percent,
+                                          Long productId,
+                                          String productName,
+                                          BigDecimal productPrice) {
+    return new SubOffer(
+        parent.id(), CpaPolicy.PERCENT, productPrice, null,
+        percent, productName, false, true, productId.toString(),
+        parent.holdDays());
+  }
+
 
   private static Map<Integer, Integer> mapChildToParent(YmlCatalog catalog) {
     HashMap<Integer, Integer> parentMap = Maps.newHashMap();
@@ -96,10 +106,10 @@ public class TopShopYmlImporter {
   private static SubOffer mapYmlOfferToHeymooseSubOffer(Offer parent,
                                                         BigDecimal percent,
                                                         com.heymoose.infrastructure.service.yml.Offer product) {
-    return new SubOffer(parent.id(), CpaPolicy.PERCENT,
-        new BigDecimal(product.getPrice()), null, percent, name(product),
-        false, true, product.getId(), parent.holdDays());
+    return topshopSubOffer(parent, percent, Long.valueOf(product.getId()),
+        name(product), new BigDecimal(product.getPrice()));
   }
+
 
   private final Repo repo;
 

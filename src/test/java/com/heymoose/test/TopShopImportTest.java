@@ -3,17 +3,19 @@ package com.heymoose.test;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.domain.topshop.TopShopProduct;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopPaymentData;
 import com.heymoose.infrastructure.service.topshop.TopShopXmlConverter;
+import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -63,9 +65,9 @@ public final class TopShopImportTest extends RestTest {
     Long itemCode = 123L;
     String txId = "top-shop-order-id";
     Double price = 100.0;
+    Repo repo = injector().getInstance(Repo.class);
     TopShopDataImporter importer = new TopShopDataImporter(
-        injector().getInstance(Repo.class),
-        injector().getInstance(Tracking.class));
+        repo, injector().getInstance(Tracking.class));
     TopShopXmlConverter converter = new TopShopXmlConverter();
     String topShopXml =
         "<payment_list>" +
@@ -73,9 +75,7 @@ public final class TopShopImportTest extends RestTest {
             "<order_id>" + txId + "</order_id>" +
             "<key>http://anyurl.com?_hm_token=" + token.value() + "</key>" +
             "<item_list>" +
-              "<item>" +
-                "<code>" + itemCode.toString() + "</code>" +
-              "</item>" +
+              "<item>" + itemCode.toString() + "</item>" +
             "</item_list>" +
           "</payment>" +
         "</payment_list>";
@@ -83,10 +83,23 @@ public final class TopShopImportTest extends RestTest {
     Session session = injector().getProvider(Session.class).get();
     Transaction tx = session.beginTransaction();
     try {
-      Repo repo = injector().getInstance(Repo.class);
-      repo.put(new TopShopProduct(itemCode)
-          .setOffer(repo.get(Offer.class, offerId))
-          .setPrice(new BigDecimal(price)));
+      Offer parentOffer = repo.get(Offer.class, offerId);
+      SubOffer productSubOffer = TopShopYmlImporter.topshopSubOffer(
+          parentOffer, new BigDecimal(PERCENT), itemCode,
+          "ProductName", new BigDecimal(price));
+      repo.put(productSubOffer);
+      OfferGrant grant = new OfferGrant(productSubOffer.id(), affId, "");
+      grant.approve();
+      repo.put(grant);
+      tx.commit();
+    } catch (Exception e) {
+      tx.rollback();
+      throw e;
+    }
+
+    session = injector().getProvider(Session.class).get();
+    tx = session.beginTransaction();
+    try {
       List<TopShopPaymentData> data = converter.convert(input(topShopXml));
       importer.doImport(data);
       tx.commit();
