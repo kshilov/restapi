@@ -3,7 +3,10 @@ package com.heymoose.infrastructure.service.topshop;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.annotation.XmlElement;
@@ -32,7 +35,7 @@ public final class TopShopXmlConverter {
     @XmlElement
     public String cart;
     @XmlElement
-    public int status;
+    public Integer status;
     @XmlElement(name = "item_list")
     public XmlTopShopItemList itemListElement;
   }
@@ -43,6 +46,12 @@ public final class TopShopXmlConverter {
     @XmlElement(name = "item")
     public List<Long> itemList = Lists.newArrayList();
   }
+
+  private static final Logger log =
+      LoggerFactory.getLogger(TopShopXmlConverter.class);
+  private static final int STATUS_CREATED = 10;
+  private static final int STATUS_COMPLETE = 20;
+  private static final int STATUS_CANCELED = 30;
 
   /**
    * @param inputSupplier input supplier with top shop xml
@@ -64,11 +73,24 @@ public final class TopShopXmlConverter {
         Map<String, String> requestParamMap = parseParamMap(
             new URL(payment.key));
         String token = requestParamMap.get("_hm_token");
-        if (token == null)
+        if (token == null) {
+          log.warn("Token param not found in url for order: {}. Skipping",
+              payment.orderId);
           continue;
+        }
         TopShopPaymentData paymentData = new TopShopPaymentData();
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
+        switch (payment.status) {
+          case STATUS_CREATED:
+            paymentData.setStatus(TopShopPaymentData.Status.CREATED);
+            break;
+          case STATUS_COMPLETE:
+            paymentData.setStatus(TopShopPaymentData.Status.COMPLETE);
+            break;
+          case STATUS_CANCELED:
+            paymentData.setStatus(TopShopPaymentData.Status.CANCELED);
+        }
         for (Long item : payment.itemListElement.itemList) {
           paymentData.addItem(item);
         }
@@ -78,11 +100,7 @@ public final class TopShopXmlConverter {
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
-      try {
-        input.close();
-      } catch (Exception e) {
-
-      }
+      Closeables.closeQuietly(input);
     }
   }
 

@@ -7,8 +7,13 @@ import java.util.List;
 
 public final class TopShopPaymentData {
 
+  public enum Status {
+    CREATED, COMPLETE, CANCELED
+  }
+
   private String heymooseToken;
   private String transactionId;
+  private Status status = Status.CREATED;
   private final List<Long> itemList = Lists.newArrayList();
 
   public TopShopPaymentData setToken(String token) {
@@ -26,6 +31,11 @@ public final class TopShopPaymentData {
     return this;
   }
 
+  public TopShopPaymentData setStatus(Status status) {
+    this.status = status;
+    return this;
+  }
+
   public String token() {
     return this.heymooseToken;
   }
@@ -36,6 +46,10 @@ public final class TopShopPaymentData {
 
   public List<Long> items() {
     return ImmutableList.copyOf(itemList);
+  }
+
+  public Status status() {
+    return this.status;
   }
 
 }

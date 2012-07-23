@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service.topshop;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.action.OfferAction;
+import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
@@ -49,6 +50,13 @@ public class TopShopDataImporter {
     OfferAction offerAction = repo.byHQL(OfferAction.class,
         "from OfferAction where token = ?", token);
     if (offerAction != null) {
+      if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
+          payment.status().equals(TopShopPaymentData.Status.CANCELED)) {
+        log.info("Canceling action {}.", offerAction.id());
+        offerAction.cancel();
+        repo.put(offerAction);
+        return;
+      }
       log.warn("Token {} was already converted, offerAction={}, skiping",
           payment.token(), offerAction.id());
       return;
