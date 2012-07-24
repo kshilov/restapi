@@ -29,40 +29,39 @@ where
 
 
 select
-  case when referrer.id is null
-    then
-      null
-    else
-      transfer_money(
-        dst.amount * $2,
-        null,
-        7,      /* MLM */
-        $1,
-        admin_acc_nc.account_id,
-        referrer.affiliate_account_id)
-    end mlm,
-    case when referrer.id is null
-      then
-        transfer_money(
-          dst.amount,
-          null, /* description */
-          2,    /* event = action_approved */
-          $1,   /* source_id */
-          admin_acc_nc.account_id,  /* account_from_id */
-          admin_acc.account_id)     /* account_to_id */
-      else
-        transfer_money(
-          dst.amount * (1 - $2),
-          null, /* description */
-          2,    /* event = action_approved */
-          $1,   /* source_id */
-          admin_acc_nc.account_id,  /* account_from_id */
-          admin_acc.account_id)     /* account_to_id */
-      end admin_fee
+    transfer_money(
+      dst.amount,
+      null, /* description */
+      2,    /* event = action_approved */
+      $1,   /* source_id */
+      admin_acc_nc.account_id,  /* account_from_id */
+      admin_acc.account_id)     /* account_to_id */
 from offer_action action
 
 left join admin_account_not_confirmed admin_acc_nc
 on admin_acc_nc.id is not null
+
+left join admin_account admin_acc
+on admin_acc.id is not null
+
+left join accounting_entry dst
+on
+  dst.event = 1 /*action_created*/
+  and dst.source_id = action.id
+  and dst.amount > 0
+  and dst.account_id = admin_acc_nc.account_id
+where
+  action.id = $1;
+
+select
+  transfer_money(
+    dst.amount * $2,
+    null,
+    7,    /* MLM */
+    $1,
+    admin_acc.account_id,
+    referrer.affiliate_account_id)
+from offer_action action
 
 left join admin_account admin_acc
 on admin_acc.id is not null
@@ -75,12 +74,14 @@ on referrer.id = affiliate.referrer
 
 left join accounting_entry dst
 on
-  dst.event = 1 /*action_created*/
+  dst.event = 2 /*action_approved*/
   and dst.source_id = action.id
   and dst.amount > 0
-  and dst.account_id = admin_acc_nc.account_id
+  and dst.account_id = admin_acc.account_id
+
 where
-  action.id = $1;
+  action.id = $1
+  and referrer.id is not null;
 
 update offer_action
 set state = 1
@@ -88,3 +89,5 @@ where id = $1
 returning id;
 
 $_$;
+
+
