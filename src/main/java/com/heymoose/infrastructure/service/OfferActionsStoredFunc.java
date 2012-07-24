@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -21,11 +22,14 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
   private final OfferActionsHiber offerActionsHiber;
   private final Repo repo;
+  private final double mlmRate;
 
   @Inject
-  public OfferActionsStoredFunc(OfferActionsHiber offerActionsHiber, Repo repo) {
+  public OfferActionsStoredFunc(OfferActionsHiber offerActionsHiber, Repo repo,
+                                @Named("mlm-ratio") double mlmRate) {
     this.offerActionsHiber = offerActionsHiber;
     this.repo = repo;
+    this.mlmRate = mlmRate;
   }
   @Override
   public Integer approveExpired(Offer offer) {
@@ -56,8 +60,9 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public void approve(OfferAction action) {
     DateTime start = DateTime.now();
-    repo.session().createSQLQuery("select approve(:action_id)")
+    repo.session().createSQLQuery("select approve(:action_id, :mlmRate)")
         .setParameter("action_id", action.id())
+        .setParameter("mlmRate", mlmRate)
         .uniqueResult();
     log.info("Approve time: {}",
         Period.fieldDifference(
