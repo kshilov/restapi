@@ -127,3 +127,40 @@ where
                   source_id = action.id
                   and event = 7);
 
+/* approve expired */
+drop function approve_expired();
+CREATE FUNCTION approve_expired(mlm_rate numeric) RETURNS SETOF bigint
+    LANGUAGE sql
+    AS $$
+  select
+    approve(action.id, $1)
+  from offer
+  left join offer_action action
+  on action.offer_id = offer.id
+  where
+    cast(now() as date) - cast(action.creation_time as date) > offer.hold_days
+    and action.state = 0;
+$$;
+
+
+drop function approve_expired(bigint);
+CREATE FUNCTION approve_expired(offer_id bigint, mlm_rate numeric) RETURNS SETOF bigint
+    LANGUAGE sql
+    AS $_$
+  select
+    approve(action.id, $2)
+  from offer
+  left join offer_action action
+  on action.offer_id = offer.id
+  where
+    cast(now() as date) - cast(action.creation_time as date) > offer.hold_days
+    and action.state = 0
+    and action.offer_id in (
+      select $1
+      union
+      select id
+      from offer
+      where parent_id = $1
+    );
+$_$;
+

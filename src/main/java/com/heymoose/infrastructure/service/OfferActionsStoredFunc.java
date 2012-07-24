@@ -37,12 +37,14 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
     if (offer != null) {
       return repo.session()
-          .createSQLQuery("select approve_expired(:offer_id)")
+          .createSQLQuery("select approve_expired(:offer_id, :mlm_rate)")
           .setParameter("offer_id", offer.id())
+          .setParameter("mlm_rate", mlmRate)
           .list().size();
     }
     int size = repo.session()
-        .createSQLQuery("select approve_expired();")
+        .createSQLQuery("select approve_expired(:mlm_rate);")
+        .setParameter("mlm_rate", mlmRate)
         .list().size();
 
     log.info("Total approve time: {}",
