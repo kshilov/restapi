@@ -1,0 +1,90 @@
+drop function approve(bigint);
+
+CREATE FUNCTION approve(action_id bigint, mlm numeric) RETURNS bigint
+    LANGUAGE sql
+    AS $_$
+
+select
+    transfer_money(
+      dst.amount,
+      null, /* description */
+      2,    /* event = action_approved */
+      $1,   /* source_id */
+      affiliate.affiliate_account_not_confirmed_id, /* account_from_id */
+      affiliate.affiliate_account_id),              /* account_to_id */
+    offer_stat_approve(action.stat_id, dst.amount)
+from offer_action action
+
+left join user_profile affiliate
+on affiliate.id = action.aff_id
+
+left join accounting_entry dst
+on
+  dst.event = 1
+  and dst.source_id = action.id
+  and dst.account_id = affiliate.affiliate_account_not_confirmed_id
+  and dst.amount > 0
+where
+  action.id = $1;
+
+
+select
+  case when referrer.id is null
+    then
+      null
+    else
+      transfer_money(
+        dst.amount * $2,
+        null,
+        7,      /* MLM */
+        $1,
+        admin_acc_nc.account_id,
+        referrer.affiliate_account_id)
+    end mlm,
+    case when referrer.id is null
+      then
+        transfer_money(
+          dst.amount,
+          null, /* description */
+          2,    /* event = action_approved */
+          $1,   /* source_id */
+          admin_acc_nc.account_id,  /* account_from_id */
+          admin_acc.account_id)     /* account_to_id */
+      else
+        transfer_money(
+          dst.amount * (1 - $2),
+          null, /* description */
+          2,    /* event = action_approved */
+          $1,   /* source_id */
+          admin_acc_nc.account_id,  /* account_from_id */
+          admin_acc.account_id)     /* account_to_id */
+      end admin_fee
+from offer_action action
+
+left join admin_account_not_confirmed admin_acc_nc
+on admin_acc_nc.id is not null
+
+left join admin_account admin_acc
+on admin_acc.id is not null
+
+left join user_profile affiliate
+on affiliate.id = action.aff_id
+
+left join user_profile referrer
+on referrer.id = affiliate.referrer
+
+left join accounting_entry dst
+on
+  dst.event = 1 /*action_created*/
+  and dst.source_id = action.id
+  and dst.amount > 0
+  and dst.account_id = admin_acc_nc.account_id
+where
+  action.id = $1;
+
+update offer_action
+set state = 1
+where id = $1
+returning id;
+
+$_$;
