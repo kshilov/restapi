@@ -90,4 +90,40 @@ returning id;
 
 $_$;
 
+/* do all not created mlm */
+
+select
+  transfer_money(
+    dst.amount * 0.07, /* MLM RATE */
+    null,
+    7,    /* MLM */
+    action.id,
+    admin_acc.account_id,
+    referrer.affiliate_account_id)
+from offer_action action
+
+left join admin_account admin_acc
+on admin_acc.id is not null
+
+left join user_profile affiliate
+on affiliate.id = action.aff_id
+
+left join user_profile referrer
+on referrer.id = affiliate.referrer
+
+left join accounting_entry dst
+on
+  dst.event = 2 /*action_approved*/
+  and dst.source_id = action.id
+  and dst.amount > 0
+  and dst.account_id = admin_acc.account_id
+
+where
+  action.state = 1 /* action approved */
+  and referrer.id is not null
+  and not exists (select *
+                  from accounting_entry
+                  where
+                  source_id = action.id
+                  and event = 7);
 
