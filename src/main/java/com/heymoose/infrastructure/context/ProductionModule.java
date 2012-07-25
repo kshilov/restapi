@@ -93,4 +93,9 @@ public class ProductionModule extends AbstractModule {
   protected String topshopUrl(@Named("settings") Properties settings) {
     return settings.get("topshop.import.url").toString();
   }
+
+  @Provides @Named("topshop.offer") @Singleton
+  protected String topshopOffer(@Named("settings") Properties settings) {
+    return settings.get("topshop.offer").toString();
+  }
 }

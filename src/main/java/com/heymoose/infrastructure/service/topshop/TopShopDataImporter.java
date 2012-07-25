@@ -2,12 +2,12 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.name.Named;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
@@ -26,12 +26,16 @@ public class TopShopDataImporter {
   private final Repo repo;
   private final Tracking tracking;
   private final OfferActions actions;
+  private final Long parentOfferId;
 
   @Inject
-  public TopShopDataImporter(Repo repo, Tracking tracking, OfferActions actions) {
+  public TopShopDataImporter(@Named("topshop.offer") String parentOffer,
+                             Repo repo, Tracking tracking,
+                             OfferActions actions) {
     this.repo = repo;
     this.tracking = tracking;
     this.actions = actions;
+    this.parentOfferId = Long.valueOf(parentOffer);
   }
 
   @Transactional
@@ -68,7 +72,8 @@ public class TopShopDataImporter {
         ImmutableMap.builder();
     for (Long itemId : payment.items()) {
       SubOffer topshopOffer = repo.byHQL(SubOffer.class,
-          "from SubOffer where code = ?", itemId.toString());
+          "from SubOffer where parent_id = ? and code = ?",
+          parentOfferId, itemId.toString());
       log.info("Adding conversion for offer '{}' price '{}'",
           topshopOffer.id(), topshopOffer.cost());
       offerMap.put(topshopOffer, Optional.of(topshopOffer.cost().doubleValue()));

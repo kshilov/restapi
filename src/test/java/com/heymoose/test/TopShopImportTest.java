@@ -68,6 +68,7 @@ public final class TopShopImportTest extends RestTest {
     Double price = 100.0;
     Repo repo = injector().getInstance(Repo.class);
     TopShopDataImporter importer = new TopShopDataImporter(
+        String.valueOf(offerId),
         repo,
         injector().getInstance(Tracking.class),
         injector().getInstance(OfferActions.class));
