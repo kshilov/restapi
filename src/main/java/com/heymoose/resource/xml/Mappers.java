@@ -1,22 +1,30 @@
 package com.heymoose.resource.xml;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.Role;
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.errorinfo.ErrorInfo;
-import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.SqlLoader;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Map;
 
 public class Mappers {
+
+  private static Logger log = LoggerFactory.getLogger(Mappers.class);
 
   private Mappers() {
   }
@@ -218,8 +226,6 @@ public class Mappers {
     xmlOffer.cookieTtl = offer.cookieTtl();
     xmlOffer.tokenParamName = offer.tokenParamName();
 
-    for (SubOffer suboffer : offer.suboffers())
-      xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
 
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
@@ -230,6 +236,14 @@ public class Mappers {
     for (String region : offer.regions())
       xmlOffer.regions.add(region);
 
+    return xmlOffer;
+  }
+
+  public static XmlOffer toXmlOfferWithSubOffers(Offer offer,
+                                                 Iterable<SubOffer> subOffers,
+                                                 Long subOffersCount) {
+    XmlOffer xmlOffer = toXmlOffer(offer);
+    xmlOffer.suboffers = toXmlSubOffers(subOffers, subOffersCount);
     return xmlOffer;
   }
 

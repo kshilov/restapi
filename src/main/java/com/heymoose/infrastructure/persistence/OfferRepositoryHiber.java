@@ -4,6 +4,7 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferFilter;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.domain.offer.SubOffer;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -16,6 +17,8 @@ import org.joda.time.DateTime;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import java.util.List;
+import java.util.Map;
 
 import static com.heymoose.infrastructure.util.HibernateUtil.addEqRestrictionIfNotNull;
 
@@ -91,7 +94,35 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
   protected Class<Offer> getEntityClass() {
     return Offer.class;
   }
-  
+
+  @SuppressWarnings("unchecked")
+  public Iterable<SubOffer> subOffers(int offset, int limit, Long parentOfferId) {
+    return (List<SubOffer>) hiber()
+        .createQuery("from SubOffer where parentId = :parentId")
+        .setParameter("parentId", parentOfferId)
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .list();
+  }
+
+  @SuppressWarnings("unchecked")
+  public Long countSubOffers(Long parentOfferId) {
+    return (Long) hiber()
+        .createQuery(
+            "select count(*) from SubOffer " +
+            "where parentId = :parentId")
+        .setParameter("parentId", parentOfferId)
+        .uniqueResult();
+  }
+
+  public SubOffer subOfferByIdAndParentId(Long id, Long parentId) {
+    return (SubOffer) hiber()
+        .createQuery("from SubOffer where id = :id and parentId = :parentId")
+        .setParameter("id", id)
+        .setParameter("parentId", parentId)
+        .uniqueResult();
+  }
+
   private static void setOrdering(Criteria criteria, Ordering ord, boolean asc) {
     switch (ord) {
     case ID: criteria.addOrder(order("id", asc)); break;

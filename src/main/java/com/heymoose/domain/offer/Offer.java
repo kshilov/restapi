@@ -28,6 +28,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.heymoose.domain.grant.OfferGrant;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 import org.hibernate.annotations.Type;
@@ -41,7 +42,7 @@ public class Offer extends BaseOffer {
   @JoinColumn(name = "user_id")
   protected User advertiser;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent",fetch = FetchType.LAZY, orphanRemoval = true)
   protected Set<SubOffer> suboffers;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
@@ -162,12 +163,6 @@ public class Offer extends BaseOffer {
 
   public User advertiser() {
     return advertiser;
-  }
-
-  public Iterable<SubOffer> suboffers() {
-    if (suboffers == null)
-      emptySet();
-    return unmodifiableSet(suboffers);
   }
 
   public Iterable<OfferGrant> grants() {

@@ -1,16 +1,14 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.user.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
-import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantFilter;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.CpaPolicy;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferFilter;
 import com.heymoose.domain.offer.OfferRepository;
@@ -18,8 +16,10 @@ import com.heymoose.domain.offer.OfferRepository.Ordering;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.service.BannerStore;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -27,6 +27,8 @@ import com.heymoose.resource.xml.XmlSubOffers;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,12 +52,15 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.heymoose.resource.Exceptions.*;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static com.heymoose.resource.Exceptions.*;
 
 @Path("offers")
 @Singleton
 public class OfferResource {
+
+  private static final int SUB_OFFER_COUNT = 5;
+  private static final Logger log = LoggerFactory.getLogger(OfferResource.class);
 
   private final OfferRepository offers;
   private final SubOfferRepository subOffers;
@@ -111,14 +116,21 @@ public class OfferResource {
 
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit, filter);
     long count = this.offers.count(filter);
+    XmlOffers xmlOffers = null;
     if (affiliateId != null && count > 0) {
       List<Long> offerIds = newArrayList();
       for (Offer offer : offers)
         offerIds.add(offer.id());
       Map<Long, OfferGrant> grants = offerGrants.byOffersAndAffiliate(offerIds, affiliateId);
-      return Mappers.toXmlOffers(offers, grants, count);
+      xmlOffers = Mappers.toXmlOffers(offers, grants, count);
     } else
-      return Mappers.toXmlOffers(offers, count);
+      xmlOffers = Mappers.toXmlOffers(offers, count);
+    for (XmlOffer xmlOffer : xmlOffers.offers) {
+      xmlOffer.suboffers = Mappers.toXmlSubOffers(
+          this.offers.subOffers(0, SUB_OFFER_COUNT, xmlOffer.id),
+          this.offers.countSubOffers(xmlOffer.id));
+    }
+    return xmlOffers;
   }
 
   @GET
@@ -161,7 +173,11 @@ public class OfferResource {
     Offer offer = existing(offerId);
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
-    return Mappers.toXmlOffer(offer);
+
+    DateTime start = DateTime.now();
+    Iterable<SubOffer> subOffers = offers.subOffers(0, SUB_OFFER_COUNT, offer.id());
+    Long subOffersCount = offers.countSubOffers(offer.id());
+    return Mappers.toXmlOfferWithSubOffers(offer, subOffers, subOffersCount);
   }
 
   @GET
@@ -426,12 +442,7 @@ public class OfferResource {
   public void updateSuboffer(@Context HttpContext context,
                              @PathParam("id") long offerId, @PathParam("subofferId") long subofferId) {
     Offer offer = existing(offerId);
-    SubOffer suboffer = null;
-    for (SubOffer sub : offer.suboffers())
-      if (sub.id().equals(subofferId)) {
-        suboffer = sub;
-        break;
-      }
+    SubOffer suboffer = offers.subOfferByIdAndParentId(subofferId, offerId);
     if (suboffer == null)
       throw badRequest();
 

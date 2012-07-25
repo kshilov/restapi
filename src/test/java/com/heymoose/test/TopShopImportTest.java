@@ -2,6 +2,7 @@ package com.heymoose.test;
 
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.OfferAction;
+import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.CpaPolicy;
@@ -67,7 +68,9 @@ public final class TopShopImportTest extends RestTest {
     Double price = 100.0;
     Repo repo = injector().getInstance(Repo.class);
     TopShopDataImporter importer = new TopShopDataImporter(
-        repo, injector().getInstance(Tracking.class));
+        repo,
+        injector().getInstance(Tracking.class),
+        injector().getInstance(OfferActions.class));
     TopShopXmlConverter converter = new TopShopXmlConverter();
     String topShopXml =
         "<payment_list>" +
