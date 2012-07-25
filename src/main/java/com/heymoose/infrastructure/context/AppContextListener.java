@@ -8,12 +8,13 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
-import com.heymoose.infrastructure.job.Scheduler;
 import com.heymoose.infrastructure.service.topshop.TopShopImportJob;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.ServletContextEvent;
 import java.util.Properties;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class AppContextListener extends GuiceServletContextListener {
   @Override
@@ -40,19 +41,19 @@ public class AppContextListener extends GuiceServletContextListener {
 
     Properties properties = injector.getInstance(
         Key.get(Properties.class, Names.named("settings")));
-    String[] topshopImportTime = properties.get("topshop.import.time")
-        .toString().split(":");
+    Integer topshopImportPeriod = Integer.valueOf(
+        properties.get("topshop.import.period").toString());
+    final ScheduledThreadPoolExecutor topshopExecutor =
+        new ScheduledThreadPoolExecutor(1);
     TopShopImportJob topshopImportJob = injector.getInstance(TopShopImportJob.class);
-    Scheduler topshopDataImport = new Scheduler(
-        Integer.valueOf(topshopImportTime[0]),
-        Integer.valueOf(topshopImportTime[1]),
-        topshopImportJob);
-    topshopDataImport.schedule();
+    topshopExecutor.scheduleAtFixedRate(
+        topshopImportJob, 0, topshopImportPeriod, TimeUnit.MINUTES);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         bufferedShows.flushAll();
         bufferedClicks.flushAll();
+        topshopExecutor.shutdown();
       }
     });
   }

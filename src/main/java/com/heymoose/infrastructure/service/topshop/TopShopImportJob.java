@@ -2,8 +2,6 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.io.InputSupplier;
 import com.google.inject.name.Named;
-import com.heymoose.infrastructure.job.Job;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-public final class TopShopImportJob implements Job {
+public final class TopShopImportJob implements Runnable {
 
   private static final Logger log =
       LoggerFactory.getLogger(TopShopImportJob.class);
@@ -25,7 +23,8 @@ public final class TopShopImportJob implements Job {
   private final TopShopXmlConverter converter = new TopShopXmlConverter();
 
   @Inject
-  public TopShopImportJob(@Named("topshop.import.url") String url, TopShopDataImporter importer) {
+  public TopShopImportJob(@Named("topshop.import.url") String url,
+                          TopShopDataImporter importer) {
     this.importer = importer;
     try {
       this.url = new URL(url);
@@ -35,18 +34,22 @@ public final class TopShopImportJob implements Job {
   }
 
   @Override
-  public void run(DateTime plannedStartTime) throws Exception {
-    log.info("** Topshop import started. **");
-    URLConnection connection = url.openConnection();
-    final InputStream input = connection.getInputStream();
-    List<TopShopPaymentData> converted =
-        converter.convert(new InputSupplier<InputStream>() {
-      @Override
-      public InputStream getInput() throws IOException {
-        return input;
-      }
-    });
+  public void run() {
+    try {
+      log.info("** Topshop import started. **");
+      URLConnection connection = url.openConnection();
+      final InputStream input = connection.getInputStream();
+      List<TopShopPaymentData> converted =
+          converter.convert(new InputSupplier<InputStream>() {
+        @Override
+        public InputStream getInput() throws IOException {
+          return input;
+        }
+      });
     importer.doImport(converted);
+    } catch (Throwable e) {
+      log.error("Exception occurred during topshop data import.", e);
+    }
   }
 
 }
