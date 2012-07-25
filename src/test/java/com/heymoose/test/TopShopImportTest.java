@@ -66,6 +66,7 @@ public final class TopShopImportTest extends RestTest {
     Long itemCode = 123L;
     String txId = "top-shop-order-id";
     Double price = 100.0;
+    Long productSubOfferId = null;
     Repo repo = injector().getInstance(Repo.class);
     TopShopDataImporter importer = new TopShopDataImporter(
         String.valueOf(offerId),
@@ -93,6 +94,7 @@ public final class TopShopImportTest extends RestTest {
           parentOffer, new BigDecimal(PERCENT), itemCode,
           "ProductName", new BigDecimal(price));
       repo.put(productSubOffer);
+      productSubOfferId = productSubOffer.id();
       OfferGrant grant = new OfferGrant(productSubOffer.id(), affId, "");
       grant.approve();
       repo.put(grant);
@@ -123,6 +125,7 @@ public final class TopShopImportTest extends RestTest {
 
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());
+    assertEquals(offerId, (long) offerStat.master());
   }
 
   private InputSupplier<InputStream> input(final String str) {
