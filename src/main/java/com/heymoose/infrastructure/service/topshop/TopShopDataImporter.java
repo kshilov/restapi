@@ -69,7 +69,6 @@ public class TopShopDataImporter {
     for (Long itemId : payment.items()) {
       SubOffer topshopOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where code = ?", itemId.toString());
-      List<Offer> all = repo.allByHQL(Offer.class, "from Offer");
       log.info("Adding conversion for offer '{}' price '{}'",
           topshopOffer.id(), topshopOffer.cost());
       offerMap.put(topshopOffer, Optional.of(topshopOffer.cost().doubleValue()));
