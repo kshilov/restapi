@@ -8,6 +8,7 @@ import com.heymoose.domain.offer.SubOffer;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
@@ -18,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.List;
-import java.util.Map;
 
 import static com.heymoose.infrastructure.util.HibernateUtil.addEqRestrictionIfNotNull;
 
@@ -57,6 +57,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
   }
 
 
+  @SuppressWarnings("unchecked")
   @Override
   public Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                           long affiliateId, Boolean active) {
@@ -97,22 +98,37 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
 
   @SuppressWarnings("unchecked")
   public Iterable<SubOffer> subOffers(int offset, int limit, Long parentOfferId) {
-    return (List<SubOffer>) hiber()
-        .createQuery("from SubOffer where parentId = :parentId")
-        .setParameter("parentId", parentOfferId)
-        .setFirstResult(offset)
-        .setMaxResults(limit)
-        .list();
+    return subOffers(offset, limit, parentOfferId, true);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
+  public Iterable<SubOffer> subOffers(int offset, int limit, Long parentOfferId,
+                                      boolean activeOnly) {
+    Criteria criteria = hiber().createCriteria(SubOffer.class)
+        .add(Restrictions.eq("parentId", parentOfferId))
+        .addOrder(Order.desc("percent"))
+        .addOrder(Order.desc("cost"))
+        .addOrder(Order.asc("id"))
+        .setFirstResult(offset)
+        .setMaxResults(limit);
+    if (activeOnly)
+      criteria.add(Restrictions.eq("active", true));
+    return (List<SubOffer>) criteria.list();
+  }
+
   public Long countSubOffers(Long parentOfferId) {
-    return (Long) hiber()
-        .createQuery(
-            "select count(*) from SubOffer " +
-            "where parentId = :parentId")
-        .setParameter("parentId", parentOfferId)
-        .uniqueResult();
+    return countSubOffers(parentOfferId, true);
+  }
+
+  @Override
+  public Long countSubOffers(Long parentOfferId, boolean activeOnly) {
+    Criteria criteria = hiber().createCriteria(SubOffer.class)
+        .add(Restrictions.eq("parentId", parentOfferId))
+        .setProjection(Projections.count("id"));
+    if (activeOnly)
+      criteria.add(Restrictions.eq("active", true));
+    return (Long) criteria.uniqueResult();
   }
 
   public SubOffer subOfferByIdAndParentId(Long id, Long parentId) {

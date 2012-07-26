@@ -13,7 +13,10 @@ public interface OfferRepository extends Repository<Offer> {
                                    long affiliateId, Boolean active);
   long countRequested(long affiliateId, Boolean active);
   Iterable<SubOffer> subOffers(int offset, int limit, Long parentOfferId);
+  Iterable<SubOffer> subOffers(int offset, int limit, Long parentOfferId,
+                               boolean activeOnly);
   Long countSubOffers(Long parentOfferId);
+  Long countSubOffers(Long parentOfferId, boolean activeOnly);
   SubOffer subOfferByIdAndParentId(Long id, Long parentId);
 
   public enum Ordering {

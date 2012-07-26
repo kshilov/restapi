@@ -394,12 +394,16 @@ public class OfferResource {
   @GET
   @Path("{id}/suboffers")
   @Transactional
-  public XmlSubOffers listSuboffers(@PathParam("id") long parentId) {
+  public XmlSubOffers suboffers(@PathParam("id") long offerId,
+                                @QueryParam("active") @DefaultValue("false")
+                                boolean activeOnly,
+                                @QueryParam("offset") @DefaultValue("0") int offset,
+                                @QueryParam("limit") @DefaultValue("20") int limit) {
     return Mappers.toXmlSubOffers(
-        subOffers.list(parentId),
-        subOffers.count(parentId)
-    );
+        offers.subOffers(offset, limit, offerId, activeOnly),
+        offers.countSubOffers(offerId, activeOnly));
   }
+
 
   @POST
   @Path("{id}/suboffers")
