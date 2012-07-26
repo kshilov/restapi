@@ -12,7 +12,7 @@ public class XmlSubOffers {
   
   @XmlAttribute(name = "count")
   public Long count;
-  
+
   @XmlElement(name = "suboffer")
   public List<XmlSubOffer> suboffers = Lists.newArrayList();
 

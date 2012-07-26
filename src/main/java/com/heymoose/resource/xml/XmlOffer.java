@@ -1,6 +1,7 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
+import com.heymoose.domain.offer.SubOffer;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -21,8 +22,9 @@ public class XmlOffer {
   @XmlElement(name = "account")
   public XmlAccount account;
   
-  @XmlElement(name = "suboffers")
-  public XmlSubOffers suboffers;
+  @XmlElementWrapper(name = "suboffers")
+  @XmlElement(name = "suboffer")
+  public Set<XmlSubOffer> suboffers = Sets.newHashSet();
 
   @XmlElementWrapper(name = "categories")
   @XmlElement(name = "category")
