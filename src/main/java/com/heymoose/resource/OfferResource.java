@@ -126,6 +126,7 @@ public class OfferResource {
     } else
       xmlOffers = Mappers.toXmlOffers(offers, count);
     for (XmlOffer xmlOffer : xmlOffers.offers) {
+      if (xmlOffer.exclusive) continue;
       xmlOffer.suboffers = Mappers.toXmlSubOffers(
           this.offers.subOffers(0, SUB_OFFER_COUNT, xmlOffer.id),
           this.offers.countSubOffers(xmlOffer.id));
@@ -163,6 +164,7 @@ public class OfferResource {
     XmlOffers xmlOffers = new XmlOffers();
     xmlOffers.count = grantsCount;
     for (OfferGrant grant : grants) {
+      if (grant.offer().exclusive()) continue;
       Iterable<SubOffer> subOffers = offers.subOffers(
           0, SUB_OFFER_COUNT, grant.offerId());
       Long subCount = offers.countSubOffers(grant.offerId());
