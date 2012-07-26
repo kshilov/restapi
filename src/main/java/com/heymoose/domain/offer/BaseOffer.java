@@ -67,7 +67,7 @@ public abstract class BaseOffer extends BaseEntity {
   @Column(name = "hold_days")
   private int holdDays;
 
-  @Column(nullable = false)
+  @Column(name = "exclusive", nullable = false)
   private boolean exclusive = false;
 
   protected BaseOffer() {}
