@@ -1,6 +1,5 @@
 package com.heymoose.resource.xml;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -14,8 +13,6 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.SqlLoader;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,8 +244,11 @@ public class Mappers {
     return xmlOffer;
   }
 
-  public static XmlOffer toXmlGrantedNewOffer(OfferGrant grant) {
-    XmlOffer xmlOffer = toXmlOffer(grant.offer());
+  public static XmlOffer toXmlGrantedNewOffer(OfferGrant grant,
+                                              Iterable<SubOffer> subOffers,
+                                              Long subOfferCount) {
+    XmlOffer xmlOffer = toXmlOfferWithSubOffers(
+        grant.offer(), subOffers, subOfferCount);
     xmlOffer.grant = toXmlOfferGrant(grant, false);
     return xmlOffer;
   }
@@ -267,14 +267,6 @@ public class Mappers {
     for (XmlOffer xmlOffer : xmlOffers.offers)
       if (grants.containsKey(xmlOffer.id))
         xmlOffer.grant = toXmlOfferGrant(grants.get(xmlOffer.id), false);
-    return xmlOffers;
-  }
-
-  public static XmlOffers toXmlGrantedOffers(Iterable<OfferGrant> grants, Long count) {
-    XmlOffers xmlOffers = new XmlOffers();
-    xmlOffers.count = count;
-    for (OfferGrant grant : grants)
-      xmlOffers.offers.add(toXmlGrantedNewOffer(grant));
     return xmlOffers;
   }
 

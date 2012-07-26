@@ -158,10 +158,18 @@ public class OfferResource {
     if (cpaPolicy != null)
       filter.setCpaPolicy(CpaPolicy.valueOf(cpaPolicy.toUpperCase()));
 
-    return Mappers.toXmlGrantedOffers(
-        offerGrants.list(ord, asc, offset, limit, filter),
-        offerGrants.count(filter)
-    );
+    Iterable<OfferGrant> grants = offerGrants.list(ord, asc, offset, limit, filter);
+    Long grantsCount = offerGrants.count(filter);
+    XmlOffers xmlOffers = new XmlOffers();
+    xmlOffers.count = grantsCount;
+    for (OfferGrant grant : grants) {
+      Iterable<SubOffer> subOffers = offers.subOffers(
+          0, SUB_OFFER_COUNT, grant.offerId());
+      Long subCount = offers.countSubOffers(grant.offerId());
+      xmlOffers.offers.add(Mappers.toXmlGrantedNewOffer(
+          grant, subOffers, subCount));
+    }
+    return xmlOffers;
   }
 
   @GET
@@ -186,7 +194,9 @@ public class OfferResource {
   public XmlOffer getRequested(@PathParam("id") long offerId,
                                @QueryParam("aff_id") long affiliateId) {
     OfferGrant grant = existingGrant(offerId, affiliateId);
-    return Mappers.toXmlGrantedNewOffer(grant);
+    Iterable<SubOffer> subOffers = offers.subOffers(0, SUB_OFFER_COUNT, offerId);
+    Long subOfferCount = offers.countSubOffers(offerId);
+    return Mappers.toXmlGrantedNewOffer(grant, subOffers, subOfferCount);
   }
 
   @POST
