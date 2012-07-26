@@ -67,8 +67,8 @@ public abstract class BaseOffer extends BaseEntity {
   @Column(name = "hold_days")
   private int holdDays;
 
-  @Column
-  private boolean exclusive;
+  @Column(nullable = false)
+  private boolean exclusive = false;
 
   protected BaseOffer() {}
 
@@ -138,6 +138,10 @@ public abstract class BaseOffer extends BaseEntity {
   
   public void setPercent(BigDecimal percent) {
     this.percent = percent;
+  }
+
+  public void setExclusive(boolean exclusive) {
+    this.exclusive = exclusive;
   }
 
   public boolean active() {

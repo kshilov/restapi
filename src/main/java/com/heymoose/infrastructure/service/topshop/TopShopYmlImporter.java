@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TopShopYmlImporter {
 
@@ -51,6 +53,8 @@ public class TopShopYmlImporter {
           .put(8, SIX)      // одежда и обувь
           .put(10, SIX)     // подарки, украшения
           .build();
+  private static final Set<Integer> EXCLUSIVE_CATEGORIES =
+      ImmutableSet.of(12, 17, 18, 19);
 
   public static SubOffer topshopSubOffer(Offer parent, BigDecimal percent,
                                           Long productId,
@@ -140,6 +144,8 @@ public class TopShopYmlImporter {
 
     Map<Integer, Integer> childToParentCategory = mapChildToParent(catalog);
     Offer parentOffer = repo.get(Offer.class, parentOfferId);
+    parentOffer.setExclusive(true);
+    repo.put(parentOffer);
 
 
     for (com.heymoose.infrastructure.service.yml.Offer catalogOffer :
@@ -165,6 +171,9 @@ public class TopShopYmlImporter {
           parentOffer,
           CATEGORY_PERCENT_MAP.get(parentCategory),
           catalogOffer);
+      if (EXCLUSIVE_CATEGORIES.contains(parentCategory)) {
+        subOffer.setExclusive(true);
+      }
       repo.put(subOffer);
       log.info("Sub offer for product: {} - {}. Saved with id: {}",
           new Object[]{catalogOffer.getId(), subOffer.title(), subOffer.id()});
