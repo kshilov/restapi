@@ -67,6 +67,9 @@ public abstract class BaseOffer extends BaseEntity {
   @Column(name = "hold_days")
   private int holdDays;
 
+  @Column
+  private boolean exclusive;
+
   protected BaseOffer() {}
 
   public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,

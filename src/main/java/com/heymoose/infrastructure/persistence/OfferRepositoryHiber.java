@@ -107,8 +107,6 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
                                       boolean activeOnly) {
     Criteria criteria = hiber().createCriteria(SubOffer.class)
         .add(Restrictions.eq("parentId", parentOfferId))
-        .addOrder(Order.desc("percent"))
-        .addOrder(Order.desc("cost"))
         .addOrder(Order.asc("id"))
         .setFirstResult(offset)
         .setMaxResults(limit);
