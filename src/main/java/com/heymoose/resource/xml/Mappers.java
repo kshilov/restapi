@@ -222,6 +222,7 @@ public class Mappers {
     xmlOffer.holdDays = offer.holdDays();
     xmlOffer.cookieTtl = offer.cookieTtl();
     xmlOffer.tokenParamName = offer.tokenParamName();
+    xmlOffer.exclusive = offer.exclusive();
 
 
     for (Category category : offer.categories())
@@ -285,6 +286,7 @@ public class Mappers {
     xmlSubOffer.reentrant = offer.reentrant();
     xmlSubOffer.code = offer.code();
     xmlSubOffer.holdDays = offer.holdDays();
+    xmlSubOffer.exclusive = offer.exclusive();
     return xmlSubOffer;
   }
 

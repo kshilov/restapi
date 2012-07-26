@@ -140,6 +140,10 @@ public abstract class BaseOffer extends BaseEntity {
     this.percent = percent;
   }
 
+  public boolean exclusive() {
+    return this.exclusive;
+  }
+
   public void setExclusive(boolean exclusive) {
     this.exclusive = exclusive;
   }

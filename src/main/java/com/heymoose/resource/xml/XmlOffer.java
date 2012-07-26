@@ -112,6 +112,9 @@ public class XmlOffer {
   
   @XmlElement(name = "token-param-name")
   public String tokenParamName;
+
+  @XmlElement
+  public boolean exclusive;
   
   @XmlElementWrapper(name = "regions")
   @XmlElement(name = "region")
