@@ -90,11 +90,17 @@ public final class TopShopImportTest extends RestTest {
     Transaction tx = session.beginTransaction();
     try {
       Offer parentOffer = repo.get(Offer.class, offerId);
-      SubOffer productSubOffer = TopShopYmlImporter.topshopSubOffer(
-          parentOffer, new BigDecimal(PERCENT), itemCode,
-          "ProductName", new BigDecimal(price));
+      SubOffer productSubOffer = new SubOffer();
+      productSubOffer.setParentId(parentOffer.id())
+          .setCode(itemCode.toString())
+          .setCost(new BigDecimal(price))
+          .setTitle("ProductName")
+          .setPercent(new BigDecimal(PERCENT))
+          .setCpaPolicy(CpaPolicy.PERCENT)
+          .setAutoApprove(false)
+          .setReentrant(true)
+          .setHoldDays(parentOffer.holdDays());
       repo.put(productSubOffer);
-      productSubOfferId = productSubOffer.id();
       OfferGrant grant = new OfferGrant(productSubOffer.id(), affId, "");
       grant.approve();
       repo.put(grant);

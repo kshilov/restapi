@@ -56,17 +56,6 @@ public class TopShopYmlImporter {
   private static final Set<Integer> EXCLUSIVE_CATEGORIES =
       ImmutableSet.of(12, 17, 18, 19);
 
-  public static SubOffer topshopSubOffer(Offer parent, BigDecimal percent,
-                                          Long productId,
-                                          String productName,
-                                          BigDecimal productPrice) {
-    return new SubOffer(
-        parent.id(), CpaPolicy.PERCENT, productPrice, null,
-        percent, productName, false, true, productId.toString(),
-        parent.holdDays());
-  }
-
-
   private static Map<Integer, Integer> mapChildToParent(YmlCatalog catalog) {
     HashMap<Integer, Integer> parentMap = Maps.newHashMap();
     for (Category category : catalog.getShop().getCategories().getCategory()) {
@@ -104,14 +93,6 @@ public class TopShopYmlImporter {
       }
     }
     return offer.getDescription();
-  }
-
-
-  private static SubOffer mapYmlOfferToHeymooseSubOffer(Offer parent,
-                                                        BigDecimal percent,
-                                                        com.heymoose.infrastructure.service.yml.Offer product) {
-    return topshopSubOffer(parent, percent, Long.valueOf(product.getId()),
-        name(product), new BigDecimal(product.getPrice()));
   }
 
 
@@ -167,10 +148,20 @@ public class TopShopYmlImporter {
         log.info("Category {} is not mapped. Skipping.", parentCategory);
         continue;
       }
-      SubOffer subOffer = mapYmlOfferToHeymooseSubOffer(
-          parentOffer,
-          CATEGORY_PERCENT_MAP.get(parentCategory),
-          catalogOffer);
+      SubOffer subOffer = repo.byHQL(SubOffer.class,
+          "from SubOffer where parentId = ? and code = ?",
+          parentOfferId, catalogOffer.getId());
+      if (subOffer == null)
+        subOffer = new SubOffer();
+      subOffer.setParentId(parentOffer.id())
+              .setCode(catalogOffer.getId())
+              .setCost(new BigDecimal(catalogOffer.getPrice()))
+              .setTitle(productName)
+              .setPercent(CATEGORY_PERCENT_MAP.get(parentCategory))
+              .setCpaPolicy(CpaPolicy.PERCENT)
+              .setAutoApprove(false)
+              .setReentrant(true)
+              .setHoldDays(parentOffer.holdDays());
       if (EXCLUSIVE_CATEGORIES.contains(parentCategory)) {
         subOffer.setExclusive(true);
       }
