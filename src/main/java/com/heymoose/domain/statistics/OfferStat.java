@@ -25,6 +25,8 @@ import javax.persistence.Table;
 @Table(name = "offer_stat")
 public class OfferStat extends BaseEntity {
 
+  private static final BigDecimal ZERO = new BigDecimal(0);
+
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "offer-stat-seq")
   @SequenceGenerator(name = "offer-stat-seq", sequenceName = "offer_stat_seq", allocationSize = 1)
@@ -93,13 +95,22 @@ public class OfferStat extends BaseEntity {
   private long salesCount = 0;
 
   @Column(name = "not_confirmed_revenue")
-  private BigDecimal notConfirmedRevenue = new BigDecimal(0);
+  private BigDecimal notConfirmedRevenue = ZERO;
 
   @Column(name = "confirmed_revenue")
-  private BigDecimal confirmedRevenue = new BigDecimal(0);
+  private BigDecimal confirmedRevenue = ZERO;
 
   @Column(name = "canceled_revenue")
-  private BigDecimal canceledRevenue = new BigDecimal(0);
+  private BigDecimal canceledRevenue = ZERO;
+
+  @Column(name = "not_confirmed_fee")
+  private BigDecimal notConfirmedFee = ZERO;
+
+  @Column(name = "confirmed_fee")
+  private BigDecimal confirmedFee = ZERO;
+
+  @Column(name = "canceled_fee")
+  private BigDecimal canceledFee = ZERO;
 
   @Column(name = "referer")
   @Nullable
@@ -180,30 +191,37 @@ public class OfferStat extends BaseEntity {
   public void addToConfirmedRevenue(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (confirmedRevenue == null)
-      confirmedRevenue = new BigDecimal(0);
+      confirmedRevenue = ZERO;
     confirmedRevenue = confirmedRevenue.add(amount);
   }
 
   public void subtractFromConfirmedRevenue(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (confirmedRevenue == null)
-      confirmedRevenue = new BigDecimal(0);
+      confirmedRevenue = ZERO;
     confirmedRevenue = confirmedRevenue.subtract(amount);
   }
 
   public void addToNotConfirmedRevenue(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (notConfirmedRevenue == null)
-      notConfirmedRevenue = new BigDecimal(0);
+      notConfirmedRevenue = ZERO;
     notConfirmedRevenue = notConfirmedRevenue.add(amount);
+  }
+
+  public void addToNotConfirmedFee(BigDecimal fee) {
+    checkArgument(fee.signum() == 1);
+    if (notConfirmedFee == null)
+      notConfirmedFee = ZERO;
+    notConfirmedFee = notConfirmedFee.add(fee);
   }
 
   public void approveMoney(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (notConfirmedRevenue == null)
-      notConfirmedRevenue = new BigDecimal(0);
+      notConfirmedRevenue = ZERO;
     if (confirmedRevenue == null)
-      confirmedRevenue = new BigDecimal(0);
+      confirmedRevenue = ZERO;
     notConfirmedRevenue = notConfirmedRevenue.subtract(amount);
     confirmedRevenue = confirmedRevenue.add(amount);
   }
@@ -211,10 +229,20 @@ public class OfferStat extends BaseEntity {
   public void cancelMoney(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (notConfirmedRevenue == null)
-      notConfirmedRevenue = new BigDecimal(0);
+      notConfirmedRevenue = ZERO;
     if (canceledRevenue == null)
-      canceledRevenue = new BigDecimal(0);
+      canceledRevenue = ZERO;
     notConfirmedRevenue = notConfirmedRevenue.subtract(amount);
     canceledRevenue = canceledRevenue.add(amount);
+  }
+
+  public void cancelFee(BigDecimal fee) {
+    checkArgument(fee.signum() == 1);
+    if (notConfirmedFee == null)
+      notConfirmedFee = ZERO;
+    if (canceledFee == null)
+      canceledFee = ZERO;
+    notConfirmedFee = notConfirmedFee.subtract(fee);
+    canceledFee = canceledFee.add(fee);
   }
 }
