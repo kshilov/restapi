@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.yml.Category;
@@ -158,6 +159,7 @@ public class TopShopYmlImporter {
               .setCost(new BigDecimal(catalogOffer.getPrice()))
               .setTitle(productName)
               .setPercent(CATEGORY_PERCENT_MAP.get(parentCategory))
+              .setPayMethod(PayMethod.CPA)
               .setCpaPolicy(CpaPolicy.PERCENT)
               .setAutoApprove(false)
               .setReentrant(true)

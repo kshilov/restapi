@@ -7,6 +7,7 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
@@ -16,7 +17,6 @@ import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopPaymentData;
 import com.heymoose.infrastructure.service.topshop.TopShopXmlConverter;
-import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -96,6 +96,7 @@ public final class TopShopImportTest extends RestTest {
           .setCost(new BigDecimal(price))
           .setTitle("ProductName")
           .setPercent(new BigDecimal(PERCENT))
+          .setPayMethod(PayMethod.CPA)
           .setCpaPolicy(CpaPolicy.PERCENT)
           .setAutoApprove(false)
           .setReentrant(true)
