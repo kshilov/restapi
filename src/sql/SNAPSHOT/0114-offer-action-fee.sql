@@ -78,7 +78,7 @@ where
 
 /* confirmed_fee */
 
-select offer_stat_fee_approve(action.stat_id, entry.amount)
+select offer_stat_fee_approve(action.stat_id, -entry.amount)
 from accounting_entry entry
 
 left join offer_action action
