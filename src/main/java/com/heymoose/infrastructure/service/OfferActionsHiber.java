@@ -154,6 +154,7 @@ public class OfferActionsHiber implements OfferActions {
             AccountingEvent.ACTION_CANCELED,
             action.id()
         );
+        action.stat().cancelFee(entry.amount().negate());
       }
     }
     action.cancel();

@@ -23,10 +23,10 @@ from
     coalesce(sum(click_count),  0) clicks_count,
     coalesce(sum(leads_count),  0) leads_count,
     coalesce(sum(sales_count),  0) sales_count,
-    ${if groupByAdvertiser}
-      coalesce(sum(confirmed_revenue  * (1 + p_aff.fee / 100.0)),     0.00) confirmed_revenue,
-      coalesce(sum(not_confirmed_revenue  * (1 + p_aff.fee / 100.0)), 0.00) not_confirmed_revenue,
-      coalesce(sum(canceled_revenue  * (1 + p_aff.fee / 100.0)),      0.00) canceled_revenue,
+    ${if addFee}
+      coalesce(sum(confirmed_revenue      + confirmed_fee),     0.00) confirmed_revenue,
+      coalesce(sum(not_confirmed_revenue  + not_confirmed_fee), 0.00) not_confirmed_revenue,
+      coalesce(sum(canceled_revenue       + canceled_fee),      0.00) canceled_revenue,
     ${else}
       coalesce(sum(confirmed_revenue),      0.00) confirmed_revenue,
       coalesce(sum(not_confirmed_revenue),  0.00) not_confirmed_revenue,
@@ -90,7 +90,6 @@ from
 
   ${if groupByAdvertiser}
     left join user_profile p on o.user_id = p.id
-    left join user_profile p_aff on offer_stat.aff_id = p_aff.id
   ${end}
 
 

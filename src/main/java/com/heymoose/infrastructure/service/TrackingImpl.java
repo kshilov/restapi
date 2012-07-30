@@ -167,6 +167,7 @@ public class TrackingImpl implements Tracking {
       if (cpaPolicy == CpaPolicy.PERCENT)
         stat.incSales();
       stat.addToNotConfirmedRevenue(amount);
+      stat.addToNotConfirmedFee(revenue);
       repo.put(stat);
       OfferAction action = new OfferAction(token, source.affiliate(), stat, source, offer, transactionId);
       repo.put(action);
