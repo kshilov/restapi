@@ -121,6 +121,7 @@ public class OfferStats {
                                                            CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
         .put("groupByOffer", true)
+        .put("addFee", true)
         .put("filterByAdvertiser", true).build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, common, ImmutableMap.of("adv_id", advertiserId));
@@ -139,7 +140,9 @@ public class OfferStats {
   @Transactional
   public Pair<List<XmlOverallOfferStats>, Long> advStats(CommonParams common) {
     Map<String, ?> templateParams = templateParamsBuilder(common)
-        .put("groupByAdvertiser", true).build();
+        .put("groupByAdvertiser", true)
+        .put("addFee", true)
+        .build();
     String sql = SqlLoader.getTemplate("offer_stats", templateParams);
     return executeStatsQuery(sql, common);
   }
