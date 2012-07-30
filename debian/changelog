@@ -1,3 +1,9 @@
+backend (1.0.1-1) precise; urgency=low
+
+  * release 1.0.1
+
+ -- filipovskii_off <filipovskii_off@Puppo>  Mon, 30 Jul 2012 17:11:52 +0400
+
 backend (1.0.0-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
