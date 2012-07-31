@@ -35,7 +35,7 @@ public final class TopShopActionImporterTest {
 
   @Test
   public void parseTopShopItemXml() throws Exception {
-    String xml = "<item_list><item>123</item></item_list>";
+    String xml = "<items><item>123</item></items>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
         TopShopXmlConverter.XmlTopShopItemList.class);
@@ -51,9 +51,9 @@ public final class TopShopActionImporterTest {
         "<payment>" +
           "<key>key</key>" +
           "<order_id>order-id</order_id>" +
-          "<item_list>" +
+          "<items>" +
             "<item>123</item>" +
-          "</item_list>" +
+          "</items>" +
         "</payment>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
