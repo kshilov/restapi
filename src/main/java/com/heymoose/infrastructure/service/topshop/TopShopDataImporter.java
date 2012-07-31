@@ -74,10 +74,21 @@ public class TopShopDataImporter {
       SubOffer topshopOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
           parentOfferId, itemId.toString());
-      log.info("Adding conversion for offer '{}' price '{}'",
-          topshopOffer.id(), topshopOffer.cost());
+      log.info("Adding conversion for offer '{}' code '{}' price '{}'",
+          new Object[] {
+              topshopOffer.id() ,
+              topshopOffer.code(),
+              topshopOffer.cost() });
       offerMap.put(topshopOffer, Optional.of(topshopOffer.cost().doubleValue()));
     }
-    tracking.trackConversion(token, payment.transactionId(), offerMap.build());
+    List<OfferAction> trackedActions = tracking.trackConversion(
+        token, payment.transactionId(), offerMap.build());
+
+    if (payment.status().equals(TopShopPaymentData.Status.CANCELED)) {
+      for (OfferAction action : trackedActions) {
+        log.info("Canceling just imported action {}.", action.id());
+        actions.cancel(action);
+      }
+    }
   }
 }
