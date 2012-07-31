@@ -117,6 +117,7 @@ from
       ${end}
     ${end}
     ${if filterByParentOffer}
+      and o.parent_id = :parent_offer
       and offer_stat.master = :parent_offer
     ${end}
 
