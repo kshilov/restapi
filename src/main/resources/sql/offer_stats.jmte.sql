@@ -69,7 +69,7 @@ from
     ${end}
 
     ${if groupBySubOffer}
-      o.id id, o.name descr
+      o.id id, o.title descr
     ${end}
 
   from
@@ -165,7 +165,7 @@ from
     ${end}
 
     ${if groupBySubOffer}
-      o.id, o.name
+      o.id, o.title
     ${end}
 
   ) as sums
