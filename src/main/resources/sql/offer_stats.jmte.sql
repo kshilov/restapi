@@ -68,6 +68,10 @@ from
       0 id, offer_stat.keywords descr
     ${end}
 
+    ${if groupBySubOffer}
+      o.id id, o.title descr
+    ${end}
+
   from
     offer o
 
@@ -112,6 +116,9 @@ from
         and offer_stat.${sub} = :${sub}
       ${end}
     ${end}
+    ${if filterByParentOffer}
+      and offer_stat.master = :parent_offer
+    ${end}
 
   group by
     ${if groupByOffer}
@@ -147,6 +154,10 @@ from
 
     ${if groupByKeywords}
      offer_stat.keywords
+    ${end}
+
+    ${if groupBySubOffer}
+      o.id, o.title
     ${end}
 
   ) as sums

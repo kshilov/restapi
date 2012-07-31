@@ -1,24 +1,27 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferActionState;
-import com.heymoose.resource.xml.XmlOverallOfferStats;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.resource.xml.XmlOverallOfferStats;
+import org.hibernate.Query;
+import org.joda.time.DateTime;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.hibernate.Query;
-import org.joda.time.DateTime;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class OfferStats {
@@ -281,6 +284,26 @@ public class OfferStats {
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
     return executeStatsQuery(sql, common, queryParams.build());
   }
+  public Pair<List<XmlOverallOfferStats>, Long> subofferStatForOffer(Long affId,
+                                                                     Long offerId,
+                                                                     CommonParams common) {
+    Preconditions.checkNotNull(affId, "Affiliate id should not be null.");
+    Preconditions.checkNotNull(offerId, "Offer id should not be null.");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common);
+    templateParams
+        .put("groupBySubOffer", true)
+        .put("filterByAffiliate", true)
+        .put("filterByParentOffer", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+        .put("aff_id", affId)
+        .put("parent_offer", offerId);
+    String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
+    return executeStatsQuery(sql, common, queryParams.build());
+
+  }
+
 
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {

@@ -3,13 +3,13 @@ package com.heymoose.resource;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.heymoose.infrastructure.service.OfferStats;
-import com.heymoose.resource.xml.XmlOverallOfferStats;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.resource.xml.OverallOfferStatsList;
-import com.heymoose.resource.xml.XmlTotalStats;
+import com.heymoose.infrastructure.service.OfferStats;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.resource.xml.OverallOfferStatsList;
+import com.heymoose.resource.xml.XmlOverallOfferStats;
+import com.heymoose.resource.xml.XmlTotalStats;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 
@@ -274,6 +274,30 @@ public class OfferStatsResource {
     list.stats.addAll(p.fst);
     list.count = p.snd;
     return list;
+  }
+
+  @GET
+  @Path("suboffers")
+  @Transactional
+  public OverallOfferStatsList subofferStatByAffiliateAndOffer(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("offer_id") Long offerId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<List<XmlOverallOfferStats>, Long> p =
+        stats.subofferStatForOffer(affId, offerId, common);
+    OverallOfferStatsList result = new OverallOfferStatsList();
+    result.stats = p.fst;
+    result.count = p.snd;
+    return result;
   }
 
   @GET
