@@ -69,7 +69,7 @@ from
     ${end}
 
     ${if groupBySubOffer}
-      o.id id, o.title descr
+      o.id id, o.name descr
     ${end}
 
   from
@@ -82,7 +82,11 @@ from
   join
     offer_stat
     on offer_stat.creation_time between :from and :to
-    and o.id = offer_stat.master
+    ${if groupBySubOffer}
+      and o.id = offer_stat.offer_id
+    ${else}
+      and o.id = offer_stat.master
+    ${end}
     ${if granted}
       and g.aff_id = offer_stat.aff_id
     ${end}
@@ -98,7 +102,10 @@ from
 
 
   where
-    o.parent_id is null
+    null is null
+    ${if !groupBySubOffer}
+      and o.parent_id is null
+    ${end}
     ${if granted}
       and g.state = 'APPROVED'
     ${end}
@@ -158,7 +165,7 @@ from
     ${end}
 
     ${if groupBySubOffer}
-      o.id, o.title
+      o.id, o.name
     ${end}
 
   ) as sums
