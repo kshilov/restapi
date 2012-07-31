@@ -7,9 +7,9 @@
     <date>2012-05-02 15:01:08</date>
     <cart>100.500</cart>
     <status>30</status>
-    <item_list>
+    <items>
       <item>11</item>
-    </item_list>
+    </items>
   </payment>
 
   <payment>
@@ -20,9 +20,9 @@
     <date>2012-05-06 13:29:09</date>
     <cart>100.501</cart>
     <status>10</status>
-    <item_list>
+    <items>
       <item>21</item>
       <item>22</item>
-    </item_list>
+    </items>
   </payment>
 </payment_list>

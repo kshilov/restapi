@@ -79,9 +79,9 @@ public final class TopShopImportTest extends RestTest {
           "<payment>" +
             "<order_id>" + txId + "</order_id>" +
             "<key>http://anyurl.com?_hm_token=" + token.value() + "</key>" +
-            "<item_list>" +
+            "<items>" +
               "<item>" + itemCode.toString() + "</item>" +
-            "</item_list>" +
+            "</items>" +
             "<status>20</status>" +
           "</payment>" +
         "</payment_list>";

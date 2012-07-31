@@ -36,11 +36,11 @@ public final class TopShopXmlConverter {
     public String cart;
     @XmlElement
     public Integer status;
-    @XmlElement(name = "item_list")
+    @XmlElement(name = "items")
     public XmlTopShopItemList itemListElement;
   }
 
-  @XmlRootElement(name = "item_list")
+  @XmlRootElement(name = "items")
   public static class XmlTopShopItemList {
 
     @XmlElement(name = "item")
@@ -49,7 +49,7 @@ public final class TopShopXmlConverter {
 
   private static final Logger log =
       LoggerFactory.getLogger(TopShopXmlConverter.class);
-  private static final int STATUS_CREATED = 10;
+  private static final int STATUS_CREATED = 1;
   private static final int STATUS_COMPLETE = 20;
   private static final int STATUS_CANCELED = 30;
 
