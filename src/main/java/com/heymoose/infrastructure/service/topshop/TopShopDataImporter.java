@@ -74,6 +74,10 @@ public class TopShopDataImporter {
       SubOffer topshopOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
           parentOfferId, itemId.toString());
+      if (topshopOffer == null) {
+        log.warn("Product with code {} does not present in db! Skipping..");
+        continue;
+      }
       log.info("Adding conversion for offer '{}' code '{}' price '{}'",
           new Object[] {
               topshopOffer.id() ,
