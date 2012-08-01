@@ -14,8 +14,16 @@ and o.id = offer_stat.offer_id
 
 where
   offer_stat.aff_id = :aff_id
-  and o.parent_id = :parent_id
+${if filterBySourceId}
+  and offer_stat.source_id = :source_id
+${end}
+${if filterByParentId}
+  and (o.parent_id = :parent_id or o.id = :parent_id)
   and offer_stat.master = :parent_id
+${end}
+${foreach filterBySubId sub}
+  and offer_stat.${sub} = :${sub}
+${end}
 
 group by o.id, o.title, o.exclusive
 

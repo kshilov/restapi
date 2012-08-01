@@ -297,6 +297,62 @@ public class OfferStatsResource {
     return new XmlSubOfferStats(p);
   }
 
+
+  @GET
+  @Path("suboffers/sub_id")
+  @Transactional
+  public XmlSubOfferStats subofferStatBySubIds(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("offer_id") Long offerId,
+      @QueryParam("sub_id") String subId,
+      @QueryParam("sub_id1") String subId1,
+      @QueryParam("sub_id2") String subId2,
+      @QueryParam("sub_id3") String subId3,
+      @QueryParam("sub_id4") String subId4,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    ImmutableMap.Builder<String, String> filterBuilder = ImmutableMap.builder();
+    putIfNotNull(filterBuilder, "sub_id", subId);
+    putIfNotNull(filterBuilder, "sub_id1", subId1);
+    putIfNotNull(filterBuilder, "sub_id2", subId2);
+    putIfNotNull(filterBuilder, "sub_id3", subId3);
+    putIfNotNull(filterBuilder, "sub_id4", subId4);
+
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForSubIds(
+        affId, offerId, filterBuilder.build(), common);
+    return new XmlSubOfferStats(p);
+  }
+
+  @GET
+  @Path("suboffers/source_id")
+  @Transactional
+  public XmlSubOfferStats subofferStatBySourceId(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("offer_id") Long offerId,
+      @QueryParam("source_id") String sourceId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForSourceId(
+        affId, offerId, sourceId, common);
+    return new XmlSubOfferStats(p);
+  }
+
   @GET
   @Path("referer")
   @Transactional

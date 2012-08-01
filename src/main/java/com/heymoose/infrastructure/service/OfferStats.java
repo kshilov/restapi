@@ -294,31 +294,53 @@ public class OfferStats {
     Preconditions.checkNotNull(affId, "Affiliate id should not be null.");
     Preconditions.checkNotNull(offerId, "Offer id should not be null.");
     ImmutableMap.Builder<String, Object> templateParams =
-        templateParamsBuilder(common);
+        templateParamsBuilder(common)
+        .put("filterByParentId", true);
+    ImmutableMap<String, ?> queryParams = ImmutableMap.of(
+        "parent_id", offerId,
+        "aff_id", affId);
     String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
 
-    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
-    Long count = SqlLoader.extractLong(countQuery
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
-        .setParameter("aff_id", affId)
-        .setParameter("parent_id", offerId)
-        .uniqueResult()
-    );
+  public Pair<QueryResult, Long> subofferStatForSubIds(Long affId, Long offerId,
+                                                       ImmutableMap<String, String> subIdFilter,
+                                                       CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterBySubId", subIdFilter.keySet());
+    if (offerId != null)
+      templateParams.put("filterByParentId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+            .put("aff_id", affId)
+            .putAll(subIdFilter);
+    if (offerId != null)
+      queryParams.put("parent_id", offerId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
 
-    // query with offset and limit
-    List<Map<String, Object>> result =
-        (List<Map<String, Object>>) repo.session().createSQLQuery(sql)
-        .setParameter("aff_id", affId)
-        .setParameter("parent_id", offerId)
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
-        .setParameter("offset", common.offset)
-        .setParameter("limit", common.limit)
-        .setResultTransformer(ImmutableMapTransformer.INSTANCE)
-        .list();
+  }
 
-    return Pair.newInstance(new QueryResult(result), count);
+
+  public Pair<QueryResult, Long> subofferStatForSourceId(Long affId,
+                                                         Long offerId,
+                                                         String sourceId,
+                                                         CommonParams common) {
+    Preconditions.checkNotNull(sourceId, "Source id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterBySourceId", true);
+    if (offerId != null)
+      templateParams.put("filterByParentId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+        .put("source_id", sourceId)
+        .put("aff_id", affId);
+    if (offerId != null)
+      queryParams.put("parent_id", offerId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
   }
 
   @SuppressWarnings("unchecked")
@@ -381,17 +403,7 @@ public class OfferStats {
   private Pair<List<XmlOverallOfferStats>, Long> executeStatsQuery(
       String sql, CommonParams common, Map<String, ?> custom) {
 
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
-    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
-      countQuery.setParameter(parameter.getKey(), parameter.getValue());
-    }
-    Long count = SqlLoader.extractLong(countQuery
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
-        .uniqueResult()
-    );
-
+    Long count = count(sql, common, custom);
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
     for (Map.Entry<String, ?> parameter : custom.entrySet()) {
@@ -405,6 +417,39 @@ public class OfferStats {
         .setParameter("limit", common.limit)
         .list());
     return new Pair<List<XmlOverallOfferStats>, Long>(result, count);
+  }
+
+  private Pair<QueryResult, Long> executeSubOfferStatsQuery(String sql,
+                                                            CommonParams common,
+                                                            Map<String, ?> custom) {
+    Long count = count(sql, common, custom);
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
+      query.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> result = query
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .setParameter("offset", common.offset)
+        .setParameter("limit", common.limit)
+        .setResultTransformer(ImmutableMapTransformer.INSTANCE)
+        .list();
+    return new Pair<QueryResult, Long>(new QueryResult(result), count);
+  }
+
+  private Long count(String sql, CommonParams common, Map<String, ?> custom) {
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
+    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
+      countQuery.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    return SqlLoader.extractLong(countQuery
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .uniqueResult()
+    );
   }
 
   private static ImmutableMap.Builder<String, Object> templateParamsBuilder(
