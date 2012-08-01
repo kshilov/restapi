@@ -75,7 +75,7 @@ public class TopShopDataImporter {
           "from SubOffer where parent_id = ? and code = ?",
           parentOfferId, itemId.toString());
       if (topshopOffer == null) {
-        log.warn("Product with code {} does not present in db! Skipping..");
+        log.warn("Product with code {} does not present in db! Skipping..", itemId);
         continue;
       }
       log.info("Adding conversion for offer '{}' code '{}' price '{}'",
