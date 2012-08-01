@@ -4,8 +4,7 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
 
-public class QueryResult extends AbstractList<Map<String, Object>>
-    implements List<Map<String, Object>> {
+public class QueryResult extends AbstractList<Map<String, Object>> {
 
   private final List<Map<String, Object>> list;
 
