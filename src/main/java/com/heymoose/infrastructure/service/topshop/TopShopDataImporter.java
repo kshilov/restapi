@@ -49,7 +49,7 @@ public class TopShopDataImporter {
     Token token = repo.byHQL(Token.class,
         "from Token where value = ?", payment.token());
     if (token == null) {
-      log.warn("Token {} not found, skiping", payment.token());
+      log.warn("Token {} not found, skipping", payment.token());
       return;
     }
 
@@ -63,7 +63,7 @@ public class TopShopDataImporter {
         actions.cancel(offerAction);
         return;
       }
-      log.warn("Token {} was already converted, offerAction={}, skiping",
+      log.warn("Token {} was already converted, offerAction={}, skipping",
           payment.token(), offerAction.id());
       return;
     }
