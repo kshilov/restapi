@@ -14,6 +14,7 @@ and o.id = offer_stat.offer_id
 
 where
   offer_stat.aff_id = :aff_id
+  and offer_stat.leads_count + offer_stat.sales_count > 0
 ${if filterBySourceId}
   and offer_stat.source_id = :source_id
 ${end}
