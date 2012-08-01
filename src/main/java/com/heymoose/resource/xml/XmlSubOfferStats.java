@@ -7,13 +7,15 @@ import com.heymoose.infrastructure.util.SqlLoader;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+@XmlRootElement(name = "stats")
 public final class XmlSubOfferStats {
 
+  @XmlRootElement(name = "stat")
   private static final class XmlSubOfferStat {
     @XmlElement(name = "id")
     public long id;
@@ -51,9 +53,10 @@ public final class XmlSubOfferStats {
       this.notConfirmedRevenue = SqlLoader.scaledDecimal(data.get("not_confirmed_revenue"));
     }
 
+    protected XmlSubOfferStat() { }
+
   }
 
-  @XmlElementWrapper(name = "stats")
   @XmlElement(name = "stat")
   public List<XmlSubOfferStat> statList = Lists.newArrayList();
 
@@ -66,4 +69,6 @@ public final class XmlSubOfferStats {
     }
     this.count = data.snd;
   }
+
+  protected XmlSubOfferStats() { }
 }
