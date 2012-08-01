@@ -7,9 +7,10 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.OfferStats;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlOverallOfferStats;
-import com.heymoose.resource.xml.XmlTotalStats;
+import com.heymoose.resource.xml.XmlSubOfferStats;import com.heymoose.resource.xml.XmlTotalStats;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 
@@ -279,7 +280,7 @@ public class OfferStatsResource {
   @GET
   @Path("suboffers")
   @Transactional
-  public OverallOfferStatsList subofferStatByAffiliateAndOffer(
+  public XmlSubOfferStats subofferStatByAffiliateAndOffer(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("from") @DefaultValue("0") Long from,
@@ -292,12 +293,8 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p =
-        stats.subofferStatForOffer(affId, offerId, common);
-    OverallOfferStatsList result = new OverallOfferStatsList();
-    result.stats = p.fst;
-    result.count = p.snd;
-    return result;
+    Pair<QueryResult, Long> p = stats.subofferStatForOffer(affId, offerId, common);
+    return new XmlSubOfferStats(p);
   }
 
   @GET

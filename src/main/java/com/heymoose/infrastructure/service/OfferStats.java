@@ -7,8 +7,10 @@ import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
 import com.heymoose.resource.xml.XmlOverallOfferStats;
 import org.hibernate.Query;
@@ -284,26 +286,40 @@ public class OfferStats {
     String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
     return executeStatsQuery(sql, common, queryParams.build());
   }
-  public Pair<List<XmlOverallOfferStats>, Long> subofferStatForOffer(Long affId,
-                                                                     Long offerId,
-                                                                     CommonParams common) {
+
+  @SuppressWarnings("unchecked")
+  public Pair<QueryResult, Long> subofferStatForOffer(Long affId,
+                                                      Long offerId,
+                                                      CommonParams common) {
     Preconditions.checkNotNull(affId, "Affiliate id should not be null.");
     Preconditions.checkNotNull(offerId, "Offer id should not be null.");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common);
-    templateParams
-        .put("groupBySubOffer", true)
-        .put("filterByAffiliate", true)
-        .put("filterByParentOffer", true);
-    ImmutableMap.Builder<String, Object> queryParams =
-        ImmutableMap.<String, Object>builder()
-        .put("aff_id", affId)
-        .put("parent_offer", offerId);
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-    return executeStatsQuery(sql, common, queryParams.build());
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
 
+    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
+    Long count = SqlLoader.extractLong(countQuery
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .setParameter("aff_id", affId)
+        .setParameter("parent_id", offerId)
+        .uniqueResult()
+    );
+
+    // query with offset and limit
+    List<Map<String, Object>> result =
+        (List<Map<String, Object>>) repo.session().createSQLQuery(sql)
+        .setParameter("aff_id", affId)
+        .setParameter("parent_id", offerId)
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .setParameter("offset", common.offset)
+        .setParameter("limit", common.limit)
+        .setResultTransformer(ImmutableMapTransformer.INSTANCE)
+        .list();
+
+    return Pair.newInstance(new QueryResult(result), count);
   }
-
 
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
