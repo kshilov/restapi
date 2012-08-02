@@ -8,6 +8,7 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
@@ -71,12 +72,14 @@ public class TopShopDataImporter {
     ImmutableMap.Builder<BaseOffer, Optional<Double>> offerMap =
         ImmutableMap.builder();
     for (Long itemId : payment.items()) {
-      SubOffer topshopOffer = repo.byHQL(SubOffer.class,
+      BaseOffer topshopOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
           parentOfferId, itemId.toString());
       if (topshopOffer == null) {
-        log.warn("Product with code {} does not present in db! Skipping..", itemId);
-        continue;
+        log.warn("Product with code '{}' does not present in our db! " +
+            "Using default offer '{}'.", itemId, parentOfferId);
+        topshopOffer = repo.byHQL(Offer.class,
+            "from Offer where id = ?", parentOfferId);
       }
       log.info("Adding conversion for offer '{}' code '{}' price '{}'",
           new Object[] {
