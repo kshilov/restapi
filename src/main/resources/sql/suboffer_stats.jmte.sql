@@ -28,6 +28,9 @@ ${end}
 ${if filterByReferer}
   and offer_stat.referer = :referer
 ${end}
+${if filterByKeywords}
+  and offer_stat.keywords = :keywords
+${end}
 
 group by o.id, o.title, o.exclusive
 

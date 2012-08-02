@@ -347,7 +347,7 @@ public class OfferStats {
                                                         Long offerId,
                                                         String referer,
                                                         CommonParams common) {
-    Preconditions.checkNotNull(referer, "Source id should not be null");
+    Preconditions.checkNotNull(referer, "Referer should not be null");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
             .put("filterByReferer", true);
@@ -362,6 +362,27 @@ public class OfferStats {
     String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
     return executeSubOfferStatsQuery(sql, common, queryParams.build());
   }
+
+  public Pair<QueryResult, Long> subofferStatForKeywords(Long affId,
+                                                         Long offerId,
+                                                         String keywords,
+                                                         CommonParams common) {
+    Preconditions.checkNotNull(keywords, "Keywords should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterByKeywords", true);
+    if (offerId != null)
+      templateParams.put("filterByParentId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+            .put("keywords", keywords)
+            .put("aff_id", affId);
+    if (offerId != null)
+      queryParams.put("parent_id", offerId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
 
 
   @SuppressWarnings("unchecked")

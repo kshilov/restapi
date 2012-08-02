@@ -376,6 +376,28 @@ public class OfferStatsResource {
   }
 
   @GET
+  @Path("suboffers/keywords")
+  @Transactional
+  public XmlSubOfferStats subofferStatByKeywords(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("offer_id") Long offerId,
+      @QueryParam("keywords") String keywords,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForKeywords(
+        affId, offerId, keywords, common);
+    return new XmlSubOfferStats(p);
+  }
+
+  @GET
   @Path("referer")
   @Transactional
   public OverallOfferStatsList refererStats(
