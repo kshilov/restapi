@@ -4,13 +4,16 @@ select
   coalesce(sum(confirmed_revenue),      0.00) confirmed_revenue,
   coalesce(sum(not_confirmed_revenue),  0.00) not_confirmed_revenue,
   coalesce(sum(canceled_revenue),       0.00) canceled_revenue,
-  o.id id, o.title descr, o.exclusive
+  o.id id, coalesce(parent.name, o.name) || ' — ' || o.title descr, o.exclusive
 
 from offer o
 
 join offer_stat
 on offer_stat.creation_time between :from and :to
 and o.id = offer_stat.offer_id
+
+left join offer parent
+on parent.id = o.parent_id
 
 where
   offer_stat.aff_id = :aff_id
@@ -32,7 +35,7 @@ ${if filterByKeywords}
   and offer_stat.keywords = :keywords
 ${end}
 
-group by o.id, o.title, o.exclusive
+group by o.id, o.title, parent.name, o.name, o.exclusive
 
 order by ${ordering} ${direction}
 offset :offset limit :limit
