@@ -1,12 +1,13 @@
 package com.heymoose.test.base;
 
 import com.google.inject.Injector;
-import com.heymoose.domain.user.Role;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.user.Role;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
+import com.heymoose.infrastructure.util.Paging;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlCategories;
 import com.heymoose.resource.xml.XmlErrorsInfo;
@@ -14,7 +15,6 @@ import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.infrastructure.util.Paging;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
@@ -22,13 +22,17 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.representation.Form;
-import java.net.URI;
-import static java.util.Arrays.asList;
-import java.util.List;
-import java.util.Set;
+import org.joda.time.DateTimeUtils;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 
 @Ignore
 public class Heymoose {
@@ -77,6 +81,40 @@ public class Heymoose {
     return Long.valueOf(response.getLocation().getPath().replaceFirst("/users/", ""));
   }
 
+  public long doRegisterAffiliate() {
+    long affId = registerUser("af1@af.ru", "dsfs");
+    addRoleToUser(affId, Role.AFFILIATE);
+    confirmUser(affId);
+    return affId;
+  }
+
+
+  public long doCreateCpaOffer(CpaPolicy policy, double cost, Double percent,
+                               Double offerBalance, long advertiserId, String offerUrl,
+                               boolean allowDeeplink) {
+    RestTest.sqlUpdate(
+        "insert into category_group(id, name) values(1, 'Grouping1')");
+    RestTest.sqlUpdate(
+        "insert into category(id, category_group_id, name) values(1, 1, 'Category1')");
+    long categoryId = getCategories().categories.iterator().next().id;
+    long offerId = createOffer(advertiserId, PayMethod.CPA, policy, cost,
+        String.valueOf(percent), offerBalance,
+        "offer_name", "descr", "short descr", "logo", URI.create(offerUrl),
+        URI.create("http://offer_site_url.com"), "title", false, false,
+        true, newHashSet("RU"), newHashSet(categoryId), "offercode", 30, 180,
+        DateTimeUtils.currentTimeMillis(), allowDeeplink);
+    approveOffer(offerId);
+    return offerId;
+  }
+
+  public long doRegisterAdvertiser(double balance) {
+    long advertiserId = registerUser("u@u.ru", "ads");
+    addRoleToUser(advertiserId, Role.ADVERTISER);
+    confirmUser(advertiserId);
+    addToCustomerAccount(advertiserId, balance);
+    return advertiserId;
+  }
+
   public void updateUser(long userId, String passwordHash) {
     Form form = new Form();
     form.add("password_hash", passwordHash);
@@ -111,7 +149,7 @@ public class Heymoose {
     client.path("users").path(Long.toString(userId)).path("confirmed").put();
   }
 
-  public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost,
+  public Long createOffer(long advertiserId, PayMethod payMethod, CpaPolicy cpaPolicy, double cost, String percent,
                           double balance, String name, String descr, String shortDescr, String logoFileName, URI uri,
                           URI siteUrl, String title, boolean allowNegativeBalance, boolean autoApprove,
                           boolean reentrant, Set<String> regions, Set<Long> categories,
@@ -121,6 +159,7 @@ public class Heymoose {
     form.add("pay_method", payMethod);
     form.add("cpa_policy", cpaPolicy);
     form.add("cost", cost);
+    form.add("percent", percent);
     form.add("balance", balance);
     form.add("name", name);
     form.add("description", descr);
@@ -167,6 +206,18 @@ public class Heymoose {
     wr = subs.addToQuery(wr);
     return wr.get(ClientResponse.class).getLocation();
   }
+
+  public URI doClick(long offerId, long affId, String sourceId, Subs subs, String ulp) {
+    RestTest.sqlUpdate("insert into ip_segment(id, start_ip_addr, end_ip_addr, start_ip_num, end_ip_num, country_code, country_name) values(1, '127.0.0.1', '127.0.0.1', 2130706433, 2130706433, 'RU', 'Russian')");
+    return clickWithUlp(offerId, affId, sourceId, subs, ulp);
+  }
+
+  public void doCreateGrant(long offerId, long affId) {
+    long grantId = createGrant(offerId, affId, "msg", RestTest.baseUrl() + "/postback");
+    unblockGrant(grantId);
+    approveGrant(grantId);
+  }
+
 
   public URI clickWithUlp(long offerId, long affId, String sourceId, Subs subs, String ulp) {
     WebResource wr = client.path("api")

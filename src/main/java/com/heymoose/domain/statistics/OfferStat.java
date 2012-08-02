@@ -172,6 +172,14 @@ public class OfferStat extends BaseEntity {
     return keywords;
   }
 
+  public BigDecimal notConfirmedRevenue() {
+    return this.notConfirmedRevenue;
+  }
+
+  public Long master() {
+    return master;
+  }
+
   public void incClicks() {
     clickCount++;
   }
