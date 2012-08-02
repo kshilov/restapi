@@ -327,7 +327,6 @@ public class OfferStats {
                                                          Long offerId,
                                                          String sourceId,
                                                          CommonParams common) {
-    Preconditions.checkNotNull(sourceId, "Source id should not be null");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
         .put("filterBySourceId", true);
@@ -347,7 +346,6 @@ public class OfferStats {
                                                         Long offerId,
                                                         String referer,
                                                         CommonParams common) {
-    Preconditions.checkNotNull(referer, "Referer should not be null");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
             .put("filterByReferer", true);
@@ -367,7 +365,6 @@ public class OfferStats {
                                                          Long offerId,
                                                          String keywords,
                                                          CommonParams common) {
-    Preconditions.checkNotNull(keywords, "Keywords should not be null");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
             .put("filterByKeywords", true);
