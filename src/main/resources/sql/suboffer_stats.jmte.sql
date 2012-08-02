@@ -19,7 +19,7 @@ where
   offer_stat.aff_id = :aff_id
   and offer_stat.leads_count + offer_stat.sales_count > 0
 ${if filterBySourceId}
-  and offer_stat.source_id = :source_id
+  and coalesce(offer_stat.source_id, '') = coalesce(:source_id, '')
 ${end}
 ${if filterByParentId}
   and (o.parent_id = :parent_id or o.id = :parent_id)
@@ -29,10 +29,10 @@ ${foreach filterBySubId sub}
   and offer_stat.${sub} = :${sub}
 ${end}
 ${if filterByReferer}
-  and offer_stat.referer = :referer
+  and coalesce(offer_stat.referer, '') = coalesce(:referer, '')
 ${end}
 ${if filterByKeywords}
-  and offer_stat.keywords = :keywords
+  and coalesce(offer_stat.keywords, '') = coalesce(:keywords, '')
 ${end}
 
 group by o.id, o.title, parent.name, o.name, o.exclusive
