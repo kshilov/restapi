@@ -354,6 +354,28 @@ public class OfferStatsResource {
   }
 
   @GET
+  @Path("suboffers/referer")
+  @Transactional
+  public XmlSubOfferStats subofferStatByReferer(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("offer_id") Long offerId,
+      @QueryParam("referer") String referer,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForReferer(
+        affId, offerId, referer, common);
+    return new XmlSubOfferStats(p);
+  }
+
+  @GET
   @Path("referer")
   @Transactional
   public OverallOfferStatsList refererStats(

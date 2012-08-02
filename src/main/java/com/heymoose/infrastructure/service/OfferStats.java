@@ -343,6 +343,27 @@ public class OfferStats {
     return executeSubOfferStatsQuery(sql, common, queryParams.build());
   }
 
+  public Pair<QueryResult, Long> subofferStatForReferer(Long affId,
+                                                        Long offerId,
+                                                        String referer,
+                                                        CommonParams common) {
+    Preconditions.checkNotNull(referer, "Source id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterByReferer", true);
+    if (offerId != null)
+      templateParams.put("filterByParentId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+            .put("referer", referer)
+            .put("aff_id", affId);
+    if (offerId != null)
+      queryParams.put("parent_id", offerId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
+
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
     String expiredQuery = "expired_actions_stat";

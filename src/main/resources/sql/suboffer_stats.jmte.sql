@@ -25,6 +25,9 @@ ${end}
 ${foreach filterBySubId sub}
   and offer_stat.${sub} = :${sub}
 ${end}
+${if filterByReferer}
+  and offer_stat.referer = :referer
+${end}
 
 group by o.id, o.title, o.exclusive
 
