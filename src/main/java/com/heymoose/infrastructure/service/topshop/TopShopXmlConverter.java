@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
+import com.heymoose.domain.action.ActionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +59,9 @@ public final class TopShopXmlConverter {
    * @return map token - price
    */
   @SuppressWarnings("unchecked")
-  public List<TopShopPaymentData> convert(InputSupplier<InputStream> inputSupplier) {
+  public List<ActionData> convert(InputSupplier<InputStream> inputSupplier) {
     InputStream input = null;
-    ImmutableList.Builder<TopShopPaymentData> dataBuilder =
+    ImmutableList.Builder<ActionData> dataBuilder =
         ImmutableList.builder();
     try {
       input = inputSupplier.getInput();
@@ -78,18 +79,18 @@ public final class TopShopXmlConverter {
               payment.orderId);
           continue;
         }
-        TopShopPaymentData paymentData = new TopShopPaymentData();
+        ActionData paymentData = new ActionData();
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
         switch (payment.status) {
           case STATUS_CREATED:
-            paymentData.setStatus(TopShopPaymentData.Status.CREATED);
+            paymentData.setStatus(ActionData.Status.CREATED);
             break;
           case STATUS_COMPLETE:
-            paymentData.setStatus(TopShopPaymentData.Status.COMPLETE);
+            paymentData.setStatus(ActionData.Status.COMPLETE);
             break;
           case STATUS_CANCELED:
-            paymentData.setStatus(TopShopPaymentData.Status.CANCELED);
+            paymentData.setStatus(ActionData.Status.CANCELED);
         }
         for (Long item : payment.itemListElement.itemList) {
           paymentData.addItem(item);

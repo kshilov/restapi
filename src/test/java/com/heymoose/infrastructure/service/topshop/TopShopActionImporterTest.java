@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.io.Resources;
+import com.heymoose.domain.action.ActionData;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;
@@ -17,18 +18,18 @@ public final class TopShopActionImporterTest {
     URL topShopXml = getClass().getClassLoader()
         .getResource("topshop/example.xml");
     TopShopXmlConverter converter = new TopShopXmlConverter();
-    List<TopShopPaymentData> info = converter.convert(
+    List<ActionData> info = converter.convert(
         Resources.newInputStreamSupplier(topShopXml));
 
-    TopShopPaymentData payment1 = info.get(0);
-    TopShopPaymentData payment2 = info.get(1);
+    ActionData payment1 = info.get(0);
+    ActionData payment2 = info.get(1);
     assertEquals("hm_1", payment1.token());
     assertEquals("hm_2", payment2.token());
-    assertEquals(1, payment1.items().size());
-    assertEquals(2, payment2.items().size());
-    assertEquals(11L, (long) payment1.items().get(0));
-    assertEquals(21L, (long) payment2.items().get(0));
-    assertEquals(22L, (long) payment2.items().get(1));
+    assertEquals(1, payment1.itemList().size());
+    assertEquals(2, payment2.itemList().size());
+    assertEquals(11L, payment1.itemList().get(0).id());
+    assertEquals(21L, payment2.itemList().get(0).id());
+    assertEquals(22L, payment2.itemList().get(1).id());
     assertEquals("order_1", payment1.transactionId());
     assertEquals("order_2", payment2.transactionId());
   }

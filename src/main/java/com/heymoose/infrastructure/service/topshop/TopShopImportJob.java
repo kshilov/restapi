@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.io.InputSupplier;
 import com.google.inject.name.Named;
+import com.heymoose.domain.action.ActionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public final class TopShopImportJob implements Runnable {
       log.info("** Topshop import started. **");
       URLConnection connection = url.openConnection();
       final InputStream input = connection.getInputStream();
-      List<TopShopPaymentData> converted =
+      List<ActionData> converted =
           converter.convert(new InputSupplier<InputStream>() {
         @Override
         public InputStream getInput() throws IOException {
