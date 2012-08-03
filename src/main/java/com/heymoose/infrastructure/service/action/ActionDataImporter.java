@@ -26,29 +26,26 @@ public abstract class ActionDataImporter {
   private final Repo repo;
   private final Tracking tracking;
   private final OfferActions actions;
-  private final Long parentOfferId;
 
-  public ActionDataImporter(String parentOffer,
-                            Repo repo, Tracking tracking,
+  public ActionDataImporter(Repo repo, Tracking tracking,
                             OfferActions actions) {
     this.repo = repo;
     this.tracking = tracking;
     this.actions = actions;
-    this.parentOfferId = Long.valueOf(parentOffer);
   }
 
   @Transactional
-  public void doImport(List<ActionData> paymentList) {
+  public void doImport(List<ActionData> paymentList, Long parentOfferId) {
     for (ActionData payment : paymentList) {
-      doImport(payment);
+      doImport(payment, parentOfferId);
     }
   }
 
-  private void doImport(ActionData payment) {
+  private void doImport(ActionData payment, Long parentOfferId) {
     Token token = repo.byHQL(Token.class,
         "from Token where value = ?", payment.token());
     if (token == null) {
-      log.warn("Token {} not found, skipping", payment.token());
+      log.warn("Token '{}' not found, skipping", payment.token());
       return;
     }
 
@@ -62,7 +59,7 @@ public abstract class ActionDataImporter {
         actions.cancel(offerAction);
         return;
       }
-      log.warn("Token {} was already converted, offerAction={}, skipping",
+      log.warn("Token '{}' was already converted, offerAction='{}', skipping",
           payment.token(), offerAction.id());
       return;
     }
@@ -92,7 +89,7 @@ public abstract class ActionDataImporter {
 
     if (payment.status().equals(ActionData.Status.CANCELED)) {
       for (OfferAction action : trackedActions) {
-        log.info("Canceling just imported action {}.", action.id());
+        log.info("Canceling just imported action '{}'.", action.id());
         actions.cancel(action);
       }
     }

@@ -10,13 +10,13 @@ import com.heymoose.infrastructure.service.action.ActionDataImporter;
 
 import java.math.BigDecimal;
 
-public final class DelikateskaDataImporter extends ActionDataImporter {
+public class DelikateskaDataImporter extends ActionDataImporter {
 
   @Inject
-  public DelikateskaDataImporter(String parentOffer, Repo repo,
+  public DelikateskaDataImporter(Repo repo,
                                  Tracking tracking,
                                  OfferActions actions) {
-    super(parentOffer, repo, tracking, actions);
+    super(repo, tracking, actions);
   }
 
   @Override
