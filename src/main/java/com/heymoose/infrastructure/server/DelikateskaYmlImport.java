@@ -16,8 +16,8 @@ import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaYmlImporter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Properties;
@@ -59,8 +59,8 @@ public final class DelikateskaYmlImport {
     Long parentOfferId = Long.valueOf(
         properties.get("delikateska.offer").toString());
     File file = new File(args[0]);
-    InputSupplier<InputStreamReader> inputSupplier = Files.newReaderSupplier(
-        file, UTF);
+    InputSupplier<FileInputStream> inputSupplier =
+        Files.newInputStreamSupplier(file);
 
     DelikateskaYmlImporter importer =
         injector.getInstance(DelikateskaYmlImporter.class);

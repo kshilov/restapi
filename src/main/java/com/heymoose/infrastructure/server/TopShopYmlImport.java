@@ -13,8 +13,7 @@ import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
 
 import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.io.FileInputStream;
 import java.util.Properties;
 
 public class TopShopYmlImport {
@@ -33,8 +32,8 @@ public class TopShopYmlImport {
     Long parentOfferId = Long.valueOf(
         properties.get("topshop.offer").toString());
     File file = new File(args[0]);
-    InputSupplier<InputStreamReader> inputSupplier = Files.newReaderSupplier(
-        file, Charset.forName("utf8"));
+    InputSupplier<FileInputStream> inputSupplier =
+        Files.newInputStreamSupplier(file);
     injector.getInstance(TopShopYmlImporter.class).doImport(
         inputSupplier, parentOfferId);
   }

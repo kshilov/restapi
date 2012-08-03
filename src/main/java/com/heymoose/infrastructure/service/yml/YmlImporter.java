@@ -9,10 +9,14 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.infrastructure.persistence.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.Reader;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.sax.SAXSource;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -57,15 +61,24 @@ public abstract class YmlImporter {
   }
 
   @Transactional
-  public void doImport(InputSupplier<? extends Reader> input,
+  public void doImport(InputSupplier<? extends InputStream> input,
                        Long parentOfferId) {
-    Reader inputReader = null;
+    InputStream inputStream = null;
     YmlCatalog catalog;
     try {
-      inputReader = input.getInput();
+      inputStream = input.getInput();
       JAXBContext context = JAXBContext.newInstance(YmlCatalog.class);
+
+      /* Code below is needed to ignore dtd in yml */
+      SAXParserFactory spf = SAXParserFactory.newInstance();
+      spf.setFeature("http://apache.org/xml/features/validation/schema", false);
+      spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      XMLReader xmlReader = spf.newSAXParser().getXMLReader();
+      InputSource inputSource = new InputSource(inputStream);
+      SAXSource source = new SAXSource(xmlReader, inputSource);
+
       Unmarshaller unmarshaller = context.createUnmarshaller();
-      catalog = (YmlCatalog) unmarshaller.unmarshal(inputReader);
+      catalog = (YmlCatalog) unmarshaller.unmarshal(source);
       log.info("{} categories found.",
           catalog.getShop().getCategories().getCategory().size());
       log.info("{} products found.",
@@ -74,7 +87,7 @@ public abstract class YmlImporter {
       log.error("Error occurred during YML parsing.", e);
       throw new RuntimeException(e);
     } finally {
-      Closeables.closeQuietly(inputReader);
+      Closeables.closeQuietly(inputStream);
     }
 
     com.heymoose.domain.offer.Offer parentOffer =
