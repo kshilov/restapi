@@ -17,8 +17,8 @@ public final class TopShopActionImporterTest {
   public void parsesTopShopXmlCorrectly() throws Exception {
     URL topShopXml = getClass().getClassLoader()
         .getResource("topshop/example.xml");
-    TopShopXmlConverter converter = new TopShopXmlConverter();
-    List<ActionData> info = converter.convert(
+    TopShopActionParser converter = new TopShopActionParser();
+    List<ActionData> info = converter.parse(
         Resources.newInputStreamSupplier(topShopXml));
 
     ActionData payment1 = info.get(0);
@@ -39,9 +39,9 @@ public final class TopShopActionImporterTest {
     String xml = "<items><item>123</item></items>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
-        TopShopXmlConverter.XmlTopShopItemList.class);
-    TopShopXmlConverter.XmlTopShopItemList parsedItemList =
-        (TopShopXmlConverter.XmlTopShopItemList)
+        TopShopActionParser.XmlTopShopItemList.class);
+    TopShopActionParser.XmlTopShopItemList parsedItemList =
+        (TopShopActionParser.XmlTopShopItemList)
             context.createUnmarshaller().unmarshal(reader);
     assertEquals(123, (long) parsedItemList.itemList.get(0));
   }
@@ -58,9 +58,9 @@ public final class TopShopActionImporterTest {
         "</payment>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
-        TopShopXmlConverter.XmlTopShopPayment.class);
-    TopShopXmlConverter.XmlTopShopPayment parsedPayment =
-        (TopShopXmlConverter.XmlTopShopPayment)
+        TopShopActionParser.XmlTopShopPayment.class);
+    TopShopActionParser.XmlTopShopPayment parsedPayment =
+        (TopShopActionParser.XmlTopShopPayment)
             context.createUnmarshaller().unmarshal(reader);
     assertEquals("key", parsedPayment.key);
     assertEquals("order-id", parsedPayment.orderId);

@@ -8,7 +8,9 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
-import com.heymoose.infrastructure.service.topshop.TopShopImportJob;
+import com.heymoose.infrastructure.service.action.ActionImportJob;
+import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
+import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.ServletContextEvent;
@@ -43,9 +45,13 @@ public class AppContextListener extends GuiceServletContextListener {
         Key.get(Properties.class, Names.named("settings")));
     Integer topshopImportPeriod = Integer.valueOf(
         properties.get("topshop.import.period").toString());
+    String topshopImportUrl = properties.get("topshop.import.url").toString();
     final ScheduledThreadPoolExecutor topshopExecutor =
         new ScheduledThreadPoolExecutor(1);
-    TopShopImportJob topshopImportJob = injector.getInstance(TopShopImportJob.class);
+    TopShopDataImporter importer = injector.getInstance(TopShopDataImporter.class);
+    TopShopActionParser parser = injector.getInstance(TopShopActionParser.class);
+    ActionImportJob topshopImportJob =
+        new ActionImportJob(topshopImportUrl, importer, parser);
     topshopExecutor.scheduleAtFixedRate(
         topshopImportJob, 0, topshopImportPeriod, TimeUnit.MINUTES);
     Runtime.getRuntime().addShutdownHook(new Thread() {
