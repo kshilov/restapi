@@ -90,4 +90,9 @@ public final class ActionData {
     this.itemList.add(new Item(itemId));
     return this;
   }
+
+  public ActionData addItem(long itemId, BigDecimal price, int quantity) {
+    this.itemList.add(new Item(itemId, price, quantity));
+    return this;
+  }
 }
