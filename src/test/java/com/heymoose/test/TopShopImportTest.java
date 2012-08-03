@@ -69,7 +69,6 @@ public final class TopShopImportTest extends RestTest {
     Long productSubOfferId = null;
     Repo repo = injector().getInstance(Repo.class);
     TopShopDataImporter importer = new TopShopDataImporter(
-        String.valueOf(offerId),
         repo,
         injector().getInstance(Tracking.class),
         injector().getInstance(OfferActions.class));
@@ -115,7 +114,7 @@ public final class TopShopImportTest extends RestTest {
     tx = session.beginTransaction();
     try {
       List<ActionData> data = converter.parse(input(topShopXml));
-      importer.doImport(data);
+      importer.doImport(data, offerId);
       tx.commit();
     } catch (Exception e) {
       tx.rollback();

@@ -20,8 +20,10 @@ public final class ActionImportJob implements Runnable {
   private final URL url;
   private final ActionDataImporter importer;
   private final ActionParser parser;
+  private final Long parentOfferId;
 
-  public ActionImportJob(String url, ActionDataImporter importer,
+  public ActionImportJob(String url, Long parentOffer,
+                         ActionDataImporter importer,
                          ActionParser parser) {
     try {
       this.url = new URL(url);
@@ -30,6 +32,7 @@ public final class ActionImportJob implements Runnable {
     }
     this.importer = importer;
     this.parser = parser;
+    this.parentOfferId = parentOffer;
   }
 
   @Override
@@ -45,9 +48,11 @@ public final class ActionImportJob implements Runnable {
               return input;
             }
           });
-      importer.doImport(converted);
+      importer.doImport(converted, parentOfferId);
     } catch (Throwable e) {
-      log.error("Exception occurred during data import.", e);
+      String msg = String.format("Exception occurred during data import " +
+          "for offer: %s, from url: %s", parentOfferId, url);
+      log.error(msg, e);
     }
   }
 }

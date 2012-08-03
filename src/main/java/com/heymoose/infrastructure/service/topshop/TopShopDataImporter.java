@@ -14,10 +14,9 @@ import java.math.BigDecimal;
 public class TopShopDataImporter extends ActionDataImporter {
 
   @Inject
-  public TopShopDataImporter(@Named("topshop.offer") String parentOffer,
-                             Repo repo, Tracking tracking,
+  public TopShopDataImporter(Repo repo, Tracking tracking,
                              OfferActions actions) {
-    super(parentOffer, repo, tracking, actions);
+    super(repo, tracking, actions);
   }
 
   protected BigDecimal namePrice(ActionData.Item item, BaseOffer offer) {
