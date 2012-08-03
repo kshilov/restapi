@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
+import com.heymoose.domain.action.ActionData;
+import com.heymoose.infrastructure.service.action.ActionParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +19,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public final class TopShopXmlConverter {
+public final class TopShopActionParser implements ActionParser {
 
   @XmlRootElement(name = "payment_list")
   public static class XmlTopShopPayments {
@@ -48,7 +50,7 @@ public final class TopShopXmlConverter {
   }
 
   private static final Logger log =
-      LoggerFactory.getLogger(TopShopXmlConverter.class);
+      LoggerFactory.getLogger(TopShopActionParser.class);
   private static final int STATUS_CREATED = 1;
   private static final int STATUS_COMPLETE = 20;
   private static final int STATUS_CANCELED = 30;
@@ -58,9 +60,9 @@ public final class TopShopXmlConverter {
    * @return map token - price
    */
   @SuppressWarnings("unchecked")
-  public List<TopShopPaymentData> convert(InputSupplier<InputStream> inputSupplier) {
+  public List<ActionData> parse(InputSupplier<InputStream> inputSupplier) {
     InputStream input = null;
-    ImmutableList.Builder<TopShopPaymentData> dataBuilder =
+    ImmutableList.Builder<ActionData> dataBuilder =
         ImmutableList.builder();
     try {
       input = inputSupplier.getInput();
@@ -78,18 +80,18 @@ public final class TopShopXmlConverter {
               payment.orderId);
           continue;
         }
-        TopShopPaymentData paymentData = new TopShopPaymentData();
+        ActionData paymentData = new ActionData();
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
         switch (payment.status) {
           case STATUS_CREATED:
-            paymentData.setStatus(TopShopPaymentData.Status.CREATED);
+            paymentData.setStatus(ActionData.Status.CREATED);
             break;
           case STATUS_COMPLETE:
-            paymentData.setStatus(TopShopPaymentData.Status.COMPLETE);
+            paymentData.setStatus(ActionData.Status.COMPLETE);
             break;
           case STATUS_CANCELED:
-            paymentData.setStatus(TopShopPaymentData.Status.CANCELED);
+            paymentData.setStatus(ActionData.Status.CANCELED);
         }
         for (Long item : payment.itemListElement.itemList) {
           paymentData.addItem(item);

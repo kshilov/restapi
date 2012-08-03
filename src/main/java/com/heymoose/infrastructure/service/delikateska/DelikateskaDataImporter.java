@@ -1,6 +1,6 @@
-package com.heymoose.infrastructure.service.topshop;
+package com.heymoose.infrastructure.service.delikateska;
 
-import com.google.inject.name.Named;
+import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -8,19 +8,19 @@ import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
 
-import javax.inject.Inject;
 import java.math.BigDecimal;
 
-public class TopShopDataImporter extends ActionDataImporter {
+public final class DelikateskaDataImporter extends ActionDataImporter {
 
   @Inject
-  public TopShopDataImporter(@Named("topshop.offer") String parentOffer,
-                             Repo repo, Tracking tracking,
-                             OfferActions actions) {
+  public DelikateskaDataImporter(String parentOffer, Repo repo,
+                                 Tracking tracking,
+                                 OfferActions actions) {
     super(parentOffer, repo, tracking, actions);
   }
 
+  @Override
   protected BigDecimal namePrice(ActionData.Item item, BaseOffer offer) {
-    return offer.cost();
+    return item.price().multiply(new BigDecimal(item.quantity()));
   }
 }

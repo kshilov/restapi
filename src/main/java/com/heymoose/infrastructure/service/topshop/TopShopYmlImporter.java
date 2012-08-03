@@ -4,31 +4,20 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
-import com.google.common.io.InputSupplier;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.offer.CpaPolicy;
-import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.offer.PayMethod;
-import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.yml.Category;
-import com.heymoose.infrastructure.service.yml.Name;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
+import com.heymoose.infrastructure.service.yml.YmlImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TopShopYmlImporter {
+public class TopShopYmlImporter extends YmlImporter {
 
   private static final Logger log = LoggerFactory
       .getLogger(TopShopYmlImporter.class);
@@ -84,92 +73,45 @@ public class TopShopYmlImporter {
   }
 
 
-  private static String name(
-      com.heymoose.infrastructure.service.yml.Offer offer) {
-    List<Object> l = offer
-        .getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
-    for (Object o : l) {
-      if (o instanceof Name) {
-        return ((Name) o).getvalue();
-      }
-    }
-    return offer.getDescription();
-  }
-
-
-  private final Repo repo;
+  private Map<Integer, Integer> childToParentCategory;
 
   @Inject
   public TopShopYmlImporter(Repo repo) {
-    this.repo = repo;
+    super(repo);
+  }
+  protected BigDecimal getPercent(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
+                                  YmlCatalog catalog) {
+    if (childToParentCategory == null) {
+      childToParentCategory = mapChildToParent(catalog);
+    }
+    Integer parentCategory = getParentCategory(catalogOffer);
+    if (!CATEGORY_PERCENT_MAP.containsKey(parentCategory)) {
+      log.info("Category {} is not mapped. Skipping.", parentCategory);
+      throw new IllegalStateException("Category unknown" + parentCategory);
+    }
+    return CATEGORY_PERCENT_MAP.get(parentCategory);
   }
 
-  @Transactional
-  public void doImport(InputSupplier<? extends Reader> input, Long parentOfferId) {
-    Reader inputReader = null;
-    YmlCatalog catalog;
-    try {
-      inputReader = input.getInput();
-      JAXBContext context = JAXBContext.newInstance(YmlCatalog.class);
-      Unmarshaller unmarshaller = context.createUnmarshaller();
-      catalog = (YmlCatalog) unmarshaller.unmarshal(inputReader);
-      log.info("{} categories found.",
-          catalog.getShop().getCategories().getCategory().size());
-      log.info("{} products found.",
-          catalog.getShop().getOffers().getOffer().size());
-    } catch (Exception e) {
-      log.error("Error occurred during YML parsing.", e);
-      throw new RuntimeException(e);
-    } finally {
-      Closeables.closeQuietly(inputReader);
+  protected boolean isExclusive(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
+                                YmlCatalog catalog) {
+    return EXCLUSIVE_CATEGORIES.contains(getParentCategory(catalogOffer));
+  }
+
+  private Integer getParentCategory(com.heymoose.infrastructure.service.yml.Offer catalogOffer) {
+    String productCategoryString = catalogOffer.getCategoryId().get(0)
+        .getvalue();
+    String productName = name(catalogOffer);
+    if (Strings.isNullOrEmpty(productCategoryString)) {
+      log.info("Category does not present for product {} - {}. Skipping.",
+          catalogOffer.getId(), productName);
+      throw new IllegalStateException("No category for product "
+          + catalogOffer.getId());
     }
-
-    Map<Integer, Integer> childToParentCategory = mapChildToParent(catalog);
-    Offer parentOffer = repo.get(Offer.class, parentOfferId);
-    parentOffer.setExclusive(true);
-    repo.put(parentOffer);
-
-
-    for (com.heymoose.infrastructure.service.yml.Offer catalogOffer :
-        catalog.getShop().getOffers().getOffer()) {
-      String productCategoryString = catalogOffer.getCategoryId().get(0)
-          .getvalue();
-      String productName = name(catalogOffer);
-      if (Strings.isNullOrEmpty(productCategoryString)) {
-        log.info("Category does not present for product {} - {}. Skipping.",
-            catalogOffer.getId(), productName);
-        continue;
-      }
-      Integer productCategory = Integer.valueOf(productCategoryString);
-      Integer parentCategory = childToParentCategory.get(productCategory);
-      if (parentCategory == null) {
-        parentCategory = productCategory;
-      }
-      if (CATEGORY_PERCENT_MAP.get(parentCategory) == null) {
-        log.info("Category {} is not mapped. Skipping.", parentCategory);
-        continue;
-      }
-      SubOffer subOffer = repo.byHQL(SubOffer.class,
-          "from SubOffer where parentId = ? and code = ?",
-          parentOfferId, catalogOffer.getId());
-      if (subOffer == null)
-        subOffer = new SubOffer();
-      subOffer.setParentId(parentOffer.id())
-              .setCode(catalogOffer.getId())
-              .setCost(new BigDecimal(catalogOffer.getPrice()))
-              .setTitle(productName)
-              .setPercent(CATEGORY_PERCENT_MAP.get(parentCategory))
-              .setPayMethod(PayMethod.CPA)
-              .setCpaPolicy(CpaPolicy.PERCENT)
-              .setAutoApprove(false)
-              .setReentrant(true)
-              .setHoldDays(parentOffer.holdDays());
-      if (EXCLUSIVE_CATEGORIES.contains(parentCategory)) {
-        subOffer.setExclusive(true);
-      }
-      repo.put(subOffer);
-      log.info("Sub offer for product: {} - {}. Saved with id: {}",
-          new Object[]{catalogOffer.getId(), subOffer.title(), subOffer.id()});
+    Integer productCategory = Integer.valueOf(productCategoryString);
+    Integer parentCategory = childToParentCategory.get(productCategory);
+    if (parentCategory == null) {
+      parentCategory = productCategory;
     }
+    return parentCategory;
   }
 }

@@ -1,6 +1,7 @@
 package com.heymoose.test;
 
 import com.google.common.io.InputSupplier;
+import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -15,8 +16,7 @@ import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
-import com.heymoose.infrastructure.service.topshop.TopShopPaymentData;
-import com.heymoose.infrastructure.service.topshop.TopShopXmlConverter;
+import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -73,7 +73,7 @@ public final class TopShopImportTest extends RestTest {
         repo,
         injector().getInstance(Tracking.class),
         injector().getInstance(OfferActions.class));
-    TopShopXmlConverter converter = new TopShopXmlConverter();
+    TopShopActionParser converter = new TopShopActionParser();
     String topShopXml =
         "<payment_list>" +
           "<payment>" +
@@ -114,7 +114,7 @@ public final class TopShopImportTest extends RestTest {
     session = injector().getProvider(Session.class).get();
     tx = session.beginTransaction();
     try {
-      List<TopShopPaymentData> data = converter.convert(input(topShopXml));
+      List<ActionData> data = converter.parse(input(topShopXml));
       importer.doImport(data);
       tx.commit();
     } catch (Exception e) {

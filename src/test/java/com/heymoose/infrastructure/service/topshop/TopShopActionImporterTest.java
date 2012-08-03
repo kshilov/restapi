@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.io.Resources;
+import com.heymoose.domain.action.ActionData;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;
@@ -16,19 +17,19 @@ public final class TopShopActionImporterTest {
   public void parsesTopShopXmlCorrectly() throws Exception {
     URL topShopXml = getClass().getClassLoader()
         .getResource("topshop/example.xml");
-    TopShopXmlConverter converter = new TopShopXmlConverter();
-    List<TopShopPaymentData> info = converter.convert(
+    TopShopActionParser converter = new TopShopActionParser();
+    List<ActionData> info = converter.parse(
         Resources.newInputStreamSupplier(topShopXml));
 
-    TopShopPaymentData payment1 = info.get(0);
-    TopShopPaymentData payment2 = info.get(1);
+    ActionData payment1 = info.get(0);
+    ActionData payment2 = info.get(1);
     assertEquals("hm_1", payment1.token());
     assertEquals("hm_2", payment2.token());
-    assertEquals(1, payment1.items().size());
-    assertEquals(2, payment2.items().size());
-    assertEquals(11L, (long) payment1.items().get(0));
-    assertEquals(21L, (long) payment2.items().get(0));
-    assertEquals(22L, (long) payment2.items().get(1));
+    assertEquals(1, payment1.itemList().size());
+    assertEquals(2, payment2.itemList().size());
+    assertEquals(11L, payment1.itemList().get(0).id());
+    assertEquals(21L, payment2.itemList().get(0).id());
+    assertEquals(22L, payment2.itemList().get(1).id());
     assertEquals("order_1", payment1.transactionId());
     assertEquals("order_2", payment2.transactionId());
   }
@@ -38,9 +39,9 @@ public final class TopShopActionImporterTest {
     String xml = "<items><item>123</item></items>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
-        TopShopXmlConverter.XmlTopShopItemList.class);
-    TopShopXmlConverter.XmlTopShopItemList parsedItemList =
-        (TopShopXmlConverter.XmlTopShopItemList)
+        TopShopActionParser.XmlTopShopItemList.class);
+    TopShopActionParser.XmlTopShopItemList parsedItemList =
+        (TopShopActionParser.XmlTopShopItemList)
             context.createUnmarshaller().unmarshal(reader);
     assertEquals(123, (long) parsedItemList.itemList.get(0));
   }
@@ -57,9 +58,9 @@ public final class TopShopActionImporterTest {
         "</payment>";
     StringReader reader = new StringReader(xml);
     JAXBContext context = JAXBContext.newInstance(
-        TopShopXmlConverter.XmlTopShopPayment.class);
-    TopShopXmlConverter.XmlTopShopPayment parsedPayment =
-        (TopShopXmlConverter.XmlTopShopPayment)
+        TopShopActionParser.XmlTopShopPayment.class);
+    TopShopActionParser.XmlTopShopPayment parsedPayment =
+        (TopShopActionParser.XmlTopShopPayment)
             context.createUnmarshaller().unmarshal(reader);
     assertEquals("key", parsedPayment.key);
     assertEquals("order-id", parsedPayment.orderId);
