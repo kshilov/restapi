@@ -67,6 +67,9 @@ public abstract class BaseOffer extends BaseEntity {
   @Column(name = "hold_days")
   private int holdDays;
 
+  @Column(name = "exclusive", nullable = false)
+  private boolean exclusive;
+
   protected BaseOffer() {}
 
   public BaseOffer(PayMethod payMethod, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
@@ -109,8 +112,9 @@ public abstract class BaseOffer extends BaseEntity {
     return cpaPolicy;
   }
   
-  public void setCpaPolicy(CpaPolicy cpaPolicy) {
+  public BaseOffer setCpaPolicy(CpaPolicy cpaPolicy) {
     this.cpaPolicy = cpaPolicy;
+    return this;
   }
 
   public BigDecimal cost() {
@@ -121,22 +125,32 @@ public abstract class BaseOffer extends BaseEntity {
     return cost2;
   }
   
-  public void setCost(BigDecimal cost) {
+  public BaseOffer setCost(BigDecimal cost) {
     this.cost = cost;
-    this.percent = null;
+    return this;
   }
 
-  public void setCost2(BigDecimal cost2) {
+  public BaseOffer setCost2(BigDecimal cost2) {
     this.cost2 = cost2;
+    return this;
   }
 
   public BigDecimal percent() {
     return percent;
   }
   
-  public void setPercent(BigDecimal percent) {
+  public BaseOffer setPercent(BigDecimal percent) {
     this.percent = percent;
-    this.cost = null;
+    return this;
+  }
+
+  public boolean exclusive() {
+    return this.exclusive;
+  }
+
+  public BaseOffer setExclusive(boolean exclusive) {
+    this.exclusive = exclusive;
+    return this;
   }
 
   public boolean active() {
@@ -147,16 +161,18 @@ public abstract class BaseOffer extends BaseEntity {
     return payMethod;
   }
   
-  public void setPayMethod(PayMethod payMethod) {
+  public BaseOffer setPayMethod(PayMethod payMethod) {
     this.payMethod = payMethod;
+    return this;
   }
 
   public String title() {
     return title;
   }
   
-  public void setTitle(String title) {
+  public BaseOffer setTitle(String title) {
     this.title = title;
+    return this;
   }
 
   public boolean autoApprove() {
@@ -167,33 +183,38 @@ public abstract class BaseOffer extends BaseEntity {
     return reentrant;
   }
 
-  public void setAutoApprove(boolean autoApprove) {
+  public BaseOffer setAutoApprove(boolean autoApprove) {
     this.autoApprove = autoApprove;
+    return this;
   }
 
-  public void setReentrant(boolean reentrant) {
+  public BaseOffer setReentrant(boolean reentrant) {
     this.reentrant = reentrant;
+    return this;
   }
 
-  public void setActive(boolean active) {
+  public BaseOffer setActive(boolean active) {
     this.active = active;
+    return this;
   }
   
   public String code() {
     return code;
   }
   
-  public void setCode(String code) {
+  public BaseOffer setCode(String code) {
     this.code = code;
+    return this;
   }
 
   public int holdDays() {
     return holdDays;
   }
 
-  public void setHoldDays(int holdDays) {
+  public BaseOffer setHoldDays(int holdDays) {
     checkArgument(holdDays >= 0 && holdDays <= 180);
     this.holdDays = holdDays;
+    return this;
   }
 
   public abstract Account account();

@@ -23,8 +23,6 @@ public class SubOffer extends BaseOffer {
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private Offer parent;
 
-  protected SubOffer() {}
-
   @Override
   public Account account() {
     return parent.account();
@@ -40,6 +38,8 @@ public class SubOffer extends BaseOffer {
     return parent().regions();
   }
 
+  public SubOffer() { }
+
   public SubOffer(Long parentId, CpaPolicy cpaPolicy, BigDecimal cost, BigDecimal cost2, BigDecimal percent,
                   String title, boolean autoApprove, boolean reentrant, String code, int holdDays) {
     super(PayMethod.CPA, cpaPolicy, cost, cost2, percent, title, autoApprove, reentrant, code, holdDays);
@@ -54,5 +54,10 @@ public class SubOffer extends BaseOffer {
   
   public Offer parent() {
     return parent;
+  }
+
+  public SubOffer setParentId(Long parentId) {
+    this.parentId = parentId;
+    return this;
   }
 }

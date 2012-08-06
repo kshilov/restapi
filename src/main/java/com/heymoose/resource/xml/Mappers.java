@@ -217,9 +217,12 @@ public class Mappers {
     xmlOffer.holdDays = offer.holdDays();
     xmlOffer.cookieTtl = offer.cookieTtl();
     xmlOffer.tokenParamName = offer.tokenParamName();
+    xmlOffer.exclusive = offer.exclusive();
 
-    for (SubOffer suboffer : offer.suboffers())
-      xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
+    if (!offer.exclusive()) {
+      for (SubOffer suboffer : offer.suboffers())
+        xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
+    }
 
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
@@ -279,6 +282,7 @@ public class Mappers {
     xmlSubOffer.reentrant = offer.reentrant();
     xmlSubOffer.code = offer.code();
     xmlSubOffer.holdDays = offer.holdDays();
+    xmlSubOffer.exclusive = offer.exclusive();
     return xmlSubOffer;
   }
 

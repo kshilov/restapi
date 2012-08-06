@@ -1,12 +1,14 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import java.math.BigDecimal;
-import java.util.Set;
+import com.heymoose.domain.offer.SubOffer;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.math.BigDecimal;
+import java.util.Set;
 
 @XmlRootElement(name = "offer")
 public class XmlOffer {
@@ -112,6 +114,9 @@ public class XmlOffer {
   
   @XmlElement(name = "token-param-name")
   public String tokenParamName;
+
+  @XmlElement
+  public boolean exclusive;
   
   @XmlElementWrapper(name = "regions")
   @XmlElement(name = "region")

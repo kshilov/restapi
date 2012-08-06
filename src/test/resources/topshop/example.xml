@@ -1,0 +1,28 @@
+<payment_list>
+  <payment>
+    <key>
+      http://www.top-shop.ru/product/1599/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=xb2uqskwnayciipxikuuxxrvqtacahrb-jalousie-121x182-black&amp;_hm_token=hm_1
+    </key>
+    <order_id>order_1</order_id>
+    <date>2012-05-02 15:01:08</date>
+    <cart>100.500</cart>
+    <status>30</status>
+    <items>
+      <item>11</item>
+    </items>
+  </payment>
+
+  <payment>
+    <key>
+      http://www.top-shop.ru/product/5750/?referrer=xb2uqskwnayciipxikuuxxrvqtacahrb&amp;src=xb2uqskwnayciipxikuuxxrvqtacahrb-slim-n-lift-air-bra-retail&amp;_hm_token=hm_2
+    </key>
+    <order_id>order_2</order_id>
+    <date>2012-05-06 13:29:09</date>
+    <cart>100.501</cart>
+    <status>10</status>
+    <items>
+      <item>21</item>
+      <item>22</item>
+    </items>
+  </payment>
+</payment_list>

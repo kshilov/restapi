@@ -46,4 +46,7 @@ public class XmlSubOffer {
   
   @XmlElement(name = "hold-days")
   public Integer holdDays;
+
+  @XmlElement
+  public boolean exclusive;
 }
