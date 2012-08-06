@@ -27,11 +27,18 @@ ${if filterByParentId}
   and (o.parent_id = :parent_id or o.id = :parent_id)
   and offer_stat.master = :parent_id
 ${end}
-${if filterByAdvertiser}
+${if filterByAdvId}
   and o.user_id = :adv_id
 ${end}
 ${foreach filterBySubId sub}
-  and offer_stat.${sub} = :${sub}
+  and coalesce(offer_stat.${sub}, '') = coalesce(:${sub}, '')
+${end}
+${if emptySubIdsOnly}
+  and offer_stat.sub_id   is null
+  and offer_stat.sub_id1  is null
+  and offer_stat.sub_id2  is null
+  and offer_stat.sub_id3  is null
+  and offer_stat.sub_id4  is null
 ${end}
 ${if filterByReferer}
   and coalesce(offer_stat.referer, '') = coalesce(:referer, '')

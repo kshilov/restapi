@@ -335,14 +335,17 @@ public class OfferStats {
         templateParamsBuilder(common)
             .put("filterBySubId", subIdFilter.keySet())
             .put("filterByAffId", true);
-    if (offerId != null)
-      templateParams.put("filterByParentId", true);
     ImmutableMap.Builder<String, Object> queryParams =
         ImmutableMap.<String, Object>builder()
             .put("aff_id", affId)
             .putAll(subIdFilter);
-    if (offerId != null)
+    if (offerId != null) {
+      templateParams.put("filterByParentId", true);
       queryParams.put("parent_id", offerId);
+    }
+    if (subIdFilter.isEmpty()) {
+      templateParams.put("emptySubIdsOnly", true);
+    }
     String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
     return executeSubOfferStatsQuery(sql, common, queryParams.build());
 
