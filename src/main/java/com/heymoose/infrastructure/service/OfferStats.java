@@ -317,6 +317,17 @@ public class OfferStats {
     return executeSubOfferStatsQuery(sql, common, queryParams);
   }
 
+  public Pair<QueryResult, Long> subofferStatForAdvertiser(Long advId,
+                                                           CommonParams common) {
+    Preconditions.checkNotNull(advId, "Advertiser id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterByAdvId", true);
+    ImmutableMap<String, ?> queryParams = ImmutableMap.of("adv_id", advId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
+
   public Pair<QueryResult, Long> subofferStatForSubIds(Long affId, Long offerId,
                                                        ImmutableMap<String, String> subIdFilter,
                                                        CommonParams common) {

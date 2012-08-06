@@ -318,6 +318,25 @@ public class OfferStatsResource {
     return new XmlSubOfferStats(p);
   }
 
+  @GET
+  @Path("suboffers/advertiser")
+  @Transactional
+  public XmlSubOfferStats subofferStatByAdvertiser(
+      @QueryParam("adv_id") Long advId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    checkNotNull(advId);
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForAdvertiser(advId, common);
+    return new XmlSubOfferStats(p);
+  }
 
   @GET
   @Path("suboffers/sub_id")

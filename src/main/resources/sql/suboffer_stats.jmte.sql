@@ -27,6 +27,9 @@ ${if filterByParentId}
   and (o.parent_id = :parent_id or o.id = :parent_id)
   and offer_stat.master = :parent_id
 ${end}
+${if filterByAdvertiser}
+  and o.user_id = :adv_id
+${end}
 ${foreach filterBySubId sub}
   and offer_stat.${sub} = :${sub}
 ${end}
