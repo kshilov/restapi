@@ -16,8 +16,10 @@ left join offer parent
 on parent.id = o.parent_id
 
 where
-  offer_stat.aff_id = :aff_id
-  and offer_stat.leads_count + offer_stat.sales_count > 0
+  offer_stat.leads_count + offer_stat.sales_count > 0
+${if filterByAffId}
+  and offer_stat.aff_id = :aff_id
+${end}
 ${if filterBySourceId}
   and coalesce(offer_stat.source_id, '') = coalesce(:source_id, '')
 ${end}

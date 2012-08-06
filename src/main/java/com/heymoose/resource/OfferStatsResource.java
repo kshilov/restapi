@@ -280,7 +280,7 @@ public class OfferStatsResource {
   @GET
   @Path("suboffers")
   @Transactional
-  public XmlSubOfferStats subofferStatByAffiliateAndOffer(
+  public XmlSubOfferStats subofferStatByOffer(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("from") @DefaultValue("0") Long from,
@@ -290,10 +290,31 @@ public class OfferStatsResource {
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
+    checkNotNull(offerId);
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
     Pair<QueryResult, Long> p = stats.subofferStatForOffer(affId, offerId, common);
+    return new XmlSubOfferStats(p);
+  }
+
+  @GET
+  @Path("suboffers/affiliate")
+  @Transactional
+  public XmlSubOfferStats subofferStatByAffiliate(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    checkNotNull(affId);
+    OfferStats.CommonParams common = new OfferStats.CommonParams(
+        new DateTime(from), new DateTime(to),
+        offset, limit, ordering, direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForAffiliate(affId, common);
     return new XmlSubOfferStats(p);
   }
 
