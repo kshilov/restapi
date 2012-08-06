@@ -291,14 +291,39 @@ public class OfferStats {
   public Pair<QueryResult, Long> subofferStatForOffer(Long affId,
                                                       Long offerId,
                                                       CommonParams common) {
-    Preconditions.checkNotNull(affId, "Affiliate id should not be null.");
     Preconditions.checkNotNull(offerId, "Offer id should not be null.");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
         .put("filterByParentId", true);
-    ImmutableMap<String, ?> queryParams = ImmutableMap.of(
-        "parent_id", offerId,
-        "aff_id", affId);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+        .put("parent_id", offerId);
+    if (affId != null) {
+      templateParams.put("filterByAffId", true);
+      queryParams.put("aff_id", affId);
+    }
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
+  public Pair<QueryResult, Long> subofferStatForAffiliate(Long affId,
+                                                          CommonParams common) {
+    Preconditions.checkNotNull(affId, "Affiliate id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterByAffId", true);
+    ImmutableMap<String, ?> queryParams = ImmutableMap.of("aff_id", affId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
+
+  public Pair<QueryResult, Long> subofferStatForAdvertiser(Long advId,
+                                                           CommonParams common) {
+    Preconditions.checkNotNull(advId, "Advertiser id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterByAdvId", true);
+    ImmutableMap<String, ?> queryParams = ImmutableMap.of("adv_id", advId);
     String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
     return executeSubOfferStatsQuery(sql, common, queryParams);
   }
@@ -308,7 +333,8 @@ public class OfferStats {
                                                        CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
-            .put("filterBySubId", subIdFilter.keySet());
+            .put("filterBySubId", subIdFilter.keySet())
+            .put("filterByAffId", true);
     if (offerId != null)
       templateParams.put("filterByParentId", true);
     ImmutableMap.Builder<String, Object> queryParams =
@@ -329,7 +355,8 @@ public class OfferStats {
                                                          CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
-        .put("filterBySourceId", true);
+        .put("filterBySourceId", true)
+        .put("filterByAffId", true);
     if (offerId != null)
       templateParams.put("filterByParentId", true);
     ImmutableMap.Builder<String, Object> queryParams =
@@ -348,7 +375,8 @@ public class OfferStats {
                                                         CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
-            .put("filterByReferer", true);
+        .put("filterByReferer", true)
+        .put("filterByAffId", true);
     if (offerId != null)
       templateParams.put("filterByParentId", true);
     ImmutableMap.Builder<String, Object> queryParams =
@@ -367,7 +395,8 @@ public class OfferStats {
                                                          CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
-            .put("filterByKeywords", true);
+        .put("filterByKeywords", true)
+        .put("filterByAffId", true);
     if (offerId != null)
       templateParams.put("filterByParentId", true);
     ImmutableMap.Builder<String, Object> queryParams =
