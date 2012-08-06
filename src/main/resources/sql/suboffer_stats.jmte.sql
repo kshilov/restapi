@@ -28,7 +28,7 @@ ${if filterByParentId}
   and offer_stat.master = :parent_id
 ${end}
 ${if filterByAdvId}
-  and o.user_id = :adv_id
+  and coalesce(parent.user_id, o.user_id) = :adv_id
 ${end}
 ${foreach filterBySubId sub}
   and coalesce(offer_stat.${sub}, '') = coalesce(:${sub}, '')
