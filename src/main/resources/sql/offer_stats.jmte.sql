@@ -71,17 +71,10 @@ from
   from
     offer o
 
-  ${if granted}
-    join offer_grant g on g.offer_id = o.id
-  ${end}
-
   join
     offer_stat
     on offer_stat.creation_time between :from and :to
     and o.id = offer_stat.master
-    ${if granted}
-      and g.aff_id = offer_stat.aff_id
-    ${end}
 
   ${if groupByAffiliate}
     left join user_profile p
@@ -96,7 +89,13 @@ from
   where
     o.parent_id is null
     ${if granted}
-      and g.state = 'APPROVED'
+      and exists (
+        select 1
+        from offer_grant
+        where aff_id = offer_stat.aff_id
+        and offer_id = o.id
+        and state = 'APPROVED'
+      )
     ${end}
     ${if filterByAffiliate}
       and offer_stat.aff_id = :aff_id
