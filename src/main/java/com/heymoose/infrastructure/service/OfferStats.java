@@ -1,24 +1,29 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import static com.google.common.collect.Lists.newArrayList;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferActionState;
-import com.heymoose.resource.xml.XmlOverallOfferStats;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.resource.xml.XmlOverallOfferStats;
+import org.hibernate.Query;
+import org.joda.time.DateTime;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.hibernate.Query;
-import org.joda.time.DateTime;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Singleton
 public class OfferStats {
@@ -283,6 +288,137 @@ public class OfferStats {
   }
 
   @SuppressWarnings("unchecked")
+  public Pair<QueryResult, Long> subofferStatForOffer(Long affId,
+                                                      Long offerId,
+                                                      CommonParams common) {
+    Preconditions.checkNotNull(offerId, "Offer id should not be null.");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterByParentId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+        .put("parent_id", offerId);
+    if (affId != null) {
+      templateParams.put("filterByAffId", true);
+      queryParams.put("aff_id", affId);
+    }
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
+  public Pair<QueryResult, Long> subofferStatForAffiliate(Long affId,
+                                                          CommonParams common) {
+    Preconditions.checkNotNull(affId, "Affiliate id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterByAffId", true);
+    ImmutableMap<String, ?> queryParams = ImmutableMap.of("aff_id", affId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
+
+  public Pair<QueryResult, Long> subofferStatForAdvertiser(Long advId,
+                                                           CommonParams common) {
+    Preconditions.checkNotNull(advId, "Advertiser id should not be null");
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterByAdvId", true);
+    ImmutableMap<String, ?> queryParams = ImmutableMap.of("adv_id", advId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
+
+  public Pair<QueryResult, Long> subofferStatForSubIds(Long affId, Long offerId,
+                                                       ImmutableMap<String, String> subIdFilter,
+                                                       CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+            .put("filterBySubId", subIdFilter.keySet())
+            .put("filterByAffId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+            .put("aff_id", affId)
+            .putAll(subIdFilter);
+    if (offerId != null) {
+      templateParams.put("filterByParentId", true);
+      queryParams.put("parent_id", offerId);
+    }
+    if (subIdFilter.isEmpty()) {
+      templateParams.put("emptySubIdsOnly", true);
+    }
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+
+  }
+
+
+  public Pair<QueryResult, Long> subofferStatForSourceId(Long affId,
+                                                         Long offerId,
+                                                         String sourceId,
+                                                         CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterBySourceId", true)
+        .put("filterByAffId", true);
+    if (offerId != null)
+      templateParams.put("filterByParentId", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+        .put("source_id", sourceId)
+        .put("aff_id", affId);
+    if (offerId != null)
+      queryParams.put("parent_id", offerId);
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
+  public Pair<QueryResult, Long> subofferStatForReferer(Long affId,
+                                                        Long offerId,
+                                                        String referer,
+                                                        CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterByReferer", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+            .put("referer", referer);
+    if (offerId != null) {
+      templateParams.put("filterByParentId", true);
+      queryParams.put("parent_id", offerId);
+    }
+    if (affId != null) {
+      templateParams.put("filterByAffId", true);
+      queryParams.put("aff_id", affId);
+    }
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
+  public Pair<QueryResult, Long> subofferStatForKeywords(Long affId,
+                                                         Long offerId,
+                                                         String keywords,
+                                                         CommonParams common) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        templateParamsBuilder(common)
+        .put("filterByKeywords", true);
+    ImmutableMap.Builder<String, Object> queryParams =
+        ImmutableMap.<String, Object>builder()
+            .put("keywords", keywords);
+    if (offerId != null) {
+      templateParams.put("filterByParentId", true);
+      queryParams.put("parent_id", offerId);
+    }
+    if (affId != null) {
+      templateParams.put("filterByAffId", true);
+      queryParams.put("aff_id", affId);
+    }
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
+    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+  }
+
+
+
+  @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
     String expiredQuery = "expired_actions_stat";
 
@@ -342,17 +478,7 @@ public class OfferStats {
   private Pair<List<XmlOverallOfferStats>, Long> executeStatsQuery(
       String sql, CommonParams common, Map<String, ?> custom) {
 
-    // count without offset and limit
-    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
-    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
-      countQuery.setParameter(parameter.getKey(), parameter.getValue());
-    }
-    Long count = SqlLoader.extractLong(countQuery
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
-        .uniqueResult()
-    );
-
+    Long count = count(sql, common, custom);
     // query with offset and limit
     Query query = repo.session().createSQLQuery(sql);
     for (Map.Entry<String, ?> parameter : custom.entrySet()) {
@@ -366,6 +492,39 @@ public class OfferStats {
         .setParameter("limit", common.limit)
         .list());
     return new Pair<List<XmlOverallOfferStats>, Long>(result, count);
+  }
+
+  private Pair<QueryResult, Long> executeSubOfferStatsQuery(String sql,
+                                                            CommonParams common,
+                                                            Map<String, ?> custom) {
+    Long count = count(sql, common, custom);
+    // query with offset and limit
+    Query query = repo.session().createSQLQuery(sql);
+    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
+      query.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> result = query
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .setParameter("offset", common.offset)
+        .setParameter("limit", common.limit)
+        .setResultTransformer(ImmutableMapTransformer.INSTANCE)
+        .list();
+    return new Pair<QueryResult, Long>(new QueryResult(result), count);
+  }
+
+  private Long count(String sql, CommonParams common, Map<String, ?> custom) {
+    // count without offset and limit
+    Query countQuery = repo.session().createSQLQuery(SqlLoader.countSql(sql));
+    for (Map.Entry<String, ?> parameter : custom.entrySet()) {
+      countQuery.setParameter(parameter.getKey(), parameter.getValue());
+    }
+    return SqlLoader.extractLong(countQuery
+        .setTimestamp("from", common.from.toDate())
+        .setTimestamp("to", common.to.toDate())
+        .uniqueResult()
+    );
   }
 
   private static ImmutableMap.Builder<String, Object> templateParamsBuilder(

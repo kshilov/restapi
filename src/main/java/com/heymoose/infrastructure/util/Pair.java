@@ -1,6 +1,10 @@
 package com.heymoose.infrastructure.util;
 
 public class Pair<A, B> {
+
+  public static <A, B> Pair<A, B> newInstance(A fst, B snd) {
+    return new Pair<A, B>(fst, snd);
+  }
   
   public final A fst;
   public final B snd;
