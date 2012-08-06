@@ -378,16 +378,18 @@ public class OfferStats {
                                                         CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
-        .put("filterByReferer", true)
-        .put("filterByAffId", true);
-    if (offerId != null)
-      templateParams.put("filterByParentId", true);
+        .put("filterByReferer", true);
     ImmutableMap.Builder<String, Object> queryParams =
         ImmutableMap.<String, Object>builder()
-            .put("referer", referer)
-            .put("aff_id", affId);
-    if (offerId != null)
+            .put("referer", referer);
+    if (offerId != null) {
+      templateParams.put("filterByParentId", true);
       queryParams.put("parent_id", offerId);
+    }
+    if (affId != null) {
+      templateParams.put("filterByAffId", true);
+      queryParams.put("aff_id", affId);
+    }
     String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
     return executeSubOfferStatsQuery(sql, common, queryParams.build());
   }
@@ -398,16 +400,18 @@ public class OfferStats {
                                                          CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
-        .put("filterByKeywords", true)
-        .put("filterByAffId", true);
-    if (offerId != null)
-      templateParams.put("filterByParentId", true);
+        .put("filterByKeywords", true);
     ImmutableMap.Builder<String, Object> queryParams =
         ImmutableMap.<String, Object>builder()
-            .put("keywords", keywords)
-            .put("aff_id", affId);
-    if (offerId != null)
+            .put("keywords", keywords);
+    if (offerId != null) {
+      templateParams.put("filterByParentId", true);
       queryParams.put("parent_id", offerId);
+    }
+    if (affId != null) {
+      templateParams.put("filterByAffId", true);
+      queryParams.put("aff_id", affId);
+    }
     String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
     return executeSubOfferStatsQuery(sql, common, queryParams.build());
   }
