@@ -356,6 +356,7 @@ public class OfferStatsResource {
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
+    checkNotNull(affId);
     ImmutableMap.Builder<String, String> filterBuilder = ImmutableMap.builder();
     putIfNotNull(filterBuilder, "sub_id", subId);
     putIfNotNull(filterBuilder, "sub_id1", subId1);
@@ -385,6 +386,7 @@ public class OfferStatsResource {
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
+    checkNotNull(affId);
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
@@ -407,6 +409,7 @@ public class OfferStatsResource {
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
+    checkNotNull(affId);
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
@@ -429,6 +432,7 @@ public class OfferStatsResource {
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
+    checkNotNull(affId);
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
