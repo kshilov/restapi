@@ -46,7 +46,7 @@ public final class TopShopActionParser implements ActionParser {
   public static class XmlTopShopItemList {
 
     @XmlElement(name = "item")
-    public List<Long> itemList = Lists.newArrayList();
+    public List<String> itemList = Lists.newArrayList();
   }
 
   private static final Logger log =
@@ -93,7 +93,7 @@ public final class TopShopActionParser implements ActionParser {
           case STATUS_CANCELED:
             paymentData.setStatus(ActionData.Status.CANCELED);
         }
-        for (Long item : payment.itemListElement.itemList) {
+        for (String item : payment.itemListElement.itemList) {
           paymentData.addItem(item);
         }
         dataBuilder.add(paymentData);

@@ -27,9 +27,9 @@ public final class TopShopActionImporterTest {
     assertEquals("hm_2", payment2.token());
     assertEquals(1, payment1.itemList().size());
     assertEquals(2, payment2.itemList().size());
-    assertEquals(11L, payment1.itemList().get(0).id());
-    assertEquals(21L, payment2.itemList().get(0).id());
-    assertEquals(22L, payment2.itemList().get(1).id());
+    assertEquals("11", payment1.itemList().get(0).id());
+    assertEquals("21", payment2.itemList().get(0).id());
+    assertEquals("22", payment2.itemList().get(1).id());
     assertEquals("order_1", payment1.transactionId());
     assertEquals("order_2", payment2.transactionId());
   }
@@ -43,7 +43,7 @@ public final class TopShopActionImporterTest {
     TopShopActionParser.XmlTopShopItemList parsedItemList =
         (TopShopActionParser.XmlTopShopItemList)
             context.createUnmarshaller().unmarshal(reader);
-    assertEquals(123, (long) parsedItemList.itemList.get(0));
+    assertEquals("123", parsedItemList.itemList.get(0));
   }
 
   @Test
@@ -64,6 +64,6 @@ public final class TopShopActionImporterTest {
             context.createUnmarshaller().unmarshal(reader);
     assertEquals("key", parsedPayment.key);
     assertEquals("order-id", parsedPayment.orderId);
-    assertEquals(123L, (long) parsedPayment.itemListElement.itemList.get(0));
+    assertEquals("123", parsedPayment.itemListElement.itemList.get(0));
   }
 }

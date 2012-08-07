@@ -55,7 +55,7 @@ public final class HeymooseActionParserTest {
 
     assertEquals(1, result.itemList().size());
     ActionData.Item resultItem = result.itemList().get(0);
-    assertEquals(123L, resultItem.id());
+    assertEquals("123", resultItem.id());
     assertEquals(new BigDecimal("0.01"), resultItem.price());
     assertEquals(2, resultItem.quantity());
   }

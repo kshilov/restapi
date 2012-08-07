@@ -69,7 +69,7 @@ public abstract class ActionDataImporter {
     for (ActionData.Item item : payment.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
-          parentOfferId, String.valueOf(item.id()));
+          parentOfferId, item.id());
       if (productOffer == null) {
         log.warn("Product with code '{}' does not present in our db! " +
             "Using default offer '{}'.", item.id(), parentOfferId);

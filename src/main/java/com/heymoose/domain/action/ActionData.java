@@ -16,26 +16,26 @@ public final class ActionData {
   }
 
   public static class Item {
-    private long id;
+    private String id;
     private BigDecimal price;
     private int quantity = 1;
 
-    public Item(long id) {
+    public Item(String id) {
       this.id = id;
     }
 
-    public Item(long id, BigDecimal price) {
+    public Item(String id, BigDecimal price) {
       this.id = id;
       this.price = price;
     }
 
-    public Item(long id, BigDecimal price, int quantity) {
+    public Item(String id, BigDecimal price, int quantity) {
       this.id = id;
       this.price = price;
       this.quantity = quantity;
     }
 
-    public long id() {
+    public String id() {
       return id;
     }
 
@@ -86,12 +86,12 @@ public final class ActionData {
     return this;
   }
 
-  public ActionData addItem(long itemId) {
+  public ActionData addItem(String itemId) {
     this.itemList.add(new Item(itemId));
     return this;
   }
 
-  public ActionData addItem(long itemId, BigDecimal price, int quantity) {
+  public ActionData addItem(String itemId, BigDecimal price, int quantity) {
     this.itemList.add(new Item(itemId, price, quantity));
     return this;
   }

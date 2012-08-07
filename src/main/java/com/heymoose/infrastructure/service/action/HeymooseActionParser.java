@@ -78,7 +78,7 @@ public final class HeymooseActionParser implements ActionParser {
             .setTransactionId(xmlAction.transaction)
             .setStatus(ActionData.Status.values()[xmlAction.status]);
         for (XmlItem xmlItem : xmlAction.itemList) {
-          data.addItem(Long.valueOf(xmlItem.id), xmlItem.price, xmlItem.quantity);
+          data.addItem(xmlItem.id, xmlItem.price, xmlItem.quantity);
         }
         dataBuilder.add(data);
       }
