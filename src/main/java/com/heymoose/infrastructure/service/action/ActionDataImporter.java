@@ -8,7 +8,6 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
@@ -72,9 +71,8 @@ public abstract class ActionDataImporter {
           parentOfferId, item.id());
       if (productOffer == null) {
         log.warn("Product with code '{}' does not present in our db! " +
-            "Using default offer '{}'.", item.id(), parentOfferId);
-        productOffer = repo.byHQL(Offer.class,
-            "from Offer where id = ?", parentOfferId);
+            "Parent offer: '{}'. Skipping..", item.id(), parentOfferId);
+        continue;
       }
       BigDecimal price = namePrice(item, productOffer);
       log.info("Adding conversion for offer '{}' code '{}' price '{}'",
