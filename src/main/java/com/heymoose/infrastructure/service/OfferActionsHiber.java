@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service;
 
-import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -10,8 +9,14 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.OrderingDirection;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
@@ -182,11 +187,11 @@ public class OfferActionsHiber implements OfferActions {
           admEntries.add(entry);
       }
       if (affEntries.isEmpty() || admEntries.isEmpty()) {
-        logger.info("WARNING: strange entries");
-        logger.info("affEntries.size(): " + affEntries.size());
-        logger.info("admEntries.size(): " + admEntries.size());
+        log.info("WARNING: strange entries");
+        log.info("affEntries.size(): " + affEntries.size());
+        log.info("admEntries.size(): " + admEntries.size());
         for (AccountingEntry e : actionEntries)
-          logger.info(e.toString());
+          log.info(e.toString());
         continue;
       }
       Comparator<AccountingEntry> byDateDesc = new Comparator<AccountingEntry>() {
@@ -202,8 +207,8 @@ public class OfferActionsHiber implements OfferActions {
       DateTime boomDate = DateTime.parse("2012-06-25");
       if (affEntry.creationTime().isBefore(boomDate) || admEntry.creationTime().isBefore(boomDate))
         continue;
-      logger.info("Cancelling tx: " + affEntry.transaction());
-      logger.info("Cancelling tx: " + admEntry.transaction());
+      log.info("Cancelling tx: " + affEntry.transaction());
+      log.info("Cancelling tx: " + admEntry.transaction());
       accounting.cancel(affEntry.transaction());
       accounting.cancel(admEntry.transaction());
       action.stat().addToNotConfirmedRevenue(affEntry.amount().negate());
@@ -211,5 +216,64 @@ public class OfferActionsHiber implements OfferActions {
     }
   }
 
-  private final static Logger logger = LoggerFactory.getLogger(OfferActionsHiber.class);
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<OfferAction> list(Long offerId, OfferActionState state,
+                                ListFilter filter,
+                                Ordering ordering,
+                                OrderingDirection direction) {
+    Criteria criteria = repo.session().createCriteria(OfferAction.class)
+        .createAlias("stat", "stat")
+        .add(Restrictions.eq("offer.id", offerId))
+        .setFirstResult(filter.offset())
+        .setMaxResults(filter.limit());
+    if (state != null)
+      criteria.add(Restrictions.eq("state", state));
+
+    String orderingFieldName = "stat.creationTime";
+    switch (ordering) {
+      case TRANSACTION_ID:
+        orderingFieldName = "transactionId";
+        break;
+      case DATE:
+        orderingFieldName = "creationTime";
+        break;
+      case PARTNER_ID:
+        orderingFieldName = "affiliate";
+        break;
+      case STATE:
+        orderingFieldName = "state";
+        break;
+      case CANCELED_REVENUE:
+        orderingFieldName = "stat.canceledRevenue";
+        break;
+      case NOT_CONFIRMED_REVENUE:
+        orderingFieldName = "stat.notConfirmedRevenue";
+        break;
+      case CONFIRMED_REVENUE:
+        orderingFieldName = "stat.confirmedRevenue";
+        break;
+    }
+    switch (direction) {
+      case ASC:
+        criteria.addOrder(Order.asc(orderingFieldName));
+        break;
+      case DESC:
+        criteria.addOrder(Order.desc(orderingFieldName));
+        break;
+    }
+    return (List<OfferAction>) criteria.list();
+  }
+
+
+  @Override
+  public Long count(Long offerId, OfferActionState state) {
+    Criteria criteria =  repo.session().createCriteria(OfferAction.class)
+        .add(Restrictions.eq("offer.id", offerId))
+        .setProjection(Projections.count("id"));
+    if (state != null)
+      criteria.add(Restrictions.eq("state", state));
+    return (Long) criteria.uniqueResult();
+
+  }
 }

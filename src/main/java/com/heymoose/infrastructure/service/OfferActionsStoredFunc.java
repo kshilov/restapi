@@ -3,14 +3,17 @@ package com.heymoose.infrastructure.service;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.domain.action.OfferAction;
+import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.infrastructure.util.OrderingDirection;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 
 @Singleton
@@ -73,5 +76,18 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public void fix() {
     offerActionsHiber.fix();
+  }
+
+  @Override
+  public List<OfferAction> list(Long offerId, OfferActionState state,
+                                ListFilter filter,
+                                Ordering ordering,
+                                OrderingDirection direction) {
+    return offerActionsHiber.list(offerId, state, filter, ordering, direction);
+  }
+
+  @Override
+  public Long count(Long offerId, OfferActionState state) {
+    return offerActionsHiber.count(offerId, state);
   }
 }

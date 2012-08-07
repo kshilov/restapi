@@ -173,7 +173,27 @@ public class OfferStat extends BaseEntity {
   }
 
   public BigDecimal notConfirmedRevenue() {
-    return this.notConfirmedRevenue;
+    return nullToZero(this.notConfirmedRevenue);
+  }
+
+  public BigDecimal canceledRevenue() {
+    return nullToZero(this.canceledRevenue);
+  }
+
+  public BigDecimal confirmedRevenue() {
+    return nullToZero(this.confirmedRevenue);
+  }
+
+  public BigDecimal notConfirmedFee() {
+    return nullToZero(this.notConfirmedFee);
+  }
+
+  public BigDecimal canceledFee() {
+    return nullToZero(this.canceledFee);
+  }
+
+  public BigDecimal confirmedFee() {
+    return nullToZero(this.confirmedFee);
   }
 
   public Long master() {
@@ -252,5 +272,11 @@ public class OfferStat extends BaseEntity {
       canceledFee = ZERO;
     notConfirmedFee = notConfirmedFee.subtract(fee);
     canceledFee = canceledFee.add(fee);
+  }
+
+  private BigDecimal nullToZero(BigDecimal number) {
+    if (number == null)
+      return ZERO;
+    return number;
   }
 }

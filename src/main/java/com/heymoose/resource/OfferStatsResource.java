@@ -10,7 +10,8 @@ import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlOverallOfferStats;
-import com.heymoose.resource.xml.XmlSubOfferStats;import com.heymoose.resource.xml.XmlTotalStats;
+import com.heymoose.resource.xml.XmlSubOfferStats;
+import com.heymoose.resource.xml.XmlTotalStats;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 
