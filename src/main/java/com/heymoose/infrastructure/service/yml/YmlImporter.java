@@ -39,6 +39,16 @@ import java.util.List;
  */
 public abstract class YmlImporter {
 
+  protected static class NoInfoException extends Exception {
+
+    public NoInfoException() { }
+
+    public NoInfoException(String msg) {
+      super(msg);
+    }
+
+  }
+
   private static final Logger log = LoggerFactory.getLogger(YmlImporter.class);
 
 
@@ -103,26 +113,41 @@ public abstract class YmlImporter {
           parentOfferId, catalogOffer.getId());
       if (subOffer == null)
         subOffer = new SubOffer();
+      BigDecimal percent = null;
+      try {
+        percent = getPercent(catalogOffer, catalog);
+      } catch (NoInfoException e) {
+        log.warn("No price info in YML for product: {} - {}. Skipping..",
+            catalogOffer.getId(), productName);
+      }
       subOffer.setParentId(parentOffer.id())
           .setCode(catalogOffer.getId())
           .setCost(new BigDecimal(catalogOffer.getPrice()))
           .setTitle(productName)
-          .setPercent(getPercent(catalogOffer, catalog))
+          .setPercent(percent)
           .setPayMethod(PayMethod.CPA)
           .setCpaPolicy(CpaPolicy.PERCENT)
           .setAutoApprove(false)
           .setReentrant(true)
           .setHoldDays(parentOffer.holdDays());
-      if (isExclusive(catalogOffer, catalog)) {
-        subOffer.setExclusive(true);
+      boolean isExclusive = false;
+      try {
+        isExclusive = isExclusive(catalogOffer, catalog);
+      } catch (NoInfoException e) {
+        log.warn("No info about exclusiveness for product {} - {}. " +
+            "Setting exclusive = false..",
+            catalogOffer.getId(), productName);
       }
+      subOffer.setExclusive(isExclusive);
       repo.put(subOffer);
       log.info("Sub offer for product: {} - {}. Saved with id: {}",
           new Object[]{catalogOffer.getId(), subOffer.title(), subOffer.id()});
     }
   }
 
-  protected abstract BigDecimal getPercent(Offer catalogOffer, YmlCatalog catalog);
-  protected abstract boolean isExclusive(Offer catalogOffer, YmlCatalog catalog);
+  protected abstract BigDecimal getPercent(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException;
+  protected abstract boolean isExclusive(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException;
 
 }

@@ -80,31 +80,32 @@ public class TopShopYmlImporter extends YmlImporter {
     super(repo);
   }
   protected BigDecimal getPercent(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
-                                  YmlCatalog catalog) {
+                                  YmlCatalog catalog) throws NoInfoException {
     if (childToParentCategory == null) {
       childToParentCategory = mapChildToParent(catalog);
     }
     Integer parentCategory = getParentCategory(catalogOffer);
     if (!CATEGORY_PERCENT_MAP.containsKey(parentCategory)) {
-      log.info("Category {} is not mapped. Skipping.", parentCategory);
-      throw new IllegalStateException("Category unknown" + parentCategory);
+      log.warn("Category {} is not mapped. Skipping.", parentCategory);
+      throw new NoInfoException("Category unknown" + parentCategory);
     }
     return CATEGORY_PERCENT_MAP.get(parentCategory);
   }
 
   protected boolean isExclusive(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
-                                YmlCatalog catalog) {
+                                YmlCatalog catalog) throws NoInfoException {
     return EXCLUSIVE_CATEGORIES.contains(getParentCategory(catalogOffer));
   }
 
-  private Integer getParentCategory(com.heymoose.infrastructure.service.yml.Offer catalogOffer) {
+  private Integer getParentCategory(com.heymoose.infrastructure.service.yml.Offer catalogOffer)
+      throws NoInfoException {
     String productCategoryString = catalogOffer.getCategoryId().get(0)
         .getvalue();
     String productName = name(catalogOffer);
     if (Strings.isNullOrEmpty(productCategoryString)) {
-      log.info("Category does not present for product {} - {}. Skipping.",
+      log.warn("Category does not present for product {} - {}. Skipping.",
           catalogOffer.getId(), productName);
-      throw new IllegalStateException("No category for product "
+      throw new NoInfoException("No category for product "
           + catalogOffer.getId());
     }
     Integer productCategory = Integer.valueOf(productCategoryString);
