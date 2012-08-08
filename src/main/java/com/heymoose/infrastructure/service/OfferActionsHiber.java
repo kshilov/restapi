@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
@@ -233,44 +234,55 @@ public class OfferActionsHiber implements OfferActions {
     }
     Criteria criteria = repo.session().createCriteria(OfferAction.class)
         .createAlias("stat", "stat")
-        .add(Restrictions.or(
-            Restrictions.eq("offer.id", offerId),
-            Restrictions.in("offer.id", subOfferIdList)))
+        .createAlias("affiliate", "affiliate")
         .setFirstResult(filter.offset())
         .setMaxResults(filter.limit());
+
+    if (subOfferIdList.size() > 0) {
+      criteria.add(Restrictions.or(
+          Restrictions.eq("offer.id", offerId),
+          Restrictions.in("offer.id", subOfferIdList)));
+    } else {
+      criteria.add(Restrictions.eq("offer.id", offerId));
+    }
+
     if (state != null)
       criteria.add(Restrictions.eq("state", state));
 
-    String orderingFieldName = "stat.creationTime";
+    List<String> orderingFieldNameList = ImmutableList.of("stat.creationTime");
     switch (ordering) {
       case TRANSACTION_ID:
-        orderingFieldName = "transactionId";
+        orderingFieldNameList = ImmutableList.of("transactionId");
         break;
-      case DATE:
-        orderingFieldName = "creationTime";
+      case CREATION_TIME:
+        orderingFieldNameList = ImmutableList.of("creationTime");
         break;
-      case PARTNER_ID:
-        orderingFieldName = "affiliate";
+      case AFFILIATE_ID:
+        orderingFieldNameList = ImmutableList.of("affiliate.id");
+        break;
+      case AFFILIATE_EMAIL:
+        orderingFieldNameList = ImmutableList.of("affiliate.email");
         break;
       case STATE:
-        orderingFieldName = "state";
+        orderingFieldNameList = ImmutableList.of("state");
         break;
-      case CANCELED_REVENUE:
-        orderingFieldName = "stat.canceledRevenue";
-        break;
-      case NOT_CONFIRMED_REVENUE:
-        orderingFieldName = "stat.notConfirmedRevenue";
-        break;
-      case CONFIRMED_REVENUE:
-        orderingFieldName = "stat.confirmedRevenue";
+      case AMOUNT:
+        orderingFieldNameList = ImmutableList.of(
+            "stat.notConfirmedRevenue",
+            "stat.canceledRevenue",
+            "stat.confirmedRevenue");
         break;
     }
     switch (direction) {
       case ASC:
-        criteria.addOrder(Order.asc(orderingFieldName));
+        for (String fieldName : orderingFieldNameList) {
+          criteria.addOrder(Order.asc(fieldName));
+        }
         break;
       case DESC:
-        criteria.addOrder(Order.desc(orderingFieldName));
+        for (String fieldName : orderingFieldNameList) {
+          criteria.addOrder(Order.desc(fieldName));
+        }
         break;
     }
     return (List<OfferAction>) criteria.list();

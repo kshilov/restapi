@@ -10,8 +10,8 @@ import java.util.Set;
 
 public interface OfferActions {
   enum Ordering {
-    TRANSACTION_ID, PARTNER_ID, DATE, STATE,
-    NOT_CONFIRMED_REVENUE, CONFIRMED_REVENUE, CANCELED_REVENUE
+    TRANSACTION_ID, AFFILIATE_ID, AFFILIATE_EMAIL, CREATION_TIME, STATE,
+    AMOUNT
   }
 
   Integer approveExpired(Offer offer);

@@ -80,7 +80,7 @@ public class OfferActionResource {
       @QueryParam("to") Long to,
       @QueryParam("offset") int offset,
       @QueryParam("limit") @DefaultValue("20") int limit,
-      @QueryParam("ordering") @DefaultValue("DATE") OfferActions.Ordering ordering,
+      @QueryParam("ordering") @DefaultValue("CREATION_TIME") OfferActions.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
     checkNotNull(offerId);
     ListFilter filter = new ListFilter()
