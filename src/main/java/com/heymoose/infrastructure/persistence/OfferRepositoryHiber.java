@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import static com.heymoose.infrastructure.util.HibernateUtil.addEqRestrictionIfNotNull;
+import static com.heymoose.infrastructure.util.HibernateUtil.*;
 
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
@@ -148,20 +148,18 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
       criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
     }
 
-    for (String region : filter.regionList()) {
-      criteria.add(Restrictions.sqlRestriction(
-          "exists (select * from offer_region r " +
-              "where {alias}.id = r.offer_id and region = ?)",
-          region, StandardBasicTypes.STRING));
-    }
+    String existsRegion = "exists (select * from offer_region r " +
+            "where {alias}.id = r.offer_id and region in (?))";
+    addSqlInRestriction(criteria, existsRegion, filter.regionList(),
+        StandardBasicTypes.STRING);
 
-    for (Long category : filter.categoryIdList()) {
-      criteria.add(Restrictions.sqlRestriction(
-          "exists (select * from offer_category c " +
-              "where {alias}.id = c.offer_id and category_id = ?)",
-          category, StandardBasicTypes.LONG));
-    }
+    String existsCategory = "exists (select * from offer_category c " +
+            "where {alias}.id = c.offer_id and category_id in (?))";
+    addSqlInRestriction(criteria, existsCategory, filter.categoryIdList(),
+        StandardBasicTypes.LONG);
+
     return criteria;
 
   }
+
 }
