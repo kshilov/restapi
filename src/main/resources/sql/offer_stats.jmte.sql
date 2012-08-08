@@ -41,6 +41,10 @@ from
       offer_stat.aff_id id, p.email descr
     ${end}
 
+    ${if groupByAffiliateId}
+      offer_stat.aff_id id, '' || offer_stat.aff_id descr
+    ${end}
+
     ${if groupByAdvertiser}
       p.id id, p.email || ' (' || coalesce(p.organization, '--') || ')' descr
     ${end}
@@ -119,6 +123,10 @@ from
 
     ${if groupByAffiliate}
       offer_stat.aff_id, p.email
+    ${end}
+
+    ${if groupByAffiliateId}
+      offer_stat.aff_id
     ${end}
 
     ${if groupByAdvertiser}
