@@ -27,8 +27,8 @@ public final class XmlOfferActions {
   protected static final class XmlOfferAction {
     @XmlAttribute
     public Long id;
-    @XmlElement
-    public Date date;
+    @XmlElement(name = "creation-time")
+    public Date creationTime;
     @XmlElement(name = "transaction-id")
     public String transactionId;
     @XmlElement(name = "affiliate")
@@ -45,7 +45,7 @@ public final class XmlOfferActions {
     public XmlOfferAction(OfferAction action) {
       OfferStat stat = action.stat();
       this.id = action.id();
-      this.date = action.creationTime().toDate();
+      this.creationTime = action.creationTime().toDate();
       this.state = action.state().toString();
       this.amount = stat
           .canceledRevenue().add(stat.canceledFee())
