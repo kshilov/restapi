@@ -25,6 +25,8 @@ public final class XmlOfferActions {
 
   @XmlRootElement(name = "action")
   protected static final class XmlOfferAction {
+    @XmlAttribute
+    public Long id;
     @XmlElement
     public Date date;
     @XmlElement(name = "transaction-id")
@@ -42,6 +44,7 @@ public final class XmlOfferActions {
 
     public XmlOfferAction(OfferAction action) {
       OfferStat stat = action.stat();
+      this.id = action.id();
       this.date = action.creationTime().toDate();
       this.state = action.state().toString();
       this.amount = stat
