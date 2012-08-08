@@ -344,7 +344,7 @@ public class OfferResource {
         code, advertiserId
     );
 
-    if (existentSub != null && existentSub.id() != offerId)
+    if (existentSub != null && !existentSub.id().equals(offerId))
       throw conflict();
 
     Offer existentOffer = repo.byHQL(
@@ -353,7 +353,7 @@ public class OfferResource {
         code, advertiserId
     );
 
-    if (existentOffer != null && existentOffer.id() != offerId)
+    if (existentOffer != null && !existentOffer.id().equals(offerId))
       throw conflict();
   }
 
