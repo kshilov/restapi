@@ -26,6 +26,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.heymoose.infrastructure.util.HibernateUtil.addEqRestrictionIfNotNull;
+import static com.heymoose.infrastructure.util.HibernateUtil.addSqlInRestriction;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements
     OfferGrantRepository {
@@ -184,20 +185,15 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
       criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
     }
 
+    String existsRegion = "exists (select * from offer_region r " +
+        "where {alias}.offer_id = r.offer_id and region in (?))";
+    addSqlInRestriction(criteria, existsRegion, filter.regionList(),
+        StandardBasicTypes.STRING);
 
-    for (String region : filter.regionList()) {
-        criteria.add(Restrictions.sqlRestriction(
-            "exists (select * from offer_region r " +
-                "where {alias}.offer_id = r.offer_id and region = ?)",
-            region, StandardBasicTypes.STRING));
-      }
-
-      for (Long category : filter.categoryIdList()) {
-        criteria.add(Restrictions.sqlRestriction(
-            "exists (select * from offer_category c " +
-                "where {alias}.offer_id = c.offer_id and category_id = ?)",
-            category, StandardBasicTypes.LONG));
-      }
+    String existsCategory = "exists (select * from offer_category c " +
+        "where {alias}.offer_id = c.offer_id and category_id in (?))";
+    addSqlInRestriction(criteria, existsCategory, filter.categoryIdList(),
+        StandardBasicTypes.LONG);
   }
   
 }
