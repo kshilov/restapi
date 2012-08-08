@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.collect.Lists;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -9,6 +10,7 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.OrderingDirection;
@@ -222,9 +224,18 @@ public class OfferActionsHiber implements OfferActions {
                                 ListFilter filter,
                                 Ordering ordering,
                                 OrderingDirection direction) {
+    List<SubOffer> subOfferList = repo.allByHQL(
+        SubOffer.class,
+        "from SubOffer where parentId = ?", offerId);
+    List<Long> subOfferIdList = Lists.newArrayList();
+    for (SubOffer sub : subOfferList) {
+      subOfferIdList.add(sub.id());
+    }
     Criteria criteria = repo.session().createCriteria(OfferAction.class)
         .createAlias("stat", "stat")
-        .add(Restrictions.eq("offer.id", offerId))
+        .add(Restrictions.or(
+            Restrictions.eq("offer.id", offerId),
+            Restrictions.in("offer.id", subOfferIdList)))
         .setFirstResult(filter.offset())
         .setMaxResults(filter.limit());
     if (state != null)

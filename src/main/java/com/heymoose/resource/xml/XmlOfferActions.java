@@ -27,16 +27,14 @@ public final class XmlOfferActions {
   protected static final class XmlOfferAction {
     @XmlElement
     public Date date;
-    @XmlElement(name = "transaction_id")
+    @XmlElement(name = "transaction-id")
     public String transactionId;
-    @XmlElement(name = "partner_id")
-    public Long partnerId;
-    @XmlElement(name = "not-confirmed-revenue")
-    public BigDecimal notConfirmedRevenue;
-    @XmlElement(name = "confirmed-revenue")
-    public BigDecimal confirmedRevenue;
-    @XmlElement(name = "canceled-revenue")
-    public BigDecimal canceledRevenue;
+    @XmlElement(name = "affiliate")
+    public XmlUser affiliate;
+    @XmlElement(name = "offer")
+    public XmlBaseOffer offer;
+    @XmlElement(name = "amount")
+    public BigDecimal amount;
     @XmlElement
     public String state;
 
@@ -46,10 +44,12 @@ public final class XmlOfferActions {
       OfferStat stat = action.stat();
       this.date = action.creationTime().toDate();
       this.state = action.state().toString();
-      this.canceledRevenue = stat.canceledRevenue().add(stat.canceledFee());
-      this.confirmedRevenue = stat.confirmedRevenue().add(stat.confirmedFee());
-      this.notConfirmedRevenue = stat.notConfirmedRevenue().add(stat.notConfirmedFee());
-      this.partnerId = action.affiliate().id();
+      this.amount = stat
+          .canceledRevenue().add(stat.canceledFee())
+          .add(stat.confirmedRevenue()).add(stat.confirmedFee())
+          .add(stat.notConfirmedRevenue()).add(stat.notConfirmedFee());
+      this.affiliate = Mappers.toXmlUser(action.affiliate());
+      this.offer = new XmlBaseOffer(action.offer());
       this.transactionId = action.transactionId();
     }
   }
