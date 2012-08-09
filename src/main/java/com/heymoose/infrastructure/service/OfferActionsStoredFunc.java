@@ -15,6 +15,7 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Set;
 
 @Singleton
@@ -72,6 +73,11 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public void cancel(OfferAction action) {
     offerActionsHiber.cancel(action);
+  }
+
+  @Override
+  public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
+    offerActionsHiber.cancelByIdList(offer, idCollection);
   }
 
   @Override

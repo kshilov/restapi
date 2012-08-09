@@ -22,6 +22,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Set;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
@@ -54,6 +56,16 @@ public class OfferActionResource {
                                      @FormParam("transactions") Set<String> transactionIds) {
     checkNotNull(offerId);
     return actions.cancelByTransactions(existingOffer(offerId), transactionIds).toString();
+  }
+
+  @DELETE
+  @Path("by_id")
+  @Transactional
+  public Response cancelByIdList(@FormParam("offer_id") Long offerId,
+                                 @FormParam("id") List<Long> idList) {
+    checkNotNull(offerId);
+    actions.cancelByIdList(existingOffer(offerId), idList);
+    return Response.ok().build();
   }
 
   private Offer existingOffer(long id) {

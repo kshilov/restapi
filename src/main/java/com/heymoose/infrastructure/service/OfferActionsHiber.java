@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -165,6 +167,20 @@ public class OfferActionsHiber implements OfferActions {
       }
     }
     action.cancel();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
+    Preconditions.checkNotNull(offer);
+    List<OfferAction> actionList = (List<OfferAction>) repo.session().createQuery(
+        "from OfferAction where offer.id = :offer_id and id in (:id_list)")
+        .setParameter("offer_id", offer.id())
+        .setParameterList("id_list", idCollection)
+        .list();
+    for (OfferAction action : actionList) {
+      cancel(action);
+    }
   }
 
   @Override

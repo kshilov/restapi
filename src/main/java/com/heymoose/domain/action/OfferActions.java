@@ -7,6 +7,7 @@ import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface OfferActions {
@@ -22,6 +23,8 @@ public interface OfferActions {
   void approve(OfferAction action);
 
   void cancel(OfferAction action);
+
+  void cancelByIdList(Offer offer, Collection<Long> idCollection);
 
   @Transactional
   void fix();
