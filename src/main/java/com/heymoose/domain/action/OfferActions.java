@@ -12,7 +12,7 @@ import java.util.Set;
 public interface OfferActions {
   enum Ordering {
     TRANSACTION_ID, AFFILIATE_ID, AFFILIATE_EMAIL, CREATION_TIME, STATE,
-    AMOUNT
+    AMOUNT, OFFER_CODE, OFFER_TITLE
   }
 
   Integer approveExpired(Offer offer);
