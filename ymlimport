@@ -1,0 +1,5 @@
+#!/bin/sh
+
+java  -DsettingsFile=/etc/backend/settings.properties \
+      -cp /usr/share/backend/backend.jar \
+      com.heymoose.infrastructure.server.YmlImport $@

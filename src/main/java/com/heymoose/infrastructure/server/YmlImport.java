@@ -42,6 +42,9 @@ public final class YmlImport {
         description = "default percent for non-exclusive items.")
     private BigDecimal defaultPercent;
 
+    @Parameter(names = "--help", help = true, hidden = true)
+    private boolean help;
+
     @Override
     public String toString() {
       return Objects.toStringHelper("")
@@ -59,8 +62,15 @@ public final class YmlImport {
 
   public static void main(String... args) throws Exception {
     final Args arguments = new Args();
-    new JCommander(arguments, args);
-    
+    JCommander jc = new JCommander(arguments, args);
+    jc.setProgramName("ymlimport");
+
+    if (arguments.help) {
+      jc.usage();
+      return;
+    }
+
+
     Injector injector = Guice.createInjector(
         new SettingsModule(),
         new CommonModule(),
