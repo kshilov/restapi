@@ -11,6 +11,7 @@ select
   coalesce(stat.canceled_fee,           0.00) amount,
   offer.id        offer_id,
   offer.title     offer_title,
+  offer.code      offer_code,
   affiliate.id    affiliate_id,
   affiliate.email affiliate_email
 from

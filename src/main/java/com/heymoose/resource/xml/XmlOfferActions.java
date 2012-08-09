@@ -26,8 +26,39 @@ public final class XmlOfferActions {
     this.count = count;
   }
 
+  private static final class XmlAffiliateBasic {
+    @XmlAttribute
+    public Long id;
+    @XmlElement
+    public String email;
+
+    public XmlAffiliateBasic(Map<String, Object> action) {
+      this.id = extractLong(action.get("affiliate_id"));
+      this.email = extractString(action.get("affiliate_email"));
+    }
+
+    protected XmlAffiliateBasic() { }
+  }
+
+  private static final class XmlOfferBasic {
+    @XmlAttribute
+    public Long id;
+    @XmlElement
+    public String code;
+    @XmlElement
+    public String title;
+
+    public XmlOfferBasic(Map<String, Object> action) {
+      this.code = extractString(action.get("offer_code"));
+      this.title = extractString(action.get("offer_title"));
+      this.id = extractLong(action.get("offer_id"));
+    }
+
+    protected XmlOfferBasic() { }
+  }
+
   @XmlRootElement(name = "action")
-  protected static final class XmlOfferAction {
+  private static final class XmlOfferAction {
     @XmlAttribute
     public Long id;
     @XmlElement(name = "creation-time")
@@ -35,9 +66,9 @@ public final class XmlOfferActions {
     @XmlElement(name = "transaction-id")
     public String transactionId;
     @XmlElement(name = "affiliate")
-    public XmlUser affiliate;
+    public XmlAffiliateBasic affiliate;
     @XmlElement(name = "offer")
-    public XmlBaseOffer offer;
+    public XmlOfferBasic offer;
     @XmlElement(name = "amount")
     public BigDecimal amount;
     @XmlElement
@@ -51,9 +82,9 @@ public final class XmlOfferActions {
       Integer stateId = extractInteger(action.get("state"));
       this.state = OfferActionState.values()[stateId].toString();
       this.amount = scaledDecimal(action.get("amount"));
-      this.affiliate = null;
-      this.offer = null;
-      this.transactionId = action.get("transaction_id").toString();
+      this.affiliate = new XmlAffiliateBasic(action);
+      this.offer = new XmlOfferBasic(action);
+      this.transactionId = extractString(action.get("transaction_id"));
     }
   }
 
