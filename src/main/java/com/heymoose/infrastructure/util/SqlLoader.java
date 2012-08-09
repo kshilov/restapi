@@ -112,4 +112,12 @@ public final class SqlLoader {
     BigDecimal decimal = (BigDecimal) object;
     return decimal.setScale(2, BigDecimal.ROUND_UP);
   }
+
+  public static Integer extractInteger(Object val) {
+    if (val == null)
+      return null;
+    if (val instanceof Integer)
+      return (Integer) val;
+    throw new IllegalStateException();
+  }
 }

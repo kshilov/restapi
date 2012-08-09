@@ -4,8 +4,9 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.ListFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
 
-import java.util.List;
 import java.util.Set;
 
 public interface OfferActions {
@@ -25,9 +26,8 @@ public interface OfferActions {
   @Transactional
   void fix();
 
-  List<OfferAction> list(Long offerId, OfferActionState state,
-                         ListFilter filter,
-                         Ordering ordering, OrderingDirection direction);
-  Long count(Long offerId, OfferActionState state);
+  Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
+                               ListFilter filter,
+                               Ordering ordering, OrderingDirection direction);
 
 }

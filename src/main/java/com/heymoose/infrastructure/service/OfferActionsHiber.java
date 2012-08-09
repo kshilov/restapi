@@ -1,7 +1,6 @@
 package com.heymoose.infrastructure.service;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -11,15 +10,14 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import com.heymoose.infrastructure.util.OrderingDirection;
-import org.hibernate.Criteria;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Query;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
@@ -27,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -221,82 +220,39 @@ public class OfferActionsHiber implements OfferActions {
 
   @Override
   @SuppressWarnings("unchecked")
-  public List<OfferAction> list(Long offerId, OfferActionState state,
-                                ListFilter filter,
-                                Ordering ordering,
-                                OrderingDirection direction) {
-    List<SubOffer> subOfferList = repo.allByHQL(
-        SubOffer.class,
-        "from SubOffer where parentId = ?", offerId);
-    List<Long> subOfferIdList = Lists.newArrayList();
-    for (SubOffer sub : subOfferList) {
-      subOfferIdList.add(sub.id());
+  public Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
+                                      ListFilter filter,
+                                      Ordering ordering, OrderingDirection direction) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        ImmutableMap.<String, Object>builder()
+        .put("ordering", ordering)
+        .put("direction", direction);
+    if (state != null) {
+      templateParams.put("filterByState", true);
     }
-    Criteria criteria = repo.session().createCriteria(OfferAction.class)
-        .createAlias("stat", "stat")
-        .createAlias("affiliate", "affiliate")
-        .setFirstResult(filter.offset())
-        .setMaxResults(filter.limit());
+    String sql = SqlLoader.getTemplate("offer_actions", templateParams.build());
+    Query query = repo.session().createSQLQuery(sql)
+        .setParameter("offset", filter.offset())
+        .setParameter("limit", filter.limit())
+        .setParameter("from", filter.from().toDate())
+        .setParameter("to", filter.to().toDate())
+        .setParameter("offer_id", offerId)
+        .setResultTransformer(ImmutableMapTransformer.INSTANCE);
 
-    if (subOfferIdList.size() > 0) {
-      criteria.add(Restrictions.or(
-          Restrictions.eq("offer.id", offerId),
-          Restrictions.in("offer.id", subOfferIdList)));
-    } else {
-      criteria.add(Restrictions.eq("offer.id", offerId));
+    String countSql = SqlLoader.countSql(sql);
+    Query countQuery = repo.session().createSQLQuery(countSql)
+        .setParameter("offer_id", offerId)
+        .setParameter("from", filter.from().toDate())
+        .setParameter("to", filter.to().toDate());
+
+    if (state != null) {
+      query.setParameter("state", state.ordinal());
+      countQuery.setParameter("state", state.ordinal());
     }
 
-    if (state != null)
-      criteria.add(Restrictions.eq("state", state));
-
-    List<String> orderingFieldNameList = ImmutableList.of("stat.creationTime");
-    switch (ordering) {
-      case TRANSACTION_ID:
-        orderingFieldNameList = ImmutableList.of("transactionId");
-        break;
-      case CREATION_TIME:
-        orderingFieldNameList = ImmutableList.of("creationTime");
-        break;
-      case AFFILIATE_ID:
-        orderingFieldNameList = ImmutableList.of("affiliate.id");
-        break;
-      case AFFILIATE_EMAIL:
-        orderingFieldNameList = ImmutableList.of("affiliate.email");
-        break;
-      case STATE:
-        orderingFieldNameList = ImmutableList.of("state");
-        break;
-      case AMOUNT:
-        orderingFieldNameList = ImmutableList.of(
-            "stat.notConfirmedRevenue",
-            "stat.canceledRevenue",
-            "stat.confirmedRevenue");
-        break;
-    }
-    switch (direction) {
-      case ASC:
-        for (String fieldName : orderingFieldNameList) {
-          criteria.addOrder(Order.asc(fieldName));
-        }
-        break;
-      case DESC:
-        for (String fieldName : orderingFieldNameList) {
-          criteria.addOrder(Order.desc(fieldName));
-        }
-        break;
-    }
-    return (List<OfferAction>) criteria.list();
+    QueryResult listResult = new QueryResult(query.list());
+    BigInteger count = (BigInteger) countQuery.uniqueResult();
+    return Pair.of(listResult, count.longValue());
   }
 
-
-  @Override
-  public Long count(Long offerId, OfferActionState state) {
-    Criteria criteria =  repo.session().createCriteria(OfferAction.class)
-        .add(Restrictions.eq("offer.id", offerId))
-        .setProjection(Projections.count("id"));
-    if (state != null)
-      criteria.add(Restrictions.eq("state", state));
-    return (Long) criteria.uniqueResult();
-
-  }
 }

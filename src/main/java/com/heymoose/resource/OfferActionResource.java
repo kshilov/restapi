@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.offer.Offer;
@@ -8,6 +7,8 @@ import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.ListFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.XmlOfferActions;
 import org.joda.time.DateTime;
 
@@ -21,7 +22,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import java.util.List;
 import java.util.Set;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
@@ -88,10 +88,9 @@ public class OfferActionResource {
         .setTo(new DateTime(to))
         .setLimit(limit)
         .setOffset(offset);
-    List<OfferAction> result =
+    Pair<QueryResult, Long> result =
         actions.list(offerId, state, filter, ordering, direction);
-    Long count = actions.count(offerId, state);
-    return new XmlOfferActions(result, count);
+    return new XmlOfferActions(result.fst, result.snd);
 
   }
 }
