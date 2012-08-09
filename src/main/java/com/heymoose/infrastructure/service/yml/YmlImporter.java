@@ -6,7 +6,7 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.infrastructure.persistence.Transactional;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -70,9 +70,22 @@ public abstract class YmlImporter {
     this.repo = repo;
   }
 
-  @Transactional
   public void doImport(InputSupplier<? extends InputStream> input,
                        Long parentOfferId) {
+    Transaction tx = repo.session().getTransaction();
+    if (!tx.isActive())
+      tx.begin();
+    try {
+      doImportInsideTransaction(input, parentOfferId);
+      tx.commit();
+    } catch (Exception e) {
+      tx.rollback();
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void doImportInsideTransaction(InputSupplier<? extends InputStream> input,
+                                         Long parentOfferId) {
     InputStream inputStream = null;
     YmlCatalog catalog;
     try {
