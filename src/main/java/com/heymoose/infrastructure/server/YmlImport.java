@@ -6,6 +6,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.heymoose.domain.base.Repo;
@@ -18,9 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -76,9 +78,13 @@ public final class YmlImport {
         new CommonModule(),
         new ProductionModule());
 
-    File file = new File(arguments.ymlPath.get(0));
-    InputSupplier<FileInputStream> inputSupplier =
-        Files.newInputStreamSupplier(file);
+//    File file = new File(arguments.ymlPath.get(0));
+    String ymlPath = arguments.ymlPath.get(0);
+    if (!ymlPath.contains("://")) {
+      ymlPath = "file://" + ymlPath;
+    }
+    InputSupplier<InputStream> inputSupplier =
+        Resources.newInputStreamSupplier(new URL(ymlPath));
 
     log.info("** Starting import with arguments: {} **", arguments);
     Repo repo = injector.getInstance(Repo.class);
