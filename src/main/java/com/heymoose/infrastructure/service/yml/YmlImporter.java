@@ -60,6 +60,9 @@ public abstract class YmlImporter {
       if (o instanceof Name) {
         return ((Name) o).getvalue();
       }
+      if (o instanceof Model) {
+        return ((Model) o).getvalue();
+      }
     }
     return offer.getDescription();
   }
