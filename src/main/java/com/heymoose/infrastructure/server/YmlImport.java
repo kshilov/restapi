@@ -28,10 +28,10 @@ import java.util.Map;
 public final class YmlImport {
   private final static class Args {
 
-    @Parameter(description = ".yml file for importing.")
+    @Parameter(description = ".yml file for importing.", required = true)
     private List<String> ymlPath;
 
-    @Parameter(names = "-offer", description = "id of parent offer.")
+    @Parameter(names = "-offer", description = "id of parent offer.", required = true)
     private Long offerId;
 
     @Parameter(names = "-csv",
