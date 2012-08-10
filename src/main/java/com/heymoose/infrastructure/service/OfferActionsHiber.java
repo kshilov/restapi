@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service;
 
-import com.heymoose.domain.user.AdminAccountAccessor;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -10,7 +11,13 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.ImmutableMapTransformer;
+import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Query;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -19,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -160,6 +169,20 @@ public class OfferActionsHiber implements OfferActions {
     action.cancel();
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
+    Preconditions.checkNotNull(offer);
+    List<OfferAction> actionList = (List<OfferAction>) repo.session().createQuery(
+        "from OfferAction where offer.id = :offer_id and id in (:id_list)")
+        .setParameter("offer_id", offer.id())
+        .setParameterList("id_list", idCollection)
+        .list();
+    for (OfferAction action : actionList) {
+      cancel(action);
+    }
+  }
+
   @Override
   @Transactional
   public void fix() {
@@ -182,11 +205,11 @@ public class OfferActionsHiber implements OfferActions {
           admEntries.add(entry);
       }
       if (affEntries.isEmpty() || admEntries.isEmpty()) {
-        logger.info("WARNING: strange entries");
-        logger.info("affEntries.size(): " + affEntries.size());
-        logger.info("admEntries.size(): " + admEntries.size());
+        log.info("WARNING: strange entries");
+        log.info("affEntries.size(): " + affEntries.size());
+        log.info("admEntries.size(): " + admEntries.size());
         for (AccountingEntry e : actionEntries)
-          logger.info(e.toString());
+          log.info(e.toString());
         continue;
       }
       Comparator<AccountingEntry> byDateDesc = new Comparator<AccountingEntry>() {
@@ -202,8 +225,8 @@ public class OfferActionsHiber implements OfferActions {
       DateTime boomDate = DateTime.parse("2012-06-25");
       if (affEntry.creationTime().isBefore(boomDate) || admEntry.creationTime().isBefore(boomDate))
         continue;
-      logger.info("Cancelling tx: " + affEntry.transaction());
-      logger.info("Cancelling tx: " + admEntry.transaction());
+      log.info("Cancelling tx: " + affEntry.transaction());
+      log.info("Cancelling tx: " + admEntry.transaction());
       accounting.cancel(affEntry.transaction());
       accounting.cancel(admEntry.transaction());
       action.stat().addToNotConfirmedRevenue(affEntry.amount().negate());
@@ -211,5 +234,41 @@ public class OfferActionsHiber implements OfferActions {
     }
   }
 
-  private final static Logger logger = LoggerFactory.getLogger(OfferActionsHiber.class);
+  @Override
+  @SuppressWarnings("unchecked")
+  public Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
+                                      ListFilter filter,
+                                      Ordering ordering, OrderingDirection direction) {
+    ImmutableMap.Builder<String, Object> templateParams =
+        ImmutableMap.<String, Object>builder()
+        .put("ordering", ordering)
+        .put("direction", direction);
+    if (state != null) {
+      templateParams.put("filterByState", true);
+    }
+    String sql = SqlLoader.getTemplate("offer_actions", templateParams.build());
+    Query query = repo.session().createSQLQuery(sql)
+        .setParameter("offset", filter.offset())
+        .setParameter("limit", filter.limit())
+        .setParameter("from", filter.from().toDate())
+        .setParameter("to", filter.to().toDate())
+        .setParameter("offer_id", offerId)
+        .setResultTransformer(ImmutableMapTransformer.INSTANCE);
+
+    String countSql = SqlLoader.countSql(sql);
+    Query countQuery = repo.session().createSQLQuery(countSql)
+        .setParameter("offer_id", offerId)
+        .setParameter("from", filter.from().toDate())
+        .setParameter("to", filter.to().toDate());
+
+    if (state != null) {
+      query.setParameter("state", state.ordinal());
+      countQuery.setParameter("state", state.ordinal());
+    }
+
+    QueryResult listResult = new QueryResult(query.list());
+    BigInteger count = (BigInteger) countQuery.uniqueResult();
+    return Pair.of(listResult, count.longValue());
+  }
+
 }
