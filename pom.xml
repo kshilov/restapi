@@ -120,9 +120,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>3.1</version>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>1.27</version>
     </dependency>
 
     <dependency>
