@@ -225,6 +225,9 @@ public class ApiResource {
     if (offer.allowDeeplink()) {
       String ulp = params.get("ulp");
       if (ulp != null) {
+        if (!ulp.contains("://")) {
+          ulp = "http://" + ulp;
+        }
         try {
           location = QueryUtil.removeQueryParam(URI.create(ulp), "ulp");
         } catch (IllegalArgumentException e) {
