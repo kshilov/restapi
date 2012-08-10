@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.math.BigDecimal;
 import java.util.Set;
 
 @Singleton
@@ -26,11 +28,14 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
   private final OfferActionsHiber offerActionsHiber;
   private final Repo repo;
+  private final double mlmRate;
 
   @Inject
-  public OfferActionsStoredFunc(OfferActionsHiber offerActionsHiber, Repo repo) {
+  public OfferActionsStoredFunc(OfferActionsHiber offerActionsHiber, Repo repo,
+                                @Named("mlm-ratio") double mlmRate) {
     this.offerActionsHiber = offerActionsHiber;
     this.repo = repo;
+    this.mlmRate = mlmRate;
   }
   @Override
   public Integer approveExpired(Offer offer) {
@@ -38,12 +43,14 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
     if (offer != null) {
       return repo.session()
-          .createSQLQuery("select approve_expired(:offer_id)")
+          .createSQLQuery("select approve_expired(:offer_id, :mlm_rate)")
           .setParameter("offer_id", offer.id())
+          .setParameter("mlm_rate", new BigDecimal(mlmRate))
           .list().size();
     }
     int size = repo.session()
-        .createSQLQuery("select approve_expired();")
+        .createSQLQuery("select approve_expired(:mlm_rate);")
+        .setParameter("mlm_rate", new BigDecimal(mlmRate))
         .list().size();
 
     log.info("Total approve time: {}",
@@ -61,8 +68,9 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public void approve(OfferAction action) {
     DateTime start = DateTime.now();
-    repo.session().createSQLQuery("select approve(:action_id)")
+    repo.session().createSQLQuery("select approve(:action_id, :mlmRate)")
         .setParameter("action_id", action.id())
+        .setParameter("mlmRate", new BigDecimal(mlmRate))
         .uniqueResult();
     log.info("Approve time: {}",
         Period.fieldDifference(
