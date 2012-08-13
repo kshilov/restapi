@@ -32,14 +32,14 @@ join admin_account_not_confirmed admin
 on admin.account_id = entry.account_id
 ${end}
 
-${if onlyNotConfirmedExpired}
+${if onlyExpiredActions}
 join offer
-offer.id = action.offer_id
+on offer.id = action.offer_id
 ${end}
 
 where
   action.creation_time between :from and :to
-${if notConfirmedExpired}
+${if onlyExpiredActions}
   and action.state = 0
   and entry.event = 1
   and cast(now() as date) - cast(action.creation_time as date) > offer.hold_days
