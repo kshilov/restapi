@@ -440,7 +440,7 @@ public class OfferStats {
         OfferActionState.CANCELED,
         AccountingEvent.ACTION_CANCELED, from, to).negate();
     BigDecimal notConfirmedFee = sumAllEntries(
-        ADMIN_CONFIRMED,
+        ADMIN_NOT_CONFIRMED,
         OfferActionState.NOT_APPROVED,
         AccountingEvent.ACTION_CREATED, from, to);
     BigDecimal notConfirmedAff = sumAllEntries(
