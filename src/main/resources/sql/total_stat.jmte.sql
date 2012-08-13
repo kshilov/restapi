@@ -7,7 +7,7 @@ left join offer_action action
 on action.id = entry.source_id
 
 left join accounting_entry canceled
-on canceled.source_id = action.id
+on canceled.source_id = entry.id
 and canceled.event = 8
 
 ${if affiliateConfirmedMoney}

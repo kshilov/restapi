@@ -68,6 +68,11 @@ public class OfferStats {
   public static final String EXPIRED_FEE = "expired_fee";
   public static final String EXPIRED_SUM = "expired_sum";
 
+  private static final String ADMIN_NOT_CONFIRMED =  "adminNotConfirmedMoney";
+  private static final String ADMIN_CONFIRMED = "adminConfirmed";
+  private static final String AFFILIATE_CONFIRMED = "affiliateConfirmedMoney";
+  private static final String AFFILIATE_NOT_CONFIRMED = "affiliateNotConfirmedMoney";
+
   //private final Provider<Session> sessionProvider;
   private final Repo repo;
 
@@ -426,33 +431,33 @@ public class OfferStats {
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
     BigDecimal canceledFee = sumAllEntries(
-        "adminNotConfirmedMoney",
+        ADMIN_NOT_CONFIRMED,
         OfferActionState.CANCELED,
         AccountingEvent.ACTION_CANCELED, from, to).negate();
     BigDecimal canceledAffiliate = sumAllEntries(
-        "affiliateNotConfirmedMoney",
+        AFFILIATE_NOT_CONFIRMED,
         OfferActionState.CANCELED,
         AccountingEvent.ACTION_CANCELED, from, to).negate();
     BigDecimal notConfirmedFee = sumAllEntries(
-        "adminNotConfirmedMoney",
+        ADMIN_CONFIRMED,
         OfferActionState.NOT_APPROVED,
         AccountingEvent.ACTION_CREATED, from, to);
     BigDecimal notConfirmedAff = sumAllEntries(
-        "affiliateNotConfirmedMoney",
+        AFFILIATE_NOT_CONFIRMED,
         OfferActionState.NOT_APPROVED,
         AccountingEvent.ACTION_CREATED, from, to);
     BigDecimal confirmedFee = sumAllEntries(
-        "adminConfirmedMoney",
+        ADMIN_CONFIRMED,
         OfferActionState.APPROVED,
         AccountingEvent.ACTION_APPROVED, from, to);
     BigDecimal confirmedAff = sumAllEntries(
-        "affiliateConfirmedMoney",
+        AFFILIATE_CONFIRMED,
         OfferActionState.APPROVED,
         AccountingEvent.ACTION_APPROVED, from, to);
     BigDecimal expiredFee = sumExpiredEntries(
-        "adminNotConfirmedMoney", from, to);
+        ADMIN_NOT_CONFIRMED, from, to);
     BigDecimal expiredAffiliate = sumExpiredEntries(
-        "affiliateNotConfirmedMoney", from, to);
+        AFFILIATE_NOT_CONFIRMED, from, to);
     return ImmutableMap.<String, BigDecimal>builder()
         .put(CANCELED_FEE, canceledFee)
         .put(CANCELED_AFFILIATE, canceledAffiliate)
