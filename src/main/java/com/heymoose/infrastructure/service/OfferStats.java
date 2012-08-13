@@ -425,39 +425,47 @@ public class OfferStats {
 
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {
-    String expiredQuery = "expired_actions_stat";
-
-    Object[] canceled = totalStats(
+    BigDecimal canceledFee = sumAllEntries(
+        "adminNotConfirmedMoney",
         OfferActionState.CANCELED,
-        AccountingEvent.ACTION_CANCELED, from, to);
-
-    Object[] notConfirmed = totalStats(
+        AccountingEvent.ACTION_CANCELED, from, to).negate();
+    BigDecimal canceledAffiliate = sumAllEntries(
+        "affiliateNotConfirmedMoney",
+        OfferActionState.CANCELED,
+        AccountingEvent.ACTION_CANCELED, from, to).negate();
+    BigDecimal notConfirmedFee = sumAllEntries(
+        "adminNotConfirmedMoney",
         OfferActionState.NOT_APPROVED,
         AccountingEvent.ACTION_CREATED, from, to);
-
-    Object[] confirmed = totalStats(
+    BigDecimal notConfirmedAff = sumAllEntries(
+        "affiliateNotConfirmedMoney",
+        OfferActionState.NOT_APPROVED,
+        AccountingEvent.ACTION_CREATED, from, to);
+    BigDecimal confirmedFee = sumAllEntries(
+        "adminConfirmedMoney",
         OfferActionState.APPROVED,
         AccountingEvent.ACTION_APPROVED, from, to);
-
-    Object[] expiredQueryResult = (Object[]) repo.session()
-        .createSQLQuery(SqlLoader.getSql(expiredQuery))
-        .setParameter("from", from.toDate())
-        .setParameter("to", to.toDate())
-        .list().get(0);
-
+    BigDecimal confirmedAff = sumAllEntries(
+        "affiliateConfirmedMoney",
+        OfferActionState.APPROVED,
+        AccountingEvent.ACTION_APPROVED, from, to);
+    BigDecimal expiredFee = sumExpiredEntries(
+        "adminNotConfirmedMoney", from, to);
+    BigDecimal expiredAffiliate = sumExpiredEntries(
+        "affiliateNotConfirmedMoney", from, to);
     return ImmutableMap.<String, BigDecimal>builder()
-        .put(CANCELED_FEE, SqlLoader.scaledDecimal(canceled[0]).negate())
-        .put(CANCELED_AFFILIATE, SqlLoader.scaledDecimal(canceled[1]).negate())
-        .put(CANCELED_SUM, SqlLoader.scaledDecimal(canceled[2]).negate())
-        .put(NOT_CONFIRMED_FEE, SqlLoader.scaledDecimal(notConfirmed[0]))
-        .put(NOT_CONFIRMED_AFFILIATE, SqlLoader.scaledDecimal(notConfirmed[1]))
-        .put(NOT_CONFIRMED_SUM, SqlLoader.scaledDecimal(notConfirmed[2]))
-        .put(CONFIRMED_FEE, SqlLoader.scaledDecimal(confirmed[0]).negate())
-        .put(CONFIRMED_AFFILIATE, SqlLoader.scaledDecimal(confirmed[1]).negate())
-        .put(CONFIRMED_SUM, SqlLoader.scaledDecimal(confirmed[2]).negate())
-        .put(EXPIRED_AFFILIATE, SqlLoader.scaledDecimal(expiredQueryResult[0]))
-        .put(EXPIRED_FEE, SqlLoader.scaledDecimal(expiredQueryResult[1]))
-        .put(EXPIRED_SUM, SqlLoader.scaledDecimal(expiredQueryResult[2]))
+        .put(CANCELED_FEE, canceledFee)
+        .put(CANCELED_AFFILIATE, canceledAffiliate)
+        .put(CANCELED_SUM, canceledFee.add(canceledAffiliate))
+        .put(NOT_CONFIRMED_FEE, notConfirmedFee)
+        .put(NOT_CONFIRMED_AFFILIATE, notConfirmedAff)
+        .put(NOT_CONFIRMED_SUM, notConfirmedFee.add(notConfirmedAff))
+        .put(CONFIRMED_FEE, confirmedFee)
+        .put(CONFIRMED_AFFILIATE, confirmedAff)
+        .put(CONFIRMED_SUM, confirmedFee.add(confirmedAff))
+        .put(EXPIRED_AFFILIATE, expiredAffiliate)
+        .put(EXPIRED_FEE, expiredFee)
+        .put(EXPIRED_SUM, expiredFee.add(expiredAffiliate))
         .build();
   }
 
@@ -473,6 +481,31 @@ public class OfferStats {
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
+  }
+
+  private BigDecimal sumAllEntries(String templateFlag,
+                                   OfferActionState state,
+                                   AccountingEvent event,
+                                   DateTime from, DateTime to) {
+    String sql = SqlLoader.getTemplate("total_stat",
+        ImmutableMap.of(templateFlag, true));
+    Query query = repo.session().createSQLQuery(sql)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .setParameter("entry_event", event.ordinal())
+        .setParameter("action_state", state.ordinal());
+    return SqlLoader.scaledDecimal(query.uniqueResult());
+  }
+
+  private BigDecimal sumExpiredEntries(String templateFlag,
+                                       DateTime from, DateTime to) {
+    String sql = SqlLoader.getTemplate(
+        "total_stat",
+        ImmutableMap.of(templateFlag, true, "onlyExpiredActions", true));
+    Query query = repo.session().createSQLQuery(sql)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate());
+    return SqlLoader.scaledDecimal(query.uniqueResult());
   }
 
 
