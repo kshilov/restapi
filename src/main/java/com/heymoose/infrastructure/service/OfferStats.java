@@ -64,12 +64,13 @@ public class OfferStats {
   public static final String CONFIRMED_AFFILIATE = "confirmed_affiliate";
   public static final String CONFIRMED_FEE = "confirmed_fee";
   public static final String CONFIRMED_SUM = "confirmed_sum";
+  public static final String MLM = "mlm";
   public static final String EXPIRED_AFFILIATE = "expired_affiliate";
   public static final String EXPIRED_FEE = "expired_fee";
   public static final String EXPIRED_SUM = "expired_sum";
 
   private static final String ADMIN_NOT_CONFIRMED =  "adminNotConfirmedMoney";
-  private static final String ADMIN_CONFIRMED = "adminConfirmed";
+  private static final String ADMIN_CONFIRMED = "adminConfirmedMoney";
   private static final String AFFILIATE_CONFIRMED = "affiliateConfirmedMoney";
   private static final String AFFILIATE_NOT_CONFIRMED = "affiliateNotConfirmedMoney";
 
@@ -454,6 +455,10 @@ public class OfferStats {
         AFFILIATE_CONFIRMED,
         OfferActionState.APPROVED,
         AccountingEvent.ACTION_APPROVED, from, to);
+    BigDecimal mlm = sumAllEntries(
+        ADMIN_CONFIRMED,
+        OfferActionState.APPROVED,
+        AccountingEvent.MLM, from, to).negate();
     BigDecimal expiredFee = sumExpiredEntries(
         ADMIN_NOT_CONFIRMED, from, to);
     BigDecimal expiredAffiliate = sumExpiredEntries(
@@ -468,6 +473,7 @@ public class OfferStats {
         .put(CONFIRMED_FEE, confirmedFee)
         .put(CONFIRMED_AFFILIATE, confirmedAff)
         .put(CONFIRMED_SUM, confirmedFee.add(confirmedAff))
+        .put(MLM, mlm)
         .put(EXPIRED_AFFILIATE, expiredAffiliate)
         .put(EXPIRED_FEE, expiredFee)
         .put(EXPIRED_SUM, expiredFee.add(expiredAffiliate))

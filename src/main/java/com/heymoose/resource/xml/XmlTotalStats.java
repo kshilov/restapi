@@ -29,6 +29,8 @@ public final class XmlTotalStats {
   public XmlDestination canceled;
   @XmlElement
   public XmlDestination expired;
+  @XmlElement
+  public BigDecimal mlm;
 
   public XmlTotalStats(Map<String, BigDecimal> map) {
     confirmed = new XmlDestination();
@@ -50,6 +52,8 @@ public final class XmlTotalStats {
     canceled.fee = map.get(CANCELED_FEE);
     canceled.affiliate = map.get(CANCELED_AFFILIATE);
     canceled.sum = map.get(CANCELED_SUM);
+
+    mlm = map.get(MLM);
   }
 
   protected XmlTotalStats() { }
