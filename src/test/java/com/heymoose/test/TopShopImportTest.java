@@ -87,9 +87,10 @@ public final class TopShopImportTest extends RestTest {
     // manually start transaction, because not using guice
     Session session = injector().getProvider(Session.class).get();
     Transaction tx = session.beginTransaction();
+    SubOffer productSubOffer = null;
     try {
       Offer parentOffer = repo.get(Offer.class, offerId);
-      SubOffer productSubOffer = new SubOffer();
+      productSubOffer = new SubOffer();
       productSubOffer.setParentId(parentOffer.id())
           .setCode(itemCode.toString())
           .setCost(new BigDecimal(price))
@@ -127,7 +128,8 @@ public final class TopShopImportTest extends RestTest {
     log.info("Revenue: {}", offerStat.notConfirmedRevenue());
     User affiliate = select(User.class, Restrictions.eq("id", affId)).get(0);
     BigDecimal cost = new BigDecimal(price * PERCENT / 100.0);
-    BigDecimal expectedRevenue = cost.divide(new BigDecimal((100 + affiliate.fee()) / 100.0), 2, RoundingMode.CEILING);
+    BigDecimal expectedRevenue = cost.divide(
+        new BigDecimal((100 + productSubOffer.affiliateFee().doubleValue()) / 100.0), 2, RoundingMode.CEILING);
 
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());

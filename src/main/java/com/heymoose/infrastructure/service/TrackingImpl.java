@@ -95,7 +95,7 @@ public class TrackingImpl implements Tracking {
     PayMethod payMethod = offer.payMethod();
     if (payMethod == PayMethod.CPC) {
       BigDecimal cost = offer.cost();
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
+      BigDecimal amount = affiliatePart(cost, offer);
       BigDecimal revenue = cost.subtract(amount);
       accounting.transferMoney(
           offer.account(),
@@ -150,22 +150,7 @@ public class TrackingImpl implements Tracking {
       } else throw new IllegalStateException();
       if (existent != null && cost2 != null)
         cost = cost2;
-      BigDecimal amount = null;
-      switch (offer.affiliateFeeType()) {
-        case PERCENT:
-          // cost = aff_part + our_part
-          // our_part =  aff_part * (aff_fee / 100%)
-          // cost = aff_part + aff_part * aff_fee / 100%
-          // amount = aff_part = cost / (1 + aff_fee / 100%)
-          BigDecimal divider = offer.affiliateFee()
-              .divide(new BigDecimal(100))
-              .add(BigDecimal.ONE);
-          amount = cost.divide(divider);
-          break;
-        case FIX:
-          amount = offer.affiliateFee();
-          break;
-      }
+      BigDecimal amount = affiliatePart(cost, offer);
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
           source.bannerId(),
@@ -296,5 +281,22 @@ public class TrackingImpl implements Tracking {
           throw new RuntimeException(e.getMessage(), e);
         }
     }
+  }
+
+  private static BigDecimal affiliatePart(BigDecimal cost, BaseOffer offer) {
+    switch (offer.affiliateFeeType()) {
+      case PERCENT:
+        // cost = aff_part + our_part
+        // our_part =  aff_part * (aff_fee / 100%)
+        // cost = aff_part + aff_part * aff_fee / 100%
+        // amount = aff_part = cost / (1 + aff_fee / 100%)
+        BigDecimal divider = offer.affiliateFee()
+            .divide(new BigDecimal(100))
+            .add(BigDecimal.ONE);
+        return cost.divide(divider, 2, BigDecimal.ROUND_CEILING);
+      case FIX:
+        return offer.affiliateFee();
+    }
+    throw new RuntimeException("Unknown FeeType for offer " + offer.id());
   }
 }
