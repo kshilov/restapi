@@ -293,7 +293,7 @@ public class TrackingImpl implements Tracking {
         BigDecimal divider = offer.affiliateFee()
             .divide(new BigDecimal(100))
             .add(BigDecimal.ONE);
-        return cost.divide(divider, 2, BigDecimal.ROUND_CEILING);
+        return cost.divide(divider, 2, BigDecimal.ROUND_UP);
       case FIX:
         return offer.affiliateFee();
     }

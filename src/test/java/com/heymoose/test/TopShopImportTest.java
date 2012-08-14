@@ -129,7 +129,7 @@ public final class TopShopImportTest extends RestTest {
     User affiliate = select(User.class, Restrictions.eq("id", affId)).get(0);
     BigDecimal cost = new BigDecimal(price * PERCENT / 100.0);
     BigDecimal expectedRevenue = cost.divide(
-        new BigDecimal((100 + productSubOffer.affiliateFee().doubleValue()) / 100.0), 2, RoundingMode.CEILING);
+        new BigDecimal((100 + productSubOffer.affiliateFee().doubleValue()) / 100.0), 2, RoundingMode.UP);
 
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());
