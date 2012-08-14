@@ -52,11 +52,11 @@ public abstract class BaseOffer extends BaseEntity {
   protected BigDecimal percent;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "affiliate_fee_type", nullable = false)
-  protected FeeType affiliateFeeType = FeeType.PERCENT;
+  @Column(name = "fee_type", nullable = false)
+  protected FeeType feeType = FeeType.PERCENT;
 
-  @Column(name = "affiliate_fee", nullable = false)
-  protected BigDecimal affiliateFee = new BigDecimal(30.0);
+  @Column(name = "fee", nullable = false)
+  protected BigDecimal fee = new BigDecimal(30.0);
 
   @Basic
   protected boolean active = false;
@@ -153,21 +153,26 @@ public abstract class BaseOffer extends BaseEntity {
     return this;
   }
 
-  public FeeType affiliateFeeType() {
-    return this.affiliateFeeType;
+  public FeeType feeType() {
+    return this.feeType;
   }
 
-  public BigDecimal affiliateFee() {
-    return this.affiliateFee;
+  public BigDecimal fee() {
+    return this.fee;
   }
 
-  public BaseOffer setAffiliateFeeType(FeeType type) {
-    this.affiliateFeeType = type;
+  public BaseOffer setFeeType(FeeType type) {
+    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT) {
+      Preconditions.checkArgument(
+          type == FeeType.PERCENT,
+          "FeeType should be percent for percent offers.");
+    }
+    this.feeType = type;
     return this;
   }
 
-  public BaseOffer setAffiliateFee(BigDecimal fee) {
-    switch (affiliateFeeType) {
+  public BaseOffer setFee(BigDecimal fee) {
+    switch (feeType) {
       case PERCENT:
         double feeDouble = fee.doubleValue();
         Preconditions.checkArgument(
@@ -180,7 +185,7 @@ public abstract class BaseOffer extends BaseEntity {
             fee.compareTo(cost) < 0, "Fee should be less than offers cost.");
         break;
     }
-    this.affiliateFee = fee;
+    this.fee = fee;
     return this;
   }
 

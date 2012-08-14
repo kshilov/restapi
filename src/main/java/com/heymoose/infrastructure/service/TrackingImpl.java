@@ -284,18 +284,18 @@ public class TrackingImpl implements Tracking {
   }
 
   private static BigDecimal affiliatePart(BigDecimal cost, BaseOffer offer) {
-    switch (offer.affiliateFeeType()) {
+    switch (offer.feeType()) {
       case PERCENT:
         // cost = aff_part + our_part
         // our_part =  aff_part * (aff_fee / 100%)
         // cost = aff_part + aff_part * aff_fee / 100%
         // amount = aff_part = cost / (1 + aff_fee / 100%)
-        BigDecimal divider = offer.affiliateFee()
+        BigDecimal divider = offer.fee()
             .divide(new BigDecimal(100))
             .add(BigDecimal.ONE);
         return cost.divide(divider, 2, BigDecimal.ROUND_UP);
       case FIX:
-        return offer.affiliateFee();
+        return cost.subtract(offer.fee());
     }
     throw new RuntimeException("Unknown FeeType for offer " + offer.id());
   }
