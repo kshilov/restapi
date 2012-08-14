@@ -1,9 +1,9 @@
 package com.heymoose.resource.xml;
 
-import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.math.BigDecimal;
 
 @XmlRootElement(name = "suboffer")
 public class XmlSubOffer {
@@ -25,6 +25,12 @@ public class XmlSubOffer {
   
   @XmlElement(name = "percent")
   public BigDecimal percent;
+
+  @XmlElement(name = "affiliate-fee-type")
+  public String affiliateFeeType;
+
+  @XmlElement(name = "affiliate-fee")
+  public BigDecimal affiliateFee;
 
   @XmlElement(name = "active")
   public Boolean active;

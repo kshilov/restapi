@@ -77,7 +77,6 @@ public class Mappers {
     xmlUser.id = user.id();
 
     if (needFields(d)) {
-      xmlUser.fee = user.fee();
       xmlUser.email = user.email();
       xmlUser.passwordHash = user.passwordHash();
       xmlUser.firstName = user.firstName();
@@ -201,6 +200,8 @@ public class Mappers {
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();
     xmlOffer.percent = offer.percent();
+    xmlOffer.affiliateFee = offer.affiliateFee();
+    xmlOffer.affiliateFeeType = offer.affiliateFeeType().toString();
     xmlOffer.approved = offer.approved();
     xmlOffer.active = offer.active();
     xmlOffer.blockReason = offer.blockReason();
@@ -283,6 +284,8 @@ public class Mappers {
     xmlSubOffer.code = offer.code();
     xmlSubOffer.holdDays = offer.holdDays();
     xmlSubOffer.exclusive = offer.exclusive();
+    xmlSubOffer.affiliateFee = offer.affiliateFee();
+    xmlSubOffer.affiliateFeeType = offer.affiliateFeeType().toString();
     return xmlSubOffer;
   }
 

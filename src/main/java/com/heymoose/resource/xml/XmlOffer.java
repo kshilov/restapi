@@ -69,6 +69,12 @@ public class XmlOffer {
 
   @XmlElement(name = "percent")
   public BigDecimal percent;
+
+  @XmlElement(name = "affiliate-fee-type")
+  public String affiliateFeeType;
+
+  @XmlElement(name = "affiliate-fee")
+  public BigDecimal affiliateFee;
   
   @XmlElement(name = "approved")
   public Boolean approved;

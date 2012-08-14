@@ -86,6 +86,4 @@ public class XmlUser {
   @XmlElement(name = "register-time")
   public String registerTime;
 
-  @XmlElement(name = "fee")
-  public Integer fee;
 }
