@@ -1,6 +1,8 @@
 package com.heymoose.domain.offer;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
+import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.BaseEntity;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
@@ -48,6 +50,13 @@ public abstract class BaseOffer extends BaseEntity {
 
   @Basic
   protected BigDecimal percent;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "affiliate_fee_type", nullable = false)
+  protected FeeType affiliateFeeType = FeeType.PERCENT;
+
+  @Column(name = "affiliate_fee", nullable = false)
+  protected BigDecimal affiliateFee = new BigDecimal(30.0);
 
   @Basic
   protected boolean active = false;
@@ -141,6 +150,37 @@ public abstract class BaseOffer extends BaseEntity {
   
   public BaseOffer setPercent(BigDecimal percent) {
     this.percent = percent;
+    return this;
+  }
+
+  public FeeType affiliateFeeType() {
+    return this.affiliateFeeType;
+  }
+
+  public BigDecimal affiliateFee() {
+    return this.affiliateFee;
+  }
+
+  public BaseOffer setAffiliateFeeType(FeeType type) {
+    this.affiliateFeeType = type;
+    return this;
+  }
+
+  public BaseOffer setAffiliateFee(BigDecimal fee) {
+    switch (affiliateFeeType) {
+      case PERCENT:
+        double feeDouble = fee.doubleValue();
+        Preconditions.checkArgument(
+            feeDouble > 0, "Fee should be more than 0%.");
+        Preconditions.checkArgument(
+            feeDouble < 100, "Fee should be less than 100%.");
+        break;
+      case FIX:
+        Preconditions.checkArgument(
+            fee.compareTo(cost) < 0, "Fee should be less than offers cost.");
+        break;
+    }
+    this.affiliateFee = fee;
     return this;
   }
 

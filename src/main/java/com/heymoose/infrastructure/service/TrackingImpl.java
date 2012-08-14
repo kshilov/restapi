@@ -1,15 +1,10 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Optional;
-import com.heymoose.domain.user.AdminAccountAccessor;
-import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferAction;
-import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.infrastructure.counter.BufferedClicks;
-import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
@@ -17,7 +12,12 @@ import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.statistics.OfferStat;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.domain.user.AdminAccountAccessor;
+import com.heymoose.infrastructure.counter.BufferedClicks;
+import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.QueryUtil;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +34,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -151,7 +150,22 @@ public class TrackingImpl implements Tracking {
       } else throw new IllegalStateException();
       if (existent != null && cost2 != null)
         cost = cost2;
-      BigDecimal amount = cost.divide(new BigDecimal((100 + source.affiliate().fee()) / 100.0), 2, RoundingMode.CEILING);
+      BigDecimal amount = null;
+      switch (offer.affiliateFeeType()) {
+        case PERCENT:
+          // cost = aff_part + our_part
+          // our_part =  aff_part * (aff_fee / 100%)
+          // cost = aff_part + aff_part * aff_fee / 100%
+          // amount = aff_part = cost / (1 + aff_fee / 100%)
+          BigDecimal divider = offer.affiliateFee()
+              .divide(new BigDecimal(100))
+              .add(BigDecimal.ONE);
+          amount = cost.divide(divider);
+          break;
+        case FIX:
+          amount = offer.affiliateFee();
+          break;
+      }
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
           source.bannerId(),
