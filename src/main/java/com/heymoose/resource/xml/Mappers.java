@@ -1,18 +1,21 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.Role;
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.errorinfo.ErrorInfo;
-import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.SqlLoader;
+
 import java.util.List;
 import java.util.Map;
 
@@ -200,8 +203,15 @@ public class Mappers {
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();
     xmlOffer.percent = offer.percent();
-    xmlOffer.affiliateFee = offer.fee();
-    xmlOffer.affiliateFeeType = offer.feeType().toString();
+    if (offer.payMethod() == PayMethod.CPC ||
+        offer.cpaPolicy() == CpaPolicy.FIXED) {
+      xmlOffer.affiliateCost = offer.affiliateValue();
+      xmlOffer.affiliatePercent = null;
+    } else {
+      xmlOffer.affiliateCost = null;
+      xmlOffer.affiliatePercent = offer.affiliateValue();
+    }
+    xmlOffer.feeType = offer.feeType().toString();
     xmlOffer.approved = offer.approved();
     xmlOffer.active = offer.active();
     xmlOffer.blockReason = offer.blockReason();
@@ -284,8 +294,15 @@ public class Mappers {
     xmlSubOffer.code = offer.code();
     xmlSubOffer.holdDays = offer.holdDays();
     xmlSubOffer.exclusive = offer.exclusive();
-    xmlSubOffer.affiliateFee = offer.fee();
-    xmlSubOffer.affiliateFeeType = offer.feeType().toString();
+    xmlSubOffer.feeType = offer.feeType().toString();
+    if (offer.payMethod() == PayMethod.CPC ||
+        offer.cpaPolicy() == CpaPolicy.FIXED) {
+      xmlSubOffer.affiliateCost = offer.affiliateValue();
+      xmlSubOffer.affiliatePercent = null;
+    } else {
+      xmlSubOffer.affiliateCost = null;
+      xmlSubOffer.affiliatePercent = offer.affiliateValue();
+    }
     return xmlSubOffer;
   }
 

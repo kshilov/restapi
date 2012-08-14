@@ -1,7 +1,6 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import com.heymoose.domain.offer.SubOffer;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -70,12 +69,15 @@ public class XmlOffer {
   @XmlElement(name = "percent")
   public BigDecimal percent;
 
-  @XmlElement(name = "affiliate-fee-type")
-  public String affiliateFeeType;
+  @XmlElement(name = "fee-type")
+  public String feeType;
 
-  @XmlElement(name = "affiliate-fee")
-  public BigDecimal affiliateFee;
-  
+  @XmlElement(name = "affiliate-cost")
+  public BigDecimal affiliateCost;
+
+  @XmlElement(name = "affiliate-percent")
+  public BigDecimal affiliatePercent;
+
   @XmlElement(name = "approved")
   public Boolean approved;
 

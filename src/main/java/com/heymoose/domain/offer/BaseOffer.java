@@ -189,6 +189,23 @@ public abstract class BaseOffer extends BaseEntity {
     return this;
   }
 
+  public BigDecimal affiliateValue() {
+    switch (feeType) {
+      case FIX:
+        return cost.subtract(fee);
+      case PERCENT:
+        BigDecimal divider = fee
+            .divide(new BigDecimal(100))
+            .add(BigDecimal.ONE);
+        if (payMethod == PayMethod.CPC || cpaPolicy == CpaPolicy.FIXED) {
+          return cost.divide(divider, 2, BigDecimal.ROUND_UP);
+        } else { // CpaPolicy.PERCENT
+          return percent.divide(divider, 2, BigDecimal.ROUND_UP);
+        }
+    }
+    throw new RuntimeException("Unknown fee type for offer " + id);
+  }
+
   public boolean exclusive() {
     return this.exclusive;
   }
