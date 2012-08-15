@@ -165,8 +165,8 @@ public class OfferTest extends RestTest {
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
     XmlUser aff = heymoose().getUser(affId);
     XmlOffer offer = heymoose().getOffer(offerId);
-    int fee = offer.affiliateFee.intValue();
-    assertEquals(CPA / (100 + fee) * 100.0, aff.affiliateAccountNotConfirmed.balance, 0.000001);
+    double affiliateCost = offer.affiliateCost.doubleValue();
+    assertEquals(affiliateCost, aff.affiliateAccountNotConfirmed.balance, 0.000001);
   }
 
   @Test
@@ -182,7 +182,7 @@ public class OfferTest extends RestTest {
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
     assertEquals(OFFER_BALANCE - CPA, heymoose().getOffer(offerId).account.balance, 0.000001);
     XmlUser aff = heymoose().getUser(affId);
-    int fee = heymoose().getOffer(offerId).affiliateFee.intValue();
-    assertEquals(CPA / (100 + fee) * 100.0, aff.affiliateAccountNotConfirmed.balance, 0.000001);
+    double affiliateCost = heymoose().getOffer(offerId).affiliateCost.doubleValue();
+    assertEquals(affiliateCost, aff.affiliateAccountNotConfirmed.balance, 0.000001);
   }
 }
