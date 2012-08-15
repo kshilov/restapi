@@ -11,10 +11,6 @@ import java.util.List;
  */
 public final class ItemListActionData {
 
-  public enum Status {
-    CREATED, COMPLETE, CANCELED
-  }
-
   public static class Item {
     private String id;
     private BigDecimal price;
@@ -50,7 +46,7 @@ public final class ItemListActionData {
 
   private String token;
   private String transactionId;
-  private Status status;
+  private ActionStatus status;
   private List<Item> itemList = Lists.newArrayList();
 
   public ItemListActionData() { }
@@ -63,7 +59,7 @@ public final class ItemListActionData {
     return transactionId;
   }
 
-  public Status status() {
+  public ActionStatus status() {
     return status;
   }
 
@@ -81,7 +77,7 @@ public final class ItemListActionData {
     return this;
   }
 
-  public ItemListActionData setStatus(Status status) {
+  public ItemListActionData setStatus(ActionStatus status) {
     this.status = status;
     return this;
   }

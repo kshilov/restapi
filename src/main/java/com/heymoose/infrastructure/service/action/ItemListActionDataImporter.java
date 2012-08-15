@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
@@ -53,7 +54,7 @@ public abstract class ItemListActionDataImporter {
         "from OfferAction where token = ?", token);
     if (offerAction != null) {
       if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
-          payment.status().equals(ItemListActionData.Status.CANCELED)) {
+          payment.status().equals(ActionStatus.CANCELED)) {
         log.info("Canceling action {}.", offerAction.id());
         actions.cancel(offerAction);
         return;
@@ -85,7 +86,7 @@ public abstract class ItemListActionDataImporter {
     List<OfferAction> trackedActions = tracking.trackConversion(
         token, payment.transactionId(), offerMap.build());
 
-    if (payment.status().equals(ItemListActionData.Status.CANCELED)) {
+    if (payment.status().equals(ActionStatus.CANCELED)) {
       for (OfferAction action : trackedActions) {
         log.info("Canceling just imported action '{}'.", action.id());
         actions.cancel(action);

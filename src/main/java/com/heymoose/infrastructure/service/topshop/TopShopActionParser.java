@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
+import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.infrastructure.service.action.ItemListActionDataParser;
 import org.slf4j.Logger;
@@ -85,13 +86,13 @@ public final class TopShopActionParser implements ItemListActionDataParser {
         paymentData.setTransactionId(payment.orderId);
         switch (payment.status) {
           case STATUS_CREATED:
-            paymentData.setStatus(ItemListActionData.Status.CREATED);
+            paymentData.setStatus(ActionStatus.CREATED);
             break;
           case STATUS_COMPLETE:
-            paymentData.setStatus(ItemListActionData.Status.COMPLETE);
+            paymentData.setStatus(ActionStatus.COMPLETE);
             break;
           case STATUS_CANCELED:
-            paymentData.setStatus(ItemListActionData.Status.CANCELED);
+            paymentData.setStatus(ActionStatus.CANCELED);
         }
         for (String item : payment.itemListElement.itemList) {
           paymentData.addItem(item);

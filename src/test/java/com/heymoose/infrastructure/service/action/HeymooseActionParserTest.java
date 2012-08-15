@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.io.InputSupplier;
+import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemListActionData;
 import org.junit.Test;
 
@@ -31,7 +32,7 @@ public final class HeymooseActionParserTest {
     ItemListActionData resultAction = result.get(0);
     assertEquals("token-value", resultAction.token());
     assertEquals("transaction-value", resultAction.transactionId());
-    assertEquals(ItemListActionData.Status.COMPLETE, resultAction.status());
+    assertEquals(ActionStatus.COMPLETE, resultAction.status());
     assertEquals(0, resultAction.itemList().size());
   }
 

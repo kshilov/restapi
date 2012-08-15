@@ -5,20 +5,21 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ActionStatus;
-import com.heymoose.domain.action.ItemListActionData;
+import com.heymoose.domain.action.FixPriceActionData;
+import org.omg.CORBA_2_3.portable.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.List;
 
-public final class HeymooseItemListParser implements ItemListActionDataParser {
+public final class HeymooseFixPriceParser {
+
+  private static final Logger log = LoggerFactory.getLogger(
+      HeymooseFixPriceParser.class);
 
   @XmlRootElement(name = "actions")
   protected static class XmlActions {
@@ -40,31 +41,14 @@ public final class HeymooseItemListParser implements ItemListActionDataParser {
     @XmlElement
     public int status;
 
-    @XmlElementWrapper(name = "items")
-    @XmlElement(name = "item")
-    public List<XmlItem> itemList = Lists.newArrayList();
+    @XmlElement(name = "offer")
+    public String offerCode;
+
   }
 
-  @XmlRootElement(name = "item")
-  protected static class XmlItem {
-
-    @XmlElement
-    public String id;
-
-    @XmlElement
-    public BigDecimal price;
-
-    @XmlElement
-    public int quantity = 1;
-  }
-
-  private static final Logger log =
-      LoggerFactory.getLogger(HeymooseItemListParser.class);
-
-  @Override
-  public List<ItemListActionData> parse(InputSupplier<InputStream> inputSupplier) {
+  public List<FixPriceActionData> parse(InputSupplier<InputStream> inputSupplier) {
     InputStream input = null;
-    ImmutableList.Builder<ItemListActionData> dataBuilder =
+    ImmutableList.Builder<FixPriceActionData> dataBuilder =
         ImmutableList.builder();
     try {
       input = inputSupplier.getInput();
@@ -74,13 +58,11 @@ public final class HeymooseItemListParser implements ItemListActionDataParser {
       XmlActions xmlActionList = (XmlActions)
           context.createUnmarshaller().unmarshal(bufferedInput);
       for (XmlAction xmlAction : xmlActionList.actionList) {
-        ItemListActionData data = new ItemListActionData()
+        FixPriceActionData data = new FixPriceActionData()
+            .setOfferCode(xmlAction.offerCode)
+            .setStatus(ActionStatus.values()[xmlAction.status])
             .setToken(xmlAction.token)
-            .setTransactionId(xmlAction.transaction)
-            .setStatus(ActionStatus.values()[xmlAction.status]);
-        for (XmlItem xmlItem : xmlAction.itemList) {
-          data.addItem(xmlItem.id, xmlItem.price, xmlItem.quantity);
-        }
+            .setTransactionId(xmlAction.transaction);
         dataBuilder.add(data);
       }
       return dataBuilder.build();
@@ -91,5 +73,4 @@ public final class HeymooseItemListParser implements ItemListActionDataParser {
       Closeables.closeQuietly(input);
     }
   }
-
 }
