@@ -189,6 +189,12 @@ public abstract class BaseOffer extends BaseEntity {
     return this;
   }
 
+  /**
+   * Returns affiliate revenue, if it is fixed or can be
+   * calculated, using data in offer. Returns null otherwise.
+   *
+   * @return fixed affiliate revenue or null
+   */
   public BigDecimal affiliateCost() {
     if (cpaPolicy != null && cpaPolicy == CpaPolicy.PERCENT)
       return null; // affiliatePercent() should not return null in this case
@@ -204,6 +210,12 @@ public abstract class BaseOffer extends BaseEntity {
     throw new RuntimeException("Unknown fee type for offer " + id);
   }
 
+  /**
+   * Returns affiliate revenue for repeated action in case of
+   * {@link CpaPolicy.DOUBLE_FIXED} policy or null otherwise.
+   *
+   * @return affiliate revenue for repeated action or null
+   */
   public BigDecimal affiliateCost2() {
     if (cpaPolicy == null || cpaPolicy != CpaPolicy.DOUBLE_FIXED)
       return null;
@@ -213,6 +225,12 @@ public abstract class BaseOffer extends BaseEntity {
     return cost2.divide(divider, 2, BigDecimal.ROUND_UP);
   }
 
+  /**
+   * Returns affiliate revenue, in case of {@link CpaPolicy.PERCENT},
+   * null otherwise.
+   *
+   * @return affiliate revenue for {@link CpaPolicy.PERCENT} offers
+   */
   public BigDecimal affiliatePercent() {
     if (cpaPolicy == null || cpaPolicy != CpaPolicy.PERCENT)
       return null; // affiliateCost() should not return null in this case

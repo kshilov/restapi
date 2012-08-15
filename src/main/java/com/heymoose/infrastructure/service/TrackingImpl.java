@@ -287,14 +287,18 @@ public class TrackingImpl implements Tracking {
     switch (offer.feeType()) {
       case PERCENT:
         // cost = aff_part + our_part
-        // our_part =  aff_part * (aff_fee / 100%)
-        // cost = aff_part + aff_part * aff_fee / 100%
-        // amount = aff_part = cost / (1 + aff_fee / 100%)
+        // our_part =  aff_part * (our_fee / 100%)
+        // our_fee = offer.fee()
+        // cost = aff_part + aff_part * offer.fee() / 100%
+        // aff_part = cost / (1 + offer.fee() / 100%)
         BigDecimal divider = offer.fee()
             .divide(new BigDecimal(100))
             .add(BigDecimal.ONE);
         return cost.divide(divider, 2, BigDecimal.ROUND_UP);
       case FIX:
+        // cost = aff_part + our_part
+        // our_part = offer.fee()
+        // aff_part = cost - offer.fee()
         return cost.subtract(offer.fee());
     }
     throw new RuntimeException("Unknown FeeType for offer " + offer.id());
