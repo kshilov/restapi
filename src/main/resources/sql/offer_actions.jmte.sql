@@ -19,7 +19,6 @@ from
 
 join offer
 on offer.id = action.offer_id
-or offer.parent_id = action.offer_id
 
 left join user_profile affiliate
 on affiliate.id = action.aff_id
@@ -28,7 +27,7 @@ left join offer_stat stat
 on stat.id = action.stat_id
 
 where
-  offer.id = :offer_id
+  (offer.id = :offer_id or offer.parent_id = :offer_id)
   and action.creation_time between :from and :to
 ${if filterByState}
   and action.state = :state
