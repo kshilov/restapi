@@ -2,69 +2,33 @@ package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemListActionData;
-import com.heymoose.domain.action.OfferAction;
-import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.infrastructure.persistence.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Map;
 
 public abstract class ItemListActionDataImporter
-    implements ActionDataImporter<ItemListActionData> {
+    extends ActionDataImporterBase<ItemListActionData> {
 
   private static final Logger log =
       LoggerFactory.getLogger(ItemListActionDataImporter.class);
 
-  private final Repo repo;
-  private final Tracking tracking;
-  private final OfferActions actions;
-
   public ItemListActionDataImporter(Repo repo, Tracking tracking,
                                     OfferActions actions) {
-    this.repo = repo;
-    this.tracking = tracking;
-    this.actions = actions;
+    super(repo, tracking, actions);
   }
 
-  @Transactional
-  public void doImport(List<ItemListActionData> paymentList, Long parentOfferId) {
-    for (ItemListActionData payment : paymentList) {
-      doImport(payment, parentOfferId);
-    }
-  }
 
-  private void doImport(ItemListActionData payment, Long parentOfferId) {
-    Token token = repo.byHQL(Token.class,
-        "from Token where value = ?", payment.token());
-    if (token == null) {
-      log.warn("Token '{}' not found, skipping", payment.token());
-      return;
-    }
-
-    // check whether token was not tracked already
-    OfferAction offerAction = repo.byHQL(OfferAction.class,
-        "from OfferAction where token = ?", token);
-    if (offerAction != null) {
-      if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
-          payment.status().equals(ActionStatus.CANCELED)) {
-        log.info("Canceling action {}.", offerAction.id());
-        actions.cancel(offerAction);
-        return;
-      }
-      log.warn("Token '{}' was already converted, offerAction='{}', skipping",
-          payment.token(), offerAction.id());
-      return;
-    }
+  @Override
+  protected final Map<BaseOffer, Optional<Double>> extractOffers(
+      ItemListActionData payment, Long parentOfferId) {
 
     ImmutableMap.Builder<BaseOffer, Optional<Double>> offerMap =
         ImmutableMap.builder();
@@ -85,16 +49,9 @@ public abstract class ItemListActionDataImporter
               price });
       offerMap.put(productOffer, Optional.of(price.doubleValue()));
     }
-    List<OfferAction> trackedActions = tracking.trackConversion(
-        token, payment.transactionId(), offerMap.build());
-
-    if (payment.status().equals(ActionStatus.CANCELED)) {
-      for (OfferAction action : trackedActions) {
-        log.info("Canceling just imported action '{}'.", action.id());
-        actions.cancel(action);
-      }
-    }
+    return offerMap.build();
   }
 
-  protected abstract BigDecimal namePrice(ItemListActionData.Item item, BaseOffer offer);
+  protected abstract BigDecimal namePrice(ItemListActionData.Item item,
+                                          BaseOffer offer);
 }
