@@ -159,6 +159,6 @@ from
   ) as sums
 
 order by
-  ${ordering} ${direction}
+  ${ordering} ${direction}, id
 
 offset :offset limit :limit
