@@ -8,10 +8,10 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
-import com.heymoose.infrastructure.service.action.ActionDataImporter;
-import com.heymoose.infrastructure.service.action.ActionImportJob;
-import com.heymoose.infrastructure.service.action.ActionParser;
-import com.heymoose.infrastructure.service.action.HeymooseActionParser;
+import com.heymoose.infrastructure.service.action.ItemListActionDataImporter;
+import com.heymoose.infrastructure.service.action.ItemListActionDataImportJob;
+import com.heymoose.infrastructure.service.action.ItemListActionDataParser;
+import com.heymoose.infrastructure.service.action.HeymooseItemListParser;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
@@ -57,7 +57,7 @@ public class AppContextListener extends GuiceServletContextListener {
 
     final ScheduledThreadPoolExecutor delikateskaExecutor =
         startImportService("delikateska", injector,
-            DelikateskaDataImporter.class, HeymooseActionParser.class);
+            DelikateskaDataImporter.class, HeymooseItemListParser.class);
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -72,8 +72,8 @@ public class AppContextListener extends GuiceServletContextListener {
 
   private static ScheduledThreadPoolExecutor startImportService(
       String shopName, Injector injector,
-      Class<? extends ActionDataImporter> importerCls,
-      Class<? extends ActionParser> parserCls) {
+      Class<? extends ItemListActionDataImporter> importerCls,
+      Class<? extends ItemListActionDataParser> parserCls) {
 
     Properties properties = injector.getInstance(
         Key.get(Properties.class, Names.named("settings")));
@@ -85,10 +85,10 @@ public class AppContextListener extends GuiceServletContextListener {
     String importUrl = properties.get(shopName + ".import.url").toString();
     final ScheduledThreadPoolExecutor executor =
         new ScheduledThreadPoolExecutor(1);
-    ActionDataImporter importer = injector.getInstance(importerCls);
-    ActionParser parser = injector.getInstance(parserCls);
-    ActionImportJob importJob =
-        new ActionImportJob(importUrl, parentOfferId, importer, parser);
+    ItemListActionDataImporter importer = injector.getInstance(importerCls);
+    ItemListActionDataParser parser = injector.getInstance(parserCls);
+    ItemListActionDataImportJob importJob =
+        new ItemListActionDataImportJob(importUrl, parentOfferId, importer, parser);
     log.info("Starting import service for {}", shopName);
     executor.scheduleAtFixedRate(
         importJob, 0, importPeriod, TimeUnit.MINUTES);

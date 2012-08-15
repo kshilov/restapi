@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Used for importing actions.
  */
-public final class ActionData {
+public final class ItemListActionData {
 
   public enum Status {
     CREATED, COMPLETE, CANCELED
@@ -53,7 +53,7 @@ public final class ActionData {
   private Status status;
   private List<Item> itemList = Lists.newArrayList();
 
-  public ActionData() { }
+  public ItemListActionData() { }
 
   public String token() {
     return token;
@@ -71,27 +71,27 @@ public final class ActionData {
     return ImmutableList.copyOf(itemList);
   }
 
-  public ActionData setToken(String token) {
+  public ItemListActionData setToken(String token) {
     this.token = token;
     return this;
   }
 
-  public ActionData setTransactionId(String transactionId) {
+  public ItemListActionData setTransactionId(String transactionId) {
     this.transactionId = transactionId;
     return this;
   }
 
-  public ActionData setStatus(Status status) {
+  public ItemListActionData setStatus(Status status) {
     this.status = status;
     return this;
   }
 
-  public ActionData addItem(String itemId) {
+  public ItemListActionData addItem(String itemId) {
     this.itemList.add(new Item(itemId));
     return this;
   }
 
-  public ActionData addItem(String itemId, BigDecimal price, int quantity) {
+  public ItemListActionData addItem(String itemId, BigDecimal price, int quantity) {
     this.itemList.add(new Item(itemId, price, quantity));
     return this;
   }

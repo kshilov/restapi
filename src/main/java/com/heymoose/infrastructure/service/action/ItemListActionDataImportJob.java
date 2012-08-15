@@ -1,7 +1,7 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.io.InputSupplier;
-import com.heymoose.domain.action.ActionData;
+import com.heymoose.domain.action.ItemListActionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,19 +12,19 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-public final class ActionImportJob implements Runnable {
+public final class ItemListActionDataImportJob implements Runnable {
 
   private static final Logger log =
-      LoggerFactory.getLogger(ActionImportJob.class);
+      LoggerFactory.getLogger(ItemListActionDataImportJob.class);
 
   private final URL url;
-  private final ActionDataImporter importer;
-  private final ActionParser parser;
+  private final ItemListActionDataImporter importer;
+  private final ItemListActionDataParser parser;
   private final Long parentOfferId;
 
-  public ActionImportJob(String url, Long parentOffer,
-                         ActionDataImporter importer,
-                         ActionParser parser) {
+  public ItemListActionDataImportJob(String url, Long parentOffer,
+                                     ItemListActionDataImporter importer,
+                                     ItemListActionDataParser parser) {
     try {
       this.url = new URL(url);
     } catch (MalformedURLException e) {
@@ -41,7 +41,7 @@ public final class ActionImportJob implements Runnable {
       log.info("** Import started from url: '{}' **", url);
       URLConnection connection = url.openConnection();
       final InputStream input = connection.getInputStream();
-      List<ActionData> converted =
+      List<ItemListActionData> converted =
           parser.parse(new InputSupplier<InputStream>() {
             @Override
             public InputStream getInput() throws IOException {

@@ -1,7 +1,7 @@
 package com.heymoose.test;
 
 import com.google.common.io.InputSupplier;
-import com.heymoose.domain.action.ActionData;
+import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -113,7 +113,7 @@ public final class TopShopImportTest extends RestTest {
     session = injector().getProvider(Session.class).get();
     tx = session.beginTransaction();
     try {
-      List<ActionData> data = converter.parse(input(topShopXml));
+      List<ItemListActionData> data = converter.parse(input(topShopXml));
       importer.doImport(data, offerId);
       tx.commit();
     } catch (Exception e) {

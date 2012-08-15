@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
-import com.heymoose.domain.action.ActionData;
+import com.heymoose.domain.action.ItemListActionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
 
-public final class HeymooseActionParser implements ActionParser {
+public final class HeymooseItemListParser implements ItemListActionDataParser {
 
   @XmlRootElement(name = "actions")
   protected static class XmlActions {
@@ -58,12 +58,12 @@ public final class HeymooseActionParser implements ActionParser {
   }
 
   private static final Logger log =
-      LoggerFactory.getLogger(HeymooseActionParser.class);
+      LoggerFactory.getLogger(HeymooseItemListParser.class);
 
   @Override
-  public List<ActionData> parse(InputSupplier<InputStream> inputSupplier) {
+  public List<ItemListActionData> parse(InputSupplier<InputStream> inputSupplier) {
     InputStream input = null;
-    ImmutableList.Builder<ActionData> dataBuilder =
+    ImmutableList.Builder<ItemListActionData> dataBuilder =
         ImmutableList.builder();
     try {
       input = inputSupplier.getInput();
@@ -73,10 +73,10 @@ public final class HeymooseActionParser implements ActionParser {
       XmlActions xmlActionList = (XmlActions)
           context.createUnmarshaller().unmarshal(bufferedInput);
       for (XmlAction xmlAction : xmlActionList.actionList) {
-        ActionData data = new ActionData()
+        ItemListActionData data = new ItemListActionData()
             .setToken(xmlAction.token)
             .setTransactionId(xmlAction.transaction)
-            .setStatus(ActionData.Status.values()[xmlAction.status]);
+            .setStatus(ItemListActionData.Status.values()[xmlAction.status]);
         for (XmlItem xmlItem : xmlAction.itemList) {
           data.addItem(xmlItem.id, xmlItem.price, xmlItem.quantity);
         }
