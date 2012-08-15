@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
 
-public abstract class ItemListActionDataImporter {
+public abstract class ItemListActionDataImporter
+    implements ActionDataImporter<ItemListActionData> {
+
   private static final Logger log =
       LoggerFactory.getLogger(ItemListActionDataImporter.class);
 

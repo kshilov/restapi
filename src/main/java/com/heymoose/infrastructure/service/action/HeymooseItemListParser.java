@@ -18,7 +18,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
 
-public final class HeymooseItemListParser implements ItemListActionDataParser {
+public final class HeymooseItemListParser
+    implements ActionDataParser<ItemListActionData> {
 
   @XmlRootElement(name = "actions")
   protected static class XmlActions {
@@ -74,8 +75,8 @@ public final class HeymooseItemListParser implements ItemListActionDataParser {
       XmlActions xmlActionList = (XmlActions)
           context.createUnmarshaller().unmarshal(bufferedInput);
       for (XmlAction xmlAction : xmlActionList.actionList) {
-        ItemListActionData data = new ItemListActionData()
-            .setToken(xmlAction.token)
+        ItemListActionData data = new ItemListActionData();
+        data.setToken(xmlAction.token)
             .setTransactionId(xmlAction.transaction)
             .setStatus(ActionStatus.values()[xmlAction.status]);
         for (XmlItem xmlItem : xmlAction.itemList) {

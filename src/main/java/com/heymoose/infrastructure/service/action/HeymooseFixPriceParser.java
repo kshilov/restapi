@@ -6,7 +6,6 @@ import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.FixPriceActionData;
-import org.omg.CORBA_2_3.portable.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +13,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.util.List;
 
-public final class HeymooseFixPriceParser {
+public final class HeymooseFixPriceParser
+    implements ActionDataParser<FixPriceActionData> {
 
   private static final Logger log = LoggerFactory.getLogger(
       HeymooseFixPriceParser.class);
@@ -59,8 +60,8 @@ public final class HeymooseFixPriceParser {
           context.createUnmarshaller().unmarshal(bufferedInput);
       for (XmlAction xmlAction : xmlActionList.actionList) {
         FixPriceActionData data = new FixPriceActionData()
-            .setOfferCode(xmlAction.offerCode)
-            .setStatus(ActionStatus.values()[xmlAction.status])
+            .setOfferCode(xmlAction.offerCode);
+        data.setStatus(ActionStatus.values()[xmlAction.status])
             .setToken(xmlAction.token)
             .setTransactionId(xmlAction.transaction);
         dataBuilder.add(data);

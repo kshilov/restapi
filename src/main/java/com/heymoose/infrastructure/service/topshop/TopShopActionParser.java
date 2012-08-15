@@ -7,7 +7,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemListActionData;
-import com.heymoose.infrastructure.service.action.ItemListActionDataParser;
+import com.heymoose.infrastructure.service.action.ActionDataParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public final class TopShopActionParser implements ItemListActionDataParser {
+public final class TopShopActionParser
+    implements ActionDataParser<ItemListActionData> {
 
   @XmlRootElement(name = "payment_list")
   public static class XmlTopShopPayments {

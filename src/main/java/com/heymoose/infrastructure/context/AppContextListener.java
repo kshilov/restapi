@@ -6,11 +6,12 @@ import com.google.inject.Key;
 import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.heymoose.domain.action.ActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
-import com.heymoose.infrastructure.service.action.ItemListActionDataImporter;
-import com.heymoose.infrastructure.service.action.ItemListActionDataImportJob;
-import com.heymoose.infrastructure.service.action.ItemListActionDataParser;
+import com.heymoose.infrastructure.service.action.ActionDataImportJob;
+import com.heymoose.infrastructure.service.action.ActionDataImporter;
+import com.heymoose.infrastructure.service.action.ActionDataParser;
 import com.heymoose.infrastructure.service.action.HeymooseItemListParser;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
@@ -70,10 +71,11 @@ public class AppContextListener extends GuiceServletContextListener {
     });
   }
 
-  private static ScheduledThreadPoolExecutor startImportService(
+  @SuppressWarnings("unchecked")
+  private static <T extends ActionData> ScheduledThreadPoolExecutor startImportService(
       String shopName, Injector injector,
-      Class<? extends ItemListActionDataImporter> importerCls,
-      Class<? extends ItemListActionDataParser> parserCls) {
+      Class<? extends ActionDataImporter<T>> importerCls,
+      Class<? extends ActionDataParser<T>> parserCls) {
 
     Properties properties = injector.getInstance(
         Key.get(Properties.class, Names.named("settings")));
@@ -85,10 +87,10 @@ public class AppContextListener extends GuiceServletContextListener {
     String importUrl = properties.get(shopName + ".import.url").toString();
     final ScheduledThreadPoolExecutor executor =
         new ScheduledThreadPoolExecutor(1);
-    ItemListActionDataImporter importer = injector.getInstance(importerCls);
-    ItemListActionDataParser parser = injector.getInstance(parserCls);
-    ItemListActionDataImportJob importJob =
-        new ItemListActionDataImportJob(importUrl, parentOfferId, importer, parser);
+    ActionDataImporter<T> importer = injector.getInstance(importerCls);
+    ActionDataParser<T> parser = injector.getInstance(parserCls);
+    ActionDataImportJob<T> importJob =
+        new ActionDataImportJob(importUrl, parentOfferId, importer, parser);
     log.info("Starting import service for {}", shopName);
     executor.scheduleAtFixedRate(
         importJob, 0, importPeriod, TimeUnit.MINUTES);

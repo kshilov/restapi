@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Used for importing actions.
  */
-public final class ItemListActionData {
+public final class ItemListActionData extends ActionData {
 
   public static class Item {
     private String id;
@@ -43,43 +43,12 @@ public final class ItemListActionData {
       return quantity;
     }
   }
-
-  private String token;
-  private String transactionId;
-  private ActionStatus status;
   private List<Item> itemList = Lists.newArrayList();
 
   public ItemListActionData() { }
 
-  public String token() {
-    return token;
-  }
-
-  public String transactionId() {
-    return transactionId;
-  }
-
-  public ActionStatus status() {
-    return status;
-  }
-
   public List<Item> itemList() {
     return ImmutableList.copyOf(itemList);
-  }
-
-  public ItemListActionData setToken(String token) {
-    this.token = token;
-    return this;
-  }
-
-  public ItemListActionData setTransactionId(String transactionId) {
-    this.transactionId = transactionId;
-    return this;
-  }
-
-  public ItemListActionData setStatus(ActionStatus status) {
-    this.status = status;
-    return this;
   }
 
   public ItemListActionData addItem(String itemId) {
