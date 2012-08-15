@@ -189,7 +189,9 @@ public abstract class BaseOffer extends BaseEntity {
     return this;
   }
 
-  public BigDecimal affiliateValue() {
+  public BigDecimal affiliateCost() {
+    if (cpaPolicy != null && cpaPolicy == CpaPolicy.PERCENT)
+      return null; // affiliatePercent() should not return null in this case
     switch (feeType) {
       case FIX:
         return cost.subtract(fee);
@@ -197,13 +199,27 @@ public abstract class BaseOffer extends BaseEntity {
         BigDecimal divider = fee
             .divide(new BigDecimal(100))
             .add(BigDecimal.ONE);
-        if (payMethod == PayMethod.CPC || cpaPolicy == CpaPolicy.FIXED) {
-          return cost.divide(divider, 2, BigDecimal.ROUND_UP);
-        } else { // CpaPolicy.PERCENT
-          return percent.divide(divider, 2, BigDecimal.ROUND_UP);
-        }
+        return cost.divide(divider, 2, BigDecimal.ROUND_UP);
     }
     throw new RuntimeException("Unknown fee type for offer " + id);
+  }
+
+  public BigDecimal affiliateCost2() {
+    if (cpaPolicy == null || cpaPolicy != CpaPolicy.DOUBLE_FIXED)
+      return null;
+    BigDecimal divider = fee
+        .divide(new BigDecimal(100))
+        .add(BigDecimal.ONE);
+    return cost2.divide(divider, 2, BigDecimal.ROUND_UP);
+  }
+
+  public BigDecimal affiliatePercent() {
+    if (cpaPolicy == null || cpaPolicy != CpaPolicy.PERCENT)
+      return null; // affiliateCost() should not return null in this case
+    BigDecimal divider = fee
+        .divide(new BigDecimal(100))
+        .add(BigDecimal.ONE);
+    return percent.divide(divider, 2, BigDecimal.ROUND_UP);
   }
 
   public boolean exclusive() {

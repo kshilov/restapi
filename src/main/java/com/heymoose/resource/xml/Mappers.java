@@ -203,14 +203,9 @@ public class Mappers {
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();
     xmlOffer.percent = offer.percent();
-    if (offer.payMethod() == PayMethod.CPC ||
-        offer.cpaPolicy() == CpaPolicy.FIXED) {
-      xmlOffer.affiliateCost = offer.affiliateValue();
-      xmlOffer.affiliatePercent = null;
-    } else {
-      xmlOffer.affiliateCost = null;
-      xmlOffer.affiliatePercent = offer.affiliateValue();
-    }
+    xmlOffer.affiliateCost = offer.affiliateCost();
+    xmlOffer.affiliatePercent = offer.affiliatePercent();
+    xmlOffer.affiliateCost2 = offer.affiliateCost2();
     xmlOffer.feeType = offer.feeType().toString();
     xmlOffer.approved = offer.approved();
     xmlOffer.active = offer.active();
@@ -295,14 +290,9 @@ public class Mappers {
     xmlSubOffer.holdDays = offer.holdDays();
     xmlSubOffer.exclusive = offer.exclusive();
     xmlSubOffer.feeType = offer.feeType().toString();
-    if (offer.payMethod() == PayMethod.CPC ||
-        offer.cpaPolicy() == CpaPolicy.FIXED) {
-      xmlSubOffer.affiliateCost = offer.affiliateValue();
-      xmlSubOffer.affiliatePercent = null;
-    } else {
-      xmlSubOffer.affiliateCost = null;
-      xmlSubOffer.affiliatePercent = offer.affiliateValue();
-    }
+    xmlSubOffer.affiliateCost = offer.affiliateCost();
+    xmlSubOffer.affiliatePercent = offer.affiliatePercent();
+    xmlSubOffer.affiliateCost2 = offer.affiliateCost2();
     return xmlSubOffer;
   }
 

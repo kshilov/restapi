@@ -32,6 +32,9 @@ public class XmlSubOffer {
   @XmlElement(name = "affiliate-cost")
   public BigDecimal affiliateCost;
 
+  @XmlElement(name = "affiliate-cost2")
+  public BigDecimal affiliateCost2;
+
   @XmlElement(name = "affiliate-percent")
   public BigDecimal affiliatePercent;
 
