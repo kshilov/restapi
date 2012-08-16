@@ -12,6 +12,8 @@ import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.action.ActionDataImportJob;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
 import com.heymoose.infrastructure.service.action.ActionDataParser;
+import com.heymoose.infrastructure.service.action.FixPriceActionDataImporter;
+import com.heymoose.infrastructure.service.action.HeymooseFixPriceParser;
 import com.heymoose.infrastructure.service.action.HeymooseItemListParser;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
@@ -59,6 +61,10 @@ public class AppContextListener extends GuiceServletContextListener {
     final ScheduledThreadPoolExecutor delikateskaExecutor =
         startImportService("delikateska", injector,
             DelikateskaDataImporter.class, HeymooseItemListParser.class);
+
+    final ScheduledThreadPoolExecutor sapatoExecutor =
+        startImportService("sapato", injector,
+            FixPriceActionDataImporter.class, HeymooseFixPriceParser.class);
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
