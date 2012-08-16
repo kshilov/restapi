@@ -62,9 +62,11 @@ public abstract class ActionDataImporterBase<T extends ActionData>
         actions.cancel(offerAction);
         return;
       }
-      log.warn("Token '{}' was already converted, offerAction='{}', skipping",
-          payment.token(), offerAction.id());
-      return;
+      if (offerAction.transactionId().equals(payment.transactionId())) {
+        log.info("Transaction '{}' was already converted, offerAction='{}'. " +
+            "Skipping..", payment.transactionId(), offerAction.id());
+        return;
+      }
     }
 
     List<OfferAction> trackedActions = tracking.trackConversion(
