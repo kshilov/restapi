@@ -295,10 +295,12 @@ public class OfferStats {
   @SuppressWarnings("unchecked")
   public Pair<QueryResult, Long> subofferStatForOffer(Long affId,
                                                       Long offerId,
+                                                      boolean forAdvertiser,
                                                       CommonParams common) {
     Preconditions.checkNotNull(offerId, "Offer id should not be null.");
     ImmutableMap.Builder<String, Object> templateParams =
         templateParamsBuilder(common)
+        .put("addFee", forAdvertiser)
         .put("filterByParentId", true);
     ImmutableMap.Builder<String, Object> queryParams =
         ImmutableMap.<String, Object>builder()

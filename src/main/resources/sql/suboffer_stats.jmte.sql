@@ -1,9 +1,15 @@
 select
   coalesce(sum(leads_count),  0) leads_count,
   coalesce(sum(sales_count),  0) sales_count,
+${if addFee}
+  coalesce(sum(confirmed_revenue      + confirmed_fee),     0.00) confirmed_revenue,
+  coalesce(sum(not_confirmed_revenue  + not_confirmed_fee), 0.00) not_confirmed_revenue,
+  coalesce(sum(canceled_revenue       + canceled_fee),      0.00) canceled_revenue,
+${else}
   coalesce(sum(confirmed_revenue),      0.00) confirmed_revenue,
   coalesce(sum(not_confirmed_revenue),  0.00) not_confirmed_revenue,
   coalesce(sum(canceled_revenue),       0.00) canceled_revenue,
+${end}
   o.id id, coalesce(parent.name, o.name) || ' — ' || o.title descr, o.exclusive
 
 from offer o

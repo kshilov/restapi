@@ -286,6 +286,7 @@ public class OfferStatsResource {
   public XmlSubOfferStats subofferStatByOffer(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
+      @QueryParam("for_advertiser") boolean forAdvertiser,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
@@ -297,7 +298,8 @@ public class OfferStatsResource {
     OfferStats.CommonParams common = new OfferStats.CommonParams(
         new DateTime(from), new DateTime(to),
         offset, limit, ordering, direction);
-    Pair<QueryResult, Long> p = stats.subofferStatForOffer(affId, offerId, common);
+    Pair<QueryResult, Long> p = stats.subofferStatForOffer(
+        affId, offerId, forAdvertiser, common);
     return new XmlSubOfferStats(p);
   }
 
