@@ -103,7 +103,6 @@ public class AppContextListener extends GuiceServletContextListener {
       return executor;
     } catch (RuntimeException e) {
       log.error("Could not start import service for " + shopName, e);
-      throw e;
     }
   }
 }
