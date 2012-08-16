@@ -1,24 +1,25 @@
 package com.heymoose.resource.api;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Multimap;
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.infrastructure.service.GeoTargeting;
-import com.heymoose.infrastructure.persistence.KeywordPatternDao;
-import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.user.User;
+import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.user.User;
+import com.heymoose.infrastructure.persistence.KeywordPatternDao;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.service.GeoTargeting;
 import com.heymoose.infrastructure.util.QueryUtil;
 import com.sun.jersey.api.core.HttpRequestContext;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -52,8 +53,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.heymoose.resource.api.ApiExceptions.*;
 import static com.heymoose.infrastructure.util.QueryUtil.appendQueryParam;
+import static com.heymoose.resource.api.ApiExceptions.*;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -241,6 +242,15 @@ public class ApiResource {
     }
     location = appendQueryParam(location, offer.tokenParamName(), token);
     location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
+
+    String getParams = offer.requiredGetParameters();
+    if (!Strings.isNullOrEmpty(getParams)) {
+      for (String keyVal : getParams.split("&")) {
+        String[] kv = keyVal.split("=");
+        location = QueryUtil.appendQueryParam(location, kv[0], kv[1]);
+      }
+    }
+
     Response.ResponseBuilder response = Response.status(302).location(location);
     int maxAge = Seconds.secondsBetween(DateTime.now(), DateTime.now().plusDays(offer.cookieTtl())).getSeconds();
     addCookie(response, "hm_token_" + offer.advertiser().id(), token, maxAge);

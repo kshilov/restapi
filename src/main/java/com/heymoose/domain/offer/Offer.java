@@ -114,6 +114,9 @@ public class Offer extends BaseOffer {
   @Column(name = "allow_deeplink", nullable = true)
   protected Boolean allowDeeplink;
 
+  @Column(name = "required_get_parameters", nullable = true)
+  private String requiredGetParameters;
+
   protected Offer() {
   }
 
@@ -337,5 +340,14 @@ public class Offer extends BaseOffer {
 
   public void setAllowDeeplink(boolean allowDeeplink) {
     this.allowDeeplink = allowDeeplink;
+  }
+
+  public String requiredGetParameters() {
+    return this.requiredGetParameters;
+  }
+
+  public Offer setRequiredGetParameters(String params) {
+    this.requiredGetParameters = params;
+    return this;
   }
 }
