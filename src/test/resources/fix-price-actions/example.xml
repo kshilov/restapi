@@ -1,0 +1,8 @@
+<actions>
+  <action>
+    <transaction>transaction</transaction>
+    <token>token</token>
+    <offer>offercode</offer>
+    <status>0</status>
+  </action>
+</actions>

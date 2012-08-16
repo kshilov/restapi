@@ -57,7 +57,7 @@ public final class TopShopImportTest extends RestTest {
     long affId = heymoose().doRegisterAffiliate();
     long offerId = heymoose().doCreateCpaOffer(
         CpaPolicy.PERCENT, 0.0, PERCENT,
-        OFFER_BALANCE, advId, "http://something.com",false);
+        OFFER_BALANCE, advId, "code");
     heymoose().doCreateGrant(offerId, affId);
     heymoose().doClick(offerId, affId, null, Subs.empty(), null);
     Token token = select(Token.class).get(0);

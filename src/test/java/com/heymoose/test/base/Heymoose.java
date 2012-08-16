@@ -90,8 +90,8 @@ public class Heymoose {
 
 
   public long doCreateCpaOffer(CpaPolicy policy, double cost, Double percent,
-                               Double offerBalance, long advertiserId, String offerUrl,
-                               boolean allowDeeplink) {
+                               Double offerBalance, long advertiserId,
+                               String offerCode) {
     RestTest.sqlUpdate(
         "insert into category_group(id, name) values(1, 'Grouping1')");
     RestTest.sqlUpdate(
@@ -99,10 +99,10 @@ public class Heymoose {
     long categoryId = getCategories().categories.iterator().next().id;
     long offerId = createOffer(advertiserId, PayMethod.CPA, policy, cost,
         String.valueOf(percent), offerBalance,
-        "offer_name", "descr", "short descr", "logo", URI.create(offerUrl),
+        "offer_name", "descr", "short descr", "logo", URI.create("http://s.com"),
         URI.create("http://offer_site_url.com"), "title", false, false,
-        true, newHashSet("RU"), newHashSet(categoryId), "offercode", 30, 180,
-        DateTimeUtils.currentTimeMillis(), allowDeeplink);
+        true, newHashSet("RU"), newHashSet(categoryId), offerCode, 30, 180,
+        DateTimeUtils.currentTimeMillis(), true);
     approveOffer(offerId);
     return offerId;
   }
