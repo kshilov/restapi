@@ -1,18 +1,21 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.Sets;
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.Role;
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.errorinfo.ErrorInfo;
-import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.user.Role;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.SqlLoader;
+
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +80,6 @@ public class Mappers {
     xmlUser.id = user.id();
 
     if (needFields(d)) {
-      xmlUser.fee = user.fee();
       xmlUser.email = user.email();
       xmlUser.passwordHash = user.passwordHash();
       xmlUser.firstName = user.firstName();
@@ -201,6 +203,10 @@ public class Mappers {
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();
     xmlOffer.percent = offer.percent();
+    xmlOffer.affiliateCost = offer.affiliateCost();
+    xmlOffer.affiliatePercent = offer.affiliatePercent();
+    xmlOffer.affiliateCost2 = offer.affiliateCost2();
+    xmlOffer.feeType = offer.feeType().toString();
     xmlOffer.approved = offer.approved();
     xmlOffer.active = offer.active();
     xmlOffer.blockReason = offer.blockReason();
@@ -283,6 +289,10 @@ public class Mappers {
     xmlSubOffer.code = offer.code();
     xmlSubOffer.holdDays = offer.holdDays();
     xmlSubOffer.exclusive = offer.exclusive();
+    xmlSubOffer.feeType = offer.feeType().toString();
+    xmlSubOffer.affiliateCost = offer.affiliateCost();
+    xmlSubOffer.affiliatePercent = offer.affiliatePercent();
+    xmlSubOffer.affiliateCost2 = offer.affiliateCost2();
     return xmlSubOffer;
   }
 

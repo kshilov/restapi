@@ -1,15 +1,10 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Optional;
-import com.heymoose.domain.user.AdminAccountAccessor;
-import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferAction;
-import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.infrastructure.counter.BufferedClicks;
-import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
@@ -17,7 +12,12 @@ import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.statistics.OfferStat;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.domain.user.AdminAccountAccessor;
+import com.heymoose.infrastructure.counter.BufferedClicks;
+import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.QueryUtil;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +34,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -96,7 +95,7 @@ public class TrackingImpl implements Tracking {
     PayMethod payMethod = offer.payMethod();
     if (payMethod == PayMethod.CPC) {
       BigDecimal cost = offer.cost();
-      BigDecimal amount = cost.multiply(new BigDecimal((100 - stat.affiliate().fee()) / 100.0));
+      BigDecimal amount = affiliatePart(cost, offer);
       BigDecimal revenue = cost.subtract(amount);
       accounting.transferMoney(
           offer.account(),
@@ -151,7 +150,7 @@ public class TrackingImpl implements Tracking {
       } else throw new IllegalStateException();
       if (existent != null && cost2 != null)
         cost = cost2;
-      BigDecimal amount = cost.divide(new BigDecimal((100 + source.affiliate().fee()) / 100.0), 2, RoundingMode.CEILING);
+      BigDecimal amount = affiliatePart(cost, offer);
       BigDecimal revenue = cost.subtract(amount);
       OfferStat stat = new OfferStat(
           source.bannerId(),
@@ -282,5 +281,26 @@ public class TrackingImpl implements Tracking {
           throw new RuntimeException(e.getMessage(), e);
         }
     }
+  }
+
+  private static BigDecimal affiliatePart(BigDecimal cost, BaseOffer offer) {
+    switch (offer.feeType()) {
+      case PERCENT:
+        // cost = aff_part + our_part
+        // our_part =  aff_part * (our_fee / 100%)
+        // our_fee = offer.fee()
+        // cost = aff_part + aff_part * offer.fee() / 100%
+        // aff_part = cost / (1 + offer.fee() / 100%)
+        BigDecimal divider = offer.fee()
+            .divide(new BigDecimal(100))
+            .add(BigDecimal.ONE);
+        return cost.divide(divider, 2, BigDecimal.ROUND_UP);
+      case FIX:
+        // cost = aff_part + our_part
+        // our_part = offer.fee()
+        // aff_part = cost - offer.fee()
+        return cost.subtract(offer.fee());
+    }
+    throw new RuntimeException("Unknown FeeType for offer " + offer.id());
   }
 }

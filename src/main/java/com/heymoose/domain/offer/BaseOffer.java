@@ -1,6 +1,8 @@
 package com.heymoose.domain.offer;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
+import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.BaseEntity;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
@@ -48,6 +50,13 @@ public abstract class BaseOffer extends BaseEntity {
 
   @Basic
   protected BigDecimal percent;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "fee_type", nullable = false)
+  protected FeeType feeType = FeeType.PERCENT;
+
+  @Column(name = "fee", nullable = false)
+  protected BigDecimal fee = new BigDecimal(30.0);
 
   @Basic
   protected boolean active = false;
@@ -142,6 +151,93 @@ public abstract class BaseOffer extends BaseEntity {
   public BaseOffer setPercent(BigDecimal percent) {
     this.percent = percent;
     return this;
+  }
+
+  public FeeType feeType() {
+    return this.feeType;
+  }
+
+  public BigDecimal fee() {
+    return this.fee;
+  }
+
+  public BaseOffer setFeeType(FeeType type) {
+    if (payMethod == PayMethod.CPA && cpaPolicy == CpaPolicy.PERCENT) {
+      Preconditions.checkArgument(
+          type == FeeType.PERCENT,
+          "FeeType should be percent for percent offers.");
+    }
+    this.feeType = type;
+    return this;
+  }
+
+  public BaseOffer setFee(BigDecimal fee) {
+    switch (feeType) {
+      case PERCENT:
+        double feeDouble = fee.doubleValue();
+        Preconditions.checkArgument(
+            feeDouble > 0, "Fee should be more than 0%.");
+        Preconditions.checkArgument(
+            feeDouble < 100, "Fee should be less than 100%.");
+        break;
+      case FIX:
+        Preconditions.checkArgument(
+            fee.compareTo(cost) < 0, "Fee should be less than offers cost.");
+        break;
+    }
+    this.fee = fee;
+    return this;
+  }
+
+  /**
+   * Returns affiliate revenue, if it is fixed or can be
+   * calculated, using data in offer. Returns null otherwise.
+   *
+   * @return fixed affiliate revenue or null
+   */
+  public BigDecimal affiliateCost() {
+    if (cpaPolicy != null && cpaPolicy == CpaPolicy.PERCENT)
+      return null; // affiliatePercent() should not return null in this case
+    switch (feeType) {
+      case FIX:
+        return cost.subtract(fee);
+      case PERCENT:
+        BigDecimal divider = fee
+            .divide(new BigDecimal(100))
+            .add(BigDecimal.ONE);
+        return cost.divide(divider, 2, BigDecimal.ROUND_UP);
+    }
+    throw new RuntimeException("Unknown fee type for offer " + id);
+  }
+
+  /**
+   * Returns affiliate revenue for repeated action in case of
+   * {@link CpaPolicy.DOUBLE_FIXED} policy or null otherwise.
+   *
+   * @return affiliate revenue for repeated action or null
+   */
+  public BigDecimal affiliateCost2() {
+    if (cpaPolicy == null || cpaPolicy != CpaPolicy.DOUBLE_FIXED)
+      return null;
+    BigDecimal divider = fee
+        .divide(new BigDecimal(100))
+        .add(BigDecimal.ONE);
+    return cost2.divide(divider, 2, BigDecimal.ROUND_UP);
+  }
+
+  /**
+   * Returns affiliate revenue, in case of {@link CpaPolicy.PERCENT},
+   * null otherwise.
+   *
+   * @return affiliate revenue for {@link CpaPolicy.PERCENT} offers
+   */
+  public BigDecimal affiliatePercent() {
+    if (cpaPolicy == null || cpaPolicy != CpaPolicy.PERCENT)
+      return null; // affiliateCost() should not return null in this case
+    BigDecimal divider = fee
+        .divide(new BigDecimal(100))
+        .add(BigDecimal.ONE);
+    return percent.divide(divider, 2, BigDecimal.ROUND_UP);
   }
 
   public boolean exclusive() {
