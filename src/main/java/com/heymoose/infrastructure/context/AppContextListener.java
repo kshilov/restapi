@@ -82,24 +82,28 @@ public class AppContextListener extends GuiceServletContextListener {
       String shopName, Injector injector,
       Class<? extends ActionDataImporter<T>> importerCls,
       Class<? extends ActionDataParser<T>> parserCls) {
+    try {
+      Properties properties = injector.getInstance(
+          Key.get(Properties.class, Names.named("settings")));
 
-    Properties properties = injector.getInstance(
-        Key.get(Properties.class, Names.named("settings")));
-
-    Long parentOfferId = Long.valueOf(
-        properties.get(shopName + ".offer").toString());
-    Integer importPeriod = Integer.valueOf(
-        properties.get(shopName + ".import.period").toString());
-    String importUrl = properties.get(shopName + ".import.url").toString();
-    final ScheduledThreadPoolExecutor executor =
-        new ScheduledThreadPoolExecutor(1);
-    ActionDataImporter<T> importer = injector.getInstance(importerCls);
-    ActionDataParser<T> parser = injector.getInstance(parserCls);
-    ActionDataImportJob<T> importJob =
-        new ActionDataImportJob(importUrl, parentOfferId, importer, parser);
-    log.info("Starting import service for {}", shopName);
-    executor.scheduleAtFixedRate(
-        importJob, 0, importPeriod, TimeUnit.MINUTES);
-    return executor;
+      Long parentOfferId = Long.valueOf(
+          properties.get(shopName + ".offer").toString());
+      Integer importPeriod = Integer.valueOf(
+          properties.get(shopName + ".import.period").toString());
+      String importUrl = properties.get(shopName + ".import.url").toString();
+      final ScheduledThreadPoolExecutor executor =
+          new ScheduledThreadPoolExecutor(1);
+      ActionDataImporter<T> importer = injector.getInstance(importerCls);
+      ActionDataParser<T> parser = injector.getInstance(parserCls);
+      ActionDataImportJob<T> importJob =
+          new ActionDataImportJob(importUrl, parentOfferId, importer, parser);
+      log.info("Starting import service for {}", shopName);
+      executor.scheduleAtFixedRate(
+          importJob, 0, importPeriod, TimeUnit.MINUTES);
+      return executor;
+    } catch (RuntimeException e) {
+      log.error("Could not start import service for " + shopName, e);
+      throw e;
+    }
   }
 }
