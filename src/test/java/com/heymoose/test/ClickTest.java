@@ -1,9 +1,9 @@
 package com.heymoose.test;
 
-import com.heymoose.domain.user.Role;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.user.Role;
 import com.heymoose.test.base.RestTest;
 import org.joda.time.DateTimeUtils;
 import org.junit.Before;
@@ -14,7 +14,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ClickTest extends RestTest {
 
@@ -143,5 +143,24 @@ public class ClickTest extends RestTest {
     String ulp = "not an url";
     URI location = doClick(offerId, affId, null, Subs.empty(), ulp);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
+  }
+
+  @Test
+
+  public void clickOfferWithRequiredGetParams() throws Exception {
+    long advertiserId = doRegisterAdvertiser();
+    long offerId = doCreateOffer(advertiserId, true);
+    long affId = doRegisterAffiliate();
+    doCreateGrant(offerId, affId);
+    sqlUpdate(
+        "update offer " +
+        "set required_get_parameters = 'a=a&b=b' " +
+        "where id = " + offerId);
+
+    URI location = doClick(offerId, affId, null, Subs.empty(), null);
+
+    log.info("Result URI: {}", location.toString());
+    assertTrue(location.getQuery().contains("a=a"));
+    assertTrue(location.getQuery().contains("b=b"));
   }
 }
