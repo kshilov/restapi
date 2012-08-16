@@ -54,31 +54,26 @@ public class AppContextListener extends GuiceServletContextListener {
     new Thread(bufferedShows).start();
     new Thread(bufferedClicks).start();
 
-    final ScheduledThreadPoolExecutor topshopExecutor =
-        startImportService("topshop", injector,
-            TopShopDataImporter.class, TopShopActionParser.class);
+    startImportService("topshop", injector,
+        TopShopDataImporter.class, TopShopActionParser.class);
 
-    final ScheduledThreadPoolExecutor delikateskaExecutor =
-        startImportService("delikateska", injector,
-            DelikateskaDataImporter.class, HeymooseItemListParser.class);
+    startImportService("delikateska", injector,
+        DelikateskaDataImporter.class, HeymooseItemListParser.class);
 
-    final ScheduledThreadPoolExecutor sapatoExecutor =
-        startImportService("sapato", injector,
-            FixPriceActionDataImporter.class, HeymooseFixPriceParser.class);
+    startImportService("sapato", injector,
+        FixPriceActionDataImporter.class, HeymooseFixPriceParser.class);
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         bufferedShows.flushAll();
         bufferedClicks.flushAll();
-        topshopExecutor.shutdown();
-        delikateskaExecutor.shutdown();
       }
     });
   }
 
   @SuppressWarnings("unchecked")
-  private static <T extends ActionData> ScheduledThreadPoolExecutor startImportService(
+  private static <T extends ActionData> void startImportService(
       String shopName, Injector injector,
       Class<? extends ActionDataImporter<T>> importerCls,
       Class<? extends ActionDataParser<T>> parserCls) {
@@ -100,7 +95,14 @@ public class AppContextListener extends GuiceServletContextListener {
       log.info("Starting import service for {}", shopName);
       executor.scheduleAtFixedRate(
           importJob, 0, importPeriod, TimeUnit.MINUTES);
-      return executor;
+
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        @Override
+        public void run() {
+          executor.shutdown();
+        }
+      });
+
     } catch (RuntimeException e) {
       log.error("Could not start import service for " + shopName, e);
     }
