@@ -3,6 +3,7 @@ package com.heymoose.resource.api;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.base.Repo;
@@ -134,7 +135,8 @@ public class ApiResource {
     if (token == null)
       throw notFound(Token.class, sToken);
     String[] pairs = sOffer.split(",");
-    Map<BaseOffer, Optional<Double>> offers = newHashMap();
+    ImmutableMultimap.Builder<BaseOffer, Optional<Double>> offers =
+        ImmutableMultimap.builder();
     for (String pair : pairs) {
       String[] parts = pair.split(":");
       String code = parts[0];
@@ -146,7 +148,7 @@ public class ApiResource {
           : Optional.<Double>absent();
       offers.put(offer, price);
     }
-    tracking.trackConversion(token, txId, offers);
+    tracking.trackConversion(token, txId, offers.build());
     return noCache(Response.ok()).build();
   }
 

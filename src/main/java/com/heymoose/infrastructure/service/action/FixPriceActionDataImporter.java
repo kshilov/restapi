@@ -1,7 +1,8 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.action.FixPriceActionData;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Map;
 
 public class FixPriceActionDataImporter
     extends ActionDataImporterBase<FixPriceActionData> {
@@ -29,7 +29,7 @@ public class FixPriceActionDataImporter
   }
 
   @Override
-  protected Map<BaseOffer, Optional<Double>> extractOffers(
+  protected Multimap<BaseOffer, Optional<Double>> extractOffers(
       FixPriceActionData actionData, Long parentOfferId) {
     BaseOffer offer = repo.byHQL(Offer.class,
         "from Offer where id = ? and code = ?",
@@ -43,13 +43,13 @@ public class FixPriceActionDataImporter
       log.warn("Offer with code '{}' and parent '{}'. " +
           "Skipping import...",
           actionData.offerCode(), parentOfferId);
-      return ImmutableMap.of();
+      return ImmutableMultimap.of();
     }
     if (offer.cpaPolicy() == null || offer.cpaPolicy() != CpaPolicy.FIXED) {
       log.warn("Not fixed-price offer '{}'! Skipping..", offer.id());
     }
     log.info("Adding conversion with fix revenue for offer '{}' - '{}'",
         offer.id(), offer.title());
-    return ImmutableMap.of(offer, Optional.<Double>absent());
+    return ImmutableMultimap.of(offer, Optional.<Double>absent());
   }
 }

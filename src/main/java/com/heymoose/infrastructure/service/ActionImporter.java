@@ -1,15 +1,16 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Optional;
-import com.heymoose.domain.statistics.Token;
+import com.google.common.collect.ImmutableMultimap;
 import com.heymoose.domain.action.OfferAction;
-import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.resource.xml.XmlActionInfo;
-import com.heymoose.resource.xml.XmlActionInfos;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.statistics.Token;
+import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.api.ApiRequestException;
+import com.heymoose.resource.xml.XmlActionInfo;
+import com.heymoose.resource.xml.XmlActionInfos;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Map;
 
 import static com.heymoose.infrastructure.util.QueryUtil.appendQueryParam;
@@ -84,7 +84,8 @@ public class ActionImporter implements Runnable {
       Optional<Double> price = action.price != null
           ? Optional.of(action.price)
           : Optional.<Double>absent();
-      tracking.trackConversion(token, action.transactionId, Collections.singletonMap(offer, price));
+      tracking.trackConversion(token, action.transactionId,
+          ImmutableMultimap.of(offer, price));
     }
   }
 

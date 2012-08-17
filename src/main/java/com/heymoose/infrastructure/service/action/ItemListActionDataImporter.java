@@ -1,7 +1,8 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 public abstract class ItemListActionDataImporter
     extends ActionDataImporterBase<ItemListActionData> {
@@ -27,11 +27,11 @@ public abstract class ItemListActionDataImporter
 
 
   @Override
-  protected final Map<BaseOffer, Optional<Double>> extractOffers(
+  protected final Multimap<BaseOffer, Optional<Double>> extractOffers(
       ItemListActionData payment, Long parentOfferId) {
 
-    ImmutableMap.Builder<BaseOffer, Optional<Double>> offerMap =
-        ImmutableMap.builder();
+    ImmutableMultimap.Builder<BaseOffer, Optional<Double>> offerMap =
+        ImmutableMultimap.builder();
     for (ItemListActionData.Item item : payment.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
@@ -42,12 +42,14 @@ public abstract class ItemListActionDataImporter
         continue;
       }
       BigDecimal price = namePrice(item, productOffer);
-      log.info("Adding conversion for offer '{}' code '{}' price '{}'",
-          new Object[] {
-              productOffer.id() ,
-              productOffer.code(),
-              price });
-      offerMap.put(productOffer, Optional.of(price.doubleValue()));
+      for (int i = 1; i <= item.quantity(); i++) {
+        log.info("Adding conversion for offer '{}' code '{}' price '{}'",
+            new Object[] {
+                productOffer.id() ,
+                productOffer.code(),
+                price });
+        offerMap.put(productOffer, Optional.of(price.doubleValue()));
+      }
     }
     return offerMap.build();
   }

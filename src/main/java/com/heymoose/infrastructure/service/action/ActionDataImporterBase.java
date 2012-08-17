@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.OfferAction;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 public abstract class ActionDataImporterBase<T extends ActionData>
     implements ActionDataImporter<T>{
@@ -83,6 +83,6 @@ public abstract class ActionDataImporterBase<T extends ActionData>
   /**
    * Process action data and return (offer - price) pairs for tracking.
    */
-  protected abstract Map<BaseOffer, Optional<Double>> extractOffers(
+  protected abstract Multimap<BaseOffer, Optional<Double>> extractOffers(
       T actionData, Long parentOfferId);
 }
