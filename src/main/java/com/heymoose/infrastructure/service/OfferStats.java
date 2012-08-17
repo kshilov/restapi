@@ -480,20 +480,6 @@ public class OfferStats {
         .build();
   }
 
-  private Object[] totalStats(OfferActionState actionState,
-                              AccountingEvent event,
-                              DateTime from, DateTime to) {
-
-    String totalQuery = SqlLoader.getSql("total_stat");
-    return (Object[]) repo.session()
-        .createSQLQuery(totalQuery)
-        .setParameter("action_state", actionState.ordinal())
-        .setParameter("entry_event", event.ordinal())
-        .setParameter("from", from.toDate())
-        .setParameter("to", to.toDate())
-        .list().get(0);
-  }
-
   private BigDecimal sumAllEntries(String templateFlag,
                                    OfferActionState state,
                                    AccountingEvent event,
