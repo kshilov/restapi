@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferAction;
@@ -121,12 +122,14 @@ public class TrackingImpl implements Tracking {
 
   @Override
   @Transactional
-  public List<OfferAction> trackConversion(Token token, String transactionId, Map<BaseOffer, Optional<Double>> offers) {
+  public List<OfferAction> trackConversion(Token token, String transactionId,
+                                           Multimap<BaseOffer, Optional<Double>> offers) {
     log.info("Entering trackConversion for token: '{}', transaction id: '{}'.",
         token.value(), transactionId);
     OfferStat source = token.stat();
     List<OfferAction> actions = newArrayList();
-    for (BaseOffer offer : offers.keySet()) {
+    for (Map.Entry<BaseOffer, Optional<Double>> entry : offers.entries()) {
+      BaseOffer offer = entry.getKey();
       OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, source.affiliate());
       if (grant == null) {
         log.error("No grant on offer: '{} - {}', for affiliate: '{}'",
@@ -134,8 +137,8 @@ public class TrackingImpl implements Tracking {
         throw new IllegalStateException("Offer not granted: " + offer.id());
       }
       OfferAction existent = findAction(offer, token);
-      if (existent != null &&
-         (existent.transactionId().equals(transactionId) || !offer.reentrant())) {
+      if (existent != null && existent.transactionId().equals(transactionId)
+          && !offer.reentrant()) {
         log.warn("Action '{}' has same transaction id: '{}'. " +
             "Offer is not reentrant. Skipping..",
             existent.id(), transactionId);
@@ -148,7 +151,7 @@ public class TrackingImpl implements Tracking {
       BigDecimal cost2 = null;
       CpaPolicy cpaPolicy = offer.cpaPolicy();
       if (cpaPolicy == CpaPolicy.PERCENT) {
-        Optional<Double> price = offers.get(offer);
+        Optional<Double> price = entry.getValue();
         if (!price.isPresent())
           throw new IllegalArgumentException("No price for offer with id = " + offer.id());
         cost = new BigDecimal(price.get()).multiply(offer.percent().divide(new BigDecimal(100.0)));

@@ -21,6 +21,6 @@ public class DelikateskaDataImporter extends ItemListActionDataImporter {
 
   @Override
   protected BigDecimal namePrice(ItemListActionData.Item item, BaseOffer offer) {
-    return item.price().multiply(new BigDecimal(item.quantity()));
+    return item.price();
   }
 }
