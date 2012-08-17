@@ -1,12 +1,14 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
+import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.statistics.Token;
@@ -54,20 +56,20 @@ public abstract class ActionDataImporterBase<T extends ActionData>
 
     // check whether token was not tracked already
     List<OfferAction> offerActionList = repo.allByHQL(OfferAction.class,
-        "from OfferAction where token = ?", token);
+        "from OfferAction where token = ? and transaction_id = ?",
+        token, payment.transactionId());
     for (OfferAction offerAction : offerActionList) {
       if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
           offerAction.transactionId().equals(payment.transactionId()) &&
           payment.status().equals(ActionStatus.CANCELED)) {
         log.info("Canceling action {}.", offerAction.id());
         actions.cancel(offerAction);
-        return;
       }
-      if (offerAction.transactionId().equals(payment.transactionId())) {
-        log.info("Transaction '{}' was already converted, offerAction='{}'. " +
-            "Skipping..", payment.transactionId(), offerAction.id());
-        return;
-      }
+    }
+    if (offerActionList.size() > 0) {
+      log.info("Transaction '{}' was already converted, offerActions='{}'. " +
+          "Skipping..", payment.transactionId(), idList(offerActionList));
+      return;
     }
 
     List<OfferAction> trackedActions = tracking.trackConversion(
@@ -86,4 +88,12 @@ public abstract class ActionDataImporterBase<T extends ActionData>
    */
   protected abstract Multimap<BaseOffer, Optional<Double>> extractOffers(
       T actionData, Long parentOfferId);
+
+  private List<Long> idList(Iterable<? extends IdEntity> entityList) {
+    ImmutableList.Builder<Long> idList = ImmutableList.builder();
+    for (IdEntity entity : entityList) {
+      idList.add(entity.id());
+    }
+    return idList.build();
+  }
 }
