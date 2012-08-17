@@ -137,8 +137,8 @@ public class TrackingImpl implements Tracking {
         throw new IllegalStateException("Offer not granted: " + offer.id());
       }
       OfferAction existent = findAction(offer, token);
-      if (existent != null &&
-         (existent.transactionId().equals(transactionId) || !offer.reentrant())) {
+      if (existent != null && existent.transactionId().equals(transactionId)
+          && !offer.reentrant()) {
         log.warn("Action '{}' has same transaction id: '{}'. " +
             "Offer is not reentrant. Skipping..",
             existent.id(), transactionId);
