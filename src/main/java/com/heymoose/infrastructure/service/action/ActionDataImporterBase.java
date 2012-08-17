@@ -53,10 +53,11 @@ public abstract class ActionDataImporterBase<T extends ActionData>
     }
 
     // check whether token was not tracked already
-    OfferAction offerAction = repo.byHQL(OfferAction.class,
+    List<OfferAction> offerActionList = repo.allByHQL(OfferAction.class,
         "from OfferAction where token = ?", token);
-    if (offerAction != null) {
+    for (OfferAction offerAction : offerActionList) {
       if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
+          offerAction.transactionId().equals(payment.transactionId()) &&
           payment.status().equals(ActionStatus.CANCELED)) {
         log.info("Canceling action {}.", offerAction.id());
         actions.cancel(offerAction);
