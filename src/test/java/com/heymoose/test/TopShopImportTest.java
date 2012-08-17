@@ -1,7 +1,7 @@
 package com.heymoose.test;
 
 import com.google.common.io.InputSupplier;
-import com.heymoose.domain.action.ActionData;
+import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -57,7 +57,7 @@ public final class TopShopImportTest extends RestTest {
     long affId = heymoose().doRegisterAffiliate();
     long offerId = heymoose().doCreateCpaOffer(
         CpaPolicy.PERCENT, 0.0, PERCENT,
-        OFFER_BALANCE, advId, "http://something.com",false);
+        OFFER_BALANCE, advId, "code");
     heymoose().doCreateGrant(offerId, affId);
     heymoose().doClick(offerId, affId, null, Subs.empty(), null);
     Token token = select(Token.class).get(0);
@@ -87,9 +87,10 @@ public final class TopShopImportTest extends RestTest {
     // manually start transaction, because not using guice
     Session session = injector().getProvider(Session.class).get();
     Transaction tx = session.beginTransaction();
+    SubOffer productSubOffer = null;
     try {
       Offer parentOffer = repo.get(Offer.class, offerId);
-      SubOffer productSubOffer = new SubOffer();
+      productSubOffer = new SubOffer();
       productSubOffer.setParentId(parentOffer.id())
           .setCode(itemCode.toString())
           .setCost(new BigDecimal(price))
@@ -113,7 +114,7 @@ public final class TopShopImportTest extends RestTest {
     session = injector().getProvider(Session.class).get();
     tx = session.beginTransaction();
     try {
-      List<ActionData> data = converter.parse(input(topShopXml));
+      List<ItemListActionData> data = converter.parse(input(topShopXml));
       importer.doImport(data, offerId);
       tx.commit();
     } catch (Exception e) {
@@ -127,7 +128,8 @@ public final class TopShopImportTest extends RestTest {
     log.info("Revenue: {}", offerStat.notConfirmedRevenue());
     User affiliate = select(User.class, Restrictions.eq("id", affId)).get(0);
     BigDecimal cost = new BigDecimal(price * PERCENT / 100.0);
-    BigDecimal expectedRevenue = cost.divide(new BigDecimal((100 + affiliate.fee()) / 100.0), 2, RoundingMode.CEILING);
+    BigDecimal expectedRevenue = cost.divide(
+        new BigDecimal((100 + productSubOffer.fee().doubleValue()) / 100.0), 2, RoundingMode.UP);
 
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());

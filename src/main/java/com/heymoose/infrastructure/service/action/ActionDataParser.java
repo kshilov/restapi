@@ -6,7 +6,8 @@ import com.heymoose.domain.action.ActionData;
 import java.io.InputStream;
 import java.util.List;
 
-public interface ActionParser {
+public interface ActionDataParser<T extends ActionData> {
 
-  List<ActionData> parse(InputSupplier<InputStream> input);
+  List<T> parse(InputSupplier<InputStream> input);
+
 }

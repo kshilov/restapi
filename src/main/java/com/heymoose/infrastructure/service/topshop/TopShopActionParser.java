@@ -5,8 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
-import com.heymoose.domain.action.ActionData;
-import com.heymoose.infrastructure.service.action.ActionParser;
+import com.heymoose.domain.action.ActionStatus;
+import com.heymoose.domain.action.ItemListActionData;
+import com.heymoose.infrastructure.service.action.ActionDataParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public final class TopShopActionParser implements ActionParser {
+public final class TopShopActionParser
+    implements ActionDataParser<ItemListActionData> {
 
   @XmlRootElement(name = "payment_list")
   public static class XmlTopShopPayments {
@@ -60,9 +62,9 @@ public final class TopShopActionParser implements ActionParser {
    * @return map token - price
    */
   @SuppressWarnings("unchecked")
-  public List<ActionData> parse(InputSupplier<InputStream> inputSupplier) {
+  public List<ItemListActionData> parse(InputSupplier<InputStream> inputSupplier) {
     InputStream input = null;
-    ImmutableList.Builder<ActionData> dataBuilder =
+    ImmutableList.Builder<ItemListActionData> dataBuilder =
         ImmutableList.builder();
     try {
       input = inputSupplier.getInput();
@@ -80,18 +82,18 @@ public final class TopShopActionParser implements ActionParser {
               payment.orderId);
           continue;
         }
-        ActionData paymentData = new ActionData();
+        ItemListActionData paymentData = new ItemListActionData();
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
         switch (payment.status) {
           case STATUS_CREATED:
-            paymentData.setStatus(ActionData.Status.CREATED);
+            paymentData.setStatus(ActionStatus.CREATED);
             break;
           case STATUS_COMPLETE:
-            paymentData.setStatus(ActionData.Status.COMPLETE);
+            paymentData.setStatus(ActionStatus.COMPLETE);
             break;
           case STATUS_CANCELED:
-            paymentData.setStatus(ActionData.Status.CANCELED);
+            paymentData.setStatus(ActionStatus.CANCELED);
         }
         for (String item : payment.itemListElement.itemList) {
           paymentData.addItem(item);

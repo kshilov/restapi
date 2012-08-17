@@ -1,7 +1,7 @@
 package com.heymoose.infrastructure.service.topshop;
 
 import com.google.common.io.Resources;
-import com.heymoose.domain.action.ActionData;
+import com.heymoose.domain.action.ItemListActionData;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;
@@ -18,11 +18,11 @@ public final class TopShopActionImporterTest {
     URL topShopXml = getClass().getClassLoader()
         .getResource("topshop/example.xml");
     TopShopActionParser converter = new TopShopActionParser();
-    List<ActionData> info = converter.parse(
+    List<ItemListActionData> info = converter.parse(
         Resources.newInputStreamSupplier(topShopXml));
 
-    ActionData payment1 = info.get(0);
-    ActionData payment2 = info.get(1);
+    ItemListActionData payment1 = info.get(0);
+    ItemListActionData payment2 = info.get(1);
     assertEquals("hm_1", payment1.token());
     assertEquals("hm_2", payment2.token());
     assertEquals(1, payment1.itemList().size());

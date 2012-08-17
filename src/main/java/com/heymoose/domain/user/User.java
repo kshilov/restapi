@@ -106,9 +106,6 @@ public class User extends IdEntity {
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
 
-  @Basic(optional = false)
-  private int fee = 30;
-
   protected User() {}
 
   public User(String email, String passwordHash, String organization, String phone, Long referrerId) {
@@ -288,12 +285,4 @@ public class User extends IdEntity {
     return registerTime;
   }
   
-  public int fee() {
-    return fee;
-  }
-
-  public void setFee(int fee) {
-    checkArgument(fee > 0 && fee < 100);
-    this.fee = fee;
-  }
 }

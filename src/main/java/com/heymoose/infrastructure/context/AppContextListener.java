@@ -6,12 +6,15 @@ import com.google.inject.Key;
 import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.heymoose.domain.action.ActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
+import com.heymoose.infrastructure.service.action.ActionDataImportJob;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
-import com.heymoose.infrastructure.service.action.ActionImportJob;
-import com.heymoose.infrastructure.service.action.ActionParser;
-import com.heymoose.infrastructure.service.action.HeymooseActionParser;
+import com.heymoose.infrastructure.service.action.ActionDataParser;
+import com.heymoose.infrastructure.service.action.FixPriceActionDataImporter;
+import com.heymoose.infrastructure.service.action.HeymooseFixPriceParser;
+import com.heymoose.infrastructure.service.action.HeymooseItemListParser;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaDataImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
@@ -51,47 +54,57 @@ public class AppContextListener extends GuiceServletContextListener {
     new Thread(bufferedShows).start();
     new Thread(bufferedClicks).start();
 
-    final ScheduledThreadPoolExecutor topshopExecutor =
-        startImportService("topshop", injector,
-            TopShopDataImporter.class, TopShopActionParser.class);
+    startImportService("topshop", injector,
+        TopShopDataImporter.class, TopShopActionParser.class);
 
-    final ScheduledThreadPoolExecutor delikateskaExecutor =
-        startImportService("delikateska", injector,
-            DelikateskaDataImporter.class, HeymooseActionParser.class);
+    startImportService("delikateska", injector,
+        DelikateskaDataImporter.class, HeymooseItemListParser.class);
+
+    startImportService("sapato", injector,
+        FixPriceActionDataImporter.class, HeymooseFixPriceParser.class);
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         bufferedShows.flushAll();
         bufferedClicks.flushAll();
-        topshopExecutor.shutdown();
-        delikateskaExecutor.shutdown();
       }
     });
   }
 
-  private static ScheduledThreadPoolExecutor startImportService(
+  @SuppressWarnings("unchecked")
+  private static <T extends ActionData> void startImportService(
       String shopName, Injector injector,
-      Class<? extends ActionDataImporter> importerCls,
-      Class<? extends ActionParser> parserCls) {
+      Class<? extends ActionDataImporter<T>> importerCls,
+      Class<? extends ActionDataParser<T>> parserCls) {
+    try {
+      Properties properties = injector.getInstance(
+          Key.get(Properties.class, Names.named("settings")));
 
-    Properties properties = injector.getInstance(
-        Key.get(Properties.class, Names.named("settings")));
+      Long parentOfferId = Long.valueOf(
+          properties.get(shopName + ".offer").toString());
+      Integer importPeriod = Integer.valueOf(
+          properties.get(shopName + ".import.period").toString());
+      String importUrl = properties.get(shopName + ".import.url").toString();
+      final ScheduledThreadPoolExecutor executor =
+          new ScheduledThreadPoolExecutor(1);
+      ActionDataImporter<T> importer = injector.getInstance(importerCls);
+      ActionDataParser<T> parser = injector.getInstance(parserCls);
+      ActionDataImportJob<T> importJob =
+          new ActionDataImportJob(importUrl, parentOfferId, importer, parser);
+      log.info("Starting import service for {}", shopName);
+      executor.scheduleAtFixedRate(
+          importJob, 0, importPeriod, TimeUnit.MINUTES);
 
-    Long parentOfferId = Long.valueOf(
-        properties.get(shopName + ".offer").toString());
-    Integer importPeriod = Integer.valueOf(
-        properties.get(shopName + ".import.period").toString());
-    String importUrl = properties.get(shopName + ".import.url").toString();
-    final ScheduledThreadPoolExecutor executor =
-        new ScheduledThreadPoolExecutor(1);
-    ActionDataImporter importer = injector.getInstance(importerCls);
-    ActionParser parser = injector.getInstance(parserCls);
-    ActionImportJob importJob =
-        new ActionImportJob(importUrl, parentOfferId, importer, parser);
-    log.info("Starting import service for {}", shopName);
-    executor.scheduleAtFixedRate(
-        importJob, 0, importPeriod, TimeUnit.MINUTES);
-    return executor;
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        @Override
+        public void run() {
+          executor.shutdown();
+        }
+      });
+
+    } catch (RuntimeException e) {
+      log.error("Could not start import service for " + shopName, e);
+    }
   }
 }
