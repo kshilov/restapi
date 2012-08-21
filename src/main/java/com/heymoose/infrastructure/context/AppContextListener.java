@@ -9,10 +9,10 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
-import com.heymoose.infrastructure.service.action.ActionDataImport;
-import com.heymoose.infrastructure.service.delikateska.DelikateskaActionDataImport;
-import com.heymoose.infrastructure.service.sapato.SapatoActionDataImport;
-import com.heymoose.infrastructure.service.topshop.TopShopDataImport;
+import com.heymoose.infrastructure.service.action.ImportService;
+import com.heymoose.infrastructure.service.delikateska.DelikateskaImportService;
+import com.heymoose.infrastructure.service.sapato.SapatoImportService;
+import com.heymoose.infrastructure.service.topshop.TopShopImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -50,13 +50,13 @@ public class AppContextListener extends GuiceServletContextListener {
     Properties properties = injector.getInstance(
         Key.get(Properties.class, Names.named("settings")));
 
-    startImportService("topshop", properties, new TopShopDataImport(injector));
+    startImportService("topshop", properties, new TopShopImportService(injector));
 
     startImportService("delikateska", properties,
-        new DelikateskaActionDataImport(injector));
+        new DelikateskaImportService(injector));
 
     startImportService("sapato", properties,
-        new SapatoActionDataImport(injector));
+        new SapatoImportService(injector));
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
@@ -70,7 +70,7 @@ public class AppContextListener extends GuiceServletContextListener {
   @SuppressWarnings("unchecked")
   private static <T extends ActionData> void startImportService(
       String shopName, Properties properties,
-      final ActionDataImport<T> actionImport) {
+      final ImportService<T> actionImportService) {
     try {
       Long parentOfferId = Long.valueOf(
           properties.get(shopName + ".offer").toString());
@@ -78,16 +78,16 @@ public class AppContextListener extends GuiceServletContextListener {
           properties.get(shopName + ".import.period").toString());
       String url = properties.get(shopName + ".import.url").toString();
 
-      actionImport.setImportPeriod(importPeriod)
+      actionImportService.setImportPeriod(importPeriod)
           .setUrl(url)
           .setParentOfferId(parentOfferId);
 
       log.info("Starting import service for {}", shopName);
-      actionImport.start();
+      actionImportService.start();
       Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
-          actionImport.stop();
+          actionImportService.stop();
         }
       });
 

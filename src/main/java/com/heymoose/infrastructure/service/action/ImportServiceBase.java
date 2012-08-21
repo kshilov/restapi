@@ -10,8 +10,8 @@ import java.net.URL;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public abstract class ActionDataImportBase<T extends ActionData>
-    implements ActionDataImport<T> {
+public abstract class ImportServiceBase<T extends ActionData>
+    implements ImportService<T> {
 
   private final Injector injector;
   private ScheduledThreadPoolExecutor scheduler;
@@ -20,13 +20,13 @@ public abstract class ActionDataImportBase<T extends ActionData>
   protected Integer periodMinutes;
   protected URL url;
 
-  public ActionDataImportBase(Injector injector) {
+  public ImportServiceBase(Injector injector) {
     this.injector = injector;
   }
 
 
   @Override
-  public final ActionDataImport setUrl(String url) {
+  public final ImportService setUrl(String url) {
     try {
       this.url = new URL(url);
     } catch (MalformedURLException e) {
@@ -36,20 +36,20 @@ public abstract class ActionDataImportBase<T extends ActionData>
   }
 
   @Override
-  public final ActionDataImport setParentOfferId(Long parentOfferId) {
+  public final ImportService setParentOfferId(Long parentOfferId) {
     this.parentOfferId = parentOfferId;
     return this;
   }
 
   @Override
-  public final ActionDataImport setImportPeriod(Integer minutes) {
+  public final ImportService setImportPeriod(Integer minutes) {
     this.periodMinutes = minutes;
     return this;
   }
 
 
   @Override
-  public final ActionDataImport start() {
+  public final ImportService start() {
     scheduler = new ScheduledThreadPoolExecutor(1);
     ActionDataImporter<T> importer = injector.getInstance(importerCls());
     ActionDataParser<T> parser = injector.getInstance(parserCls());
@@ -64,7 +64,7 @@ public abstract class ActionDataImportBase<T extends ActionData>
   }
 
   @Override
-  public ActionDataImport stop() {
+  public ImportService stop() {
     scheduler.shutdown();
     return this;
   }
