@@ -20,10 +20,11 @@ public final class SapatoUrlProvider implements Provider<URL> {
   @Override
   public URL get() {
     DateTime startTime = DateTime.now().minusDays(IMPORT_DAYS);
+    long startTimeSeconds = Math.round(startTime.getMillis() / 1000.0);
     try {
       return QueryUtil.appendQueryParam(
           baseUrl.toURI(), START_TIME,
-          startTime.toDate().getTime()).toURL();
+          startTimeSeconds).toURL();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
