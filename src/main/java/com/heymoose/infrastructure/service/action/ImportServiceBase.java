@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class ImportServiceBase<T extends ActionData>
-    implements ImportService<T> {
+    implements ImportService {
 
   private final Injector injector;
   private ScheduledThreadPoolExecutor scheduler;

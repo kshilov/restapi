@@ -1,8 +1,6 @@
 package com.heymoose.infrastructure.service.action;
 
-import com.heymoose.domain.action.ActionData;
-
-public interface ImportService<T extends ActionData> {
+public interface ImportService {
 
   ImportService setUrl(String url);
   ImportService setParentOfferId(Long parentOfferId);

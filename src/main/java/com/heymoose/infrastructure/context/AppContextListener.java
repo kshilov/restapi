@@ -70,7 +70,7 @@ public class AppContextListener extends GuiceServletContextListener {
   @SuppressWarnings("unchecked")
   private static <T extends ActionData> void startImportService(
       String shopName, Properties properties,
-      final ImportService<T> actionImportService) {
+      final ImportService actionImportService) {
     try {
       Long parentOfferId = Long.valueOf(
           properties.get(shopName + ".offer").toString());
