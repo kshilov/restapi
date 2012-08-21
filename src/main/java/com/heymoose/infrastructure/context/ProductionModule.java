@@ -89,13 +89,4 @@ public class ProductionModule extends AbstractModule {
     return scheduler;
   }
 
-  @Provides @Named("topshop.import.url") @Singleton
-  protected String topshopUrl(@Named("settings") Properties settings) {
-    return settings.get("topshop.import.url").toString();
-  }
-
-  @Provides @Named("topshop.offer") @Singleton
-  protected String topshopOffer(@Named("settings") Properties settings) {
-    return settings.get("topshop.offer").toString();
-  }
 }

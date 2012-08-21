@@ -2,11 +2,10 @@ package com.heymoose.infrastructure.service.sapato;
 
 import com.google.inject.Injector;
 import com.heymoose.domain.action.FixPriceActionData;
-import com.heymoose.infrastructure.service.action.ImportServiceBase;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
 import com.heymoose.infrastructure.service.action.ActionDataParser;
-import com.heymoose.infrastructure.service.action.FixPriceActionDataImporter;
 import com.heymoose.infrastructure.service.action.HeymooseFixPriceParser;
+import com.heymoose.infrastructure.service.action.ImportServiceBase;
 
 import javax.inject.Provider;
 import java.net.URL;
@@ -20,7 +19,7 @@ public final class SapatoImportService
 
   @Override
   protected Class<? extends ActionDataImporter<FixPriceActionData>> importerCls() {
-    return FixPriceActionDataImporter.class;
+    return SapatoImporter.class;
   }
 
   @Override

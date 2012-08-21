@@ -6,6 +6,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.FixPriceActionData;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,9 @@ public final class HeymooseFixPriceParser
     @XmlElement(name = "offer")
     public String offerCode;
 
+    @XmlElement(name = "date")
+    public String date;
+
   }
 
   public List<FixPriceActionData> parse(InputSupplier<InputStream> inputSupplier) {
@@ -63,7 +67,10 @@ public final class HeymooseFixPriceParser
             .setOfferCode(xmlAction.offerCode);
         data.setStatus(ActionStatus.values()[xmlAction.status])
             .setToken(xmlAction.token)
-            .setTransactionId(xmlAction.transaction);
+            .setTransactionId(xmlAction.transaction)
+            .setLastChangeTime(DateTimeFormat
+                .forPattern("YYYY-MM-dd HH:mm:SS")
+                .parseDateTime(xmlAction.date));
         dataBuilder.add(data);
       }
       return dataBuilder.build();
