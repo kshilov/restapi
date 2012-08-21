@@ -67,10 +67,12 @@ public final class HeymooseFixPriceParser
             .setOfferCode(xmlAction.offerCode);
         data.setStatus(ActionStatus.values()[xmlAction.status])
             .setToken(xmlAction.token)
-            .setTransactionId(xmlAction.transaction)
-            .setLastChangeTime(DateTimeFormat
+            .setTransactionId(xmlAction.transaction);
+        if (xmlAction.date != null) {
+            data.setLastChangeTime(DateTimeFormat
                 .forPattern("YYYY-MM-dd HH:mm:SS")
                 .parseDateTime(xmlAction.date));
+        }
         dataBuilder.add(data);
       }
       return dataBuilder.build();
