@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public abstract class ActionDataImporterBase<T extends ActionData>
-    implements ActionDataImporter<T>{
+    implements ActionDataImporter<T> {
 
   private static final Logger log = LoggerFactory.getLogger(
       ActionDataImporterBase.class);
@@ -40,6 +40,7 @@ public abstract class ActionDataImporterBase<T extends ActionData>
   @Transactional
   @Override
   public void doImport(List<T> actionList, Long parentOfferId) {
+    log.info("Starting import for {} actions.", actionList.size());
     for (T action : actionList) {
       doImport(action, parentOfferId);
     }
@@ -60,7 +61,6 @@ public abstract class ActionDataImporterBase<T extends ActionData>
         token, payment.transactionId());
     for (OfferAction offerAction : offerActionList) {
       if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
-          offerAction.transactionId().equals(payment.transactionId()) &&
           payment.status().equals(ActionStatus.CANCELED)) {
         log.info("Canceling action {}.", offerAction.id());
         actions.cancel(offerAction);

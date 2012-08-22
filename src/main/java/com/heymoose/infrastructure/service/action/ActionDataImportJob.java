@@ -5,9 +5,9 @@ import com.heymoose.domain.action.ActionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Provider;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -17,19 +17,15 @@ public final class ActionDataImportJob<T extends ActionData> implements Runnable
   private static final Logger log =
       LoggerFactory.getLogger(ActionDataImportJob.class);
 
-  private final URL url;
+  private final Provider<URL> urlProvider;
   private final ActionDataImporter<T> importer;
   private final ActionDataParser<T> parser;
   private final Long parentOfferId;
 
-  public ActionDataImportJob(String url, Long parentOffer,
+  public ActionDataImportJob(Provider<URL> urlProvider, Long parentOffer,
                              ActionDataImporter<T> importer,
                              ActionDataParser<T> parser) {
-    try {
-      this.url = new URL(url);
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
+    this.urlProvider = urlProvider;
     this.importer = importer;
     this.parser = parser;
     this.parentOfferId = parentOffer;
@@ -37,6 +33,7 @@ public final class ActionDataImportJob<T extends ActionData> implements Runnable
 
   @Override
   public void run() {
+    URL url = urlProvider.get();
     try {
       log.info("** Import started from url: '{}' **", url);
       URLConnection connection = url.openConnection();

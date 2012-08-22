@@ -279,4 +279,10 @@ public class OfferStat extends BaseEntity {
       return ZERO;
     return number;
   }
+
+  public void approveFee(BigDecimal fee) {
+    checkArgument(fee.signum() == 1);
+    notConfirmedFee = nullToZero(notConfirmedFee).subtract(fee);
+    confirmedFee = nullToZero(confirmedFee).add(fee);
+  }
 }

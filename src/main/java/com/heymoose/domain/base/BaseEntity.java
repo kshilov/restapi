@@ -10,7 +10,7 @@ public abstract class BaseEntity extends IdEntity {
 
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "creation_time", nullable = false)
-  private DateTime creationTime;
+  protected DateTime creationTime;
 
   public BaseEntity() {
     creationTime = DateTime.now();

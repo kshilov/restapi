@@ -1,12 +1,11 @@
 package com.heymoose.domain.action;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import com.heymoose.domain.base.ModifiableEntity;
+import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
-import com.heymoose.domain.statistics.OfferStat;
-import com.heymoose.domain.base.BaseEntity;
-import com.heymoose.domain.offer.BaseOffer;
+import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,9 +20,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Entity
 @Table(name = "offer_action")
-public class OfferAction extends BaseEntity {
+public class OfferAction extends ModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "offer-action-seq")
@@ -88,11 +89,13 @@ public class OfferAction extends BaseEntity {
   public void approve() {
     checkArgument(state == OfferActionState.NOT_APPROVED);
     this.state = OfferActionState.APPROVED;
+    touch();
   }
 
   public void cancel() {
     checkArgument(state == OfferActionState.NOT_APPROVED);
     this.state = OfferActionState.CANCELED;
+    touch();
   }
 
   public OfferActionState state() {
@@ -101,5 +104,10 @@ public class OfferAction extends BaseEntity {
 
   public String transactionId() {
     return transactionId;
+  }
+
+  public OfferAction setCreationTime(DateTime time) {
+    this.creationTime = time;
+    return this;
   }
 }
