@@ -60,10 +60,7 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
   @Override
   public void approve(OfferAction action) {
-    log.info("Approving action {}.", action.id());
-    repo.session().createSQLQuery("select approve(:action_id)")
-        .setParameter("action_id", action.id())
-        .uniqueResult();
+    offerActionsHiber.approve(action);
   }
 
   @Override

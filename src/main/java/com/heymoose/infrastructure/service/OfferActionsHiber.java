@@ -99,7 +99,7 @@ public class OfferActionsHiber implements OfferActions {
 
   @Override
   public void approve(OfferAction action) {
-    DateTime start = DateTime.now();
+    log.info("Approving action {}.", action.id());
     checkArgument(action.state() == OfferActionState.NOT_APPROVED);
     List<AccountingEntry> entries = repo.allByHQL(
         AccountingEntry.class,
@@ -126,13 +126,10 @@ public class OfferActionsHiber implements OfferActions {
             AccountingEvent.ACTION_APPROVED,
             action.id()
         );
+        action.stat().approveFee(entry.amount().negate());
       }
     }
     action.approve();
-    log.info("Approve time: {}",
-        Period.fieldDifference(
-            DateTime.now().toLocalTime(),
-            start.toLocalTime()));
   }
 
   @Override
