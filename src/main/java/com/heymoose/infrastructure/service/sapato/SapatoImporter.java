@@ -42,7 +42,7 @@ public class SapatoImporter
   @Override
   public void doImport(List<FixPriceActionData> actionList,
                        Long parentOfferId) {
-    log.info("Starting import for {} actions.", actionList.size());
+    log.info("Starting import for {} action(s).", actionList.size());
     for (FixPriceActionData actionData : actionList) {
       doImport(actionData, parentOfferId);
     }
@@ -59,13 +59,18 @@ public class SapatoImporter
       return;
     }
 
+    if (Strings.isNullOrEmpty(actionData.offerCode())) {
+      log.info("OfferCode is empty, skipping..");
+      return;
+    }
+
     // check whether token was not tracked already
     List<OfferAction> offerActionList = repo.allByHQL(OfferAction.class,
         "from OfferAction where token = ? and transaction_id = ?",
         token, actionData.transactionId());
     for (OfferAction offerAction : offerActionList) {
-      if (offerAction.state() != OfferActionState.NOT_APPROVED
-          || Strings.isNullOrEmpty(actionData.offerCode())) {
+      if (offerAction.state() != OfferActionState.NOT_APPROVED) {
+        log.info("Already imported.");
         continue;
       }
 
@@ -103,8 +108,43 @@ public class SapatoImporter
         for (OfferAction resultAction : actionList) {
           resultAction.setCreationTime(offerAction.creationTime());
           repo.put(resultAction);
+          actions.approve(resultAction);
         }
       }
+
+      if (offerActionList.size() > 0) {
+        log.info("Transaction '{}' was processed.",
+            offerAction.transactionId());
+        return;
+      } else {
+        log.info("Transaction '{}' was not yet processed. Processing..",
+            offerAction.transactionId());
+      }
+
+      BaseOffer subOffer = repo.byHQL(BaseOffer.class,
+          "from SubOffer where " +
+            "(parent_id = ? and code = ?) or " +
+            "(id = ? and code = ? and parent_id = null)",
+          parentOfferId, actionData.offerCode(),
+          parentOfferId, actionData.offerCode());
+
+      if (subOffer == null) {
+        log.info("Offer with code '{}' not found for parent: '{}'",
+            actionData.offerCode(), parentOfferId);
+        return;
+      }
+
+      List<OfferAction> resultActions =
+          tracking.trackConversion(token, actionData.transactionId(),
+          ImmutableMultimap.of(subOffer, Optional.<Double>absent()));
+
+      if (actionData.status() == ActionStatus.CANCELED) {
+        log.info("Cancelling just imported actions");
+        for (OfferAction actionToCancel : resultActions) {
+          actions.cancel(actionToCancel);
+        }
+      }
+
     }
   }
 }
