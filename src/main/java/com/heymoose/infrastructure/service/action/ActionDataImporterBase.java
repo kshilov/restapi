@@ -40,6 +40,7 @@ public abstract class ActionDataImporterBase<T extends ActionData>
   @Transactional
   @Override
   public void doImport(List<T> actionList, Long parentOfferId) {
+    log.info("Starting import for {} actions.", actionList.size());
     for (T action : actionList) {
       doImport(action, parentOfferId);
     }

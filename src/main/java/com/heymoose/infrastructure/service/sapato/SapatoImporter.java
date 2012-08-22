@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.sapato;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionStatus;
@@ -41,6 +42,7 @@ public class SapatoImporter
   @Override
   public void doImport(List<FixPriceActionData> actionList,
                        Long parentOfferId) {
+    log.info("Starting import for {} actions.", actionList.size());
     for (FixPriceActionData actionData : actionList) {
       doImport(actionData, parentOfferId);
     }
@@ -60,7 +62,8 @@ public class SapatoImporter
         "from OfferAction where token = ? and transaction_id = ?",
         token, actionData.transactionId());
     for (OfferAction offerAction : offerActionList) {
-      if (offerAction.state() != OfferActionState.NOT_APPROVED) {
+      if (offerAction.state() != OfferActionState.NOT_APPROVED
+          || Strings.isNullOrEmpty(actionData.offerCode())) {
         continue;
       }
 
