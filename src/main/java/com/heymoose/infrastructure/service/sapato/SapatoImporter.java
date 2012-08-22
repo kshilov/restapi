@@ -60,11 +60,6 @@ public class SapatoImporter
       return;
     }
 
-    if (Strings.isNullOrEmpty(actionData.offerCode())) {
-      log.info("OfferCode is empty, skipping..");
-      return;
-    }
-
     // check whether token was not tracked already
     List<OfferAction> offerActionList = repo.allByHQL(OfferAction.class,
         "from OfferAction where token = ? and transaction_id = ?",
@@ -119,6 +114,11 @@ public class SapatoImporter
     } else {
       log.info("Transaction '{}' was not yet processed. Processing..",
           actionData.transactionId());
+    }
+
+    if (Strings.isNullOrEmpty(actionData.offerCode())) {
+      log.info("OfferCode is empty, skipping..");
+      return;
     }
 
     BaseOffer subOffer = findSubOffer(parentOfferId, actionData.offerCode());
