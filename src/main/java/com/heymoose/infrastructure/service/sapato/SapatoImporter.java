@@ -11,6 +11,8 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -148,11 +150,13 @@ public class SapatoImporter
   }
 
   private BaseOffer findSubOffer(Long parentId, String code) {
-    return repo.byHQL(BaseOffer.class,
-            "from SubOffer where " +
-              "(parent_id = ? and code = ?) or " +
-              "(id = ? and code = ? and parent_id = null)",
-            parentId, code,
+    SubOffer sub = repo.byHQL(SubOffer.class,
+            "from SubOffer where parent_id = ? and code = ?",
             parentId, code);
+    if (sub != null) {
+      return sub;
+    }
+    return repo.byHQL(Offer.class,
+        "from Offer where id = ? and code = ?", parentId, code);
   }
 }
