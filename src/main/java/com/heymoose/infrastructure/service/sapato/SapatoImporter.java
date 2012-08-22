@@ -50,6 +50,8 @@ public class SapatoImporter
 
   @Override
   public void doImport(FixPriceActionData actionData, Long parentOfferId) {
+    log.info("Entering doImport for {}, parentOfferId: {}.",
+        actionData, parentOfferId);
     Token token = repo.byHQL(Token.class,
         "from Token where value = ?", actionData.token());
     if (token == null) {
@@ -79,12 +81,7 @@ public class SapatoImporter
             "offer id: '{}' code: '{}' title: '{}'", new Object[]{
             offerAction.id(), offer.id(), offer.code(), offer.title()});
 
-        List<OfferAction> actionList = tracking.trackConversion(
-            token, actionData.transactionId(),
-            ImmutableMultimap.of(offer, Optional.<Double>absent()));
-        for (OfferAction action : actionList) {
-          action.setLastChangeTime(actionData.lastChangeTime());
-        }
+        actions.approve(offerAction);
       }
 
       if (actionData.status() == ActionStatus.COMPLETE &&

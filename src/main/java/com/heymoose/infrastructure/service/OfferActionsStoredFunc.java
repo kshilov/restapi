@@ -60,14 +60,10 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
   @Override
   public void approve(OfferAction action) {
-    DateTime start = DateTime.now();
+    log.info("Approving action {}.", action.id());
     repo.session().createSQLQuery("select approve(:action_id)")
         .setParameter("action_id", action.id())
         .uniqueResult();
-    log.info("Approve time: {}",
-        Period.fieldDifference(
-            DateTime.now().toLocalTime(),
-            start.toLocalTime()));
   }
 
   @Override
