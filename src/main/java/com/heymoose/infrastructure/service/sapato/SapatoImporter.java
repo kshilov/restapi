@@ -111,47 +111,47 @@ public class SapatoImporter
           actions.approve(resultAction);
         }
       }
-
-      if (offerActionList.size() > 0) {
-        log.info("Transaction '{}' was processed.",
-            offerAction.transactionId());
-        return;
-      } else {
-        log.info("Transaction '{}' was not yet processed. Processing..",
-            offerAction.transactionId());
-      }
-
-      BaseOffer subOffer = repo.byHQL(BaseOffer.class,
-          "from SubOffer where " +
-            "(parent_id = ? and code = ?) or " +
-            "(id = ? and code = ? and parent_id = null)",
-          parentOfferId, actionData.offerCode(),
-          parentOfferId, actionData.offerCode());
-
-      if (subOffer == null) {
-        log.info("Offer with code '{}' not found for parent: '{}'",
-            actionData.offerCode(), parentOfferId);
-        return;
-      }
-
-      List<OfferAction> resultActions =
-          tracking.trackConversion(token, actionData.transactionId(),
-          ImmutableMultimap.of(subOffer, Optional.<Double>absent()));
-
-      if (actionData.status() == ActionStatus.CANCELED) {
-        log.info("Cancelling just imported actions.");
-        for (OfferAction actionToCancel : resultActions) {
-          actions.cancel(actionToCancel);
-        }
-      }
-
-      if (actionData.status() == ActionStatus.COMPLETE) {
-        log.info("Confirming just imported actions.");
-        for (OfferAction actionToApprove : resultActions) {
-          actions.approve(actionToApprove);
-        }
-      }
-
     }
+
+    if (offerActionList.size() > 0) {
+      log.info("Transaction '{}' was processed.",
+          actionData.transactionId());
+      return;
+    } else {
+      log.info("Transaction '{}' was not yet processed. Processing..",
+          actionData.transactionId());
+    }
+
+    BaseOffer subOffer = repo.byHQL(BaseOffer.class,
+        "from SubOffer where " +
+          "(parent_id = ? and code = ?) or " +
+          "(id = ? and code = ? and parent_id = null)",
+        parentOfferId, actionData.offerCode(),
+        parentOfferId, actionData.offerCode());
+
+    if (subOffer == null) {
+      log.info("Offer with code '{}' not found for parent: '{}'",
+          actionData.offerCode(), parentOfferId);
+      return;
+    }
+
+    List<OfferAction> resultActions =
+        tracking.trackConversion(token, actionData.transactionId(),
+        ImmutableMultimap.of(subOffer, Optional.<Double>absent()));
+
+    if (actionData.status() == ActionStatus.CANCELED) {
+      log.info("Cancelling just imported actions.");
+      for (OfferAction actionToCancel : resultActions) {
+        actions.cancel(actionToCancel);
+      }
+    }
+
+    if (actionData.status() == ActionStatus.COMPLETE) {
+      log.info("Confirming just imported actions.");
+      for (OfferAction actionToApprove : resultActions) {
+        actions.approve(actionToApprove);
+      }
+    }
+
   }
 }
