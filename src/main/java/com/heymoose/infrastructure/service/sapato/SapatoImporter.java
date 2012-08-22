@@ -70,7 +70,7 @@ public class SapatoImporter
         token, actionData.transactionId());
     for (OfferAction offerAction : offerActionList) {
       if (offerAction.state() != OfferActionState.NOT_APPROVED) {
-        log.info("Already imported.");
+        log.info("Imported action found: {}.", offerAction.id());
         continue;
       }
 
@@ -139,9 +139,16 @@ public class SapatoImporter
           ImmutableMultimap.of(subOffer, Optional.<Double>absent()));
 
       if (actionData.status() == ActionStatus.CANCELED) {
-        log.info("Cancelling just imported actions");
+        log.info("Cancelling just imported actions.");
         for (OfferAction actionToCancel : resultActions) {
           actions.cancel(actionToCancel);
+        }
+      }
+
+      if (actionData.status() == ActionStatus.COMPLETE) {
+        log.info("Confirming just imported actions.");
+        for (OfferAction actionToApprove : resultActions) {
+          actions.approve(actionToApprove);
         }
       }
 
