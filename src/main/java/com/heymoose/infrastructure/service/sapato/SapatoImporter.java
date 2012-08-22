@@ -11,7 +11,6 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -92,9 +91,7 @@ public class SapatoImporter
       if (actionData.status() == ActionStatus.COMPLETE &&
           !offerAction.offer().code().equals(actionData.offerCode())) {
         BaseOffer prev = offerAction.offer();
-        BaseOffer cur = repo.byHQL(SubOffer.class,
-            "from SubOffer where parent_id = ? and code = ?",
-            parentOfferId, actionData.offerCode());
+        BaseOffer cur = findSubOffer(parentOfferId, actionData.offerCode());
         log.info("Offer changed for action: '{}', " +
             "previous offer: '{}' - '{}' " +
             "current: '{}' - '{}'", new Object[]{
@@ -122,12 +119,7 @@ public class SapatoImporter
           actionData.transactionId());
     }
 
-    BaseOffer subOffer = repo.byHQL(BaseOffer.class,
-        "from SubOffer where " +
-          "(parent_id = ? and code = ?) or " +
-          "(id = ? and code = ? and parent_id = null)",
-        parentOfferId, actionData.offerCode(),
-        parentOfferId, actionData.offerCode());
+    BaseOffer subOffer = findSubOffer(parentOfferId, actionData.offerCode());
 
     if (subOffer == null) {
       log.info("Offer with code '{}' not found for parent: '{}'",
@@ -153,5 +145,14 @@ public class SapatoImporter
       }
     }
 
+  }
+
+  private BaseOffer findSubOffer(Long parentId, String code) {
+    return repo.byHQL(BaseOffer.class,
+            "from SubOffer where " +
+              "(parent_id = ? and code = ?) or " +
+              "(id = ? and code = ? and parent_id = null)",
+            parentId, code,
+            parentId, code);
   }
 }
