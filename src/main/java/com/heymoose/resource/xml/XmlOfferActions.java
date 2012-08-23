@@ -63,6 +63,8 @@ public final class XmlOfferActions {
     public Long id;
     @XmlElement(name = "creation-time")
     public Date creationTime;
+    @XmlElement(name = "last-change-time")
+    public Date lastChangeTime;
     @XmlElement(name = "transaction-id")
     public String transactionId;
     @XmlElement(name = "affiliate")
@@ -79,6 +81,7 @@ public final class XmlOfferActions {
     public XmlOfferAction(Map<String, Object> action) {
       this.id = extractLong(action.get("id"));
       this.creationTime = extractDateTime(action.get("creation_time")).toDate();
+      this.lastChangeTime = extractDateTime(action.get("last_change_time")).toDate();
       Integer stateId = extractInteger(action.get("state"));
       this.state = OfferActionState.values()[stateId].toString();
       this.amount = scaledDecimal(action.get("amount"));

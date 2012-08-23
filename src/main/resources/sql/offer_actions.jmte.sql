@@ -1,6 +1,7 @@
 select
   action.id,
   action.creation_time,
+  action.last_change_time,
   action.state,
   action.transaction_id,
   coalesce(stat.not_confirmed_revenue,  0.00) +
