@@ -7,12 +7,14 @@ import com.heymoose.infrastructure.service.PublicData;
 import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
+import org.joda.time.DateTime;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 
 @Singleton
 @Path("public")
@@ -25,30 +27,37 @@ public class PublicDataResource {
     this.publicData = publicData;
   }
 
+
+  private static Response ok(String responseBody) {
+    return Response.ok(responseBody)
+        .expires(DateTime.now().plusHours(12).toDate())
+        .build();
+  }
+
   @GET
   @Path("affiliate/top-withdraw")
   @Produces("application/xml")
   @Cacheable
-  public String topWithdrawAffiliates(
+  public Response topWithdrawAffiliates(
       @QueryParam("limit") @DefaultValue("5") int limit) {
     QueryResult data = publicData.topWithdrawAffiliates(limit);
-    return new XmlQueryResult(data)
+    return ok(new XmlQueryResult(data)
         .setRoot("result")
         .setElement("affiliate")
-        .toString();
+        .toString());
   }
 
   @GET
   @Path("affiliate/top-conversion")
   @Produces("application/xml")
   @Cacheable
-  public String topConversionAffiliates(
+  public Response topConversionAffiliates(
       @QueryParam("limit") @DefaultValue("5") int limit) {
     QueryResult result = publicData.topConversionAffiliates(limit);
-    return new XmlQueryResult(result)
+    return ok(new XmlQueryResult(result)
         .setRoot("result")
         .setElement("affiliate")
-        .toString();
+        .toString());
   }
 
 
