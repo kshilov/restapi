@@ -16,6 +16,8 @@ public interface OfferActions {
     AMOUNT, OFFER_CODE, OFFER_TITLE
   }
 
+  enum DateKind { CREATION, CHANGE }
+
   Integer approveExpired(Offer offer);
 
   Integer cancelByTransactions(Offer offer, Set<String> transactionIds);
@@ -30,6 +32,7 @@ public interface OfferActions {
   void fix();
 
   Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
+                               DateKind dateKind,
                                ListFilter filter,
                                Ordering ordering, OrderingDirection direction);
 

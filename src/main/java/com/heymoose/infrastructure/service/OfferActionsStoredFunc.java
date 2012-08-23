@@ -80,9 +80,10 @@ public final class OfferActionsStoredFunc implements OfferActions {
 
   @Override
   public Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
+                                      DateKind dateKind,
                                       ListFilter filter,
                                       Ordering ordering,
                                       OrderingDirection direction) {
-    return offerActionsHiber.list(offerId, state, filter, ordering, direction);
+    return offerActionsHiber.list(offerId, state, dateKind, filter, ordering, direction);
   }
 }

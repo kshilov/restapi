@@ -28,7 +28,12 @@ on stat.id = action.stat_id
 
 where
   (offer.id = :offer_id or offer.parent_id = :offer_id)
+${if filterByCreationTime}
   and action.creation_time between :from and :to
+${end}
+${if filterByLastChangeTime}
+  and action.last_change_time between :from and :to
+${end}
 ${if filterByState}
   and action.state = :state
 ${end}

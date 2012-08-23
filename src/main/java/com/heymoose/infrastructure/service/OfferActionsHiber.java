@@ -234,6 +234,7 @@ public class OfferActionsHiber implements OfferActions {
   @Override
   @SuppressWarnings("unchecked")
   public Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
+                                      DateKind dateKind,
                                       ListFilter filter,
                                       Ordering ordering, OrderingDirection direction) {
     ImmutableMap.Builder<String, Object> templateParams =
@@ -242,6 +243,14 @@ public class OfferActionsHiber implements OfferActions {
         .put("direction", direction);
     if (state != null) {
       templateParams.put("filterByState", true);
+    }
+    switch (dateKind) {
+      case CREATION:
+        templateParams.put("filterByCreationTime", true);
+        break;
+      case CHANGE:
+        templateParams.put("filterByLastChangeTime", true);
+        break;
     }
     String sql = SqlLoader.getTemplate("offer_actions", templateParams.build());
     Query query = repo.session().createSQLQuery(sql)
