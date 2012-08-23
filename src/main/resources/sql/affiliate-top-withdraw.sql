@@ -10,6 +10,9 @@ from
 where
   withdraw.account_id = affiliate.affiliate_account_id
   and withdraw.done = true
+  and affiliate.blocked = false
+  and withdraw.timestamp  between now() - interval '2 month'
+                          and now() - interval '1 month'
 
 group by affiliate.id, affiliate.email
 

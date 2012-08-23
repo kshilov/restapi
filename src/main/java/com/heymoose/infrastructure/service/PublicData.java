@@ -25,4 +25,13 @@ public class PublicData {
         .setResultTransformer(QueryResultTransformer.INSTANCE)
         .list();
   }
+
+  @Transactional
+  public QueryResult topConversionAffiliates(int limit) {
+    String sql = SqlLoader.getSql("affiliate-top-conversion");
+    return (QueryResult) repo.session().createSQLQuery(sql)
+        .setMaxResults(limit)
+        .setResultTransformer(QueryResultTransformer.INSTANCE)
+        .list();
+  }
 }

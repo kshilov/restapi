@@ -1,6 +1,9 @@
 package com.heymoose.infrastructure.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.matcher.Matchers;
+import com.heymoose.infrastructure.util.CacheInterceptor;
+import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.BannerResource;
 import com.heymoose.resource.CategoryResource;
@@ -38,5 +41,9 @@ public class ResourceModule extends AbstractModule {
     bind(ErrorInfoResource.class);
     bind(RegionResource.class);
     bind(PublicDataResource.class);
+    bindInterceptor(
+        Matchers.any(),
+        Matchers.annotatedWith(Cacheable.class),
+        new CacheInterceptor());
   }
 }
