@@ -7,6 +7,8 @@ import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.QueryResultTransformer;
 import com.heymoose.infrastructure.util.SqlLoader;
 
+import java.math.BigInteger;
+
 
 public class PublicData {
 
@@ -33,5 +35,12 @@ public class PublicData {
         .setMaxResults(limit)
         .setResultTransformer(QueryResultTransformer.INSTANCE)
         .list();
+  }
+
+  @Transactional
+  public Long countActiveOffers() {
+    String sql = SqlLoader.getSql("active-offer-count");
+    return ((BigInteger) repo.session().createSQLQuery(sql)
+        .uniqueResult()).longValue();
   }
 }

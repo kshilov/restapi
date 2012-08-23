@@ -60,5 +60,13 @@ public class PublicDataResource {
         .toString());
   }
 
+  @GET
+  @Path("offer/count")
+  @Cacheable
+  public Response activeOfferCount() {
+    Long result = publicData.countActiveOffers();
+    return ok(result.toString());
+  }
+
 
 }
