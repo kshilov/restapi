@@ -3,6 +3,7 @@ select
   affiliate.email affiliate_email,
   sum(approved)   approved,
   sum(canceled)   canceled,
+  sum(not_confirmed) not_confirmed,
   case sum(approved + canceled)
     when 0 then 0.0
     else sum(canceled) * 100.0 / sum(approved + canceled)
@@ -12,7 +13,8 @@ from (
   select
     aff_id    affiliate_id,
     count(id) approved,
-    0          canceled
+    0          canceled,
+    0          not_confirmed
 
   from offer_action
 
@@ -27,12 +29,29 @@ from (
   select
     aff_id    affiliate_id,
     0         approved,
-    count(id) canceled
+    count(id) canceled,
+    0          not_confirmed
 
   from offer_action
 
   where
     state = 2 /* CANCELED */
+    and creation_time between :from and :to
+
+  group by aff_id
+
+  union
+
+  select
+    aff_id    affiliate_id,
+    0         approved,
+    0         canceled,
+    count(id) not_confirmed
+
+  from offer_action
+
+  where
+    state = 0 /* CREATED */
     and creation_time between :from and :to
 
   group by aff_id

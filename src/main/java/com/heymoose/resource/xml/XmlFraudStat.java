@@ -27,6 +27,9 @@ public final class XmlFraudStat {
     @XmlElement
     public Long approved;
 
+    @XmlElement(name = "not-confirmed")
+    public Long notConfirmed;
+
     @XmlElement
     public BigDecimal rate;
 
@@ -34,6 +37,7 @@ public final class XmlFraudStat {
       this.affiliate = new XmlAffiliateBasic(map);
       this.approved = SqlLoader.extractLong(map.get("approved"));
       this.canceled = SqlLoader.extractLong(map.get("canceled"));
+      this.notConfirmed = SqlLoader.extractLong(map.get("not_confirmed"));
       this.rate = SqlLoader.scaledDecimal(map.get("rate"));
     }
 

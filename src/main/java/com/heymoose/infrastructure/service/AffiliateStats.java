@@ -22,7 +22,7 @@ public class AffiliateStats {
   }
 
 
-  public enum Ordering { CANCELED, APPROVED, RATE }
+  public enum Ordering { CANCELED, APPROVED, NOT_CONFIRMED, RATE }
 
   @Transactional
   public Pair<QueryResult, Long> fraudStat(boolean activeOnly,
