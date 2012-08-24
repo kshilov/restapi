@@ -127,6 +127,13 @@ where
                   source_id = action.id
                   and event = 7);
 
+/* set correct date for mlm entries */
+update accounting_entry entry
+set creation_time = (select creation_time from accounting_entry
+                     where source_id = entry.source_id
+                     and event = 2 /* action_approved */)
+where event = 7;
+
 /* approve expired */
 drop function approve_expired();
 CREATE FUNCTION approve_expired(mlm_rate numeric) RETURNS SETOF bigint
