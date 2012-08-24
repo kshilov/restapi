@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.name.Named;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -12,6 +13,7 @@ import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.user.AdminAccountAccessor;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import com.heymoose.infrastructure.util.OrderingDirection;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,13 +48,16 @@ public class OfferActionsHiber implements OfferActions {
   private final Accounting accounting;
   private final Repo repo;
   private final AdminAccountAccessor adminAccountAccessor;
+  private final double mlmRatio;
 
   @Inject
   public OfferActionsHiber(Accounting accounting, Repo repo,
-                           AdminAccountAccessor adminAccountAccessor) {
+                           AdminAccountAccessor adminAccountAccessor,
+                           @Named("mlm-ratio") double mlmRatio) {
     this.accounting = accounting;
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
+    this.mlmRatio = mlmRatio;
   }
 
   @Override
@@ -156,6 +162,17 @@ public class OfferActionsHiber implements OfferActions {
         );
         action.stat().cancelMoney(entry.amount().negate());
       } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
+        double adminRatio = 1.0;
+        if (action.affiliate().referrerId() != null) {
+          adminRatio = 1.0 - mlmRatio;
+          accounting.transferMoney(
+              adminAccountAccessor.getAdminAccountNotConfirmed(),
+              repo.get(User.class, action.affiliate().referrerId()).advertiserAccount(),
+              entry.amount().negate().multiply(new BigDecimal(mlmRatio)),
+              AccountingEvent.MLM,
+              action.id()
+          );
+        }
         accounting.transferMoney(
             adminAccountAccessor.getAdminAccountNotConfirmed(),
             action.offer().account(),
