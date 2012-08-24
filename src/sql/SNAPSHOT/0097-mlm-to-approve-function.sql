@@ -131,7 +131,8 @@ where
 update accounting_entry entry
 set creation_time = (select creation_time from accounting_entry
                      where source_id = entry.source_id
-                     and event = 2 /* action_approved */)
+                     and event = 2 /* action_approved */
+                     limit 1)
 where event = 7;
 
 /* approve expired */
