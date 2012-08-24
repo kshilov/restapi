@@ -19,7 +19,11 @@ import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.SiteResource;
 import com.heymoose.resource.UserResource;
+<<<<<<< HEAD
 import com.heymoose.resource.WithdrawalResource;
+=======
+import com.heymoose.resource.UserStatsResource;
+>>>>>>> Fraud stat ready.
 import com.heymoose.resource.api.ApiResource;
 
 public class ResourceModule extends AbstractModule {
@@ -43,6 +47,7 @@ public class ResourceModule extends AbstractModule {
     bind(RegionResource.class);
     bind(PublicDataResource.class);
     bind(WithdrawalResource.class);
+    bind(UserStatsResource.class);
     bindInterceptor(
         Matchers.any(),
         Matchers.annotatedWith(Cacheable.class),
