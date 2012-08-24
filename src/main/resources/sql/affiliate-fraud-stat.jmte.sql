@@ -45,6 +45,6 @@ and affiliate.blocked = false
 ${end}
 
 group by affiliate_id, affiliate_email
-order by ${ordering} ${direction}
+order by ${ordering} ${direction}, canceled desc, approved asc, affiliate_id
 
 offset :offset limit :limit
