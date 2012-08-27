@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.server;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
@@ -78,7 +79,6 @@ public final class YmlImport {
         new CommonModule(),
         new ProductionModule());
 
-//    File file = new File(arguments.ymlPath.get(0));
     String ymlPath = arguments.ymlPath.get(0);
     if (!ymlPath.contains("://")) {
       ymlPath = "file://" + ymlPath;
@@ -86,12 +86,18 @@ public final class YmlImport {
     InputSupplier<InputStream> inputSupplier =
         Resources.newInputStreamSupplier(new URL(ymlPath));
 
+    Map<String, BigDecimal> idPercentMap = ImmutableMap.of();
+
+    if (!Strings.isNullOrEmpty(arguments.csvPath)) {
+      idPercentMap = parseCsv(arguments.csvPath);
+    }
+
     log.info("** Starting import with arguments: {} **", arguments);
     Repo repo = injector.getInstance(Repo.class);
     YmlImporter importer = new PercentPerItemYmlImporter(
         repo,
         arguments.defaultPercent,
-        parseCsv(arguments.csvPath));
+        idPercentMap);
     importer.doImport(inputSupplier, arguments.offerId);
   }
 
