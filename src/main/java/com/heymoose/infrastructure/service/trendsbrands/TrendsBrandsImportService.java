@@ -1,4 +1,4 @@
-package com.heymoose.infrastructure.service.delikateska;
+package com.heymoose.infrastructure.service.trendsbrands;
 
 import com.google.inject.Injector;
 import com.heymoose.domain.action.ItemListActionData;
@@ -7,11 +7,12 @@ import com.heymoose.infrastructure.service.action.ActionDataParser;
 import com.heymoose.infrastructure.service.action.BasicItemListDataImporter;
 import com.heymoose.infrastructure.service.action.HeymooseItemListParser;
 import com.heymoose.infrastructure.service.action.ImportServiceBase;
+import com.heymoose.infrastructure.service.action.ItemListActionDataImporter;
 
-public final class DelikateskaImportService extends
-    ImportServiceBase<ItemListActionData> {
+public final class TrendsBrandsImportService
+    extends ImportServiceBase<ItemListActionData> {
 
-  public DelikateskaImportService(Injector injector) {
+  public TrendsBrandsImportService(Injector injector) {
     super(injector);
   }
 

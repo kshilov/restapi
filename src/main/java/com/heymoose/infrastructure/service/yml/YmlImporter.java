@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service.yml;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.base.Repo;
@@ -52,20 +53,6 @@ public abstract class YmlImporter {
   private static final Logger log = LoggerFactory.getLogger(YmlImporter.class);
 
 
-  protected static String name(
-      com.heymoose.infrastructure.service.yml.Offer offer) {
-    List<Object> l = offer
-        .getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
-    for (Object o : l) {
-      if (o instanceof Name) {
-        return ((Name) o).getvalue();
-      }
-      if (o instanceof Model) {
-        return ((Model) o).getvalue();
-      }
-    }
-    return offer.getDescription();
-  }
 
   private final Repo repo;
 
@@ -123,26 +110,42 @@ public abstract class YmlImporter {
 
 
     for (Offer catalogOffer : catalog.getShop().getOffers().getOffer()) {
-      String productName = name(catalogOffer);
+      String productName = getOfferTitle(catalogOffer);
+      String code = getOfferCode(catalogOffer);
       SubOffer subOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parentId = ? and code = ?",
-          parentOfferId, catalogOffer.getId());
+          parentOfferId, code);
       if (subOffer == null)
         subOffer = new SubOffer();
+
       BigDecimal percent = null;
+      BigDecimal cost = null;
+      CpaPolicy cpaPolicy = getCpaPolicy(catalogOffer, catalog);
+      Preconditions.checkNotNull(cpaPolicy,
+          String.format("cpaPolicy is null for item: %s - %s",
+              code, productName));
       try {
-        percent = getPercent(catalogOffer, catalog);
+        switch (cpaPolicy) {
+          case FIXED:
+            cost = getCost(catalogOffer, catalog);
+            break;
+          case PERCENT:
+            percent = getPercent(catalogOffer, catalog);
+            break;
+        }
       } catch (NoInfoException e) {
-        log.warn("No price info in YML for product: {} - {}. Skipping..",
-            catalogOffer.getId(), productName);
+        log.warn("No pricing info in YML for product: {} - {}. Skipping..",
+            code, productName);
       }
+
       subOffer.setParentId(parentOffer.id())
-          .setCode(catalogOffer.getId())
-          .setCost(new BigDecimal(catalogOffer.getPrice()))
+          .setCode(code)
+          .setItemPrice(new BigDecimal(catalogOffer.getPrice()))
           .setTitle(productName)
-          .setPercent(percent)
           .setPayMethod(PayMethod.CPA)
-          .setCpaPolicy(CpaPolicy.PERCENT)
+          .setCpaPolicy(cpaPolicy)
+          .setPercent(percent)
+          .setCost(cost)
           .setAutoApprove(false)
           .setReentrant(true)
           .setHoldDays(parentOffer.holdDays());
@@ -152,16 +155,44 @@ public abstract class YmlImporter {
       } catch (NoInfoException e) {
         log.warn("No info about exclusiveness for product {} - {}. " +
             "Setting exclusive = false..",
-            catalogOffer.getId(), productName);
+            code, productName);
       }
       subOffer.setExclusive(isExclusive);
       repo.put(subOffer);
       log.info("Sub offer for product: {} - {}. Saved with id: {}",
-          new Object[]{catalogOffer.getId(), subOffer.title(), subOffer.id()});
+          new Object[]{code, subOffer.title(), subOffer.id()});
     }
   }
 
+
+  protected String getOfferCode(Offer catalogOffer) {
+    return catalogOffer.getId();
+  }
+
+  protected String getOfferTitle(Offer offer) {
+    List<Object> l = offer
+        .getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
+    for (Object o : l) {
+      if (o instanceof Name) {
+        return ((Name) o).getvalue();
+      }
+      if (o instanceof Model) {
+        return ((Model) o).getvalue();
+      }
+    }
+    return offer.getDescription();
+  }
+
+  /**
+   * Should return cpa policy for specific item. Can not return null.
+   * @param catalogOffer item description
+   * @param catalog whole catalog
+   * @return cpa policy for item
+   */
+  protected abstract CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog);
   protected abstract BigDecimal getPercent(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException;
+  protected abstract BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
       throws NoInfoException;
   protected abstract boolean isExclusive(Offer catalogOffer, YmlCatalog catalog)
       throws NoInfoException;

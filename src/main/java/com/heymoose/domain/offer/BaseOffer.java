@@ -58,6 +58,9 @@ public abstract class BaseOffer extends BaseEntity {
   @Column(name = "fee", nullable = false)
   protected BigDecimal fee = new BigDecimal(30.0);
 
+  @Column(name = "item_price", nullable = true)
+  protected BigDecimal itemPrice;
+
   @Basic
   protected boolean active = false;
 
@@ -153,6 +156,11 @@ public abstract class BaseOffer extends BaseEntity {
     return this;
   }
 
+  public BaseOffer setItemPrice(BigDecimal itemPrice) {
+    this.itemPrice = itemPrice;
+    return this;
+  }
+
   public FeeType feeType() {
     return this.feeType;
   }
@@ -238,6 +246,10 @@ public abstract class BaseOffer extends BaseEntity {
         .divide(new BigDecimal(100))
         .add(BigDecimal.ONE);
     return percent.divide(divider, 2, BigDecimal.ROUND_UP);
+  }
+
+  public BigDecimal itemPrice() {
+    return this.itemPrice;
   }
 
   public boolean exclusive() {

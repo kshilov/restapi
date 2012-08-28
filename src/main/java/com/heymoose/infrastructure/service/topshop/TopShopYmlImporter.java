@@ -6,7 +6,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Category;
+import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
 import org.slf4j.Logger;
@@ -79,6 +81,12 @@ public class TopShopYmlImporter extends YmlImporter {
   public TopShopYmlImporter(Repo repo) {
     super(repo);
   }
+
+  @Override
+  protected CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog) {
+    return CpaPolicy.PERCENT;
+  }
+
   protected BigDecimal getPercent(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
                                   YmlCatalog catalog) throws NoInfoException {
     if (childToParentCategory == null) {
@@ -92,6 +100,12 @@ public class TopShopYmlImporter extends YmlImporter {
     return CATEGORY_PERCENT_MAP.get(parentCategory);
   }
 
+  @Override
+  protected BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException {
+    return null;
+  }
+
   protected boolean isExclusive(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
                                 YmlCatalog catalog) throws NoInfoException {
     return EXCLUSIVE_CATEGORIES.contains(getParentCategory(catalogOffer));
@@ -101,7 +115,7 @@ public class TopShopYmlImporter extends YmlImporter {
       throws NoInfoException {
     String productCategoryString = catalogOffer.getCategoryId().get(0)
         .getvalue();
-    String productName = name(catalogOffer);
+    String productName = getOfferTitle(catalogOffer);
     if (Strings.isNullOrEmpty(productCategoryString)) {
       log.warn("Category does not present for product {} - {}. Skipping.",
           catalogOffer.getId(), productName);
