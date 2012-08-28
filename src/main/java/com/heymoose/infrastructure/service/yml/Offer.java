@@ -8,8 +8,6 @@
 
 package com.heymoose.infrastructure.service.yml;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -20,6 +18,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.NormalizedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -60,6 +60,9 @@ public class Offer {
     @XmlAttribute
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String id;
+    @XmlAttribute(name = "group_id")
+    @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+    protected String groupId;
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     protected String type;
@@ -166,6 +169,10 @@ public class Offer {
      */
     public String getId() {
         return id;
+    }
+
+    public String getGroupId() {
+        return groupId;
     }
 
     /**

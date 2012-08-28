@@ -15,6 +15,8 @@ import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.action.PercentPerItemYmlImporter;
+import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
+import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlImporter;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,10 @@ import java.util.Map;
 public final class YmlImport {
   private final static class Args {
 
+    private enum Importer {
+      TOPSHOP, TRENDSBRANDS
+    }
+
     @Parameter(description = ".yml file for importing.", required = true)
     private List<String> ymlPath;
 
@@ -44,6 +50,9 @@ public final class YmlImport {
     @Parameter(names = "-percent",
         description = "default percent for non-exclusive items.")
     private BigDecimal defaultPercent;
+
+    @Parameter(names = "-importer", description =  "custom importer.")
+    private Importer importer;
 
     @Parameter(names = "--help", help = true, hidden = true)
     private boolean help;
@@ -86,18 +95,25 @@ public final class YmlImport {
     InputSupplier<InputStream> inputSupplier =
         Resources.newInputStreamSupplier(new URL(ymlPath));
 
-    Map<String, BigDecimal> idPercentMap = ImmutableMap.of();
-
-    if (!Strings.isNullOrEmpty(arguments.csvPath)) {
-      idPercentMap = parseCsv(arguments.csvPath);
-    }
-
-    log.info("** Starting import with arguments: {} **", arguments);
     Repo repo = injector.getInstance(Repo.class);
-    YmlImporter importer = new PercentPerItemYmlImporter(
-        repo,
-        arguments.defaultPercent,
-        idPercentMap);
+    YmlImporter importer = null;
+    if (arguments.importer == null) {
+      importer = idPercentImporter(repo, arguments);
+    }
+    switch (arguments.importer) {
+      case TOPSHOP:
+        importer = new TopShopYmlImporter(repo);
+        break;
+      case TRENDSBRANDS:
+        importer = new TrendsBrandsYmlImporter(repo);
+        break;
+    }
+    if (importer == null) {
+      log.error("Importer not found. Arguments: {}", arguments);
+      return;
+    }
+    log.info("Importer chosen: {}", importer.getClass().getSimpleName());
+    log.info("** Starting import with arguments: {} **", arguments);
     importer.doImport(inputSupplier, arguments.offerId);
   }
 
@@ -113,5 +129,19 @@ public final class YmlImport {
       throw new RuntimeException(e);
     }
     return idPercentMap.build();
+  }
+
+  private static YmlImporter idPercentImporter(Repo repo,
+                                               Args arguments) {
+    Map<String, BigDecimal> idPercentMap = ImmutableMap.of();
+
+    if (!Strings.isNullOrEmpty(arguments.csvPath)) {
+      idPercentMap = parseCsv(arguments.csvPath);
+    }
+
+    return new PercentPerItemYmlImporter(
+        repo,
+        arguments.defaultPercent,
+        idPercentMap);
   }
 }

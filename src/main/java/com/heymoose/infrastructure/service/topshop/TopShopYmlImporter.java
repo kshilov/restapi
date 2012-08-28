@@ -115,7 +115,7 @@ public class TopShopYmlImporter extends YmlImporter {
       throws NoInfoException {
     String productCategoryString = catalogOffer.getCategoryId().get(0)
         .getvalue();
-    String productName = name(catalogOffer);
+    String productName = getOfferTitle(catalogOffer);
     if (Strings.isNullOrEmpty(productCategoryString)) {
       log.warn("Category does not present for product {} - {}. Skipping.",
           catalogOffer.getId(), productName);
