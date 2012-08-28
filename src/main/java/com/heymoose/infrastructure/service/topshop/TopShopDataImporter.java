@@ -19,6 +19,6 @@ public class TopShopDataImporter extends ItemListActionDataImporter {
   }
 
   protected BigDecimal namePrice(ItemListActionData.Item item, BaseOffer offer) {
-    return offer.cost();
+    return offer.itemPrice();
   }
 }

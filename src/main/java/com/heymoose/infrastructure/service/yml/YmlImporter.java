@@ -138,7 +138,7 @@ public abstract class YmlImporter {
       }
       subOffer.setParentId(parentOffer.id())
           .setCode(catalogOffer.getId())
-          .setCost(new BigDecimal(catalogOffer.getPrice()))
+          .setItemPrice(new BigDecimal(catalogOffer.getPrice()))
           .setTitle(productName)
           .setPercent(percent)
           .setPayMethod(PayMethod.CPA)
@@ -161,7 +161,10 @@ public abstract class YmlImporter {
     }
   }
 
+  protected abstract CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog);
   protected abstract BigDecimal getPercent(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException;
+  protected abstract BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
       throws NoInfoException;
   protected abstract boolean isExclusive(Offer catalogOffer, YmlCatalog catalog)
       throws NoInfoException;

@@ -93,7 +93,7 @@ public final class TopShopImportTest extends RestTest {
       productSubOffer = new SubOffer();
       productSubOffer.setParentId(parentOffer.id())
           .setCode(itemCode.toString())
-          .setCost(new BigDecimal(price))
+          .setItemPrice(new BigDecimal(price))
           .setTitle("ProductName")
           .setPercent(new BigDecimal(PERCENT))
           .setPayMethod(PayMethod.CPA)
