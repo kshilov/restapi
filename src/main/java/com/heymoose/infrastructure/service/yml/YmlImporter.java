@@ -129,20 +129,32 @@ public abstract class YmlImporter {
           parentOfferId, catalogOffer.getId());
       if (subOffer == null)
         subOffer = new SubOffer();
+
       BigDecimal percent = null;
+      BigDecimal cost = null;
+      CpaPolicy cpaPolicy = getCpaPolicy(catalogOffer, catalog);
       try {
-        percent = getPercent(catalogOffer, catalog);
+        switch (cpaPolicy) {
+          case FIXED:
+            cost = getCost(catalogOffer, catalog);
+            break;
+          case PERCENT:
+            percent = getPercent(catalogOffer, catalog);
+            break;
+        }
       } catch (NoInfoException e) {
-        log.warn("No price info in YML for product: {} - {}. Skipping..",
+        log.warn("No pricing info in YML for product: {} - {}. Skipping..",
             catalogOffer.getId(), productName);
       }
+
       subOffer.setParentId(parentOffer.id())
           .setCode(catalogOffer.getId())
           .setItemPrice(new BigDecimal(catalogOffer.getPrice()))
           .setTitle(productName)
-          .setPercent(percent)
           .setPayMethod(PayMethod.CPA)
-          .setCpaPolicy(CpaPolicy.PERCENT)
+          .setCpaPolicy(cpaPolicy)
+          .setPercent(percent)
+          .setCost(cost)
           .setAutoApprove(false)
           .setReentrant(true)
           .setHoldDays(parentOffer.holdDays());

@@ -6,7 +6,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Category;
+import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
 import org.slf4j.Logger;
@@ -79,6 +81,12 @@ public class TopShopYmlImporter extends YmlImporter {
   public TopShopYmlImporter(Repo repo) {
     super(repo);
   }
+
+  @Override
+  protected CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog) {
+    return CpaPolicy.PERCENT;
+  }
+
   protected BigDecimal getPercent(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
                                   YmlCatalog catalog) throws NoInfoException {
     if (childToParentCategory == null) {
@@ -90,6 +98,12 @@ public class TopShopYmlImporter extends YmlImporter {
       throw new NoInfoException("Category unknown" + parentCategory);
     }
     return CATEGORY_PERCENT_MAP.get(parentCategory);
+  }
+
+  @Override
+  protected BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException {
+    return null;
   }
 
   protected boolean isExclusive(com.heymoose.infrastructure.service.yml.Offer catalogOffer,

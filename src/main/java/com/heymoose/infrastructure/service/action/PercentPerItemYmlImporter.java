@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service.action;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
@@ -27,11 +28,22 @@ public class PercentPerItemYmlImporter extends YmlImporter {
   }
 
   @Override
+  protected CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog) {
+    return CpaPolicy.PERCENT;
+  }
+
+  @Override
   protected BigDecimal getPercent(Offer catalogOffer, YmlCatalog catalog) {
     String offerId = catalogOffer.getId();
     if (idPercentMap.containsKey(offerId))
       return idPercentMap.get(offerId);
     return defaultPercent;
+  }
+
+  @Override
+  protected BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
+      throws NoInfoException {
+    return null;
   }
 
   @Override
