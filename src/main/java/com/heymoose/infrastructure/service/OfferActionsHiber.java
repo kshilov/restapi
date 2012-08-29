@@ -171,8 +171,8 @@ public class OfferActionsHiber implements OfferActions {
   public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
     Preconditions.checkNotNull(offer);
     List<OfferAction> actionList = (List<OfferAction>) repo.session().createQuery(
-        "from OfferAction where offer.id = :offer_id and id in (:id_list)")
-        .setParameter("offer_id", offer.id())
+        "from OfferAction where offer.id in (:sub_list) and id in (:id_list)")
+        .setParameter("sub_list", offer.subofferIds())
         .setParameterList("id_list", idCollection)
         .list();
     for (OfferAction action : actionList) {
