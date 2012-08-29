@@ -4,6 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
@@ -15,6 +16,7 @@ import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.action.PercentPerItemYmlImporter;
+import com.heymoose.infrastructure.service.carolines.CarolinesYmlImporter;
 import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
 import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlImporter;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
@@ -34,7 +36,7 @@ public final class YmlImport {
   private final static class Args {
 
     private enum Importer {
-      TOPSHOP, TRENDSBRANDS
+      TOPSHOP, TRENDSBRANDS, CAROLINES
     }
 
     @Parameter(description = ".yml file for importing.", required = true)
@@ -106,6 +108,14 @@ public final class YmlImport {
         break;
       case TRENDSBRANDS:
         importer = new TrendsBrandsYmlImporter(repo);
+        break;
+      case CAROLINES:
+        List<String> exclusive = ImmutableList.of();
+        if (!Strings.isNullOrEmpty(arguments.csvPath)) {
+          File csv = new File(arguments.csvPath);
+          exclusive = Files.readLines(csv, UTF);
+        }
+        importer = new CarolinesYmlImporter(repo, exclusive);
         break;
     }
     if (importer == null) {
