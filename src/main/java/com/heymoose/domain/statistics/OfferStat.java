@@ -1,14 +1,12 @@
 package com.heymoose.domain.statistics;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.User;
 import com.heymoose.domain.base.BaseEntity;
+import com.heymoose.domain.offer.Banner;
+import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.user.User;
 
-import java.math.BigDecimal;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +18,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.math.BigDecimal;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Entity
 @Table(name = "offer_stat")
@@ -43,7 +44,7 @@ public class OfferStat extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "offer_id", insertable = false, updatable = false)
-  private Offer offer;
+  private BaseOffer offer;
 
   @Column(name = "offer_id")
   private Long offerId;
@@ -148,7 +149,7 @@ public class OfferStat extends BaseEntity {
     return bannerId;
   }
 
-  public Offer offer() {
+  public BaseOffer offer() {
     return offer;
   }
 
