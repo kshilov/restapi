@@ -1,7 +1,7 @@
 select
   id,
   email,
-  ((leads_count + sales_count) * 100.0 / clicks_count) conversion_rate
+  round(((leads_count + sales_count) * 100.0 / clicks_count), 2) conversion_rate
 from (
   select
     affiliate.id    id,
