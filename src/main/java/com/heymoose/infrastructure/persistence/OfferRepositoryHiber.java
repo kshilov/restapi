@@ -112,6 +112,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
     addEqRestrictionIfNotNull(criteria, "approved", filter.approved());
     addEqRestrictionIfNotNull(criteria, "active", filter.active());
     addEqRestrictionIfNotNull(criteria, "showcase", filter.showcase());
+    addEqRestrictionIfNotNull(criteria, "exclusive", filter.exclusive());
 
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));

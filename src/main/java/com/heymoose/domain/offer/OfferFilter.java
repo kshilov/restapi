@@ -10,6 +10,7 @@ public final class OfferFilter {
   private Boolean active;
   private Boolean launched;
   private Boolean showcase;
+  private Boolean exclusive;
   private List<String> regionList;
   private List<Long> categoryIdList;
   private PayMethod payMethod;
@@ -46,6 +47,11 @@ public final class OfferFilter {
 
   public OfferFilter setShowcase(Boolean showcase) {
     this.showcase = showcase;
+    return this;
+  }
+
+  public OfferFilter setExclusive(Boolean exclusiveOnly) {
+    this.exclusive = exclusiveOnly;
     return this;
   }
 
@@ -107,5 +113,9 @@ public final class OfferFilter {
 
   public CpaPolicy cpaPolicy() {
     return this.cpaPolicy;
+  }
+
+  public Boolean exclusive() {
+    return this.exclusive;
   }
 }

@@ -87,6 +87,7 @@ public class OfferResource {
                         @QueryParam("active") Boolean active,
                         @QueryParam("launched") Boolean launched,
                         @QueryParam("showcase") Boolean showcase,
+                        @QueryParam("exclusive") Boolean exclusiveOnly,
                         @QueryParam("advertiser_id") Long advertiserId,
                         @QueryParam("aff_id") Long affiliateId,
                         @QueryParam("pay_method") String payMethod,
@@ -100,6 +101,7 @@ public class OfferResource {
         .setApproved(approved)
         .setLaunched(launched)
         .setShowcase(showcase)
+        .setExclusive(exclusiveOnly)
         .setRegionList(regionList)
         .setCategoryList(categoryList);
 
