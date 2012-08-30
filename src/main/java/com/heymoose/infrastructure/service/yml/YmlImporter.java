@@ -1,6 +1,8 @@
 package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.base.Repo;
@@ -20,6 +22,7 @@ import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base class, that is responsible for importing yml data, by saving each
@@ -53,6 +56,41 @@ public abstract class YmlImporter {
   private static final Logger log = LoggerFactory.getLogger(YmlImporter.class);
 
 
+  protected static Map<Class<?>, String> extractOptionalFields(
+      Offer offer, Class<?>... clzList) {
+    Map<Class<?>, String> map = Maps.newHashMapWithExpectedSize(clzList.length);
+    for (Class<?> clz : clzList) {
+      map.put(clz, "");
+    }
+    List<Object> fieldList = offer.getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
+    try {
+      for (Object field : fieldList) {
+        for (Class<?> clz : clzList) {
+          if (clz.isInstance(field)) {
+            map.put(clz, clz.getMethod("getvalue").invoke(field).toString());
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    return map;
+  }
+
+  protected static String extractOptionalField(Offer offer, Class<?> clz) {
+    return extractOptionalFields(offer, clz).get(clz);
+  }
+
+  protected static String titleFor(Offer offer, Class<?>... clzList) {
+    Map<Class<?>, String> map = extractOptionalFields(offer, clzList);
+    StringBuilder builder = new StringBuilder();
+    for (Class<?> clz : clzList) {
+      builder.append(map.get(clz));
+      builder.append(' ');
+    }
+    builder.setLength(builder.length() - 1);
+    return builder.toString();
+  }
 
   private final Repo repo;
 
@@ -170,16 +208,14 @@ public abstract class YmlImporter {
   }
 
   protected String getOfferTitle(Offer offer) {
-    List<Object> l = offer
-        .getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
-    for (Object o : l) {
-      if (o instanceof Name) {
-        return ((Name) o).getvalue();
-      }
-      if (o instanceof Model) {
-        return ((Model) o).getvalue();
-      }
-    }
+    Map<Class<?>, String> fields = extractOptionalFields(offer,
+        Name.class, Model.class);
+    String name = fields.get(Name.class);
+    String model = fields.get(Model.class);
+    if (!Strings.isNullOrEmpty(name))
+      return name;
+    if (!Strings.isNullOrEmpty(model))
+      return model;
     return offer.getDescription();
   }
 

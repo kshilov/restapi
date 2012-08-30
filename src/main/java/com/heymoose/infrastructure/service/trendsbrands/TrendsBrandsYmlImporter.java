@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service.trendsbrands;
 
-import com.google.common.base.Strings;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Model;
@@ -11,7 +10,6 @@ import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public final class TrendsBrandsYmlImporter extends YmlImporter {
 
@@ -58,27 +56,6 @@ public final class TrendsBrandsYmlImporter extends YmlImporter {
 
   @Override
   protected String getOfferTitle(Offer offer) {
-    List<Object> bunchOfStuff = offer.getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
-    String typePrefix = "";
-    String vendor = "";
-    String model = "";
-    for (Object element : bunchOfStuff) {
-      if (element instanceof TypePrefix) {
-        typePrefix = ((TypePrefix) element).getvalue();
-      }
-      if (element instanceof Vendor) {
-        vendor = ((Vendor) element).getvalue();
-      }
-      if (element instanceof Model) {
-        model = ((Model) element).getvalue();
-      }
-    }
-    return new StringBuilder()
-        .append(typePrefix)
-        .append(' ')
-        .append(vendor)
-        .append(' ')
-        .append(model)
-        .toString();
+    return titleFor(offer, TypePrefix.class, Vendor.class, Model.class);
   }
 }

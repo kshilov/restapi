@@ -17,7 +17,7 @@ import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.action.PercentPerItemYmlImporter;
 import com.heymoose.infrastructure.service.carolines.CarolinesYmlImporter;
-import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
+import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlImporter;import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
 import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlImporter;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public final class YmlImport {
   private final static class Args {
 
     private enum Importer {
-      DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES
+      DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES, SHOESBAGS
     }
 
     @Parameter(description = ".yml file for importing.", required = true)
@@ -116,6 +116,9 @@ public final class YmlImport {
           exclusive = Files.readLines(csv, UTF);
         }
         importer = new CarolinesYmlImporter(repo, exclusive);
+        break;
+      case SHOESBAGS:
+        importer = new ShoesBagsYmlImporter(repo);
         break;
     }
     if (importer == null) {
