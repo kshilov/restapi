@@ -36,7 +36,7 @@ public final class YmlImport {
   private final static class Args {
 
     private enum Importer {
-      TOPSHOP, TRENDSBRANDS, CAROLINES
+      DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES
     }
 
     @Parameter(description = ".yml file for importing.", required = true)
@@ -54,7 +54,7 @@ public final class YmlImport {
     private BigDecimal defaultPercent;
 
     @Parameter(names = "-importer", description =  "custom importer.")
-    private Importer importer;
+    private Importer importer = Importer.DEFAULT;
 
     @Parameter(names = "--help", help = true, hidden = true)
     private boolean help;
@@ -99,10 +99,10 @@ public final class YmlImport {
 
     Repo repo = injector.getInstance(Repo.class);
     YmlImporter importer = null;
-    if (arguments.importer == null) {
-      importer = idPercentImporter(repo, arguments);
-    }
     switch (arguments.importer) {
+      case DEFAULT:
+        importer = idPercentImporter(repo, arguments);
+        break;
       case TOPSHOP:
         importer = new TopShopYmlImporter(repo);
         break;
