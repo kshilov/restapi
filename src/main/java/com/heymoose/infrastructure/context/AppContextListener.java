@@ -12,6 +12,7 @@ import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.action.ImportService;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaImportService;
 import com.heymoose.infrastructure.service.sapato.SapatoImportService;
+import com.heymoose.infrastructure.service.shoesbags.ShoesBagsImportService;
 import com.heymoose.infrastructure.service.topshop.TopShopImportService;
 import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsImportService;
 import org.slf4j.Logger;
@@ -61,6 +62,9 @@ public class AppContextListener extends GuiceServletContextListener {
 
     startImportService("trendsbrands", properties,
         new TrendsBrandsImportService(injector));
+
+    startImportService("shoesbags", properties,
+        new ShoesBagsImportService(injector));
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
