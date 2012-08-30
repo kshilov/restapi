@@ -8,9 +8,7 @@ import com.heymoose.domain.errorinfo.ErrorInfo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
-import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
@@ -345,7 +343,8 @@ public class Mappers {
   public static XmlCategory toXmlCategory(Category category) {
     XmlCategory xmlCategory = new XmlCategory();
     xmlCategory.id = category.id();
-    xmlCategory.grouping = category.group().name();
+    xmlCategory.grouping.name = category.group().name();
+    xmlCategory.grouping.id = category.group().id();
     xmlCategory.name = category.name();
     return xmlCategory;
   }
