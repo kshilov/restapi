@@ -30,6 +30,7 @@ import java.util.List;
     "url",
     "buyurl",
     "price",
+    "basePrice",
     "wprice",
     "currencyId",
     "xCategory",
@@ -79,6 +80,8 @@ public class Offer {
     protected String buyurl;
     @XmlElement(required = true)
     protected String price;
+    @XmlElement(name = "baseprice", required = false)
+    protected String basePrice;
     protected String wprice;
     @XmlElement(required = true)
     protected String currencyId;
@@ -341,6 +344,10 @@ public class Offer {
      */
     public String getPrice() {
         return price;
+    }
+
+    public String getBasePrice() {
+      return basePrice;
     }
 
     /**
