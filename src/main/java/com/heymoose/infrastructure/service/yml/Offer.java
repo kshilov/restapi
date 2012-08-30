@@ -30,6 +30,7 @@ import java.util.List;
     "url",
     "buyurl",
     "price",
+    "basePrice",
     "wprice",
     "currencyId",
     "xCategory",
@@ -60,8 +61,6 @@ public class Offer {
     @XmlAttribute
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String id;
-    @XmlElement(name = "baseprice")
-    protected String basePrice;
     @XmlAttribute(name = "group_id")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String groupId;
@@ -81,6 +80,8 @@ public class Offer {
     protected String buyurl;
     @XmlElement(required = true)
     protected String price;
+    @XmlElement(name = "baseprice", required = false)
+    protected String basePrice;
     protected String wprice;
     @XmlElement(required = true)
     protected String currencyId;
