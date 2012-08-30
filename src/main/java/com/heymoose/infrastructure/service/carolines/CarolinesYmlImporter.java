@@ -2,7 +2,9 @@ package com.heymoose.infrastructure.service.carolines;
 
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.infrastructure.service.yml.Model;
 import com.heymoose.infrastructure.service.yml.Offer;
+import com.heymoose.infrastructure.service.yml.Vendor;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlImporter;
 
@@ -45,5 +47,25 @@ public final class CarolinesYmlImporter extends YmlImporter {
   protected boolean isExclusive(Offer catalogOffer, YmlCatalog catalog)
       throws NoInfoException {
     return exclusiveList.contains(catalogOffer.getId());
+  }
+
+  @Override
+  protected String getOfferTitle(Offer offer) {
+    List<Object> bunchOfStuff = offer.getTypePrefixOrVendorOrVendorCodeOrModelOrProviderOrTarifplanOrAuthorOrNameOrPublisherOrSeriesOrYearOrISBNOrVolumeOrPartOrLanguageOrBindingOrPageExtentOrTableOfContentsOrPerformedByOrPerformanceTypeOrStorageOrFormatOrRecordingLengthOrArtistOrTitleOrMediaOrStarringOrDirectorOrOriginalNameOrCountryOrWorldRegionOrRegionOrDaysOrDataTourOrHotelStarsOrRoomOrMealOrIncludedOrTransportOrPriceMinOrPriceMaxOrOptionsOrPlaceOrHallOrHallPartOrDateOrIsPremiereOrIsKids();
+    String vendor = "";
+    String model = "";
+    for (Object element : bunchOfStuff) {
+      if (element instanceof Vendor) {
+        vendor = ((Vendor) element).getvalue();
+      }
+      if (element instanceof Model) {
+        model = ((Model) element).getvalue();
+      }
+    }
+    return new StringBuilder()
+        .append(vendor)
+        .append(' ')
+        .append(model)
+        .toString();
   }
 }
