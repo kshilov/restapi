@@ -55,6 +55,7 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
 
 
   @Override
+  @SuppressWarnings("unchecked")
   public Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                           long affiliateId, Boolean active) {
     Criteria criteria = hiber()
