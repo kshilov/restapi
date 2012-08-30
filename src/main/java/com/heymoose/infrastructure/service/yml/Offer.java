@@ -60,6 +60,8 @@ public class Offer {
     @XmlAttribute
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String id;
+    @XmlElement(name = "baseprice")
+    protected String basePrice;
     @XmlAttribute(name = "group_id")
     @XmlJavaTypeAdapter(NormalizedStringAdapter.class)
     protected String groupId;
@@ -341,6 +343,10 @@ public class Offer {
      */
     public String getPrice() {
         return price;
+    }
+
+    public String getBasePrice() {
+      return basePrice;
     }
 
     /**

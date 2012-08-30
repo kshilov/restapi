@@ -46,7 +46,8 @@ public final class TrendsBrandsYmlImporter extends YmlImporter {
   protected boolean isExclusive(Offer catalogOffer, YmlCatalog catalog)
       throws NoInfoException {
     BigDecimal price = new BigDecimal(catalogOffer.getPrice());
-    return price.compareTo(EXCLUSIVE_LIMIT) > 0;
+    BigDecimal basePrice = new BigDecimal(catalogOffer.getBasePrice());
+    return basePrice.compareTo(EXCLUSIVE_LIMIT) > 0 && basePrice.equals(price);
   }
 
   @Override
