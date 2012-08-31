@@ -10,6 +10,7 @@ import com.heymoose.domain.action.ActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.action.ImportService;
+import com.heymoose.infrastructure.service.carolines.CarolinesImportService;
 import com.heymoose.infrastructure.service.delikateska.DelikateskaImportService;
 import com.heymoose.infrastructure.service.sapato.SapatoImportService;
 import com.heymoose.infrastructure.service.shoesbags.ShoesBagsImportService;
@@ -65,6 +66,9 @@ public class AppContextListener extends GuiceServletContextListener {
 
     startImportService("shoesbags", properties,
         new ShoesBagsImportService(injector));
+
+    startImportService("carolines", properties,
+        new CarolinesImportService(injector));
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
