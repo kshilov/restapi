@@ -30,6 +30,11 @@ public abstract class ItemListActionDataImporter
   protected final Multimap<BaseOffer, Optional<Double>> extractOffers(
       ItemListActionData payment, Long parentOfferId) {
 
+    if (payment.itemList().isEmpty()) {
+      log.warn("Action with no items! TransactionId: {}",
+          payment.transactionId());
+    }
+
     ImmutableMultimap.Builder<BaseOffer, Optional<Double>> offerMap =
         ImmutableMultimap.builder();
     for (ItemListActionData.Item item : payment.itemList()) {

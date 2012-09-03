@@ -56,7 +56,7 @@ public final class HeymooseItemListParser
     public BigDecimal price;
 
     @XmlElement
-    public int quantity = 1;
+    public BigDecimal quantity = BigDecimal.ONE;
   }
 
   private static final Logger log =
@@ -80,7 +80,7 @@ public final class HeymooseItemListParser
             .setTransactionId(xmlAction.transaction)
             .setStatus(ActionStatus.values()[xmlAction.status]);
         for (XmlItem xmlItem : xmlAction.itemList) {
-          data.addItem(xmlItem.id, xmlItem.price, xmlItem.quantity);
+          data.addItem(xmlItem.id, xmlItem.price, xmlItem.quantity.intValue());
         }
         dataBuilder.add(data);
       }
