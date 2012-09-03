@@ -88,6 +88,8 @@ public class OfferActionResource {
   public XmlOfferActions actionList(
       @QueryParam("offer_id") Long offerId,
       @QueryParam("state") OfferActionState state,
+      @QueryParam("date_kind") @DefaultValue("CREATION")
+      OfferActions.DateKind dateKind,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") int offset,
@@ -101,7 +103,7 @@ public class OfferActionResource {
         .setLimit(limit)
         .setOffset(offset);
     Pair<QueryResult, Long> result =
-        actions.list(offerId, state, filter, ordering, direction);
+        actions.list(offerId, state, dateKind, filter, ordering, direction);
     return new XmlOfferActions(result.fst, result.snd);
 
   }
