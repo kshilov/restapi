@@ -9,14 +9,11 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
+import com.heymoose.infrastructure.service.action.BasicItemListImportService;
 import com.heymoose.infrastructure.service.action.ImportService;
 import com.heymoose.infrastructure.service.carolines.CarolinesImportService;
-import com.heymoose.infrastructure.service.delikateska.DelikateskaImportService;
-import com.heymoose.infrastructure.service.mebelrama.MebelramaImportService;
 import com.heymoose.infrastructure.service.sapato.SapatoImportService;
-import com.heymoose.infrastructure.service.shoesbags.ShoesBagsImportService;
 import com.heymoose.infrastructure.service.topshop.TopShopImportService;
-import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsImportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -57,22 +54,22 @@ public class AppContextListener extends GuiceServletContextListener {
     startImportService("topshop", properties, new TopShopImportService(injector));
 
     startImportService("delikateska", properties,
-        new DelikateskaImportService(injector));
+        new BasicItemListImportService(injector));
 
     startImportService("sapato", properties,
         new SapatoImportService(injector));
 
     startImportService("trendsbrands", properties,
-        new TrendsBrandsImportService(injector));
+        new BasicItemListImportService(injector));
 
     startImportService("shoesbags", properties,
-        new ShoesBagsImportService(injector));
+        new BasicItemListImportService(injector));
 
     startImportService("carolines", properties,
         new CarolinesImportService(injector));
 
     startImportService("mebelrama", properties,
-        new MebelramaImportService(injector));
+        new BasicItemListImportService(injector));
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
