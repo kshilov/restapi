@@ -17,6 +17,7 @@ import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.action.PercentPerItemYmlWrapper;
 import com.heymoose.infrastructure.service.action.YmlImporter;
+import com.heymoose.infrastructure.service.action.YmlToExcel;
 import com.heymoose.infrastructure.service.carolines.CarolinesYmlWrapper;
 import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlWrapper;
 import com.heymoose.infrastructure.service.topshop.TopShopYmlWrapper;
@@ -137,6 +138,10 @@ public final class YmlImport {
     log.info("** Starting import with arguments: {} **", arguments);
     YmlImporter importer = new YmlImporter(repo);
     importer.doImport(wrapper, arguments.offerId);
+    log.info("Starting export to XLS.");
+    YmlToExcel exporter = new YmlToExcel();
+    exporter.doExport(
+        wrapper, Files.newOutputStreamSupplier(new File("yml.xls")));
   }
 
   private static Map<String, BigDecimal> parseCsv(String csvPath) {
