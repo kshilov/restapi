@@ -71,6 +71,9 @@ public class AppContextListener extends GuiceServletContextListener {
     startImportService("mebelrama", properties,
         new BasicItemListImportService(injector));
 
+    startImportService("domosti", properties,
+        new BasicItemListImportService(injector));
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
           public void run() {
