@@ -4,13 +4,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Category;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
-import com.heymoose.infrastructure.service.yml.YmlImporter;
+import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class TopShopYmlImporter extends YmlImporter {
+public final class TopShopYmlWrapper extends YmlCatalogWrapperBase {
 
   private static final Logger log = LoggerFactory
-      .getLogger(TopShopYmlImporter.class);
+      .getLogger(TopShopYmlWrapper.class);
 
   private static final BigDecimal TWO = new BigDecimal(2);
   private static final BigDecimal SIX = new BigDecimal(6);
@@ -75,23 +73,22 @@ public class TopShopYmlImporter extends YmlImporter {
   }
 
 
-  private Map<Integer, Integer> childToParentCategory;
+  private final Map<Integer, Integer> childToParentCategory;
 
-  @Inject
-  public TopShopYmlImporter(Repo repo) {
-    super(repo);
+  public TopShopYmlWrapper(YmlCatalog catalog) {
+    super(catalog);
+    this.childToParentCategory = mapChildToParent(catalog);
   }
 
+
+
   @Override
-  protected CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog) {
+  public CpaPolicy getCpaPolicy(Offer catalogOffer) {
     return CpaPolicy.PERCENT;
   }
 
-  protected BigDecimal getPercent(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
-                                  YmlCatalog catalog) throws NoInfoException {
-    if (childToParentCategory == null) {
-      childToParentCategory = mapChildToParent(catalog);
-    }
+  @Override
+  public BigDecimal getPercent(Offer catalogOffer) throws NoInfoException {
     Integer parentCategory = getParentCategory(catalogOffer);
     if (!CATEGORY_PERCENT_MAP.containsKey(parentCategory)) {
       log.warn("Category {} is not mapped. Skipping.", parentCategory);
@@ -101,17 +98,11 @@ public class TopShopYmlImporter extends YmlImporter {
   }
 
   @Override
-  protected BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
-      throws NoInfoException {
-    return null;
-  }
-
-  protected boolean isExclusive(com.heymoose.infrastructure.service.yml.Offer catalogOffer,
-                                YmlCatalog catalog) throws NoInfoException {
+  public boolean isExclusive(Offer catalogOffer) throws NoInfoException {
     return EXCLUSIVE_CATEGORIES.contains(getParentCategory(catalogOffer));
   }
 
-  private Integer getParentCategory(com.heymoose.infrastructure.service.yml.Offer catalogOffer)
+  private Integer getParentCategory(Offer catalogOffer)
       throws NoInfoException {
     String productCategoryString = catalogOffer.getCategoryId().get(0)
         .getvalue();
@@ -129,4 +120,5 @@ public class TopShopYmlImporter extends YmlImporter {
     }
     return parentCategory;
   }
+
 }
