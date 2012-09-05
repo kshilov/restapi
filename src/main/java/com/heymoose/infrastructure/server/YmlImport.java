@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.server;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
@@ -149,6 +150,8 @@ public final class YmlImport {
   }
 
   private static Map<String, BigDecimal> parseCsv(String csvPath) {
+    if (Strings.isNullOrEmpty(csvPath))
+      return ImmutableMap.of();
     final ImmutableMap.Builder<String, BigDecimal> idPercentMap =
         ImmutableMap.builder();
     try {
