@@ -48,7 +48,8 @@ public final class YmlImport {
     @Parameter(description = ".yml file for importing.", required = true)
     private List<String> ymlPath;
 
-    @Parameter(names = "-offer", description = "id of parent offer.")
+    @Parameter(names = "-offer", description = "id of parent offer.",
+        required = true)
     private Long offerId;
 
     @Parameter(names = "-csv",
@@ -148,8 +149,8 @@ public final class YmlImport {
     if (arguments.doExport) {
       log.info("Starting export to XLS.");
       YmlToExcel exporter = new YmlToExcel();
-      exporter.doExport(
-          wrapper, Files.newOutputStreamSupplier(new File("yml.xls")));
+      File xls = new File(arguments.offerId + ".xls");
+      exporter.doExport(wrapper, Files.newOutputStreamSupplier(xls));
     }
   }
 
