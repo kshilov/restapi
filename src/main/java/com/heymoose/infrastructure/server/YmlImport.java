@@ -15,11 +15,16 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
-import com.heymoose.infrastructure.service.action.PercentPerItemYmlImporter;
-import com.heymoose.infrastructure.service.carolines.CarolinesYmlImporter;
-import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlImporter;import com.heymoose.infrastructure.service.topshop.TopShopYmlImporter;
-import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlImporter;
-import com.heymoose.infrastructure.service.yml.YmlImporter;
+import com.heymoose.infrastructure.service.action.PercentPerItemYmlWrapper;
+import com.heymoose.infrastructure.service.action.YmlImporter;
+import com.heymoose.infrastructure.service.action.YmlToExcel;
+import com.heymoose.infrastructure.service.carolines.CarolinesYmlWrapper;
+import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlWrapper;
+import com.heymoose.infrastructure.service.topshop.TopShopYmlWrapper;
+import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlWrapper;
+import com.heymoose.infrastructure.service.yml.YmlCatalog;
+import com.heymoose.infrastructure.service.yml.YmlCatalogWrapper;
+import com.heymoose.infrastructure.service.yml.YmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +40,7 @@ import java.util.Map;
 public final class YmlImport {
   private final static class Args {
 
-    private enum Importer {
+    private enum Wrapper {
       DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES, SHOESBAGS
     }
 
@@ -53,8 +58,8 @@ public final class YmlImport {
         description = "default percent for non-exclusive items.")
     private BigDecimal defaultPercent;
 
-    @Parameter(names = "-importer", description =  "custom importer.")
-    private Importer importer = Importer.DEFAULT;
+    @Parameter(names = "-wrapper", description =  "custom wrapper.")
+    private Wrapper wrapper = Wrapper.DEFAULT;
 
     @Parameter(names = "--help", help = true, hidden = true)
     private boolean help;
@@ -98,16 +103,20 @@ public final class YmlImport {
         Resources.newInputStreamSupplier(new URL(ymlPath));
 
     Repo repo = injector.getInstance(Repo.class);
-    YmlImporter importer = null;
-    switch (arguments.importer) {
+    YmlCatalog catalog = YmlUtil.parse(inputSupplier);
+    YmlCatalogWrapper wrapper = null;
+    switch (arguments.wrapper) {
       case DEFAULT:
-        importer = idPercentImporter(repo, arguments);
+        wrapper = new PercentPerItemYmlWrapper(
+            catalog,
+            arguments.defaultPercent,
+            parseCsv(arguments.csvPath));
         break;
       case TOPSHOP:
-        importer = new TopShopYmlImporter(repo);
+        wrapper = new TopShopYmlWrapper(catalog);
         break;
       case TRENDSBRANDS:
-        importer = new TrendsBrandsYmlImporter(repo);
+        wrapper = new TrendsBrandsYmlWrapper(catalog);
         break;
       case CAROLINES:
         List<String> exclusive = ImmutableList.of();
@@ -115,19 +124,24 @@ public final class YmlImport {
           File csv = new File(arguments.csvPath);
           exclusive = Files.readLines(csv, UTF);
         }
-        importer = new CarolinesYmlImporter(repo, exclusive);
+        wrapper = new CarolinesYmlWrapper(catalog, exclusive);
         break;
       case SHOESBAGS:
-        importer = new ShoesBagsYmlImporter(repo);
+        wrapper = new ShoesBagsYmlWrapper(catalog);
         break;
     }
-    if (importer == null) {
-      log.error("Importer not found. Arguments: {}", arguments);
+    if (wrapper == null) {
+      log.error("Wrapper not found. Arguments: {}", arguments);
       return;
     }
-    log.info("Importer chosen: {}", importer.getClass().getSimpleName());
+    log.info("Wrapper chosen: {}", wrapper.getClass().getSimpleName());
     log.info("** Starting import with arguments: {} **", arguments);
-    importer.doImport(inputSupplier, arguments.offerId);
+    YmlImporter importer = new YmlImporter(repo);
+    importer.doImport(wrapper, arguments.offerId);
+    log.info("Starting export to XLS.");
+    YmlToExcel exporter = new YmlToExcel();
+    exporter.doExport(
+        wrapper, Files.newOutputStreamSupplier(new File("yml.xls")));
   }
 
   private static Map<String, BigDecimal> parseCsv(String csvPath) {
@@ -144,17 +158,4 @@ public final class YmlImport {
     return idPercentMap.build();
   }
 
-  private static YmlImporter idPercentImporter(Repo repo,
-                                               Args arguments) {
-    Map<String, BigDecimal> idPercentMap = ImmutableMap.of();
-
-    if (!Strings.isNullOrEmpty(arguments.csvPath)) {
-      idPercentMap = parseCsv(arguments.csvPath);
-    }
-
-    return new PercentPerItemYmlImporter(
-        repo,
-        arguments.defaultPercent,
-        idPercentMap);
-  }
 }

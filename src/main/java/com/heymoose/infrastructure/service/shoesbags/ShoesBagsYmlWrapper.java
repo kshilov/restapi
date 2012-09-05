@@ -1,18 +1,19 @@
 package com.heymoose.infrastructure.service.shoesbags;
 
 import com.google.common.collect.ImmutableList;
-import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Model;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.Vendor;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
-import com.heymoose.infrastructure.service.yml.YmlImporter;
+import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
+import com.heymoose.infrastructure.service.yml.YmlUtil;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public final class ShoesBagsYmlImporter extends YmlImporter {
+public final class ShoesBagsYmlWrapper extends YmlCatalogWrapperBase {
+
 
   private static final List<String> EXCLUSIVE_VENDORS =
       ImmutableList.of(
@@ -27,15 +28,15 @@ public final class ShoesBagsYmlImporter extends YmlImporter {
   private static final BigDecimal EXCLUSIVE_COST = new BigDecimal(1950);
 
 
-  public ShoesBagsYmlImporter(Repo repo) {
-    super(repo);
+  public ShoesBagsYmlWrapper(YmlCatalog catalog) {
+    super(catalog);
   }
 
   @Override
-  protected CpaPolicy getCpaPolicy(Offer catalogOffer, YmlCatalog catalog) {
+  public CpaPolicy getCpaPolicy(Offer catalogOffer) {
     boolean isExclusive = false;
     try {
-      isExclusive = isExclusive(catalogOffer, catalog);
+      isExclusive = isExclusive(catalogOffer);
     } catch (NoInfoException e) {
       // isExclusive = false;
     }
@@ -46,32 +47,30 @@ public final class ShoesBagsYmlImporter extends YmlImporter {
   }
 
   @Override
-  protected BigDecimal getPercent(Offer catalogOffer, YmlCatalog catalog)
-      throws NoInfoException {
-    if (isExclusive(catalogOffer, catalog)) {
+  public BigDecimal getPercent(Offer catalogOffer) throws NoInfoException {
+    if (isExclusive(catalogOffer)) {
       return null;
     }
     return REGULAR_PERCENT;
   }
 
   @Override
-  protected BigDecimal getCost(Offer catalogOffer, YmlCatalog catalog)
-      throws NoInfoException {
-    if (isExclusive(catalogOffer, catalog)) {
+  public BigDecimal getCost(Offer catalogOffer) throws NoInfoException {
+    if (isExclusive(catalogOffer)) {
       return EXCLUSIVE_COST;
     }
     return null;
   }
 
   @Override
-  protected boolean isExclusive(Offer catalogOffer, YmlCatalog catalog)
+  public boolean isExclusive(Offer catalogOffer)
       throws NoInfoException {
     return EXCLUSIVE_VENDORS.contains(
-        extractOptionalField(catalogOffer, Vendor.class).toLowerCase());
+        YmlUtil.extractOptionalField(catalogOffer, Vendor.class).toLowerCase());
   }
 
   @Override
-  protected String getOfferTitle(Offer offer) {
-    return titleFor(offer, Vendor.class, Model.class);
+  public String getOfferTitle(Offer offer) {
+    return YmlUtil.titleFor(offer, Vendor.class, Model.class);
   }
 }
