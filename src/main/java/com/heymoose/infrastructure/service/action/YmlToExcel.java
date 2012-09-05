@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public final class YmlToExcel {
 
@@ -62,13 +63,13 @@ public final class YmlToExcel {
         switch (catalog.getCpaPolicy(offer)) {
           case PERCENT:
             String revenue = String.format("%s%%",
-                catalog.getPercent(offer).divide(FEE_RATE, BigDecimal.ROUND_UP));
+                catalog.getPercent(offer).divide(FEE_RATE, 2, RoundingMode.UP));
             offerRow.createCell(cols++).setCellValue(revenue);
             break;
           case FIXED:
             offerRow.createCell(cols++).setCellValue(
                 catalog.getCost(offer)
-                    .divide(FEE_RATE, BigDecimal.ROUND_UP)
+                    .divide(FEE_RATE, 2, RoundingMode.UP)
                     .toString());
             break;
         }
