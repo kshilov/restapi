@@ -119,12 +119,7 @@ public final class YmlImport {
         wrapper = new TrendsBrandsYmlWrapper(catalog);
         break;
       case CAROLINES:
-        List<String> exclusive = ImmutableList.of();
-        if (!Strings.isNullOrEmpty(arguments.csvPath)) {
-          File csv = new File(arguments.csvPath);
-          exclusive = Files.readLines(csv, UTF);
-        }
-        wrapper = new CarolinesYmlWrapper(catalog, exclusive);
+        wrapper = new CarolinesYmlWrapper(catalog);
         break;
       case SHOESBAGS:
         wrapper = new ShoesBagsYmlWrapper(catalog);
