@@ -3,8 +3,6 @@ package com.heymoose.infrastructure.server;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
@@ -63,6 +61,12 @@ public final class YmlImport {
 
     @Parameter(names = "--help", help = true, hidden = true)
     private boolean help;
+
+    @Parameter(names = "--import", description = "do import data to db")
+    private boolean doImport = true;
+
+    @Parameter(names = "--export", description = "do export data to xls")
+    private boolean doExport = true;
 
     @Override
     public String toString() {
@@ -130,13 +134,18 @@ public final class YmlImport {
       return;
     }
     log.info("Wrapper chosen: {}", wrapper.getClass().getSimpleName());
-    log.info("** Starting import with arguments: {} **", arguments);
-    YmlImporter importer = new YmlImporter(repo);
-    importer.doImport(wrapper, arguments.offerId);
-    log.info("Starting export to XLS.");
-    YmlToExcel exporter = new YmlToExcel();
-    exporter.doExport(
-        wrapper, Files.newOutputStreamSupplier(new File("yml.xls")));
+
+    if (arguments.doImport) {
+      log.info("** Starting import with arguments: {} **", arguments);
+      YmlImporter importer = new YmlImporter(repo);
+      importer.doImport(wrapper, arguments.offerId);
+    }
+    if (arguments.doExport) {
+      log.info("Starting export to XLS.");
+      YmlToExcel exporter = new YmlToExcel();
+      exporter.doExport(
+          wrapper, Files.newOutputStreamSupplier(new File("yml.xls")));
+    }
   }
 
   private static Map<String, BigDecimal> parseCsv(String csvPath) {
