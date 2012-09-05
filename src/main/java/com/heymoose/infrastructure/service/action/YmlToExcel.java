@@ -14,15 +14,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 
 public final class YmlToExcel {
 
   private static final Logger log = LoggerFactory.getLogger(YmlToExcel.class);
 
-  private final String[] HEADER = new String[] {
+  private static final String[] HEADER = new String[] {
         "код", "название", "описание",
         "url", "изображение", "цена", "валюта",
         "экслюзивный", "вознаграждение" };
+  private static final BigDecimal FEE_RATE = new BigDecimal("1.3");
 
   public void doExport(YmlCatalogWrapper catalog,
                        OutputSupplier<? extends OutputStream> outputSupplier) {
@@ -59,12 +61,13 @@ public final class YmlToExcel {
       try {
         switch (catalog.getCpaPolicy(offer)) {
           case PERCENT:
-            String revenue = String.format("%s%%", catalog.getPercent(offer));
+            String revenue = String.format("%s%%",
+                catalog.getPercent(offer).divide(FEE_RATE));
             offerRow.createCell(cols++).setCellValue(revenue);
             break;
           case FIXED:
             offerRow.createCell(cols++).setCellValue(
-                catalog.getCost(offer).toString());
+                catalog.getCost(offer).divide(FEE_RATE).toString());
             break;
         }
       } catch (YmlCatalogWrapper.NoInfoException e) {
