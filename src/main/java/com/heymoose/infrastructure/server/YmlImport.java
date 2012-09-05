@@ -63,10 +63,10 @@ public final class YmlImport {
     private boolean help;
 
     @Parameter(names = "--import", description = "do import data to db")
-    private boolean doImport = true;
+    private boolean doImport = false;
 
     @Parameter(names = "--export", description = "do export data to xls")
-    private boolean doExport = true;
+    private boolean doExport = false;
 
     @Override
     public String toString() {
