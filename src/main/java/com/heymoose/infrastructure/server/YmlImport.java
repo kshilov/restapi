@@ -18,6 +18,7 @@ import com.heymoose.infrastructure.service.action.PercentPerItemYmlWrapper;
 import com.heymoose.infrastructure.service.action.YmlImporter;
 import com.heymoose.infrastructure.service.action.YmlToExcel;
 import com.heymoose.infrastructure.service.carolines.CarolinesYmlWrapper;
+import com.heymoose.infrastructure.service.mebelrama.MebelramaYmlWrapper;
 import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlWrapper;
 import com.heymoose.infrastructure.service.topshop.TopShopYmlWrapper;
 import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlWrapper;
@@ -40,7 +41,8 @@ public final class YmlImport {
   private final static class Args {
 
     private enum Wrapper {
-      DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES, SHOESBAGS
+      DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES, SHOESBAGS,
+      MEBELRAMA
     }
 
     @Parameter(description = ".yml file for importing.", required = true)
@@ -129,6 +131,8 @@ public final class YmlImport {
       case SHOESBAGS:
         wrapper = new ShoesBagsYmlWrapper(catalog);
         break;
+      case MEBELRAMA:
+        wrapper = new MebelramaYmlWrapper(catalog);
     }
     if (wrapper == null) {
       log.error("Wrapper not found. Arguments: {}", arguments);
