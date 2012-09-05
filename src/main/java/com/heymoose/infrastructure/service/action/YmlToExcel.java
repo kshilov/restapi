@@ -62,12 +62,14 @@ public final class YmlToExcel {
         switch (catalog.getCpaPolicy(offer)) {
           case PERCENT:
             String revenue = String.format("%s%%",
-                catalog.getPercent(offer).divide(FEE_RATE));
+                catalog.getPercent(offer).divide(FEE_RATE, BigDecimal.ROUND_UP));
             offerRow.createCell(cols++).setCellValue(revenue);
             break;
           case FIXED:
             offerRow.createCell(cols++).setCellValue(
-                catalog.getCost(offer).divide(FEE_RATE).toString());
+                catalog.getCost(offer)
+                    .divide(FEE_RATE, BigDecimal.ROUND_UP)
+                    .toString());
             break;
         }
       } catch (YmlCatalogWrapper.NoInfoException e) {

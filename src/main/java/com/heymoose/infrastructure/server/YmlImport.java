@@ -45,7 +45,7 @@ public final class YmlImport {
     @Parameter(description = ".yml file for importing.", required = true)
     private List<String> ymlPath;
 
-    @Parameter(names = "-offer", description = "id of parent offer.", required = true)
+    @Parameter(names = "-offer", description = "id of parent offer.")
     private Long offerId;
 
     @Parameter(names = "-csv",
