@@ -169,14 +169,16 @@ public class OfferActionsHiber implements OfferActions {
   @SuppressWarnings("unchecked")
   @Override
   public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
-    Preconditions.checkNotNull(offer);
-    List<OfferAction> actionList = (List<OfferAction>) repo.session().createQuery(
-        "from OfferAction where offer.id in (:sub_list) and id in (:id_list)")
-        .setParameterList("sub_list", offer.subofferIds())
-        .setParameterList("id_list", idCollection)
-        .list();
-    for (OfferAction action : actionList) {
+    for (OfferAction action : listActions(offer, idCollection)) {
       cancel(action);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void approveByIdList(Offer offer, List<Long> idList) {
+    for (OfferAction action : listActions(offer, idList)) {
+      approve(action);
     }
   }
 
@@ -275,6 +277,17 @@ public class OfferActionsHiber implements OfferActions {
     QueryResult listResult = new QueryResult(query.list());
     BigInteger count = (BigInteger) countQuery.uniqueResult();
     return Pair.of(listResult, count.longValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  private Iterable<OfferAction> listActions(Offer offer,
+                                            Collection<Long> idCollection) {
+    Preconditions.checkNotNull(offer);
+    return (List<OfferAction>) repo.session().createQuery(
+        "from OfferAction where offer.id in (:sub_list) and id in (:id_list)")
+        .setParameterList("sub_list", offer.subofferIds())
+        .setParameterList("id_list", idCollection)
+        .list();
   }
 
 }
