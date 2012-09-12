@@ -2,6 +2,8 @@ package com.heymoose.resource.api;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -52,6 +54,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.heymoose.infrastructure.util.QueryUtil.appendQueryParam;
@@ -64,6 +67,13 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 public class ApiResource {
 
   private final static Logger log = LoggerFactory.getLogger(ApiResource.class);
+  private final static int MIN_REPEAT_INTERVAL = 5;
+  private final static Object DUMMY = new Object();
+  private final static Cache<String, Object> RECENT_REQUEST_MAP =
+      CacheBuilder.newBuilder()
+      .expireAfterAccess(MIN_REPEAT_INTERVAL, TimeUnit.SECONDS)
+      .maximumSize(100)
+      .build();
 
   private final Provider<HttpRequestContext> requestContextProvider;
   private final Provider<UriInfo> uriInfoProvider;
@@ -131,6 +141,14 @@ public class ApiResource {
       sToken = cookies().get("hm_token_" + advertiserId);
     if (sToken == null)
       throw nullParam("token");
+
+    HttpRequestContext context = requestContextProvider.get();
+    String requestKey = context.getRequestUri() + ";token=" + sToken;
+    if (RECENT_REQUEST_MAP.asMap().putIfAbsent(requestKey, DUMMY) != null) {
+      log.warn("Ignoring repeated request: {}", requestKey);
+      return Response.status(204).build();
+    }
+
     Token token = repo.byHQL(Token.class, "from Token where value = ?", sToken);
     if (token == null)
       throw notFound(Token.class, sToken);
