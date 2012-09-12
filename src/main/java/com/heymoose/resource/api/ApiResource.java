@@ -146,7 +146,7 @@ public class ApiResource {
     String requestKey = context.getRequestUri() + ";token=" + sToken;
     if (RECENT_REQUEST_MAP.asMap().putIfAbsent(requestKey, DUMMY) != null) {
       log.warn("Ignoring repeated request: {}", requestKey);
-      return Response.status(204).build();
+      return Response.status(304).build();
     }
 
     Token token = repo.byHQL(Token.class, "from Token where value = ?", sToken);
