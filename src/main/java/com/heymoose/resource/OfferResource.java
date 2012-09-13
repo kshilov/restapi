@@ -1,16 +1,14 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.user.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
-import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantFilter;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.CpaPolicy;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferFilter;
 import com.heymoose.domain.offer.OfferRepository;
@@ -18,8 +16,11 @@ import com.heymoose.domain.offer.OfferRepository.Ordering;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -51,8 +52,8 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.heymoose.resource.Exceptions.*;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static com.heymoose.resource.Exceptions.*;
 
 @Path("offers")
 @Singleton
@@ -535,10 +536,13 @@ public class OfferResource {
   @Transactional
   public String debtByAffiliate(@PathParam("id") long offerId,
                                 @QueryParam("offset") int offset,
+                                @QueryParam("from") @DefaultValue("0") Long from,
+                                @QueryParam("to") Long to,
                                 @QueryParam("limit") @DefaultValue("20")
                                 int limit) {
-    return new XmlQueryResult(
-        offers.debtGroupedByAffiliate(existing(offerId), offset, limit))
+    QueryResult result = offers.debtGroupedByAffiliate(
+        existing(offerId), new DateTime(from), new DateTime(to), offset, limit);
+    return new XmlQueryResult(result)
         .setElement("debt")
         .setRoot("debts")
         .toString();

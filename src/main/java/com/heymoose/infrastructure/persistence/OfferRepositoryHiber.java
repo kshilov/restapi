@@ -92,10 +92,14 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
   }
 
   @Override
-  public QueryResult debtGroupedByAffiliate(Offer offer, int offset, int limit) {
+  public QueryResult debtGroupedByAffiliate(Offer offer,
+                                            DateTime from, DateTime to,
+                                            int offset, int limit) {
     String sql = SqlLoader.getSql("offer_debt_by_affiliate");
     return (QueryResult) hiber().createSQLQuery(sql)
         .setParameter("offer_id", offer.id())
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
         .setFirstResult(offset)
         .setMaxResults(limit)
         .setResultTransformer(QueryResultTransformer.INSTANCE)
