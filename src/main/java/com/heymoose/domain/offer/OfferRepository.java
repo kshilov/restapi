@@ -1,6 +1,7 @@
 package com.heymoose.domain.offer;
 
 import com.heymoose.domain.base.Repository;
+import com.heymoose.infrastructure.util.QueryResult;
 
 public interface OfferRepository extends Repository<Offer> {
 
@@ -12,7 +13,9 @@ public interface OfferRepository extends Repository<Offer> {
   Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                    long affiliateId, Boolean active);
   long countRequested(long affiliateId, Boolean active);
-  
+
+  QueryResult debtGroupedByAffiliate(Offer offer, int offset, int limit);
+
   public enum Ordering {
     ID, NAME, URL, ADVERTISER_LAST_NAME,
     GRANT_ID, GRANT_AFFILIATE_LAST_NAME, GRANT_APPROVED, GRANT_ACTIVE

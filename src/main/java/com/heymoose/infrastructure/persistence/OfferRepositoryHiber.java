@@ -4,6 +4,9 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferFilter;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.QueryResultTransformer;
+import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -86,6 +89,17 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
     return Long.parseLong(criteria
         .setProjection(Projections.rowCount())
         .uniqueResult().toString());
+  }
+
+  @Override
+  public QueryResult debtGroupedByAffiliate(Offer offer, int offset, int limit) {
+    String sql = SqlLoader.getSql("offer_debt_by_affiliate");
+    return (QueryResult) hiber().createSQLQuery(sql)
+        .setParameter("offer_id", offer.id())
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .setResultTransformer(QueryResultTransformer.INSTANCE)
+        .list();
   }
 
   @Override

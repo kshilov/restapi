@@ -23,6 +23,7 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
+import com.heymoose.resource.xml.XmlQueryResult;
 import com.heymoose.resource.xml.XmlSubOffers;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
@@ -512,7 +513,8 @@ public class OfferResource {
     BigDecimal amount = new BigDecimal(dAmount);
     if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
-    accounting.transferMoney(offer.advertiser().advertiserAccount(), offer.account(), amount,
+    accounting.transferMoney(offer.advertiser().advertiserAccount(),
+        offer.account(), amount,
         AccountingEvent.OFFER_ACCOUNT_ADD, null);
   }
 
@@ -526,6 +528,20 @@ public class OfferResource {
       throw new WebApplicationException(409);
     accounting.transferMoney(offer.account(), offer.advertiser().advertiserAccount(), amount,
         AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
+  }
+
+  @GET
+  @Path("{id}/debt/by_affiliate")
+  @Transactional
+  public String debtByAffiliate(@PathParam("id") long offerId,
+                                @QueryParam("offset") int offset,
+                                @QueryParam("limit") @DefaultValue("20")
+                                int limit) {
+    return new XmlQueryResult(
+        offers.debtGroupedByAffiliate(existing(offerId), offset, limit))
+        .setElement("debt")
+        .setRoot("debts")
+        .toString();
   }
 
   private Offer existing(long id) {
