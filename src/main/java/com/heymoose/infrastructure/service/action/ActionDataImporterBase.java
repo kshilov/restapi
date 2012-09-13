@@ -48,10 +48,16 @@ public abstract class ActionDataImporterBase<T extends ActionData>
 
   @Override
   public final void doImport(T payment, Long parentOfferId) {
+    log.info("Starting import for payment: {}", payment);
     Token token = repo.byHQL(Token.class,
         "from Token where value = ?", payment.token());
     if (token == null) {
       log.warn("Token '{}' not found, skipping", payment.token());
+      return;
+    }
+
+    if (payment.transactionId() == null) {
+      log.warn("Transaction id is null for payment: {}. Skipping..", payment);
       return;
     }
 

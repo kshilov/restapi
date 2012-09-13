@@ -1,5 +1,6 @@
 package com.heymoose.domain.action;
 
+import com.google.common.base.Objects;
 import org.joda.time.DateTime;
 
 public abstract class ActionData {
@@ -53,5 +54,13 @@ public abstract class ActionData {
   public ActionData setLastChangeTime(DateTime lastChangeTime) {
     this.lastChangeTime = lastChangeTime;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(ActionData.class)
+        .add("token", token)
+        .add("transaction", transactionId)
+        .add("status", status).toString();
   }
 }
