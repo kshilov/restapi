@@ -2,13 +2,14 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
+import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import org.joda.time.DateTime;
@@ -117,12 +118,11 @@ public final class AccountingStoredFunc implements Accounting {
   }
 
   @Override
-  public Pair<QueryResult, Long> debtGroupedByAffiliate(Long offerId,
-                                                        DateTime from,
-                                                        DateTime to, int offset,
-                                                        int limit) {
-    return accountingHiber.debtGroupedByAffiliate(offerId, from, to, offset, limit);
+  public Pair<QueryResult, Long> debtGroupedByAffiliate(
+      Long offerId, DataFilter<DebtOrdering> filter) {
+    return accountingHiber.debtGroupedByAffiliate(offerId, filter);
   }
+
 
   @Override
   public Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from,
@@ -131,10 +131,9 @@ public final class AccountingStoredFunc implements Accounting {
   }
 
   @Override
-  public Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
-                                                    DateTime to,
-                                                    int offset, int limit) {
-    return accountingHiber.debtGroupedByOffer(affId, from, to, offset, limit);
+  public Pair<QueryResult, Long> debtGroupedByOffer(
+      Long affId, DataFilter<DebtOrdering> filter) {
+    return accountingHiber.debtGroupedByOffer(affId, filter);
   }
 
   @Override

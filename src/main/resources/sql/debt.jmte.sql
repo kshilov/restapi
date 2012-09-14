@@ -54,4 +54,8 @@ ${if groupByOffer}
 group by source_id, offer.name, withdrawal.basis
 ${end}
 
-order by "debt-amount" desc
+order by
+${if ordering}
+  "${ordering}" ${direction},
+${end}
+"debt-amount" desc

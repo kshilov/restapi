@@ -7,6 +7,7 @@ import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
@@ -176,17 +177,17 @@ public class AccountingHiber implements Accounting {
   }
 
   @Override
-  public Pair<QueryResult, Long> debtGroupedByAffiliate(Long offerId,
-                                                        DateTime from,
-                                                        DateTime to,
-                                                        int offset, int limit) {
+  public Pair<QueryResult, Long> debtGroupedByAffiliate(
+      Long offerId, DataFilter<DebtOrdering> filter) {
     return SqlLoader.templateQuery("debt", repo.session())
         .addTemplateParam("groupByUser", true)
         .addTemplateParam("filterByOffer", true)
+        .addTemplateParam("ordering", filter.ordering().COLUMN)
+        .addTemplateParam("direction", filter.direction())
         .addQueryParam("offer_id", offerId)
-        .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate())
-        .executeAndCount(offset, limit);
+        .addQueryParam("from", filter.from())
+        .addQueryParam("to", filter.to())
+        .executeAndCount(filter.offset(), filter.limit());
   }
 
   public Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from, DateTime to) {
@@ -199,16 +200,17 @@ public class AccountingHiber implements Accounting {
   }
 
   @Override
-  public Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
-                                                    DateTime to, int offset,
-                                                    int limit) {
+  public Pair<QueryResult, Long> debtGroupedByOffer(Long affId,
+                                                    DataFilter<DebtOrdering> filter) {
     return SqlLoader.templateQuery("debt", repo.session())
         .addTemplateParam("groupByOffer", true)
         .addTemplateParam("filterByAffiliate", true)
+        .addTemplateParam("ordering", filter.ordering().COLUMN)
+        .addTemplateParam("direction", filter.direction())
         .addQueryParam("aff_id", affId)
-        .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate())
-        .executeAndCount(offset, limit);
+        .addQueryParam("from", filter.from())
+        .addQueryParam("to", filter.to())
+        .executeAndCount(filter.offset(), filter.limit());
   }
 
   public Map<String, Object> sumDebtForOffer(Long offerId, DateTime from, DateTime to) {

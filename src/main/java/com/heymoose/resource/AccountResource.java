@@ -7,6 +7,8 @@ import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.DataFilter;
+import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
@@ -165,14 +167,26 @@ public class AccountResource {
   public String debtByAffiliate(@QueryParam("offer_id") Long offerId,
                                 @QueryParam("from") @DefaultValue("0") Long from,
                                 @QueryParam("to") Long to,
+                                @QueryParam("ordering") @DefaultValue("DEBT")
+                                Accounting.DebtOrdering ord,
+                                @QueryParam("direction") @DefaultValue("DESC")
+                                OrderingDirection dir,
                                 @QueryParam("offset") int offset,
                                 @QueryParam("limit") @DefaultValue("20")
                                 int limit) {
     checkNotNull(offerId);
     DateTime dateFrom = new DateTime(from);
     DateTime dateTo = new DateTime(to);
+    DataFilter<Accounting.DebtOrdering> filter = DataFilter.newInstance();
+    filter.setTo(dateTo)
+        .setFrom(dateFrom)
+        .setOrdering(ord)
+        .setDirection(dir)
+        .setOffset(offset)
+        .setLimit(limit);
+
     Pair<QueryResult, Long> result = accounting.debtGroupedByAffiliate(
-        offerId, new DateTime(from), new DateTime(to), offset, limit);
+        offerId, filter);
     Map<String, Object> sum =
         accounting.sumDebtForOffer(offerId, dateFrom, dateTo);
     return new XmlQueryResult(result.fst)
@@ -191,14 +205,26 @@ public class AccountResource {
   public String debtByOffer(@QueryParam("aff_id") Long affId,
                             @QueryParam("from") @DefaultValue("0") Long from,
                             @QueryParam("to") Long to,
+                            @QueryParam("ordering") @DefaultValue("DEBT")
+                            Accounting.DebtOrdering ord,
+                            @QueryParam("direction") @DefaultValue("DESC")
+                            OrderingDirection dir,
                             @QueryParam("offset") int offset,
                             @QueryParam("limit") @DefaultValue("20")
                             int limit) {
     checkNotNull(affId);
     DateTime dateFrom = new DateTime(from);
     DateTime dateTo = new DateTime(to);
+    DataFilter<Accounting.DebtOrdering> filter = DataFilter.newInstance();
+    filter.setTo(dateTo)
+        .setFrom(dateFrom)
+        .setOrdering(ord)
+        .setDirection(dir)
+        .setOffset(offset)
+        .setLimit(limit);
+
     Pair<QueryResult, Long> result = accounting.debtGroupedByOffer(
-        affId, dateFrom, dateTo, offset, limit);
+        affId, filter);
     Map<String, Object> sum =
         accounting.sumDebtForAffiliate(affId, dateFrom, dateTo);
     return new XmlQueryResult(result.fst)

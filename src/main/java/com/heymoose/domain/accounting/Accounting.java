@@ -1,5 +1,6 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import org.joda.time.DateTime;
@@ -9,6 +10,18 @@ import java.util.List;
 import java.util.Map;
 
 public interface Accounting {
+
+  enum DebtOrdering {
+    OFFER_NAME("offer-name"), USER_EMAIL("user-email"),
+    BASIS("basis"),
+    PAYED_OUT("payed-out-amount"), DEBT("debt-amount"),
+    INCOME("income-amount"), ORDERED("ordered-amount");
+
+    public final String COLUMN;
+
+    DebtOrdering(String colName) { this.COLUMN = colName; }
+  }
+
   void transferMoney(Account src, Account dst, BigDecimal amount,
                      AccountingEvent event, Long sourceId);
 
@@ -36,15 +49,13 @@ public interface Accounting {
 
   Account destination(AccountingTransaction transaction);
 
-  Pair<QueryResult, Long> debtGroupedByAffiliate(Long offerId, DateTime from,
-                                                 DateTime to,
-                                                 int offset, int limit);
+  Pair<QueryResult, Long> debtGroupedByAffiliate(Long offerId,
+                                                 DataFilter<DebtOrdering> filter);
 
   Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from, DateTime to);
 
-  Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
-                                             DateTime to,
-                                             int offset, int limit);
+  Pair<QueryResult, Long> debtGroupedByOffer(Long affId,
+                                             DataFilter<DebtOrdering> filter);
 
   Map<String, Object> sumDebtForOffer(Long offerId, DateTime from, DateTime to);
 }
