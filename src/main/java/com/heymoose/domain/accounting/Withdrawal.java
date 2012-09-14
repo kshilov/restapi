@@ -1,7 +1,8 @@
 package com.heymoose.domain.accounting;
 
 
-import com.heymoose.domain.base.IdEntity;
+import com.heymoose.domain.base.BaseEntity;
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
 import javax.persistence.Column;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "withdrawal")
-public final class Withdrawal extends IdEntity {
+public final class Withdrawal extends BaseEntity {
 
   public static enum Basis { FEE, AFFILIATE_REVENUE }
 
@@ -26,26 +27,24 @@ public final class Withdrawal extends IdEntity {
   @SequenceGenerator(name = "withdrawal-seq", sequenceName = "withdrawal_seq", allocationSize = 1)
   protected Long id;
 
-  @Column(name = "user_id")
+  @Column(name = "user_id", nullable = false)
   private Long userId;
 
-  @Column(name = "basis")
+  @Column(name = "basis", nullable = false)
   @Enumerated(EnumType.STRING)
   private Basis basis;
 
-  @Column(name = "source_id")
+  @Column(name = "source_id", nullable = false)
   private Long sourceId;
 
-  @Column(name = "action_id")
+  @Column(name = "action_id", nullable = false)
   private Long actionId;
 
-  @Column(name = "amount")
+  @Column(name = "amount", nullable = false)
   private BigDecimal amount;
 
-  @Column(name = "creation_time")
-  private DateTime creationTime;
-
-  @Column(name = "order_time")
+  @Column(name = "order_time", nullable = true)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   private DateTime orderTime;
 
   @Override
@@ -96,10 +95,6 @@ public final class Withdrawal extends IdEntity {
   public Withdrawal setAmount(BigDecimal amount) {
     this.amount = amount;
     return this;
-  }
-
-  public DateTime creationTime() {
-    return creationTime;
   }
 
   public Withdrawal setCreationTime(DateTime creationTime) {
