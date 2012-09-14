@@ -112,4 +112,12 @@ and usr.affiliate_account_id = withdraw.account_id
 where withdraw.done = true
 
 group by  withdrawal.id, withdrawal.amount;
+
+
+update withdrawal set
+order_time = (select min(timestamp) from withdraw
+              join accounting_entry entry
+              on entry.source_id = withdrawal.action_id
+              and entry.event = 2 /* ACTION_APPROVED */
+              and entry.creation_time < withdraw.timestamp);
 end;
