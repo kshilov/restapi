@@ -15,9 +15,6 @@ public interface OfferRepository extends Repository<Offer> {
                                    long affiliateId, Boolean active);
   long countRequested(long affiliateId, Boolean active);
 
-  QueryResult debtGroupedByAffiliate(Offer offer, DateTime from, DateTime to,
-                                     int offset, int limit);
-
   public enum Ordering {
     ID, NAME, URL, ADVERTISER_LAST_NAME,
     GRANT_ID, GRANT_AFFILIATE_LAST_NAME, GRANT_APPROVED, GRANT_ACTIVE

@@ -1,20 +1,23 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.SqlLoader;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlAccountingEntries;
+import com.heymoose.resource.xml.XmlQueryResult;
 import com.heymoose.resource.xml.XmlWithdraws;
-import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,8 +33,8 @@ import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.heymoose.resource.Exceptions.notFound;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static com.heymoose.resource.Exceptions.notFound;
 
 @Path("account")
 @Singleton
@@ -150,7 +153,27 @@ public class AccountResource {
     Withdraw withdraw = existingWithdraw(id);
     accounting.deleteWithdraw(withdraw, comment);
   }
-  
+
+
+  @GET
+  @Path("debt/by_affiliate")
+  @Transactional
+  public String debtByAffiliate(@QueryParam("offer_id") Long offerId,
+                                @QueryParam("from") @DefaultValue("0") Long from,
+                                @QueryParam("to") Long to,
+                                @QueryParam("offset") int offset,
+                                @QueryParam("limit") @DefaultValue("20")
+                                int limit) {
+    checkNotNull(offerId);
+    QueryResult result = accounting.debtGroupedByAffiliate(
+        offerId, new DateTime(from), new DateTime(to), offset, limit);
+    return new XmlQueryResult(result)
+        .setElement("debt")
+        .setRoot("debts")
+        .toString();
+  }
+
+
   private Account existingAffiliateAccount(long id) {
     User user = repo.get(User.class, id);
     if (user == null)

@@ -20,11 +20,9 @@ import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BannerStore;
-import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
-import com.heymoose.resource.xml.XmlQueryResult;
 import com.heymoose.resource.xml.XmlSubOffers;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
@@ -529,23 +527,6 @@ public class OfferResource {
       throw new WebApplicationException(409);
     accounting.transferMoney(offer.account(), offer.advertiser().advertiserAccount(), amount,
         AccountingEvent.OFFER_ACCOUNT_REMOVE, null);
-  }
-
-  @GET
-  @Path("{id}/debt/by_affiliate")
-  @Transactional
-  public String debtByAffiliate(@PathParam("id") long offerId,
-                                @QueryParam("offset") int offset,
-                                @QueryParam("from") @DefaultValue("0") Long from,
-                                @QueryParam("to") Long to,
-                                @QueryParam("limit") @DefaultValue("20")
-                                int limit) {
-    QueryResult result = offers.debtGroupedByAffiliate(
-        existing(offerId), new DateTime(from), new DateTime(to), offset, limit);
-    return new XmlQueryResult(result)
-        .setElement("debt")
-        .setRoot("debts")
-        .toString();
   }
 
   private Offer existing(long id) {

@@ -1,5 +1,8 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.infrastructure.util.QueryResult;
+import org.joda.time.DateTime;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -30,4 +33,8 @@ public interface Accounting {
   void deleteWithdraw(Withdraw withdraw, String comment);
 
   Account destination(AccountingTransaction transaction);
+
+  QueryResult debtGroupedByAffiliate(Long offerId, DateTime from, DateTime to,
+                                     int offset, int limit);
+
 }

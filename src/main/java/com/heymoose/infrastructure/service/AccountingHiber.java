@@ -1,18 +1,20 @@
 package com.heymoose.infrastructure.service;
 
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
+import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
-import static com.heymoose.resource.Exceptions.conflict;
-
+import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.QueryResultTransformer;
+import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.heymoose.resource.Exceptions.conflict;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Singleton
@@ -169,4 +172,20 @@ public class AccountingHiber implements Accounting {
         transaction
     );
   }
+
+  @Override
+  public QueryResult debtGroupedByAffiliate(Long offerId,
+                                            DateTime from, DateTime to,
+                                            int offset, int limit) {
+    String sql = SqlLoader.getSql("offer_debt_by_affiliate");
+    return (QueryResult) repo.session().createSQLQuery(sql)
+        .setParameter("offer_id", offerId)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .setResultTransformer(QueryResultTransformer.INSTANCE)
+        .list();
+  }
+
 }

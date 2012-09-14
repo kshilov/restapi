@@ -9,6 +9,8 @@ import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.util.QueryResult;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,5 +112,12 @@ public final class AccountingStoredFunc implements Accounting {
   @Override
   public Account destination(AccountingTransaction transaction) {
     return accountingHiber.destination(transaction);
+  }
+
+  @Override
+  public QueryResult debtGroupedByAffiliate(Long offerId, DateTime from,
+                                            DateTime to, int offset,
+                                            int limit) {
+    return accountingHiber.debtGroupedByAffiliate(offerId, from, to, offset, limit);
   }
 }
