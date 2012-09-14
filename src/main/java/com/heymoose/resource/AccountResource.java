@@ -174,6 +174,25 @@ public class AccountResource {
   }
 
 
+  @GET
+  @Path("debt/by_offer")
+  @Transactional
+  public String debtByOffer(@QueryParam("aff_id") Long affId,
+                            @QueryParam("from") @DefaultValue("0") Long from,
+                            @QueryParam("to") Long to,
+                            @QueryParam("offset") int offset,
+                            @QueryParam("limit") @DefaultValue("20")
+                            int limit) {
+    checkNotNull(affId);
+    QueryResult result = accounting.debtGroupedByOffer(
+        affId, new DateTime(from), new DateTime(to), offset, limit);
+    return new XmlQueryResult(result)
+        .setElement("debt")
+        .setRoot("debts")
+        .toString();
+  }
+
+
   private Account existingAffiliateAccount(long id) {
     User user = repo.get(User.class, id);
     if (user == null)

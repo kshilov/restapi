@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -177,9 +178,28 @@ public class AccountingHiber implements Accounting {
   public QueryResult debtGroupedByAffiliate(Long offerId,
                                             DateTime from, DateTime to,
                                             int offset, int limit) {
-    String sql = SqlLoader.getSql("offer_debt_by_affiliate");
+    String sql = SqlLoader.getTemplate(
+        "debt",
+        ImmutableMap.<String, Object>of("groupByUser", true));
     return (QueryResult) repo.session().createSQLQuery(sql)
         .setParameter("offer_id", offerId)
+        .setParameter("from", from.toDate())
+        .setParameter("to", to.toDate())
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .setResultTransformer(QueryResultTransformer.INSTANCE)
+        .list();
+  }
+
+  @Override
+  public QueryResult debtGroupedByOffer(Long affId, DateTime from,
+                                        DateTime to, int offset,
+                                        int limit) {
+    String sql = SqlLoader.getTemplate(
+        "debt",
+        ImmutableMap.<String, Object>of("groupByOffer", true));
+    return (QueryResult) repo.session().createSQLQuery(sql)
+        .setParameter("aff_id", affId)
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .setFirstResult(offset)

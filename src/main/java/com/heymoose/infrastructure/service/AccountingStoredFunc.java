@@ -120,4 +120,10 @@ public final class AccountingStoredFunc implements Accounting {
                                             int limit) {
     return accountingHiber.debtGroupedByAffiliate(offerId, from, to, offset, limit);
   }
+
+  @Override
+  public QueryResult debtGroupedByOffer(Long affId, DateTime from, DateTime to,
+                                        int offset, int limit) {
+    return accountingHiber.debtGroupedByOffer(affId, from, to, offset, limit);
+  }
 }

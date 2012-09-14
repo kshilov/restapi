@@ -37,4 +37,6 @@ public interface Accounting {
   QueryResult debtGroupedByAffiliate(Long offerId, DateTime from, DateTime to,
                                      int offset, int limit);
 
+ QueryResult debtGroupedByOffer(Long affId, DateTime from, DateTime to,
+                                int offset, int limit);
 }
