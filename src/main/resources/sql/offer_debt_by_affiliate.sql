@@ -1,6 +1,7 @@
 select
   user_id as "user-id",
   usr.email as "user-email",
+  withdrawal.basis as "basis",
   coalesce(sum(payed.amount), 0.0) as "payed-out-amount",
   sum(withdrawal.amount) - coalesce(sum(payed.amount), 0.0) as "debt-amount",
   sum(withdrawal.amount) as "income-amount",
@@ -21,5 +22,5 @@ where
   source_id = :offer_id
   and withdrawal.creation_time between :from and :to
 
-group by user_id, usr.email
+group by user_id, usr.email, withdrawal.basis
 order by "debt-amount" desc
