@@ -7,6 +7,7 @@ import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
 import com.heymoose.resource.xml.Mappers;
@@ -29,6 +30,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
 import java.util.List;
@@ -157,6 +159,7 @@ public class AccountResource {
 
   @GET
   @Path("debt/by_affiliate")
+  @Produces("application/xml")
   @Transactional
   public String debtByAffiliate(@QueryParam("offer_id") Long offerId,
                                 @QueryParam("from") @DefaultValue("0") Long from,
@@ -165,7 +168,7 @@ public class AccountResource {
                                 @QueryParam("limit") @DefaultValue("20")
                                 int limit) {
     checkNotNull(offerId);
-    QueryResult result = accounting.debtGroupedByAffiliate(
+    Pair<QueryResult, Long> result = accounting.debtGroupedByAffiliate(
         offerId, new DateTime(from), new DateTime(to), offset, limit);
     return new XmlQueryResult(result)
         .setElement("debt")
@@ -176,6 +179,7 @@ public class AccountResource {
 
   @GET
   @Path("debt/by_offer")
+  @Produces("application/xml")
   @Transactional
   public String debtByOffer(@QueryParam("aff_id") Long affId,
                             @QueryParam("from") @DefaultValue("0") Long from,
@@ -184,7 +188,7 @@ public class AccountResource {
                             @QueryParam("limit") @DefaultValue("20")
                             int limit) {
     checkNotNull(affId);
-    QueryResult result = accounting.debtGroupedByOffer(
+    Pair<QueryResult, Long> result = accounting.debtGroupedByOffer(
         affId, new DateTime(from), new DateTime(to), offset, limit);
     return new XmlQueryResult(result)
         .setElement("debt")

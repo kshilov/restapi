@@ -1,18 +1,28 @@
 package com.heymoose.resource.xml;
 
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 
 import java.util.Map;
 
 public final class XmlQueryResult {
 
+  private static final String HEAD =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
+
   private final QueryResult queryResult;
   private String root;
   private String element;
+  private Long count;
   private StringBuilder builder = new StringBuilder();
 
   public XmlQueryResult(QueryResult result) {
     this.queryResult = result;
+  }
+
+  public XmlQueryResult(Pair<QueryResult, Long> result) {
+    this.queryResult = result.fst;
+    this.count = result.snd;
   }
 
   public XmlQueryResult(String root, String entry, QueryResult queryResult) {
@@ -31,9 +41,19 @@ public final class XmlQueryResult {
     return this;
   }
 
+  public XmlQueryResult setCount(Long count) {
+    this.count = count;
+    return this;
+  }
+
   @Override
   public String toString() {
-    open(root);
+    builder.append(HEAD);
+    if (count == null) {
+      open(root);
+    } else {
+      open(root, "count=\"" + count + "\"");
+    }
     for (Map<String, Object> record : queryResult) {
       open(element);
           for (Map.Entry<String, Object> entry : record.entrySet()) {
@@ -47,9 +67,13 @@ public final class XmlQueryResult {
     return builder.toString();
   }
 
-  private void open(String tag) {
+  private void open(String tag, String... attrString) {
     builder.append("<");
     builder.append(tag);
+    for (String keyVal : attrString) {
+      builder.append(' ');
+      builder.append(keyVal);
+    }
     builder.append(">");
   }
 

@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -8,8 +7,8 @@ import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.QueryResultTransformer;
 import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
@@ -175,37 +174,28 @@ public class AccountingHiber implements Accounting {
   }
 
   @Override
-  public QueryResult debtGroupedByAffiliate(Long offerId,
-                                            DateTime from, DateTime to,
-                                            int offset, int limit) {
-    String sql = SqlLoader.getTemplate(
-        "debt",
-        ImmutableMap.<String, Object>of("groupByUser", true));
-    return (QueryResult) repo.session().createSQLQuery(sql)
-        .setParameter("offer_id", offerId)
-        .setParameter("from", from.toDate())
-        .setParameter("to", to.toDate())
-        .setFirstResult(offset)
-        .setMaxResults(limit)
-        .setResultTransformer(QueryResultTransformer.INSTANCE)
-        .list();
+  public Pair<QueryResult, Long> debtGroupedByAffiliate(Long offerId,
+                                                        DateTime from,
+                                                        DateTime to,
+                                                        int offset, int limit) {
+    return SqlLoader.templateQuery("debt", repo.session())
+        .addTemplateParam("groupByUser", true)
+        .addQueryParam("offer_id", offerId)
+        .addQueryParam("from", from.toDate())
+        .addQueryParam("to", to.toDate())
+        .executeAndCount(offset, limit);
   }
 
   @Override
-  public QueryResult debtGroupedByOffer(Long affId, DateTime from,
-                                        DateTime to, int offset,
-                                        int limit) {
-    String sql = SqlLoader.getTemplate(
-        "debt",
-        ImmutableMap.<String, Object>of("groupByOffer", true));
-    return (QueryResult) repo.session().createSQLQuery(sql)
-        .setParameter("aff_id", affId)
-        .setParameter("from", from.toDate())
-        .setParameter("to", to.toDate())
-        .setFirstResult(offset)
-        .setMaxResults(limit)
-        .setResultTransformer(QueryResultTransformer.INSTANCE)
-        .list();
+  public Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
+                                                    DateTime to, int offset,
+                                                    int limit) {
+    return SqlLoader.templateQuery("debt", repo.session())
+        .addTemplateParam("groupByOffer", true)
+        .addQueryParam("aff_id", affId)
+        .addQueryParam("from", from.toDate())
+        .addQueryParam("to", to.toDate())
+        .executeAndCount(offset, limit);
   }
 
 }

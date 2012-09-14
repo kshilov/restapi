@@ -1,5 +1,6 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import org.joda.time.DateTime;
 
@@ -34,9 +35,11 @@ public interface Accounting {
 
   Account destination(AccountingTransaction transaction);
 
-  QueryResult debtGroupedByAffiliate(Long offerId, DateTime from, DateTime to,
-                                     int offset, int limit);
+  Pair<QueryResult, Long> debtGroupedByAffiliate(Long offerId, DateTime from,
+                                                 DateTime to,
+                                                 int offset, int limit);
 
- QueryResult debtGroupedByOffer(Long affId, DateTime from, DateTime to,
-                                int offset, int limit);
+  Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
+                                             DateTime to,
+                                             int offset, int limit);
 }
