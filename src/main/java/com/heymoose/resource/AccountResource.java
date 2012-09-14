@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import static com.heymoose.resource.Exceptions.notFound;
@@ -168,11 +169,17 @@ public class AccountResource {
                                 @QueryParam("limit") @DefaultValue("20")
                                 int limit) {
     checkNotNull(offerId);
+    DateTime dateFrom = new DateTime(from);
+    DateTime dateTo = new DateTime(to);
     Pair<QueryResult, Long> result = accounting.debtGroupedByAffiliate(
         offerId, new DateTime(from), new DateTime(to), offset, limit);
-    return new XmlQueryResult(result)
+    Map<String, Object> sum =
+        accounting.sumDebtForOffer(offerId, dateFrom, dateTo);
+    return new XmlQueryResult(result.fst)
         .setElement("debt")
         .setRoot("debts")
+        .addRootAttribute("count", result.snd)
+        .addRootAttributesFrom(sum)
         .toString();
   }
 
@@ -188,11 +195,17 @@ public class AccountResource {
                             @QueryParam("limit") @DefaultValue("20")
                             int limit) {
     checkNotNull(affId);
+    DateTime dateFrom = new DateTime(from);
+    DateTime dateTo = new DateTime(to);
     Pair<QueryResult, Long> result = accounting.debtGroupedByOffer(
-        affId, new DateTime(from), new DateTime(to), offset, limit);
-    return new XmlQueryResult(result)
+        affId, dateFrom, dateTo, offset, limit);
+    Map<String, Object> sum =
+        accounting.sumDebtForAffiliate(affId, dateFrom, dateTo);
+    return new XmlQueryResult(result.fst)
         .setElement("debt")
         .setRoot("debts")
+        .addRootAttribute("count", result.snd)
+        .addRootAttributesFrom(sum)
         .toString();
   }
 

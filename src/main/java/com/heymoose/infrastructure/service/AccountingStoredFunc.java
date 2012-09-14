@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 public final class AccountingStoredFunc implements Accounting {
@@ -124,9 +125,21 @@ public final class AccountingStoredFunc implements Accounting {
   }
 
   @Override
+  public Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from,
+                                                 DateTime to) {
+    return accountingHiber.sumDebtForAffiliate(affId, from, to);
+  }
+
+  @Override
   public Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
                                                     DateTime to,
                                                     int offset, int limit) {
     return accountingHiber.debtGroupedByOffer(affId, from, to, offset, limit);
+  }
+
+  @Override
+  public Map<String, Object> sumDebtForOffer(Long offerId, DateTime from,
+                                             DateTime to) {
+    return accountingHiber.sumDebtForOffer(offerId, from, to);
   }
 }

@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.heymoose.resource.Exceptions.conflict;
@@ -148,7 +149,8 @@ public class AccountingHiber implements Accounting {
 
   @Override
   public List<Withdraw> withdraws(Account account) {
-    return repo.allByHQL(Withdraw.class, "from Withdraw where account = ? order by timestamp desc", account);
+    return repo.allByHQL(Withdraw.class,
+        "from Withdraw where account = ? order by timestamp desc", account);
   }
 
   @Override
@@ -180,10 +182,20 @@ public class AccountingHiber implements Accounting {
                                                         int offset, int limit) {
     return SqlLoader.templateQuery("debt", repo.session())
         .addTemplateParam("groupByUser", true)
+        .addTemplateParam("filterByOffer", true)
         .addQueryParam("offer_id", offerId)
         .addQueryParam("from", from.toDate())
         .addQueryParam("to", to.toDate())
         .executeAndCount(offset, limit);
+  }
+
+  public Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from, DateTime to) {
+    return SqlLoader.templateQuery("debt", repo.session())
+        .addTemplateParam("filterByAffiliate", true)
+        .addQueryParam("aff_id", affId)
+        .addQueryParam("from", from.toDate())
+        .addQueryParam("to", to.toDate())
+        .execute().get(0);
   }
 
   @Override
@@ -192,10 +204,19 @@ public class AccountingHiber implements Accounting {
                                                     int limit) {
     return SqlLoader.templateQuery("debt", repo.session())
         .addTemplateParam("groupByOffer", true)
+        .addTemplateParam("filterByAffiliate", true)
         .addQueryParam("aff_id", affId)
         .addQueryParam("from", from.toDate())
         .addQueryParam("to", to.toDate())
         .executeAndCount(offset, limit);
   }
 
+  public Map<String, Object> sumDebtForOffer(Long offerId, DateTime from, DateTime to) {
+    return SqlLoader.templateQuery("debt", repo.session())
+        .addTemplateParam("filterByOffer", true)
+        .addQueryParam("offer_id", offerId)
+        .addQueryParam("from", from.toDate())
+        .addQueryParam("to", to.toDate())
+        .execute().get(0);
+  }
 }

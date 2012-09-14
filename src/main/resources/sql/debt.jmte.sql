@@ -3,14 +3,15 @@ select
 ${if groupByUser}
   user_id as "user-id",
   usr.email as "user-email",
+  withdrawal.basis as "basis",
 ${end}
 
 ${if groupByOffer}
   source_id as "offer-id",
   offer.name as "offer-name",
+  withdrawal.basis as "basis",
 ${end}
 
-  withdrawal.basis as "basis",
   coalesce(sum(payed.amount), 0.0) as "payed-out-amount",
   sum(withdrawal.amount) - coalesce(sum(payed.amount), 0.0) as "debt-amount",
   sum(withdrawal.amount) as "income-amount",
@@ -37,16 +38,20 @@ on payed.withdrawal_id = withdrawal.id
 where
   withdrawal.creation_time between :from and :to
 
-${if groupByUser}
+${if filterByOffer}
   and withdrawal.source_id = :offer_id
 ${end}
 
-${if groupByOffer}
+${if filterByAffiliate}
   and withdrawal.user_id = :aff_id
 ${end}
 
-group by withdrawal.basis,
-${if groupByUser} user_id, usr.email ${end}
-${if groupByOffer} source_id, offer.name ${end}
+${if groupByUser}
+group by user_id, usr.email, withdrawal.basis
+${end}
+
+${if groupByOffer}
+group by source_id, offer.name, withdrawal.basis
+${end}
 
 order by "debt-amount" desc

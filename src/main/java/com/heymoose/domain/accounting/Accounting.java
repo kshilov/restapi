@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface Accounting {
   void transferMoney(Account src, Account dst, BigDecimal amount,
@@ -39,7 +40,11 @@ public interface Accounting {
                                                  DateTime to,
                                                  int offset, int limit);
 
+  Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from, DateTime to);
+
   Pair<QueryResult, Long> debtGroupedByOffer(Long affId, DateTime from,
                                              DateTime to,
                                              int offset, int limit);
+
+  Map<String, Object> sumDebtForOffer(Long offerId, DateTime from, DateTime to);
 }

@@ -1,6 +1,6 @@
 package com.heymoose.resource.xml;
 
-import com.heymoose.infrastructure.util.Pair;
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.infrastructure.util.QueryResult;
 
 import java.util.Map;
@@ -13,16 +13,12 @@ public final class XmlQueryResult {
   private final QueryResult queryResult;
   private String root;
   private String element;
-  private Long count;
   private StringBuilder builder = new StringBuilder();
+  private ImmutableMap.Builder<String, Object> rootAttributeMap =
+      new ImmutableMap.Builder<String, Object>();
 
   public XmlQueryResult(QueryResult result) {
     this.queryResult = result;
-  }
-
-  public XmlQueryResult(Pair<QueryResult, Long> result) {
-    this.queryResult = result.fst;
-    this.count = result.snd;
   }
 
   public XmlQueryResult(String root, String entry, QueryResult queryResult) {
@@ -41,19 +37,20 @@ public final class XmlQueryResult {
     return this;
   }
 
-  public XmlQueryResult setCount(Long count) {
-    this.count = count;
+  public XmlQueryResult addRootAttribute(String name, Object value) {
+    this.rootAttributeMap.put(name, value);
+    return this;
+  }
+
+  public XmlQueryResult addRootAttributesFrom(Map<String, ?> map) {
+    this.rootAttributeMap.putAll(map);
     return this;
   }
 
   @Override
   public String toString() {
     builder.append(HEAD);
-    if (count == null) {
-      open(root);
-    } else {
-      open(root, "count=\"" + count + "\"");
-    }
+    open(root, rootAttributeMap.build());
     for (Map<String, Object> record : queryResult) {
       open(element);
           for (Map.Entry<String, Object> entry : record.entrySet()) {
@@ -67,12 +64,21 @@ public final class XmlQueryResult {
     return builder.toString();
   }
 
-  private void open(String tag, String... attrString) {
+  private void open(String tag) {
     builder.append("<");
     builder.append(tag);
-    for (String keyVal : attrString) {
+    builder.append(">");
+  }
+
+  private void open(String tag, Map<String, Object> attributes) {
+    builder.append("<");
+    builder.append(tag);
+    for (Map.Entry<String, Object> attr : attributes.entrySet()) {
       builder.append(' ');
-      builder.append(keyVal);
+      builder.append(attr.getKey());
+      builder.append("=\"");
+      builder.append(attr.getValue());
+      builder.append("\"");
     }
     builder.append(">");
   }
