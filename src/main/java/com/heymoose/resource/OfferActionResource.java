@@ -69,7 +69,7 @@ public class OfferActionResource {
   }
 
   @PUT
-  @Path("approve")
+  @Path("by_id")
   @Transactional
   public Response approveByIdList(@FormParam("offer_id") Long offerId,
                                   @FormParam("id") List<Long> idList) {
