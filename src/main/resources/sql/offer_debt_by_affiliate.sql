@@ -21,5 +21,5 @@ where
   source_id = :offer_id
   and withdrawal.creation_time between :from and :to
 
-group by user_id, user_email
-order by debt_amount desc
+group by user_id, usr.email
+order by "debt-amount" desc
