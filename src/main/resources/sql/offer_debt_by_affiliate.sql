@@ -1,13 +1,13 @@
 select
-  user_id,
-  usr.email as user_email,
-  coalesce(sum(payed.amount), 0.0) as payed_out_amount,
-  sum(withdrawal.amount) - coalesce(sum(payed.amount), 0.0) as debt_amount,
-  sum(withdrawal.amount) as income_amount,
+  user_id as "user-id",
+  usr.email as "user-email",
+  coalesce(sum(payed.amount), 0.0) as "payed-out-amount",
+  sum(withdrawal.amount) - coalesce(sum(payed.amount), 0.0) as "debt-amount",
+  sum(withdrawal.amount) as "income-amount",
   sum(case when withdrawal.order_time is null
       then 0.0
       else withdrawal.amount
-      end) as ordered_amount
+      end) as "ordered-amount"
 
 from withdrawal
 
