@@ -9,6 +9,7 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.accounting.Withdraw;
+import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
@@ -88,7 +89,7 @@ public class CommonModule extends AbstractModule {
         AdminAccount.class, AccountingEntry.class, AccountingTransaction.class,
         OfferStat.class, OfferAction.class,
         AdminAccountNotConfirmed.class, Token.class, MlmExecution.class,
-        KeywordPattern.class, ErrorInfo.class);
+        KeywordPattern.class, ErrorInfo.class, Withdrawal.class);
   }
 
   protected void bindEntities(Class... classes) {
