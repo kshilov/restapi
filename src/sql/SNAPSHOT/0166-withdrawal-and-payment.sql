@@ -13,7 +13,6 @@ create table withdrawal(
   source_id bigint not null,
   action_id bigint not null,
   amount numeric(19,2) not null,
-  payed_out numeric(19,2) default 0.0 not null,
   creation_time timestamp without time zone default now() not null,
   order_time timestamp without time zone
 );
@@ -113,11 +112,4 @@ and usr.affiliate_account_id = withdraw.account_id
 where withdraw.done = true
 
 group by  withdrawal.id, withdrawal.amount;
-
-
-update withdrawal
-set payed_out = (select coalesce(sum(amount), 0.00)
-                from withdrawal_payment
-                where withdrawal_id = withdrawal.id);
-
 end;
