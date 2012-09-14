@@ -119,5 +119,10 @@ order_time = (select min(timestamp) from withdraw
               join accounting_entry entry
               on entry.source_id = withdrawal.action_id
               and entry.event = 2 /* ACTION_APPROVED */
-              and entry.creation_time < withdraw.timestamp);
+              and entry.creation_time < withdraw.timestamp)
+where basis = 'AFFILIATE_REVENUE';
+
+update withdrawal set
+order_time = creation_time
+where basis = 'FEE';
 end;

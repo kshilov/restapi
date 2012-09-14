@@ -139,7 +139,8 @@ public class OfferActionsHiber implements OfferActions {
             .setSourceId(action.offer().master())
             .setActionId(action.id())
             .setAmount(entry.amount().negate())
-            .setBasis(Withdrawal.Basis.FEE));
+            .setBasis(Withdrawal.Basis.FEE)
+            .setOrderTime(DateTime.now())); // it's immediately ordered
       }
     }
     action.approve();
