@@ -52,10 +52,14 @@ public class WithdrawalResource {
     Offer offer = existingOffer(offerId);
     for (int i = 0; i < userIdList.size(); i++) {
       checkNotNull(userIdList.get(i), amountList.get(i));
-      debts.payOffToAffiliate(
-          offer,
-          userIdList.get(i), amountList.get(i),
-          new DateTime(from) ,new DateTime(to));
+      try {
+        debts.payOffToAffiliate(
+            offer,
+            userIdList.get(i), amountList.get(i),
+            new DateTime(from) ,new DateTime(to));
+      } catch (IllegalArgumentException e) {
+        return Response.status(409).build();
+      }
     }
     return Response.ok().build();
   }

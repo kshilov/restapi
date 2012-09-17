@@ -98,13 +98,13 @@ public final class Debts {
   @SuppressWarnings("unchecked")
   public void payOffToAffiliate(Offer offer, Long userId, BigDecimal available,
                                DateTime from, DateTime to) {
-    Preconditions.checkNotNull(offer, "Offer can not be null.");
+    Preconditions.checkArgument(offer != null, "Offer can not be null.");
     log.info("Gonna make withdraws for offer: {} to user: {} period: {} - {}.",
         new Object[] { offer.id(), userId, from, to });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.between("creationTime", from, to))
         .add(Restrictions.isNotNull("orderTime"))
-        .add(Restrictions.eq("offerId", offer.id()))
+        .add(Restrictions.eq("sourceId", offer.id()))
         .addOrder(Order.asc("creationTime"));
     if (userId != null) {
       criteria.add(Restrictions.eq("userId", userId));
