@@ -9,15 +9,10 @@ import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.infrastructure.util.DataFilter;
-import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 @Singleton
 public final class AccountingStoredFunc implements Accounting {
@@ -89,37 +84,6 @@ public final class AccountingStoredFunc implements Accounting {
   @Override
   public Account destination(AccountingTransaction transaction) {
     return accountingHiber.destination(transaction);
-  }
-
-  @Override
-  public Pair<QueryResult, Long> debtGroupedByAffiliate(
-      Long offerId, DataFilter<DebtOrdering> filter) {
-    return accountingHiber.debtGroupedByAffiliate(offerId, filter);
-  }
-
-
-  @Override
-  public Map<String, Object> sumDebtForAffiliate(Long affId, DateTime from,
-                                                 DateTime to) {
-    return accountingHiber.sumDebtForAffiliate(affId, from, to);
-  }
-
-  @Override
-  public Pair<QueryResult, Long> debtGroupedByOffer(
-      Long affId, DataFilter<DebtOrdering> filter) {
-    return accountingHiber.debtGroupedByOffer(affId, filter);
-  }
-
-  @Override
-  public Map<String, Object> sumDebtForOffer(Long offerId, DateTime from,
-                                             DateTime to) {
-    return accountingHiber.sumDebtForOffer(offerId, from, to);
-  }
-
-  @Override
-  public void offerToAffiliate(Offer offer, Long userId, BigDecimal amount,
-                               DateTime from, DateTime to) {
-    accountingHiber.offerToAffiliate(offer, userId, amount, from, to);
   }
 
   @Override
