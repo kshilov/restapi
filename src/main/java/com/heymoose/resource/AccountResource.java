@@ -34,13 +34,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static com.heymoose.infrastructure.util.WebAppUtil.*;
 import static com.heymoose.resource.Exceptions.notFound;
 
 @Path("account")
@@ -166,16 +165,18 @@ public class AccountResource {
   @Transactional
   @Path("withdraw")
   public Response makeWithdraw(@FormParam("offer_id") Long offerId,
-                           @FormParam("user_id") Long userId,
-                           @FormParam("amount") BigDecimal amount,
+                           @FormParam("user_id") List<Long> userIdList,
+                           @FormParam("amount") List<BigDecimal> amountList,
                            @FormParam("from") @DefaultValue("0") Long from,
                            @FormParam("to") Long to) {
-    checkNotNull(amount);
-    if (offerId == null && userId == null) {
-      throw new WebApplicationException(400);
+    checkCondition(userIdList.size() == amountList.size());
+    for (int i = 0; i < userIdList.size(); i++) {
+      checkNotNull(userIdList.get(i), amountList.get(i));
+      accounting.offerToAffiliate(
+          offerId,
+          userIdList.get(i), amountList.get(i),
+          new DateTime(from) ,new DateTime(to));
     }
-    accounting.offerToAffiliate(
-        offerId, userId, amount, new DateTime(from) ,new DateTime(to));
     return Response.ok().build();
   }
 
