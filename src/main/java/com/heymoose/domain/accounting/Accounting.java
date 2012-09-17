@@ -7,7 +7,6 @@ import com.heymoose.infrastructure.util.QueryResult;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 public interface Accounting {
@@ -38,16 +37,6 @@ public interface Accounting {
   void cancel(AccountingTransaction transaction);
 
   AccountingEntry getLastEntry(Account account);
-
-  Withdraw withdraw(Account account, BigDecimal amount);
-  
-  void approveWithdraw(Withdraw withdraw);
-
-  List<Withdraw> withdraws(Account account);
-
-  Withdraw withdrawOfAccount(Account account, long withdrawId);
-
-  void deleteWithdraw(Withdraw withdraw, String comment);
 
   Account destination(AccountingTransaction transaction);
 

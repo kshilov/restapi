@@ -8,7 +8,6 @@ import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingTransaction;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.accounting.WithdrawalPayment;
 import com.heymoose.domain.action.OfferAction;
@@ -82,7 +81,7 @@ public class CommonModule extends AbstractModule {
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
     bind(ErrorInfoRepository.class).to(ErrorInfoRepositoryHiber.class);
 
-    bindEntities(Offer.class, User.class, Banner.class, Withdraw.class,
+    bindEntities(Offer.class, User.class, Banner.class,
         Setting.class, Site.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class,
         Category.class, CategoryGroup.class,

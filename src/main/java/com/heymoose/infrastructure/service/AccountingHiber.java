@@ -6,9 +6,9 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Withdrawal;
-import com.heymoose.domain.accounting.WithdrawalPayment;import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.accounting.WithdrawalPayment;
+import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.heymoose.resource.Exceptions.conflict;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Singleton
 public class AccountingHiber implements Accounting {
@@ -141,43 +139,6 @@ public class AccountingHiber implements Accounting {
     criteria.add(Restrictions.eq("account", account));
     criteria.addOrder(Order.desc("id"));
     return (AccountingEntry) repo.getExecutableCriteria(criteria).setMaxResults(1).uniqueResult();
-  }
-
-  @Override
-  public Withdraw withdraw(Account account, BigDecimal amount) {
-    if (amount.signum() < 1 || account.balance().compareTo(amount) < 0)
-      throw conflict();
-    Withdraw withdraw = new Withdraw(account, amount);
-    repo.put(withdraw);
-    AccountingEntry entry = new AccountingEntry(account, amount.negate(),
-        AccountingEvent.WITHDRAW, withdraw.id(), null);
-    repo.put(entry);
-    applyEntry(entry);
-    return withdraw;
-  }
-  
-  @Override
-  public void approveWithdraw(Withdraw withdraw) {
-    withdraw.approve();
-  };
-
-  @Override
-  public List<Withdraw> withdraws(Account account) {
-    return repo.allByHQL(Withdraw.class,
-        "from Withdraw where account = ? order by timestamp desc", account);
-  }
-
-  @Override
-  public Withdraw withdrawOfAccount(Account account, long withdrawId) {
-    return repo.byHQL(Withdraw.class, "from Withdraw where account = ? and id = ?", account, withdrawId);
-  }
-
-  @Override
-  public void deleteWithdraw(Withdraw withdraw, String comment) {
-    checkArgument(!isBlank(comment));
-    AccountingEntry entry = new AccountingEntry(withdraw.account(), withdraw.amount());
-    applyEntry(entry);
-    repo.remove(withdraw);
   }
 
   @Override

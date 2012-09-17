@@ -7,7 +7,6 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.util.DataFilter;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 @Singleton
@@ -86,31 +84,6 @@ public final class AccountingStoredFunc implements Accounting {
   @Override
   public AccountingEntry getLastEntry(Account account) {
     return accountingHiber.getLastEntry(account);
-  }
-
-  @Override
-  public Withdraw withdraw(Account account, BigDecimal amount) {
-    return accountingHiber.withdraw(account, amount);
-  }
-  
-  @Override
-  public void approveWithdraw(Withdraw withdraw) {
-    accountingHiber.approveWithdraw(withdraw);
-  };
-
-  @Override
-  public List<Withdraw> withdraws(Account account) {
-    return accountingHiber.withdraws(account);
-  }
-
-  @Override
-  public Withdraw withdrawOfAccount(Account account, long withdrawId) {
-    return accountingHiber.withdrawOfAccount(account, withdrawId);
-  }
-
-  @Override
-  public void deleteWithdraw(Withdraw withdraw, String comment) {
-    accountingHiber.deleteWithdraw(withdraw, comment);
   }
 
   @Override
