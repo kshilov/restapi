@@ -27,7 +27,7 @@ import java.util.Map;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.*;
 
-@Path("withdrawal")
+@Path("withdrawals")
 public class WithdrawalResource {
 
   private final Repo repo;
