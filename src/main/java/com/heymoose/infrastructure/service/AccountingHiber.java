@@ -6,16 +6,21 @@ import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.accounting.Withdraw;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.accounting.Withdrawal;
+import com.heymoose.domain.accounting.WithdrawalPayment;import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,6 +34,9 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Singleton
 public class AccountingHiber implements Accounting {
+
+  private static final Logger log =
+      LoggerFactory.getLogger(AccountingHiber.class);
 
   private final Repo repo;
 
@@ -220,5 +228,58 @@ public class AccountingHiber implements Accounting {
         .addQueryParam("from", from.toDate())
         .addQueryParam("to", to.toDate())
         .execute().get(0);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void offerToAffiliate(Long offerId, Long userId, BigDecimal available,
+                               DateTime from, DateTime to) {
+    log.info("Gonna make withdraws for offer: {} to user: {} period: {} - {}",
+        new Object[] { offerId, userId, from, to });
+    Criteria criteria = repo.session().createCriteria(Withdrawal.class)
+        .add(Restrictions.between("creationTime", from, to))
+        .addOrder(Order.asc("creationTime"));
+    if (offerId != null) {
+      criteria.add(Restrictions.eq("sourceId", offerId));
+    }
+    if (userId != null) {
+      criteria.add(Restrictions.eq("userId", userId));
+    }
+
+    List<Withdrawal> matchedWithdrawalList = (List<Withdrawal>) criteria.list();
+    log.info("Found {} matched withdrawals.", matchedWithdrawalList.size());
+    int i = -1;
+    DateTime now = DateTime.now();
+    while (available.signum() > 0
+        && ++i < matchedWithdrawalList.size()) {
+
+      Withdrawal payingFor = matchedWithdrawalList.get(i);
+      BigDecimal payedOut = (BigDecimal) repo.session()
+          .createCriteria(WithdrawalPayment.class)
+          .add(Restrictions.eq("withdrawalId", payingFor.id()))
+          .setProjection(Projections.sum("amount"))
+          .uniqueResult();
+      payedOut = payedOut == null ? BigDecimal.ZERO : payedOut;
+      BigDecimal toPay = payingFor.amount().subtract(payedOut);
+      if (toPay.signum() == 0) {
+        continue;
+      } else if (toPay.signum() < 0) {
+        log.warn("Withdrawal {} has more money paid out, than needed!",
+            payingFor.id());
+        continue;
+      }
+      BigDecimal diff = available.subtract(toPay);
+      BigDecimal toPayAvailable = diff.signum() > -1 ? toPay : available;
+
+      log.info("Paying for withdrawal: {}, amount: {}",
+          payingFor.id(), toPayAvailable);
+
+      repo.put(new WithdrawalPayment()
+          .setCreationTime(now)
+          .setAmount(toPayAvailable)
+          .setWithdrawalId(payingFor.id()));
+
+      available = available.subtract(toPayAvailable);
+    }
   }
 }

@@ -34,6 +34,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +159,24 @@ public class AccountResource {
     checkNotNull(comment);
     Withdraw withdraw = existingWithdraw(id);
     accounting.deleteWithdraw(withdraw, comment);
+  }
+
+
+  @PUT
+  @Transactional
+  @Path("withdraw")
+  public Response makeWithdraw(@FormParam("offer_id") Long offerId,
+                           @FormParam("user_id") Long userId,
+                           @FormParam("amount") BigDecimal amount,
+                           @FormParam("from") @DefaultValue("0") Long from,
+                           @FormParam("to") Long to) {
+    checkNotNull(amount);
+    if (offerId == null && userId == null) {
+      throw new WebApplicationException(400);
+    }
+    accounting.offerToAffiliate(
+        offerId, userId, amount, new DateTime(from) ,new DateTime(to));
+    return Response.ok().build();
   }
 
 

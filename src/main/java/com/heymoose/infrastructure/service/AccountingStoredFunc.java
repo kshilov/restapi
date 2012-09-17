@@ -141,4 +141,10 @@ public final class AccountingStoredFunc implements Accounting {
                                              DateTime to) {
     return accountingHiber.sumDebtForOffer(offerId, from, to);
   }
+
+  @Override
+  public void offerToAffiliate(Long offerId, Long userId, BigDecimal amount,
+                               DateTime from, DateTime to) {
+    accountingHiber.offerToAffiliate(offerId, userId, amount, from, to);
+  }
 }

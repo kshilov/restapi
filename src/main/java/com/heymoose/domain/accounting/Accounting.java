@@ -58,4 +58,8 @@ public interface Accounting {
                                              DataFilter<DebtOrdering> filter);
 
   Map<String, Object> sumDebtForOffer(Long offerId, DateTime from, DateTime to);
+
+  void offerToAffiliate(Long offerId, Long userId, BigDecimal amount,
+                        DateTime from, DateTime to);
+
 }
