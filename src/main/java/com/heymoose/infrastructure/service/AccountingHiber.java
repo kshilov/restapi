@@ -238,6 +238,7 @@ public class AccountingHiber implements Accounting {
         new Object[] { offerId, userId, from, to });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.between("creationTime", from, to))
+        .add(Restrictions.isNotNull("orderTime"))
         .addOrder(Order.asc("creationTime"));
     if (offerId != null) {
       criteria.add(Restrictions.eq("sourceId", offerId));
