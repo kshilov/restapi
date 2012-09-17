@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -8,6 +9,7 @@ import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.accounting.WithdrawalPayment;import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
@@ -65,6 +67,9 @@ public class AccountingHiber implements Accounting {
   public void transferMoney(Account src, Account dst, BigDecimal amount,
                             AccountingEvent event, Long sourceId, String descr) {
     checkArgument(amount.signum() == 1);
+    log.info("Entering transfer money src {} dst {}, " +
+        "amount: {}, event: {}, sourceId: {}, descr: {}",
+        new Object[] { src, dst, amount, event, sourceId, descr });
     AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, descr);
     AccountingEntry dstEntry = new AccountingEntry(dst, amount, event, sourceId, descr);
     createTransaction(srcEntry, dstEntry);
@@ -232,16 +237,16 @@ public class AccountingHiber implements Accounting {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void offerToAffiliate(Long offerId, Long userId, BigDecimal available,
+  public void offerToAffiliate(Offer offer, Long userId, BigDecimal available,
                                DateTime from, DateTime to) {
     log.info("Gonna make withdraws for offer: {} to user: {} period: {} - {}",
-        new Object[] { offerId, userId, from, to });
+        new Object[] { offer.id(), userId, from, to });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.between("creationTime", from, to))
         .add(Restrictions.isNotNull("orderTime"))
         .addOrder(Order.asc("creationTime"));
-    if (offerId != null) {
-      criteria.add(Restrictions.eq("sourceId", offerId));
+    if (offer != null) {
+      criteria.add(Restrictions.eq("sourceId", offer.id()));
     }
     if (userId != null) {
       criteria.add(Restrictions.eq("userId", userId));
@@ -275,6 +280,7 @@ public class AccountingHiber implements Accounting {
       log.info("Paying for withdrawal: {}, amount: {}",
           payingFor.id(), toPayAvailable);
 
+      addOfferFunds(offer, toPayAvailable);
       repo.put(new WithdrawalPayment()
           .setCreationTime(now)
           .setAmount(toPayAvailable)
@@ -282,5 +288,16 @@ public class AccountingHiber implements Accounting {
 
       available = available.subtract(toPayAvailable);
     }
+  }
+
+  @Override
+  public void addOfferFunds(Offer offer, BigDecimal amount) {
+    Account advertiserAcc = offer.advertiser().advertiserAccount();
+    Preconditions.checkArgument(amount.signum() > 0,
+        "Amount should be positive.");
+    Preconditions.checkArgument(advertiserAcc.balance().compareTo(amount) >= 0,
+        "Can't transfer more, than advertiser has on his account.");
+    this.transferMoney(advertiserAcc, offer.account(), amount,
+        AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
   }
 }

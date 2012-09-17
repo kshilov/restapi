@@ -9,6 +9,7 @@ import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
@@ -143,8 +144,13 @@ public final class AccountingStoredFunc implements Accounting {
   }
 
   @Override
-  public void offerToAffiliate(Long offerId, Long userId, BigDecimal amount,
+  public void offerToAffiliate(Offer offer, Long userId, BigDecimal amount,
                                DateTime from, DateTime to) {
-    accountingHiber.offerToAffiliate(offerId, userId, amount, from, to);
+    accountingHiber.offerToAffiliate(offer, userId, amount, from, to);
+  }
+
+  @Override
+  public void addOfferFunds(Offer offer, BigDecimal amount) {
+    accountingHiber.addOfferFunds(offer, amount);
   }
 }

@@ -246,7 +246,7 @@ public class OfferResource {
     offers.put(offer);
 
     if (balance.signum() > 0)
-      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
+      accounting.addOfferFunds(offer, balance);
 
     return offer.id().toString();
   }
@@ -512,9 +512,7 @@ public class OfferResource {
     BigDecimal amount = new BigDecimal(dAmount);
     if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
-    accounting.transferMoney(offer.advertiser().advertiserAccount(),
-        offer.account(), amount,
-        AccountingEvent.OFFER_ACCOUNT_ADD, null);
+    accounting.addOfferFunds(offer, amount);
   }
 
   @DELETE

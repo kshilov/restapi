@@ -5,6 +5,7 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
@@ -34,6 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
@@ -170,10 +172,12 @@ public class AccountResource {
                            @FormParam("from") @DefaultValue("0") Long from,
                            @FormParam("to") Long to) {
     checkCondition(userIdList.size() == amountList.size());
+    checkNotNull(offerId);
+    Offer offer = existingOffer(offerId);
     for (int i = 0; i < userIdList.size(); i++) {
       checkNotNull(userIdList.get(i), amountList.get(i));
       accounting.offerToAffiliate(
-          offerId,
+          offer,
           userIdList.get(i), amountList.get(i),
           new DateTime(from) ,new DateTime(to));
     }
@@ -279,5 +283,13 @@ public class AccountResource {
     if (account == null)
       throw notFound();
     return account;
+  }
+
+  private Offer existingOffer(long id) {
+    Offer offer = repo.get(Offer.class, id);
+    if (offer == null)
+      throw new WebApplicationException(404);
+    return offer;
+
   }
 }

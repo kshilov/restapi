@@ -1,5 +1,6 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
@@ -60,7 +61,9 @@ public interface Accounting {
 
   Map<String, Object> sumDebtForOffer(Long offerId, DateTime from, DateTime to);
 
-  void offerToAffiliate(Long offerId, Long userId, BigDecimal amount,
+  void offerToAffiliate(Offer offer, Long userId, BigDecimal amount,
                         DateTime from, DateTime to);
+
+  void addOfferFunds(Offer offer, BigDecimal amount);
 
 }
