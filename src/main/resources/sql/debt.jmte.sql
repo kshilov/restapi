@@ -18,7 +18,11 @@ ${end}
   sum(case when withdrawal.order_time is null
       then 0.0
       else withdrawal.amount
-      end) as "ordered-amount"
+      end) as "ordered-amount",
+  sum(case when withdrawal.order_time is null
+      then 0.0
+      else withdrawal.amount
+      end) - coalesce(sum(payed.amount), 0.0) as "pending-amount"
 
 from withdrawal
 

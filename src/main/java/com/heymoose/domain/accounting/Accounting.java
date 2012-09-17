@@ -15,7 +15,8 @@ public interface Accounting {
     OFFER_NAME("offer-name"), USER_EMAIL("user-email"),
     BASIS("basis"),
     PAYED_OUT("payed-out-amount"), DEBT("debt-amount"),
-    INCOME("income-amount"), ORDERED("ordered-amount");
+    INCOME("income-amount"), ORDERED("ordered-amount"),
+    PENDING("pending-amount");
 
     public final String COLUMN;
 
