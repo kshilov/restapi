@@ -30,7 +30,7 @@ public final class Debts {
     BASIS("basis"),
     PAYED_OUT("payed-out-amount"), DEBT("debt-amount"),
     INCOME("income-amount"), ORDERED("ordered-amount"),
-    PENDING("pending-amount");
+    PENDING("pending-amount"), AVAILABLE("available-for-order-amount");
 
     public final String COLUMN;
 
