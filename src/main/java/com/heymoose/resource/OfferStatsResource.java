@@ -11,7 +11,6 @@ import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlQueryResult;
-import com.heymoose.resource.xml.XmlSubOfferStats;
 import com.heymoose.resource.xml.XmlTotalStats;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -248,8 +247,9 @@ public class OfferStatsResource {
 
   @GET
   @Path("suboffers")
+  @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatByOffer(
+  public String subofferStatByOffer(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("for_advertiser") boolean forAdvertiser,
@@ -262,14 +262,15 @@ public class OfferStatsResource {
       @Context UriInfo context) {
 
     checkNotNull(offerId);
-    return new XmlSubOfferStats(stats.subofferStatForOffer(
+    return toXml(stats.subofferStatForOffer(
         affId, offerId, forAdvertiser, parseContext(context)));
   }
 
   @GET
   @Path("suboffers/affiliate")
+  @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatByAffiliate(
+  public String subofferStatByAffiliate(
       @QueryParam("aff_id") Long affId,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
@@ -280,7 +281,7 @@ public class OfferStatsResource {
       @Context UriInfo context) {
 
     checkNotNull(affId);
-    return new XmlSubOfferStats(
+    return toXml(
         stats.subofferStatForAffiliate(affId, parseContext(context)));
   }
 
@@ -288,7 +289,7 @@ public class OfferStatsResource {
   @Path("suboffers/advertiser")
   @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatByAdvertiser(
+  public String subofferStatByAdvertiser(
       @QueryParam("adv_id") Long advId,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
@@ -301,14 +302,14 @@ public class OfferStatsResource {
     checkNotNull(advId);
     Pair<QueryResult, Long> p = stats.subofferStatForAdvertiser(
         advId,  parseContext(context));
-    return new XmlSubOfferStats(p);
+    return toXml(p);
   }
 
   @GET
   @Path("suboffers/sub_id")
   @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatBySubIds(
+  public String subofferStatBySubIds(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("sub_id") String subId,
@@ -334,14 +335,14 @@ public class OfferStatsResource {
 
     Pair<QueryResult, Long> p = stats.subofferStatForSubIds(
         affId, offerId, filterBuilder.build(), parseContext(context));
-    return new XmlSubOfferStats(p);
+    return toXml(p);
   }
 
   @GET
   @Path("suboffers/source_id")
   @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatBySourceId(
+  public String subofferStatBySourceId(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("source_id") String sourceId,
@@ -356,14 +357,14 @@ public class OfferStatsResource {
     checkNotNull(affId);
     Pair<QueryResult, Long> p = stats.subofferStatForSourceId(
         affId, offerId, sourceId, parseContext(context));
-    return new XmlSubOfferStats(p);
+    return toXml(p);
   }
 
   @GET
   @Path("suboffers/referer")
   @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatByReferer(
+  public String subofferStatByReferer(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("referer") String referer,
@@ -377,14 +378,14 @@ public class OfferStatsResource {
 
     Pair<QueryResult, Long> p = stats.subofferStatForReferer(
         affId, offerId, referer, parseContext(context));
-    return new XmlSubOfferStats(p);
+    return toXml(p);
   }
 
   @GET
   @Path("suboffers/keywords")
   @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatByKeywords(
+  public String subofferStatByKeywords(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("keywords") String keywords,
@@ -398,7 +399,7 @@ public class OfferStatsResource {
 
     Pair<QueryResult, Long> p = stats.subofferStatForKeywords(
         affId, offerId, keywords, parseContext(context));
-    return new XmlSubOfferStats(p);
+    return toXml(p);
   }
 
   @GET
@@ -475,7 +476,7 @@ public class OfferStatsResource {
         .setOffset(new Integer(nullToDefault(queryParams, "offset", "0")))
         .setLimit(new Integer(nullToDefault(queryParams, "limit", "20")))
         .setOrdering(OfferStats.Ordering.valueOf(
-            nullToDefault(queryParams, "ordering", "CLICKS_COUNT")))
+            nullToDefault(queryParams, "ordering", "DESCR")))
         .setDirection(OrderingDirection.valueOf(
             nullToDefault(queryParams, "direction", "DESC")));
   }

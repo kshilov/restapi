@@ -283,7 +283,7 @@ public class OfferStats {
                                                       DataFilter<Ordering> common) {
     Preconditions.checkNotNull(offerId, "Offer id should not be null.");
     SqlLoader.TemplateQuery query =
-        SqlLoader.templateQuery(STATS_QUERY, repo.session())
+        SqlLoader.templateQuery(SUBOFFER_STATS_QUERY, repo.session())
         .addTemplateParam("addFee", forAdvertiser)
         .addTemplateParam("filterByParentId", true)
         .addQueryParam("parent_id", offerId);
