@@ -114,8 +114,19 @@ where withdraw.done = true
 group by  withdrawal.id, withdrawal.amount;
 
 
+create function order_withdrawal(action_id bigint,
+  t timestamp without time zone) returns bigint language sql
+  as $_$
+
+    update withdrawal
+    set order_time = $2
+    where action_id = $1; $_$;
+
+
 update withdrawal set
 order_time = (select min(timestamp) from withdraw
+              join offer_action action
+              on action.id = withdrawals.action_id
               join accounting_entry entry
               on entry.source_id = withdrawal.action_id
               and entry.event = 2 /* ACTION_APPROVED */

@@ -26,7 +26,7 @@ ${end}
   sum(case when withdrawal.order_time is null
       then withdrawal.amount
       else 0.00
-      end) as "available-for-order-amount",
+      end) as "available-for-order-amount"
 
 from withdrawal
 
