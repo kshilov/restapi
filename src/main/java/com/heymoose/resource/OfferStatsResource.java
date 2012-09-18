@@ -471,8 +471,15 @@ public class OfferStatsResource {
   private DataFilter<OfferStats.Ordering> parseContext(UriInfo context) {
     MultivaluedMap<String, String> queryParams = context.getQueryParameters();
     DataFilter<OfferStats.Ordering> filter = DataFilter.newInstance();
-    return filter.setFrom(new DateTime(nullToDefault(queryParams, "from", "0")))
-        .setTo(new DateTime(queryParams.getFirst("to")))
+    Long from = new Long(nullToDefault(queryParams, "from", "0"));
+    String toString = queryParams.getFirst("to");
+    Long to = null;
+    if (toString != null) {
+      to = Long.parseLong(queryParams.getFirst("to"));
+    }
+    return filter.setFrom(new DateTime())
+        .setTo(to)
+        .setFrom(from)
         .setOffset(new Integer(nullToDefault(queryParams, "offset", "0")))
         .setLimit(new Integer(nullToDefault(queryParams, "limit", "20")))
         .setOrdering(OfferStats.Ordering.valueOf(
