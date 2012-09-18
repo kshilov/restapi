@@ -1,6 +1,7 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 
 import java.util.Map;
@@ -19,6 +20,12 @@ public final class XmlQueryResult {
 
   public XmlQueryResult(QueryResult result) {
     this.queryResult = result;
+  }
+
+
+  public XmlQueryResult(Pair<QueryResult, Long> resultWithCount) {
+    this.queryResult = resultWithCount.fst;
+    this.rootAttributeMap.put("count", resultWithCount.snd);
   }
 
   public XmlQueryResult(String root, String entry, QueryResult queryResult) {

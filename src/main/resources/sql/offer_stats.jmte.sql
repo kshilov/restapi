@@ -1,63 +1,63 @@
 select
   *,
-  case shows_count
+  case shows
     when 0 then 0.00
-    else clicks_count * 100.0 / shows_count
+    else clicks * 100.0 / shows
   end ctr,
-  case clicks_count
+  case clicks
     when 0 then 0.00
-    else (leads_count + sales_count) * 100.0 / clicks_count
+    else (leads + sales) * 100.0 / clicks
   end cr,
-  case clicks_count
+  case clicks
     when 0 then 0.00
-    else (confirmed_revenue + not_confirmed_revenue) / clicks_count
+    else ("confirmed-revenue" + "not-confirmed-revenue") / clicks
   end ecpc,
-  case shows_count
+  case shows
     when 0 then 0.00
-    else (confirmed_revenue + not_confirmed_revenue) * 1000.0 / shows_count
+    else ("confirmed-revenue" + "not-confirmed-revenue") * 1000.0 / shows
   end ecpm
 from
   (
   select
-    coalesce(sum(show_count),   0) shows_count,
-    coalesce(sum(click_count),  0) clicks_count,
-    coalesce(sum(leads_count),  0) leads_count,
-    coalesce(sum(sales_count),  0) sales_count,
+    coalesce(sum(show_count),   0) shows,
+    coalesce(sum(click_count),  0) clicks,
+    coalesce(sum(leads_count),  0) leads,
+    coalesce(sum(sales_count),  0) sales,
     ${if addFee}
-      coalesce(sum(confirmed_revenue      + confirmed_fee),     0.00) confirmed_revenue,
-      coalesce(sum(not_confirmed_revenue  + not_confirmed_fee), 0.00) not_confirmed_revenue,
-      coalesce(sum(canceled_revenue       + canceled_fee),      0.00) canceled_revenue,
+      coalesce(sum(confirmed_revenue      + confirmed_fee),     0.00) as "confirmed-revenue",
+      coalesce(sum(not_confirmed_revenue  + not_confirmed_fee), 0.00) as "not-confirmed-revenue",
+      coalesce(sum(canceled_revenue       + canceled_fee),      0.00) as "canceled-revenue",
     ${else}
-      coalesce(sum(confirmed_revenue),      0.00) confirmed_revenue,
-      coalesce(sum(not_confirmed_revenue),  0.00) not_confirmed_revenue,
-      coalesce(sum(canceled_revenue),       0.00) canceled_revenue,
+      coalesce(sum(confirmed_revenue),      0.00) as "confirmed-revenue",
+      coalesce(sum(not_confirmed_revenue),  0.00) as "not-confirmed-revenue",
+      coalesce(sum(canceled_revenue),       0.00) as "canceled-revenue",
     ${end}
 
     ${if groupByOffer}
-      o.id id, o.name descr
+      o.id id, o.name as "name"
     ${end}
 
     ${if groupByAffiliate}
-      offer_stat.aff_id id, p.email descr
+      offer_stat.aff_id id, p.email as "name"
     ${end}
 
     ${if groupByAffiliateId}
-      offer_stat.aff_id id, '' || offer_stat.aff_id descr
+      offer_stat.aff_id id, '' || offer_stat.aff_id as "name"
     ${end}
 
     ${if groupByAdvertiser}
-      p.id id, p.email || ' (' || coalesce(p.organization, '--') || ')' descr
+      p.id id, p.email || ' (' || coalesce(p.organization, '--') || ')' as "name"
     ${end}
 
     ${if groupBySourceId}
-      0 id, offer_stat.source_id descr
+      0 id, offer_stat.source_id as "name"
     ${end}
 
     ${if groupBySub}
       0 id,
       ${foreach groupBySub sub}
         ${if last_sub}
-          coalesce(offer_stat.${sub}, '') descr
+          coalesce(offer_stat.${sub}, '') as "name"
         ${else}
           coalesce(offer_stat.${sub}, '') || ' / ' ||
         ${end}
@@ -65,11 +65,11 @@ from
     ${end}
 
     ${if groupByReferer}
-      0 id, offer_stat.referer descr
+      0 id, offer_stat.referer as "name"
     ${end}
 
     ${if groupByKeywords}
-      0 id, offer_stat.keywords descr
+      0 id, offer_stat.keywords as "name"
     ${end}
 
   from
@@ -159,6 +159,4 @@ from
   ) as sums
 
 order by
-  ${ordering} ${direction}, id, descr
-
-offset :offset limit :limit
+  "${ordering}" ${direction}, id, "name"

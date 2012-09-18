@@ -66,6 +66,10 @@ public final class SqlLoader {
           ((BigInteger) countQuery.uniqueResult()).longValue());
     }
 
+    public TemplateQuery addAllQueryParams(Map<String, ?> map) {
+      this.queryParamMap.putAll(map);
+      return this;
+    }
   }
 
 

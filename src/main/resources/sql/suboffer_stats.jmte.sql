@@ -56,4 +56,3 @@ ${end}
 group by o.id, o.title, parent.name, o.name, o.exclusive
 
 order by ${ordering} ${direction}
-offset :offset limit :limit

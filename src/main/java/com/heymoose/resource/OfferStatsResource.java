@@ -5,11 +5,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.OfferStats;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.OverallOfferStatsList;
-import com.heymoose.resource.xml.XmlOverallOfferStats;
+import com.heymoose.resource.xml.XmlQueryResult;
 import com.heymoose.resource.xml.XmlSubOfferStats;
 import com.heymoose.resource.xml.XmlTotalStats;
 import org.joda.time.DateTime;
@@ -20,9 +21,12 @@ import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +35,16 @@ import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 @Singleton
 @Path("stats")
 public class OfferStatsResource {
+
+  private static final String STATS = "stats";
+  private static final String STAT = "stat";
+
+  private static String toXml(Pair<QueryResult, Long> p) {
+    return new XmlQueryResult(p)
+        .setRoot(STATS)
+        .setElement(STAT)
+        .toString();
+  }
 
   private final OfferStats stats;
 
@@ -41,31 +55,27 @@ public class OfferStatsResource {
 
   @GET
   @Path("offers/all")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList allOfferStats(
+  public String allOfferStats(
       @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.allOfferStats(granted, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.allOfferStats(granted, parseContext(context)));
+
   }
 
   @GET
   @Path("offers/aff")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList offersByAffiliateStats(
+  public String offersByAffiliateStats(
       @QueryParam("aff_id") Long affId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("from") @DefaultValue("0") Long from,
@@ -73,24 +83,18 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(affId);
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.affOfferStats(affId, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.affOfferStats(affId, parseContext(context)));
   }
 
   @GET
   @Path("offers/adv")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList offersByAdvertiserStats(
+  public String offersByAdvertiserStats(
       @QueryParam("adv_id") Long advId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("from") @DefaultValue("0") Long from,
@@ -98,64 +102,45 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(advId);
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.advOfferStats(advId, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.advOfferStats(advId, parseContext(context)));
   }
 
   @GET
   @Path("affiliates/all")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList allAffiliateStats(
+  public String allAffiliateStats(
       @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.affStats(common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.affStats(parseContext(context)));
   }
 
   @GET
   @Path("advertisers/all")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList allAdvertiserStats(
+  public String allAdvertiserStats(
       @QueryParam("expired") @DefaultValue("false") boolean expired,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.advStats(common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.advStats(parseContext(context)));
   }
 
   @GET
@@ -175,8 +160,9 @@ public class OfferStatsResource {
 
   @GET
   @Path("affiliates/offer")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList affiliateOfferStats(
+  public String affiliateOfferStats(
       @QueryParam("offer_id") Long offerId,
       @QueryParam("for_advertiser") boolean forAdvertiser,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
@@ -185,25 +171,19 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(offerId);
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p =
-        stats.affStatsByOffer(offerId, forAdvertiser, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.affStatsByOffer(
+        offerId, forAdvertiser, parseContext(context)));
   }
 
   @GET
   @Path("source_ids")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList sourceIdStats(
+  public String sourceIdStats(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
@@ -212,24 +192,17 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.sourceIdStats(
-        affId, offerId, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.sourceIdStats(affId, offerId, parseContext(context)));
   }
 
   @GET
   @Path("sub_ids")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList subIdStats(
+  public String subIdStats(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
@@ -248,10 +221,9 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
     ImmutableMap.Builder<String, String> filterBuilder = ImmutableMap.builder();
     putIfNotNull(filterBuilder, "sub_id", subId);
     putIfNotNull(filterBuilder, "sub_id1", subId1);
@@ -270,14 +242,8 @@ public class OfferStatsResource {
     Set<String> groupBy = Sets.difference(
         groupBySetBuilder.build(),
         filter.entrySet());
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.subIdStats(
-        affId, offerId, filter, groupBy, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.subIdStats(
+        affId, offerId, filter, groupBy, parseContext(context)));
   }
 
   @GET
@@ -292,15 +258,12 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(offerId);
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<QueryResult, Long> p = stats.subofferStatForOffer(
-        affId, offerId, forAdvertiser, common);
-    return new XmlSubOfferStats(p);
+    return new XmlSubOfferStats(stats.subofferStatForOffer(
+        affId, offerId, forAdvertiser, parseContext(context)));
   }
 
   @GET
@@ -313,18 +276,17 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(affId);
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<QueryResult, Long> p = stats.subofferStatForAffiliate(affId, common);
-    return new XmlSubOfferStats(p);
+    return new XmlSubOfferStats(
+        stats.subofferStatForAffiliate(affId, parseContext(context)));
   }
 
   @GET
   @Path("suboffers/advertiser")
+  @Produces("application/xml")
   @Transactional
   public XmlSubOfferStats subofferStatByAdvertiser(
       @QueryParam("adv_id") Long advId,
@@ -333,18 +295,18 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(advId);
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<QueryResult, Long> p = stats.subofferStatForAdvertiser(advId, common);
+    Pair<QueryResult, Long> p = stats.subofferStatForAdvertiser(
+        advId,  parseContext(context));
     return new XmlSubOfferStats(p);
   }
 
   @GET
   @Path("suboffers/sub_id")
+  @Produces("application/xml")
   @Transactional
   public XmlSubOfferStats subofferStatBySubIds(
       @QueryParam("aff_id") Long affId,
@@ -359,7 +321,8 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(affId);
     ImmutableMap.Builder<String, String> filterBuilder = ImmutableMap.builder();
@@ -369,16 +332,14 @@ public class OfferStatsResource {
     putIfNotNull(filterBuilder, "sub_id3", subId3);
     putIfNotNull(filterBuilder, "sub_id4", subId4);
 
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
     Pair<QueryResult, Long> p = stats.subofferStatForSubIds(
-        affId, offerId, filterBuilder.build(), common);
+        affId, offerId, filterBuilder.build(), parseContext(context));
     return new XmlSubOfferStats(p);
   }
 
   @GET
   @Path("suboffers/source_id")
+  @Produces("application/xml")
   @Transactional
   public XmlSubOfferStats subofferStatBySourceId(
       @QueryParam("aff_id") Long affId,
@@ -389,19 +350,18 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
     checkNotNull(affId);
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
     Pair<QueryResult, Long> p = stats.subofferStatForSourceId(
-        affId, offerId, sourceId, common);
+        affId, offerId, sourceId, parseContext(context));
     return new XmlSubOfferStats(p);
   }
 
   @GET
   @Path("suboffers/referer")
+  @Produces("application/xml")
   @Transactional
   public XmlSubOfferStats subofferStatByReferer(
       @QueryParam("aff_id") Long affId,
@@ -412,18 +372,17 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
     Pair<QueryResult, Long> p = stats.subofferStatForReferer(
-        affId, offerId, referer, common);
+        affId, offerId, referer, parseContext(context));
     return new XmlSubOfferStats(p);
   }
 
   @GET
   @Path("suboffers/keywords")
+  @Produces("application/xml")
   @Transactional
   public XmlSubOfferStats subofferStatByKeywords(
       @QueryParam("aff_id") Long affId,
@@ -434,20 +393,19 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
     Pair<QueryResult, Long> p = stats.subofferStatForKeywords(
-        affId, offerId, keywords, common);
+        affId, offerId, keywords, parseContext(context));
     return new XmlSubOfferStats(p);
   }
 
   @GET
   @Path("referer")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList refererStats(
+  public String refererStats(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
@@ -456,24 +414,18 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p =stats.refererStats(
-        affId, offerId, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.refererStats(
+        affId, offerId, parseContext(context)));
   }
 
   @GET
   @Path("keywords")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList keywordsStats(
+  public String keywordsStats(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("granted") @DefaultValue("false") boolean granted,
@@ -482,22 +434,16 @@ public class OfferStatsResource {
       @QueryParam("offset") @DefaultValue("0") int offset,
       @QueryParam("limit") @DefaultValue("2147483647") int limit,
       @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
-      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction,
+      @Context UriInfo context) {
 
-    if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.keywordsStats(
-        affId, offerId, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    return toXml(stats.keywordsStats(
+        affId, offerId, parseContext(context)));
   }
 
   @GET
   @Path("total")
+  @Produces("application/xml")
   @Transactional
   public XmlTotalStats totalStats(
       @QueryParam("from") @DefaultValue("0") Long from,
@@ -520,5 +466,26 @@ public class OfferStatsResource {
       builder.add(value);
     }
   }
+
+  private DataFilter<OfferStats.Ordering> parseContext(UriInfo context) {
+    MultivaluedMap<String, String> queryParams = context.getQueryParameters();
+    DataFilter<OfferStats.Ordering> filter = DataFilter.newInstance();
+    return filter.setFrom(new DateTime(nullToDefault(queryParams, "from", "0")))
+        .setTo(new DateTime(queryParams.getFirst("to")))
+        .setOffset(new Integer(nullToDefault(queryParams, "offset", "0")))
+        .setLimit(new Integer(nullToDefault(queryParams, "limit", "20")))
+        .setOrdering(OfferStats.Ordering.valueOf(
+            nullToDefault(queryParams, "ordering", "CLICKS_COUNT")))
+        .setDirection(OrderingDirection.valueOf(
+            nullToDefault(queryParams, "direction", "DESC")));
+  }
+
+  private String nullToDefault(MultivaluedMap<String, String> map,
+                               String key,
+                               String defaultValue) {
+    if (map.getFirst(key) == null) return defaultValue;
+    return map.getFirst(key);
+  }
+
 
 }
