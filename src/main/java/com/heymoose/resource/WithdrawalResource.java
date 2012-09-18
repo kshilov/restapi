@@ -64,6 +64,15 @@ public class WithdrawalResource {
     return Response.ok().build();
   }
 
+  @PUT
+  @Transactional
+  @Path("order")
+  public Response orderWithdrawal(@FormParam("aff_id") Long affId) {
+    checkNotNull(affId);
+    debts.orderWithdrawal(affId);
+    return Response.ok().build();
+  }
+
 
   @GET
   @Path("debt/by_affiliate")

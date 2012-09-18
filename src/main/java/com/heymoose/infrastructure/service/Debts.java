@@ -149,4 +149,15 @@ public final class Debts {
   }
 
 
+  public void orderWithdrawal(Long affId) {
+    repo.session().createQuery(
+        "update Withdrawal " +
+        "set orderTime = ? " +
+        "where orderTime = null")
+        .setDate(0, DateTime.now().toDate())
+        .executeUpdate();
+  }
+
+
+
 }
