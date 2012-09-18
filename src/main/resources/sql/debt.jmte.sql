@@ -10,10 +10,6 @@ ${if groupByOffer}
   source_id as "offer-id",
   offer.name as "offer-name",
   withdrawal.basis as "basis",
-  sum(case when withdrawal.order_time is null
-      then withdrawal.amount
-      else 0.00
-      end) as "available-for-order-amount",
 ${end}
 
   coalesce(sum(payed.amount), 0.0) as "payed-out-amount",
@@ -26,7 +22,11 @@ ${end}
   sum(case when withdrawal.order_time is null
       then 0.0
       else withdrawal.amount
-      end) - coalesce(sum(payed.amount), 0.0) as "pending-amount"
+      end) - coalesce(sum(payed.amount), 0.0) as "pending-amount",
+  sum(case when withdrawal.order_time is null
+      then withdrawal.amount
+      else 0.00
+      end) as "available-for-order-amount",
 
 from withdrawal
 
