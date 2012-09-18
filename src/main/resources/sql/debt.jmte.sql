@@ -12,21 +12,22 @@ ${if groupByOffer}
   withdrawal.basis as "basis",
 ${end}
 
-  coalesce(sum(payed.amount), 0.0) as "payed-out-amount",
-  sum(withdrawal.amount) - coalesce(sum(payed.amount), 0.0) as "debt-amount",
-  sum(withdrawal.amount) as "income-amount",
-  sum(case when withdrawal.order_time is null
-      then 0.0
+  coalesce(sum(payed.amount),       0.00) as "payed-out-amount",
+  coalesce(sum(withdrawal.amount),  0.00) -
+  coalesce(sum(payed.amount),       0.00) as "debt-amount",
+  coalesce(sum(withdrawal.amount),  0.00) as "income-amount",
+  coalesce(sum(case when withdrawal.order_time is null
+      then 0.00
       else withdrawal.amount
-      end) as "ordered-amount",
-  sum(case when withdrawal.order_time is null
-      then 0.0
+      end), 0.00) as "ordered-amount",
+  coalesce(sum(case when withdrawal.order_time is null
+      then 0.00
       else withdrawal.amount
-      end) - coalesce(sum(payed.amount), 0.0) as "pending-amount",
-  sum(case when withdrawal.order_time is null
+      end), 0.00) - coalesce(sum(payed.amount), 0.00) as "pending-amount",
+  coalesce(sum(case when withdrawal.order_time is null
       then withdrawal.amount
       else 0.00
-      end) as "available-for-order-amount"
+      end), 0.00) as "available-for-order-amount"
 
 from withdrawal
 
