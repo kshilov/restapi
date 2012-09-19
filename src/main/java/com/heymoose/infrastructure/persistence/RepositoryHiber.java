@@ -1,19 +1,22 @@
 package com.heymoose.infrastructure.persistence;
 
-import static com.google.common.collect.Iterables.isEmpty;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repository;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Provider;
+import com.heymoose.infrastructure.util.OrderingDirection;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class RepositoryHiber<T extends IdEntity> implements Repository<T> {
 
@@ -29,9 +32,18 @@ public abstract class RepositoryHiber<T extends IdEntity> implements Repository<
   protected Session hiber() {
     return sessionProvider.get();
   }
-  
-  protected static Order order(String propertyName, boolean ascending) {
-    return ascending ? Order.asc(propertyName) : Order.desc(propertyName);
+
+  protected static Order order(String propertyName, boolean asc) {
+    if (asc) return Order.asc(propertyName); else return Order.desc(propertyName);
+  }
+  protected static Order order(String propertyName, OrderingDirection direction) {
+    switch (direction) {
+      case ASC:
+        return Order.asc(propertyName);
+      case DESC:
+        return Order.desc(propertyName);
+    }
+    throw new RuntimeException("Unknown direction " + direction);
   }
 
   @Override

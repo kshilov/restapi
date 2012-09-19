@@ -10,6 +10,7 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.offer.OfferRepository.Ordering;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOfferGrant;
 import com.heymoose.resource.xml.XmlOfferGrants;
@@ -56,8 +57,10 @@ public class OfferGrantResource {
   @Transactional
   public XmlOfferGrants list(@QueryParam("offset") @DefaultValue("0") int offset,
                              @QueryParam("limit") @DefaultValue("20") int limit,
-                             @QueryParam("ord") @DefaultValue("ID") Ordering ord,
-                             @QueryParam("asc") @DefaultValue("false") boolean asc,
+                             @QueryParam("ordering") @DefaultValue("ID")
+                             Ordering ordering,
+                             @QueryParam("direction") @DefaultValue("DESC")
+                             OrderingDirection direction,
                              @QueryParam("offer_id") Long offerId,
                              @QueryParam("affiliate_id") Long affiliateId,
                              @QueryParam("state") OfferGrantState state,
@@ -71,7 +74,7 @@ public class OfferGrantResource {
         .setModeration(moderation)
         .setBlocked(blocked);
     return Mappers.toXmlOfferGrants(
-        offerGrants.list(ord, asc, offset, limit, filter),
+        offerGrants.list(ordering, direction, offset, limit, filter),
         offerGrants.count(filter), full
     );
   }

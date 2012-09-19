@@ -20,6 +20,7 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -128,8 +129,6 @@ public class OfferResource {
   @Transactional
   public XmlOffers listRequested(@QueryParam("offset") @DefaultValue("0") int offset,
                                  @QueryParam("limit") @DefaultValue("20") int limit,
-                                 @QueryParam("ord") @DefaultValue("ID") Ordering ord,
-                                 @QueryParam("asc") @DefaultValue("false") boolean asc,
                                  @QueryParam("aff_id") long affiliateId,
                                  @QueryParam("active") Boolean active,
                                  @QueryParam("pay_method") String payMethod,
@@ -149,7 +148,7 @@ public class OfferResource {
       filter.setCpaPolicy(CpaPolicy.valueOf(cpaPolicy.toUpperCase()));
 
     return Mappers.toXmlGrantedOffers(
-        offerGrants.list(ord, asc, offset, limit, filter),
+        offerGrants.list(Ordering.ID, OrderingDirection.DESC, offset, limit, filter),
         offerGrants.count(filter)
     );
   }
@@ -246,7 +245,8 @@ public class OfferResource {
     offers.put(offer);
 
     if (balance.signum() > 0)
-      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(), balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
+      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(),
+          balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
 
     return offer.id().toString();
   }
@@ -512,7 +512,8 @@ public class OfferResource {
     BigDecimal amount = new BigDecimal(dAmount);
     if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
-    accounting.transferMoney(offer.advertiser().advertiserAccount(), offer.account(), amount,
+    accounting.transferMoney(offer.advertiser().advertiserAccount(),
+        offer.account(), amount,
         AccountingEvent.OFFER_ACCOUNT_ADD, null);
   }
 
