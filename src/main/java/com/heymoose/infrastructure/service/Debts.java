@@ -155,7 +155,7 @@ public final class Debts {
     DateTime now = DateTime.now();
     List<Withdrawal> withdrawalList = (List<Withdrawal>)
         repo.session().createCriteria(Withdrawal.class)
-        .add(Restrictions.isNotNull("orderTime"))
+        .add(Restrictions.isNull("orderTime"))
         .add(Restrictions.eq("userId", affId))
         .list();
     for (Withdrawal withdrawal : withdrawalList) {
