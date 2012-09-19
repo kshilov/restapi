@@ -126,4 +126,31 @@ where basis = 'AFFILIATE_REVENUE';
 update withdrawal set
 order_time = creation_time
 where basis = 'FEE';
+
+
+/* RETURN NOT PAYED OUT OFFER MONEY BACK TO ADVERTISER */
+select
+  transfer_money(
+  coalesce(sum(offer_entry.amount), 0.0) -
+    (select coalesce(sum(withdrawal_payment.amount), 0.0)
+    from withdrawal, withdrawal_payment
+    where withdrawal_payment.withdrawal_id = withdrawal.id
+    and withdrawal.source_id = offer.id), /* amount */
+  'Returning offer money to advertiser due to migration 0166, v1.0.6',
+  null,                       /* event */
+  null,                       /* source_id */
+  offer_entry.account_id,     /* from */
+  adv.advertiser_account_id)   /* to */
+from accounting_entry offer_entry
+
+join offer
+on offer.account_id = offer_entry.account_id
+
+join user_profile adv
+on adv.id = offer.user_id
+
+where offer_entry.event = 4 /* OFFER_ACC_ADD */
+and offer_entry.amount > 0
+
+group by offer.id, offer_entry.account_id, adv.advertiser_account_id
 end;
