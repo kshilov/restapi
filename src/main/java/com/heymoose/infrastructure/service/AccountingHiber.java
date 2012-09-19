@@ -43,6 +43,7 @@ public class AccountingHiber implements Accounting {
 
   @Override
   public void applyEntry(AccountingEntry entry) {
+    repo.put(entry);
     Session session = repo.session();
     session.createQuery("update Account set balance = balance + :amount where id = :id")
         .setParameter("amount", entry.amount())
@@ -110,7 +111,6 @@ public class AccountingHiber implements Accounting {
     for (AccountingEntry entry : entries) {
       AccountingEntry reverseEntry = new AccountingEntry(entry.account(), entry.amount().negate(), AccountingEvent.CANCELLED, entry.id(), null);
       reverseEntry.setTransaction(reverseTx);
-      repo.put(reverseEntry);
       applyEntry(reverseEntry);
     }
   }

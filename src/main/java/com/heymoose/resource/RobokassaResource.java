@@ -6,11 +6,10 @@ import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.persistence.Transactional;
-import static com.heymoose.resource.Exceptions.badRequest;
-import static com.heymoose.resource.Exceptions.notFound;
-import static com.heymoose.resource.Exceptions.unauthorized;
-import static java.lang.String.format;
-import java.math.BigDecimal;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -18,10 +17,11 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import java.math.BigDecimal;
+
+import static com.heymoose.resource.Exceptions.*;
+import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("robokassa")
 @Singleton
@@ -82,7 +82,6 @@ public class RobokassaResource {
         "Robokassa " + DateTime.now().toString("dd.MM.YYYY HH:mm")
     );
     accounting.applyEntry(add);
-    repo.put(add);
     return "OK" + invId;
   }
   
