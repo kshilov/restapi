@@ -166,7 +166,6 @@ public final class Debts {
           .setAmount(withdrawal.amount().negate())
           .setEvent(AccountingEvent.WITHDRAW));
     }
-    accounting.applyEntry(new AccountingEntry().setA);
   }
 
 

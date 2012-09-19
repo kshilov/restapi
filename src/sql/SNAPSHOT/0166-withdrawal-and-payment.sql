@@ -152,5 +152,5 @@ on adv.id = offer.user_id
 where offer_entry.event = 4 /* OFFER_ACC_ADD */
 and offer_entry.amount > 0
 
-group by offer.id, offer_entry.account_id, adv.advertiser_account_id
+group by offer.id, offer_entry.account_id, adv.advertiser_account_id;
 end;
