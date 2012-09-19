@@ -15,6 +15,8 @@ public interface OfferRepository extends Repository<Offer> {
   
   public enum Ordering {
     ID, NAME, URL, ADVERTISER_LAST_NAME,
-    GRANT_ID, GRANT_AFFILIATE_LAST_NAME, GRANT_APPROVED, GRANT_ACTIVE
+    GRANT_ID,
+    GRANT_AFFILIATE_LAST_NAME, AFFILIATE_ID,
+    GRANT_APPROVED, GRANT_ACTIVE
   }
 }

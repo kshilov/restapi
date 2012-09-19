@@ -129,6 +129,10 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
       .createAlias("affiliate", "affiliate")
       .addOrder(order("affiliate.lastName", asc));
     break;
+    case AFFILIATE_ID: criteria
+          .createAlias("affiliate", "affiliate")
+          .addOrder(order("affiliate.id", asc));
+      break;
     }
     
     if (ord != Ordering.GRANT_ID)
