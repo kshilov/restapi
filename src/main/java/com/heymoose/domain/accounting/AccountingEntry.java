@@ -85,6 +85,11 @@ public class AccountingEntry extends ModifiableEntity {
     return this;
   }
 
+  public AccountingEntry setSourceId(Long sourceId) {
+    this.sourceId = sourceId;
+    return this;
+  }
+
   public AccountingTransaction transaction() {
     return transaction;
   }

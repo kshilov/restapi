@@ -23,6 +23,8 @@ public interface Accounting {
 
   Account destination(AccountingTransaction transaction);
 
+  void addOfferFunds(Offer offer, BigDecimal amount, Long sourceId);
+
   void addOfferFunds(Offer offer, BigDecimal amount);
 
 }

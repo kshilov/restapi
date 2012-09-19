@@ -138,7 +138,7 @@ public final class Debts {
       log.info("Paying for withdrawal: {}, amount: {}",
           payingFor.id(), toPayAvailable);
 
-      accounting.addOfferFunds(offer, toPayAvailable);
+      accounting.addOfferFunds(offer, toPayAvailable, payingFor.actionId());
       repo.put(new WithdrawalPayment()
           .setCreationTime(now)
           .setAmount(toPayAvailable)
@@ -164,6 +164,7 @@ public final class Debts {
       accounting.applyEntry(new AccountingEntry()
           .setAccount(user.affiliateAccount())
           .setAmount(withdrawal.amount().negate())
+          .setSourceId(withdrawal.actionId())
           .setEvent(AccountingEvent.WITHDRAW));
     }
   }

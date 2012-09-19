@@ -87,6 +87,11 @@ public final class AccountingStoredFunc implements Accounting {
   }
 
   @Override
+  public void addOfferFunds(Offer offer, BigDecimal amount, Long sourceId) {
+    accountingHiber.addOfferFunds(offer, amount, sourceId);
+  }
+
+  @Override
   public void addOfferFunds(Offer offer, BigDecimal amount) {
     accountingHiber.addOfferFunds(offer, amount);
   }

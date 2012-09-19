@@ -141,6 +141,17 @@ public class AccountingHiber implements Accounting {
   }
 
   @Override
+  public void addOfferFunds(Offer offer, BigDecimal amount, Long sourceId) {
+    Account advertiserAcc = offer.advertiser().advertiserAccount();
+    Preconditions.checkArgument(amount.signum() > 0,
+        "Amount should be positive.");
+    Preconditions.checkArgument(advertiserAcc.balance().compareTo(amount) >= 0,
+        "Can't transfer more, than advertiser has on his account.");
+    this.transferMoney(advertiserAcc, offer.account(), amount,
+        AccountingEvent.OFFER_ACCOUNT_ADD, sourceId);
+  }
+
+  @Override
   public void addOfferFunds(Offer offer, BigDecimal amount) {
     Account advertiserAcc = offer.advertiser().advertiserAccount();
     Preconditions.checkArgument(amount.signum() > 0,
@@ -148,6 +159,6 @@ public class AccountingHiber implements Accounting {
     Preconditions.checkArgument(advertiserAcc.balance().compareTo(amount) >= 0,
         "Can't transfer more, than advertiser has on his account.");
     this.transferMoney(advertiserAcc, offer.account(), amount,
-        AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
+        AccountingEvent.OFFER_ACCOUNT_ADD, null);
   }
 }
