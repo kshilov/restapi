@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 public final class Debts {
 
@@ -62,16 +61,6 @@ public final class Debts {
         .executeAndCount(filter.offset(), filter.limit());
   }
 
-  public Map<String, Object> sumForAffiliate(Long affId, DateTime from,
-                                             DateTime to) {
-    return SqlLoader.templateQuery("debt", repo.session())
-        .addTemplateParam("filterByAffiliate", true)
-        .addQueryParam("aff_id", affId)
-        .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate())
-        .execute().get(0);
-  }
-
   public Pair<QueryResult, Long> groupedByOffer(Long affId,
                                                 DataFilter<Ordering> filter) {
     return SqlLoader.templateQuery("debt", repo.session())
@@ -85,15 +74,23 @@ public final class Debts {
         .executeAndCount(filter.offset(), filter.limit());
   }
 
-  public Map<String, Object> sumForOffer(Long offerId, DateTime from,
-                                         DateTime to) {
-    return SqlLoader.templateQuery("debt", repo.session())
-        .addTemplateParam("filterByOffer", true)
-        .addQueryParam("offer_id", offerId)
+  public QueryResult sumDebt(Long affId, Long offerId,
+                             DateTime from, DateTime to) {
+    SqlLoader.TemplateQuery query =
+        SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate())
-        .execute().get(0);
+        .addQueryParam("to", to.toDate());
+    if (affId != null) {
+      query.addTemplateParam("filterByAffiliate", true);
+      query.addQueryParam("aff_id", affId);
+    }
+    if (offerId != null) {
+      query.addTemplateParam("filterByOffer", true);
+      query.addQueryParam("offer_id", offerId);
+    }
+    return query.execute();
   }
+
 
   @SuppressWarnings("unchecked")
   public void payOffToAffiliate(Offer offer, Long userId, BigDecimal available,

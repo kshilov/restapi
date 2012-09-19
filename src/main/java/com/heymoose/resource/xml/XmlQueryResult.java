@@ -1,5 +1,6 @@
 package com.heymoose.resource.xml;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.infrastructure.util.QueryResult;
 
@@ -50,7 +51,10 @@ public final class XmlQueryResult {
   @Override
   public String toString() {
     builder.append(HEAD);
-    open(root, rootAttributeMap.build());
+
+    if (!Strings.isNullOrEmpty(root))
+      open(root, rootAttributeMap.build());
+
     for (Map<String, Object> record : queryResult) {
       open(element);
           for (Map.Entry<String, Object> entry : record.entrySet()) {
@@ -60,7 +64,10 @@ public final class XmlQueryResult {
           }
       close(element);
     }
-    close(root);
+
+    if (!Strings.isNullOrEmpty(root))
+      close(root);
+
     return builder.toString();
   }
 

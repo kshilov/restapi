@@ -23,7 +23,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.*;
 
@@ -101,12 +100,10 @@ public class WithdrawalResource {
 
     Pair<QueryResult, Long> result = debts.groupedByAffiliate(
         offerId, filter);
-    Map<String, Object> sum = debts.sumForOffer(offerId, dateFrom, dateTo);
     return new XmlQueryResult(result.fst)
         .setElement("debt")
         .setRoot("debts")
         .addRootAttribute("count", result.snd)
-        .addRootAttributesFrom(sum)
         .toString();
   }
 
@@ -137,12 +134,25 @@ public class WithdrawalResource {
         .setLimit(limit);
 
     Pair<QueryResult, Long> result = debts.groupedByOffer(affId, filter);
-    Map<String, Object> sum = debts.sumForAffiliate(affId, dateFrom, dateTo);
     return new XmlQueryResult(result.fst)
         .setElement("debt")
         .setRoot("debts")
         .addRootAttribute("count", result.snd)
-        .addRootAttributesFrom(sum)
+        .toString();
+  }
+
+  @GET
+  @Path("debt")
+  @Transactional
+  @Produces("application/xml")
+  public String sumDebt(@QueryParam("aff_id") Long affId,
+                        @QueryParam("offer_id") Long offerId,
+                        @QueryParam("from") @DefaultValue("0") Long from,
+                        @QueryParam("to") Long to) {
+    checkCondition(affId != null || offerId != null);
+    return new XmlQueryResult(
+        debts.sumDebt(affId, offerId, new DateTime(from), new DateTime(to)))
+        .setElement("debt")
         .toString();
   }
 
