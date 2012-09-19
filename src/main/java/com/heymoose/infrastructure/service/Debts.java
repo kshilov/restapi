@@ -3,10 +3,13 @@ package com.heymoose.infrastructure.service;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.accounting.WithdrawalPayment;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
@@ -146,13 +149,24 @@ public final class Debts {
   }
 
 
+  @SuppressWarnings("unchecked")
   public void orderWithdrawal(Long affId) {
-    repo.session().createQuery(
-        "update Withdrawal " +
-        "set orderTime = ? " +
-        "where orderTime = null")
-        .setDate(0, DateTime.now().toDate())
-        .executeUpdate();
+    User user = repo.get(User.class, affId);
+    DateTime now = DateTime.now();
+    List<Withdrawal> withdrawalList = (List<Withdrawal>)
+        repo.session().createCriteria(Withdrawal.class)
+        .add(Restrictions.isNotNull("orderTime"))
+        .add(Restrictions.eq("userId", affId))
+        .list();
+    for (Withdrawal withdrawal : withdrawalList) {
+      withdrawal.setOrderTime(now);
+      repo.put(withdrawal);
+      accounting.applyEntry(new AccountingEntry()
+          .setAccount(user.affiliateAccount())
+          .setAmount(withdrawal.amount().negate())
+          .setEvent(AccountingEvent.WITHDRAW));
+    }
+    accounting.applyEntry(new AccountingEntry().setA);
   }
 
 
