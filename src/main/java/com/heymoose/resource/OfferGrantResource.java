@@ -91,7 +91,6 @@ public class OfferGrantResource {
                        @FormParam("aff_id") long affiliateId,
                        @FormParam("message") String message,
                        @FormParam("postback_url") String postbackUrl) {
-    checkNotNull(message);
     Offer offer = visibleOffer(offerId);
     User affiliate = activeAffiliate(affiliateId);
 

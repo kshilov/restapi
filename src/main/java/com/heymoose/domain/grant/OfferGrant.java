@@ -50,7 +50,7 @@ public class OfferGrant extends BaseEntity {
   @Column(name = "postback_url")
   private String postbackUrl;
 
-  @Basic(optional = false)
+  @Basic(optional = true)
   private String message;
 
   @Enumerated(EnumType.STRING)
@@ -73,12 +73,12 @@ public class OfferGrant extends BaseEntity {
   protected OfferGrant() { }
   
   public OfferGrant(Long offerId, Long affiliateId, String message) {
-    checkNotNull(offerId, affiliateId, message);
+    checkNotNull(offerId, affiliateId);
     this.offerId = offerId;
     this.affiliateId = affiliateId;
     this.message = message;
-    this.state = OfferGrantState.MODERATION;
-    this.blocked = true;
+    this.state = OfferGrantState.APPROVED;
+    this.blocked = false;
   }
   
   public Long offerId() {
