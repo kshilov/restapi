@@ -58,6 +58,7 @@ public final class Debts {
         SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())
+        .addTemplateParam("grouped", true)
         .addTemplateParam("ordering", filter.ordering().COLUMN);
 
     if (offerId != null) {

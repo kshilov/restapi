@@ -1,11 +1,12 @@
 select
+${if grouped}
   withdrawal.user_id    as "user-id",
   usr.email             as "user-email",
-  usr.wmr               as "user-wrm",
+  usr.wmr               as "user-wmr",
   withdrawal.source_id  as "offer-id",
   offer.name            as "offer-name",
   withdrawal.basis      as "basis",
-
+${end}
   coalesce(sum(payed.amount),       0.00) as "payed-out-amount",
   coalesce(sum(withdrawal.amount),  0.00) -
   coalesce(sum(payed.amount),       0.00) as "debt-amount",
@@ -47,8 +48,10 @@ ${if filterByAffiliate}
   and withdrawal.user_id = :aff_id
 ${end}
 
+${if grouped}
 group by withdrawal.user_id, usr.email, usr.wmr,
 withdrawal.source_id, offer.name, withdrawal.basis
+${end}
 
 order by
 ${if ordering}
