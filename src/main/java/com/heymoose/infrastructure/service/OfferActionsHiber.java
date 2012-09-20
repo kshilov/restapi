@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.name.Named;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
@@ -12,6 +13,7 @@ import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.user.AdminAccountAccessor;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import com.heymoose.infrastructure.util.OrderingDirection;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,14 +49,17 @@ public class OfferActionsHiber implements OfferActions {
   private final Repo repo;
   private final AdminAccountAccessor adminAccountAccessor;
   private final Debts debts;
+  private final BigDecimal mlmRate;
 
   @Inject
   public OfferActionsHiber(Accounting accounting, Repo repo, Debts debts,
-                           AdminAccountAccessor adminAccountAccessor) {
+                           AdminAccountAccessor adminAccountAccessor,
+                           @Named("mlm-ratio") double mlmRatio) {
     this.accounting = accounting;
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
     this.debts = debts;
+    this.mlmRate = new BigDecimal(mlmRatio);
   }
 
   @Override
@@ -109,6 +115,7 @@ public class OfferActionsHiber implements OfferActions {
         AccountingEvent.ACTION_CREATED,
         action.id()
     );
+    BigDecimal mlmValue = BigDecimal.ZERO;
     for (AccountingEntry entry : entries) {
       Account dst = accounting.destination(entry.transaction());
       if (dst.equals(action.affiliate().affiliateAccountNotConfirmed())) {
@@ -119,6 +126,7 @@ public class OfferActionsHiber implements OfferActions {
             AccountingEvent.ACTION_APPROVED,
             action.id()
         );
+        mlmValue = mlmRate.multiply(entry.amount().negate());
         action.stat().approveMoney(entry.amount().negate());
         debts.oweAffiliateRevenue(action, entry.amount().negate());
       } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
@@ -132,6 +140,17 @@ public class OfferActionsHiber implements OfferActions {
         action.stat().approveFee(entry.amount().negate());
         debts.oweFee(action, entry.amount().negate());
       }
+    }
+    Long referrerId = action.affiliate().referrerId();
+    if (referrerId != null && mlmValue.signum() > 0) {
+      log.info("Paying mlm: {} to user: {}", mlmValue, referrerId);
+      accounting.transferMoney(
+          adminAccountAccessor.getAdminAccount(),
+          repo.get(User.class, referrerId).affiliateAccount(),
+          mlmValue,
+          AccountingEvent.MLM,
+          action.id());
+      debts.oweMlm(action, mlmValue);
     }
     action.approve();
   }

@@ -156,6 +156,19 @@ public final class Debts {
         .setCreationTime(action.creationTime()));
   }
 
+
+  public void oweMlm(OfferAction action, BigDecimal mlmValue) {
+    Preconditions.checkNotNull(action.affiliate().referrerId());
+    repo.put(new Withdrawal()
+        .setUserId(action.affiliate().referrerId())
+        .setSourceId(action.offer().master())
+        .setActionId(action.id())
+        .setAmount(mlmValue)
+        .setCreationTime(action.creationTime())
+        .setBasis(Withdrawal.Basis.MLM));
+  }
+
+
   public void oweFee(OfferAction action, BigDecimal amount) {
     repo.put(new Withdrawal()
         .setUserId(1L) // ?

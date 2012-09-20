@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 @Table(name = "withdrawal")
 public final class Withdrawal extends BaseEntity {
 
-  public static enum Basis { FEE, AFFILIATE_REVENUE }
+  public static enum Basis { FEE, AFFILIATE_REVENUE, MLM }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "withdrawal-seq")
