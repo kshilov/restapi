@@ -3,10 +3,24 @@ ${if grouped}
   withdrawal.user_id    as "user-id",
   usr.email             as "user-email",
   usr.wmr               as "user-wmr",
+
+${if forAffiliate}
+  case withdrawal.basis
+  when 'AFFILIATE_REVENUE'  then withdrawal.source_id
+  when 'MLM'                  then null
+  end                   as "offer-id",
+  case withdrawal.basis
+  when 'AFFILIATE_REVENUE'  then offer.name
+  when 'MLM'                  then null
+  end                   as "offer-name",
+${else}
   withdrawal.source_id  as "offer-id",
   offer.name            as "offer-name",
+${end}
+
   withdrawal.basis      as "basis",
 ${end}
+
   coalesce(sum(payed.amount),       0.00) as "payed-out-amount",
   coalesce(sum(withdrawal.amount),  0.00) -
   coalesce(sum(payed.amount),       0.00) as "debt-amount",
@@ -50,7 +64,7 @@ ${end}
 
 ${if grouped}
 group by withdrawal.user_id, usr.email, usr.wmr,
-withdrawal.source_id, offer.name, withdrawal.basis
+"offer-id", "offer-name", withdrawal.basis
 ${end}
 
 order by

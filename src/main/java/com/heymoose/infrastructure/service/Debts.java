@@ -69,6 +69,7 @@ public final class Debts {
     if (affId != null) {
       query.addTemplateParam("filterByAffiliate", true);
       query.addQueryParam("aff_id", affId);
+      query.addTemplateParam("forAffiliate", true);
     }
     return query.executeAndCount(filter.offset(), filter.limit());
   }
