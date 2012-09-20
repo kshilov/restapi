@@ -59,7 +59,8 @@ public final class Debts {
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())
         .addTemplateParam("grouped", true)
-        .addTemplateParam("ordering", filter.ordering().COLUMN);
+        .addTemplateParam("ordering", filter.ordering().COLUMN)
+        .addTemplateParam("direction", filter.direction());
 
     if (offerId != null) {
       query.addTemplateParam("filterByOffer", true);
