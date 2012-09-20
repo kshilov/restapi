@@ -15,6 +15,7 @@ public final class ImmutableMapTransformer extends
   public Object transformTuple(Object[] tuple, String[] aliases) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     for (int i = 0; i < aliases.length; i++) {
+      if (tuple[i] == null) continue;
       map.put(aliases[i], tuple[i]);
     }
     return map.build();

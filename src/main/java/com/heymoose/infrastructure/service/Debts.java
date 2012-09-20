@@ -7,6 +7,7 @@ import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.accounting.WithdrawalPayment;
+import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.user.User;
@@ -99,8 +100,9 @@ public final class Debts {
   public void payOffToAffiliate(Offer offer, Long userId, BigDecimal available,
                                DateTime from, DateTime to) {
     Preconditions.checkArgument(offer != null, "Offer can not be null.");
-    log.info("Gonna make withdraws for offer: {} to user: {} period: {} - {}.",
-        new Object[] { offer.id(), userId, from, to });
+    log.info("Gonna make withdraws for offer: {} to user: {} amount: {} " +
+        "period: {} - {}.",
+        new Object[] { offer.id(), userId, available, from, to });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.between("creationTime", from, to))
         .add(Restrictions.isNotNull("orderTime"))
@@ -147,6 +149,29 @@ public final class Debts {
       available = available.subtract(toPayAvailable);
     }
   }
+
+  public void oweAffiliateRevenue(OfferAction action, BigDecimal amount) {
+
+    repo.put(new Withdrawal()
+        .setUserId(action.affiliate().id())
+        .setSourceId(action.offer().master())
+        .setActionId(action.id())
+        .setAmount(amount)
+        .setBasis(Withdrawal.Basis.AFFILIATE_REVENUE)
+        .setCreationTime(action.creationTime()));
+  }
+
+  public void oweFee(OfferAction action, BigDecimal amount) {
+    repo.put(new Withdrawal()
+        .setUserId(1L) // ?
+        .setSourceId(action.offer().master())
+        .setActionId(action.id())
+        .setAmount(amount)
+        .setBasis(Withdrawal.Basis.FEE)
+        .setCreationTime(action.creationTime())
+        .setOrderTime(DateTime.now())); // it's immediately ordered
+  }
+
 
 
   @SuppressWarnings("unchecked")

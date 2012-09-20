@@ -1,16 +1,10 @@
 select
-
-${if groupByUser}
-  user_id as "user-id",
-  usr.email as "user-email",
-  withdrawal.basis as "basis",
-${end}
-
-${if groupByOffer}
-  source_id as "offer-id",
-  offer.name as "offer-name",
-  withdrawal.basis as "basis",
-${end}
+  withdrawal.user_id    as "user-id",
+  usr.email             as "user-email",
+  usr.wmr               as "user-wrm",
+  withdrawal.source_id  as "offer-id",
+  offer.name            as "offer-name",
+  withdrawal.basis      as "basis",
 
   coalesce(sum(payed.amount),       0.00) as "payed-out-amount",
   coalesce(sum(withdrawal.amount),  0.00) -
@@ -31,17 +25,15 @@ ${end}
 
 from withdrawal
 
-${if groupByUser}
 join user_profile usr
 on usr.id = user_id
-${end}
 
-${if groupByOffer}
 join offer
 on offer.id = withdrawal.source_id
-${end}
 
-left join withdrawal_payment payed
+left join (select withdrawal_id, coalesce(sum(amount), 0.00) amount
+            from withdrawal_payment
+            group by withdrawal_id) as payed
 on payed.withdrawal_id = withdrawal.id
 
 where
@@ -55,13 +47,8 @@ ${if filterByAffiliate}
   and withdrawal.user_id = :aff_id
 ${end}
 
-${if groupByUser}
-group by user_id, usr.email, withdrawal.basis
-${end}
-
-${if groupByOffer}
-group by source_id, offer.name, withdrawal.basis
-${end}
+group by withdrawal.user_id, usr.email, usr.wmr,
+withdrawal.source_id, offer.name, withdrawal.basis
 
 order by
 ${if ordering}

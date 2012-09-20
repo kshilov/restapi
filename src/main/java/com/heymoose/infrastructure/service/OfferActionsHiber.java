@@ -6,7 +6,6 @@ import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
-import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
@@ -46,13 +45,15 @@ public class OfferActionsHiber implements OfferActions {
   private final Accounting accounting;
   private final Repo repo;
   private final AdminAccountAccessor adminAccountAccessor;
+  private final Debts debts;
 
   @Inject
-  public OfferActionsHiber(Accounting accounting, Repo repo,
+  public OfferActionsHiber(Accounting accounting, Repo repo, Debts debts,
                            AdminAccountAccessor adminAccountAccessor) {
     this.accounting = accounting;
     this.repo = repo;
     this.adminAccountAccessor = adminAccountAccessor;
+    this.debts = debts;
   }
 
   @Override
@@ -119,12 +120,7 @@ public class OfferActionsHiber implements OfferActions {
             action.id()
         );
         action.stat().approveMoney(entry.amount().negate());
-        repo.put(new Withdrawal()
-            .setUserId(action.affiliate().id())
-            .setSourceId(action.offer().master())
-            .setActionId(action.id())
-            .setAmount(entry.amount().negate())
-            .setBasis(Withdrawal.Basis.AFFILIATE_REVENUE));
+        debts.oweAffiliateRevenue(action, entry.amount().negate());
       } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
         accounting.transferMoney(
             adminAccountAccessor.getAdminAccountNotConfirmed(),
@@ -134,13 +130,7 @@ public class OfferActionsHiber implements OfferActions {
             action.id()
         );
         action.stat().approveFee(entry.amount().negate());
-        repo.put(new Withdrawal()
-            .setUserId(1L) // ?
-            .setSourceId(action.offer().master())
-            .setActionId(action.id())
-            .setAmount(entry.amount().negate())
-            .setBasis(Withdrawal.Basis.FEE)
-            .setOrderTime(DateTime.now())); // it's immediately ordered
+        debts.oweFee(action, entry.amount().negate());
       }
     }
     action.approve();
