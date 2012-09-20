@@ -69,6 +69,7 @@ public final class Debts {
     if (affId != null) {
       query.addTemplateParam("filterByAffiliate", true);
       query.addQueryParam("aff_id", affId);
+      query.addTemplateParam("forAffiliate", true);
     }
     return query.executeAndCount(filter.offset(), filter.limit());
   }
@@ -92,12 +93,14 @@ public final class Debts {
 
 
   @SuppressWarnings("unchecked")
-  public void payOffToAffiliate(Offer offer, Long userId, BigDecimal available,
-                               DateTime from, DateTime to) {
-    Preconditions.checkArgument(offer != null, "Offer can not be null.");
-    log.info("Gonna make withdraws for offer: {} to user: {} amount: {} " +
-        "period: {} - {}.",
-        new Object[] { offer.id(), userId, available, from, to });
+  public void payOffToAffiliate(Offer offer, Long userId,
+                                Withdrawal.Basis basis,
+                                BigDecimal available,
+                                DateTime from, DateTime to) {
+    Preconditions.checkNotNull(offer, "Offer can not be null.");
+    log.info("Gonna make withdraws for offer: {} basis: {} " +
+        "to user: {} amount: {} period: {} - {}.",
+        new Object[] { offer.id(), basis, userId, available, from, to });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.between("creationTime", from, to))
         .add(Restrictions.isNotNull("orderTime"))
@@ -105,6 +108,9 @@ public final class Debts {
         .addOrder(Order.asc("creationTime"));
     if (userId != null) {
       criteria.add(Restrictions.eq("userId", userId));
+    }
+    if (basis != null) {
+      criteria.add(Restrictions.eq("basis", basis));
     }
 
     List<Withdrawal> matchedWithdrawalList = (List<Withdrawal>) criteria.list();
@@ -155,6 +161,19 @@ public final class Debts {
         .setBasis(Withdrawal.Basis.AFFILIATE_REVENUE)
         .setCreationTime(action.creationTime()));
   }
+
+
+  public void oweMlm(OfferAction action, BigDecimal mlmValue) {
+    Preconditions.checkNotNull(action.affiliate().referrerId());
+    repo.put(new Withdrawal()
+        .setUserId(action.affiliate().referrerId())
+        .setSourceId(action.offer().master())
+        .setActionId(action.id())
+        .setAmount(mlmValue)
+        .setCreationTime(action.creationTime())
+        .setBasis(Withdrawal.Basis.MLM));
+  }
+
 
   public void oweFee(OfferAction action, BigDecimal amount) {
     repo.put(new Withdrawal()

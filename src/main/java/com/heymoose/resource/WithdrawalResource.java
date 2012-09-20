@@ -1,6 +1,7 @@
 package com.heymoose.resource;
 
 import com.google.inject.Inject;
+import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -43,6 +44,7 @@ public class WithdrawalResource {
   @Transactional
   public Response makeWithdraw(@FormParam("offer_id") Long offerId,
                                @FormParam("user_id") List<Long> userIdList,
+                               @FormParam("basis") List<Withdrawal.Basis> basisList,
                                @FormParam("amount") List<BigDecimal> amountList,
                                @FormParam("from") @DefaultValue("0") Long from,
                                @FormParam("to") Long to) {
@@ -53,8 +55,7 @@ public class WithdrawalResource {
       checkNotNull(userIdList.get(i), amountList.get(i));
       try {
         debts.payOffToAffiliate(
-            offer,
-            userIdList.get(i), amountList.get(i),
+            offer, userIdList.get(i), basisList.get(i), amountList.get(i),
             new DateTime(from) ,new DateTime(to));
       } catch (IllegalArgumentException e) {
         return Response.status(409).build();
