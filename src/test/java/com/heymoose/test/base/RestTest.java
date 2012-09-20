@@ -110,7 +110,6 @@ public class RestTest {
       session.createQuery("delete from CategoryGroup").executeUpdate();
       session.createSQLQuery("delete from ip_segment").executeUpdate();
       session.createSQLQuery("delete from error_info").executeUpdate();
-      session.createQuery("delete from Withdraw").executeUpdate();
       tx.commit();
     } catch (Exception e) {
       e.printStackTrace();

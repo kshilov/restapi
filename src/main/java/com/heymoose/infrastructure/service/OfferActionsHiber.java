@@ -6,6 +6,7 @@ import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
+import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
@@ -118,6 +119,12 @@ public class OfferActionsHiber implements OfferActions {
             action.id()
         );
         action.stat().approveMoney(entry.amount().negate());
+        repo.put(new Withdrawal()
+            .setUserId(action.affiliate().id())
+            .setSourceId(action.offer().master())
+            .setActionId(action.id())
+            .setAmount(entry.amount().negate())
+            .setBasis(Withdrawal.Basis.AFFILIATE_REVENUE));
       } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
         accounting.transferMoney(
             adminAccountAccessor.getAdminAccountNotConfirmed(),
@@ -127,6 +134,13 @@ public class OfferActionsHiber implements OfferActions {
             action.id()
         );
         action.stat().approveFee(entry.amount().negate());
+        repo.put(new Withdrawal()
+            .setUserId(1L) // ?
+            .setSourceId(action.offer().master())
+            .setActionId(action.id())
+            .setAmount(entry.amount().negate())
+            .setBasis(Withdrawal.Basis.FEE)
+            .setOrderTime(DateTime.now())); // it's immediately ordered
       }
     }
     action.approve();
@@ -169,14 +183,16 @@ public class OfferActionsHiber implements OfferActions {
   @SuppressWarnings("unchecked")
   @Override
   public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
-    Preconditions.checkNotNull(offer);
-    List<OfferAction> actionList = (List<OfferAction>) repo.session().createQuery(
-        "from OfferAction where offer.id in (:sub_list) and id in (:id_list)")
-        .setParameterList("sub_list", offer.subofferIds())
-        .setParameterList("id_list", idCollection)
-        .list();
-    for (OfferAction action : actionList) {
+    for (OfferAction action : listActions(offer, idCollection)) {
       cancel(action);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void approveByIdList(Offer offer, List<Long> idList) {
+    for (OfferAction action : listActions(offer, idList)) {
+      approve(action);
     }
   }
 
@@ -275,6 +291,17 @@ public class OfferActionsHiber implements OfferActions {
     QueryResult listResult = new QueryResult(query.list());
     BigInteger count = (BigInteger) countQuery.uniqueResult();
     return Pair.of(listResult, count.longValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  private Iterable<OfferAction> listActions(Offer offer,
+                                            Collection<Long> idCollection) {
+    Preconditions.checkNotNull(offer);
+    return (List<OfferAction>) repo.session().createQuery(
+        "from OfferAction where offer.id in (:sub_list) and id in (:id_list)")
+        .setParameterList("sub_list", offer.subofferIds())
+        .setParameterList("id_list", idCollection)
+        .list();
   }
 
 }

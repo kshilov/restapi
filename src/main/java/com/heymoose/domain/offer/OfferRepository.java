@@ -1,6 +1,8 @@
 package com.heymoose.domain.offer;
 
 import com.heymoose.domain.base.Repository;
+import com.heymoose.infrastructure.util.QueryResult;
+import org.joda.time.DateTime;
 
 public interface OfferRepository extends Repository<Offer> {
 
@@ -12,7 +14,7 @@ public interface OfferRepository extends Repository<Offer> {
   Iterable<Offer> listRequested(Ordering ord, boolean asc, int offset, int limit,
                                    long affiliateId, Boolean active);
   long countRequested(long affiliateId, Boolean active);
-  
+
   public enum Ordering {
     ID, NAME, URL, ADVERTISER_LAST_NAME,
     GRANT_ID,

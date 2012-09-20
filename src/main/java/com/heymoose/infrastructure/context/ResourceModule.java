@@ -19,6 +19,7 @@ import com.heymoose.resource.RobokassaResource;
 import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.SiteResource;
 import com.heymoose.resource.UserResource;
+import com.heymoose.resource.WithdrawalResource;
 import com.heymoose.resource.api.ApiResource;
 
 public class ResourceModule extends AbstractModule {
@@ -41,6 +42,7 @@ public class ResourceModule extends AbstractModule {
     bind(ErrorInfoResource.class);
     bind(RegionResource.class);
     bind(PublicDataResource.class);
+    bind(WithdrawalResource.class);
     bindInterceptor(
         Matchers.any(),
         Matchers.annotatedWith(Cacheable.class),

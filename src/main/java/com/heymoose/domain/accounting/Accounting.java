@@ -1,9 +1,11 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.domain.offer.Offer;
+
 import java.math.BigDecimal;
-import java.util.List;
 
 public interface Accounting {
+
   void transferMoney(Account src, Account dst, BigDecimal amount,
                      AccountingEvent event, Long sourceId);
 
@@ -19,15 +21,10 @@ public interface Accounting {
 
   AccountingEntry getLastEntry(Account account);
 
-  Withdraw withdraw(Account account, BigDecimal amount);
-  
-  void approveWithdraw(Withdraw withdraw);
-
-  List<Withdraw> withdraws(Account account);
-
-  Withdraw withdrawOfAccount(Account account, long withdrawId);
-
-  void deleteWithdraw(Withdraw withdraw, String comment);
-
   Account destination(AccountingTransaction transaction);
+
+  void addOfferFunds(Offer offer, BigDecimal amount, Long sourceId);
+
+  void addOfferFunds(Offer offer, BigDecimal amount);
+
 }

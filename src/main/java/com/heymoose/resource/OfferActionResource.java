@@ -68,6 +68,16 @@ public class OfferActionResource {
     return Response.ok().build();
   }
 
+  @PUT
+  @Path("by_id")
+  @Transactional
+  public Response approveByIdList(@FormParam("offer_id") Long offerId,
+                                  @FormParam("id") List<Long> idList) {
+    checkNotNull(offerId);
+    actions.approveByIdList(existingOffer(offerId), idList);
+    return Response.ok().build();
+  }
+
   private Offer existingOffer(long id) {
     Offer offer = offers.byId(id);
     if (offer == null)

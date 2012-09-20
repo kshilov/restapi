@@ -3,7 +3,6 @@ package com.heymoose.resource.xml;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.AccountingEntry;
-import com.heymoose.domain.accounting.Withdraw;
 import com.heymoose.domain.errorinfo.ErrorInfo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.Banner;
@@ -12,9 +11,7 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.util.SqlLoader;
 
-import java.util.List;
 import java.util.Map;
 
 public class Mappers {
@@ -146,41 +143,6 @@ public class Mappers {
     XmlCount xmlCount = new XmlCount();
     xmlCount.count = count;
     return xmlCount;
-  }
-
-  public static XmlWithdraws toXmlWithdraws(List<Object[]> withdraws, Long count, Object nonApprovedCount, Object nonApprovedTotal) {
-    XmlWithdraws xmlWithdraws = new XmlWithdraws();
-    xmlWithdraws.count = count;
-    xmlWithdraws.nonApprovedCount = SqlLoader.extractLong(nonApprovedCount);
-    xmlWithdraws.nonApprovedTotal = SqlLoader.extractDouble(nonApprovedTotal);
-    for (Object[] withdraw : withdraws) {
-      XmlWithdraw xmlWithdraw = new XmlWithdraw();
-      xmlWithdraw.id = SqlLoader.extractLong(withdraw[0]);
-      xmlWithdraw.amount = SqlLoader.extractDouble(withdraw[1]);
-      xmlWithdraw.timestamp = SqlLoader.extractDateTime(withdraw[2]).toString();
-      xmlWithdraw.done = SqlLoader.extractBoolean(withdraw[3]);
-      xmlWithdraw.affId = SqlLoader.extractLong(withdraw[4]);
-      xmlWithdraw.affEmail = SqlLoader.extractString(withdraw[5]);
-      xmlWithdraws.withdraws.add(xmlWithdraw);
-    }
-    return xmlWithdraws;
-  }
-
-  public static XmlWithdraws toXmlWithdraws(long accountId, Iterable<Withdraw> withdraws) {
-    XmlWithdraws xmlWithdraws = new XmlWithdraws();
-    xmlWithdraws.accountId = accountId;
-    for (Withdraw withdraw : withdraws)
-      xmlWithdraws.withdraws.add(toXmlWithdraw(withdraw));
-    return xmlWithdraws;
-  }
-
-  public static XmlWithdraw toXmlWithdraw(Withdraw withdraw) {
-    XmlWithdraw xmlWithdraw = new XmlWithdraw();
-    xmlWithdraw.id = withdraw.id();
-    xmlWithdraw.amount = withdraw.amount().doubleValue();
-    xmlWithdraw.done = withdraw.done();
-    xmlWithdraw.timestamp = withdraw.timestamp().toString();
-    return xmlWithdraw;
   }
 
 

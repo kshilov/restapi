@@ -6,6 +6,10 @@ public class WebAppUtil {
 
   private WebAppUtil() {}
 
+  public static void checkCondition(boolean condition) {
+    if (!condition) throw new WebApplicationException(400);
+  }
+
   public static void checkNotNull(Object... args) {
     for (Object obj : args)
       if (obj == null)

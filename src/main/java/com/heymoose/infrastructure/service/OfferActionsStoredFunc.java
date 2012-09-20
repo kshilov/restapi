@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Singleton
@@ -71,6 +72,11 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public void cancelByIdList(Offer offer, Collection<Long> idCollection) {
     offerActionsHiber.cancelByIdList(offer, idCollection);
+  }
+
+  @Override
+  public void approveByIdList(Offer offer, List<Long> idList) {
+    offerActionsHiber.approveByIdList(offer, idList);
   }
 
   @Override

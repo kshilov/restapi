@@ -1,18 +1,19 @@
 package com.heymoose.infrastructure.service;
 
-import com.heymoose.domain.accounting.Withdraw;
+import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
 import com.heymoose.domain.base.Repo;
-import static com.heymoose.resource.Exceptions.conflict;
-
+import com.heymoose.domain.offer.Offer;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,10 +21,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 @Singleton
 public class AccountingHiber implements Accounting {
+
+  private static final Logger log =
+      LoggerFactory.getLogger(AccountingHiber.class);
 
   private final Repo repo;
 
@@ -40,6 +43,7 @@ public class AccountingHiber implements Accounting {
 
   @Override
   public void applyEntry(AccountingEntry entry) {
+    repo.put(entry);
     Session session = repo.session();
     session.createQuery("update Account set balance = balance + :amount where id = :id")
         .setParameter("amount", entry.amount())
@@ -52,6 +56,9 @@ public class AccountingHiber implements Accounting {
   public void transferMoney(Account src, Account dst, BigDecimal amount,
                             AccountingEvent event, Long sourceId, String descr) {
     checkArgument(amount.signum() == 1);
+    log.info("Entering transfer money src {} dst {}, " +
+        "amount: {}, event: {}, sourceId: {}, descr: {}",
+        new Object[] { src, dst, amount, event, sourceId, descr });
     AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, descr);
     AccountingEntry dstEntry = new AccountingEntry(dst, amount, event, sourceId, descr);
     createTransaction(srcEntry, dstEntry);
@@ -104,7 +111,6 @@ public class AccountingHiber implements Accounting {
     for (AccountingEntry entry : entries) {
       AccountingEntry reverseEntry = new AccountingEntry(entry.account(), entry.amount().negate(), AccountingEvent.CANCELLED, entry.id(), null);
       reverseEntry.setTransaction(reverseTx);
-      repo.put(reverseEntry);
       applyEntry(reverseEntry);
     }
   }
@@ -126,47 +132,33 @@ public class AccountingHiber implements Accounting {
   }
 
   @Override
-  public Withdraw withdraw(Account account, BigDecimal amount) {
-    if (amount.signum() < 1 || account.balance().compareTo(amount) < 0)
-      throw conflict();
-    Withdraw withdraw = new Withdraw(account, amount);
-    repo.put(withdraw);
-    AccountingEntry entry = new AccountingEntry(account, amount.negate(),
-        AccountingEvent.WITHDRAW, withdraw.id(), null);
-    repo.put(entry);
-    applyEntry(entry);
-    return withdraw;
-  }
-  
-  @Override
-  public void approveWithdraw(Withdraw withdraw) {
-    withdraw.approve();
-  };
-
-  @Override
-  public List<Withdraw> withdraws(Account account) {
-    return repo.allByHQL(Withdraw.class, "from Withdraw where account = ? order by timestamp desc", account);
-  }
-
-  @Override
-  public Withdraw withdrawOfAccount(Account account, long withdrawId) {
-    return repo.byHQL(Withdraw.class, "from Withdraw where account = ? and id = ?", account, withdrawId);
-  }
-
-  @Override
-  public void deleteWithdraw(Withdraw withdraw, String comment) {
-    checkArgument(!isBlank(comment));
-    AccountingEntry entry = new AccountingEntry(withdraw.account(), withdraw.amount());
-    applyEntry(entry);
-    repo.remove(withdraw);
-  }
-
-  @Override
   public Account destination(AccountingTransaction transaction) {
     return repo.byHQL(
         Account.class,
         "select e.account from AccountingEntry e where e.transaction = ? and e.amount > 0",
         transaction
     );
+  }
+
+  @Override
+  public void addOfferFunds(Offer offer, BigDecimal amount, Long sourceId) {
+    Account advertiserAcc = offer.advertiser().advertiserAccount();
+    Preconditions.checkArgument(amount.signum() > 0,
+        "Amount should be positive.");
+    Preconditions.checkArgument(advertiserAcc.balance().compareTo(amount) >= 0,
+        "Can't transfer more, than advertiser has on his account.");
+    this.transferMoney(advertiserAcc, offer.account(), amount,
+        AccountingEvent.OFFER_ACCOUNT_ADD, sourceId);
+  }
+
+  @Override
+  public void addOfferFunds(Offer offer, BigDecimal amount) {
+    Account advertiserAcc = offer.advertiser().advertiserAccount();
+    Preconditions.checkArgument(amount.signum() > 0,
+        "Amount should be positive.");
+    Preconditions.checkArgument(advertiserAcc.balance().compareTo(amount) >= 0,
+        "Can't transfer more, than advertiser has on his account.");
+    this.transferMoney(advertiserAcc, offer.account(), amount,
+        AccountingEvent.OFFER_ACCOUNT_ADD, null);
   }
 }

@@ -7,7 +7,6 @@
     <mapping class="com.heymoose.domain.offer.Offer"/>
     <mapping class="com.heymoose.domain.user.User"/>
     <mapping class="com.heymoose.domain.offer.Banner"/>
-    <mapping class="com.heymoose.domain.accounting.Withdraw"/>
     <mapping class="com.heymoose.domain.settings.Setting"/>
     <mapping class="com.heymoose.domain.statistics.OfferStat"/>
     <mapping class="com.heymoose.domain.user.Site"/>
@@ -25,5 +24,6 @@
     <mapping class="com.heymoose.domain.action.OfferAction"/>
     <mapping class="com.heymoose.domain.errorinfo.ErrorInfo" />
     <mapping class="com.heymoose.domain.offer.CategoryGroup" />
+    <mapping class="com.heymoose.domain.accounting.Withdrawal" />
   </session-factory>
 </hibernate-configuration>

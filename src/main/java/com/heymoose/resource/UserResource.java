@@ -1,25 +1,23 @@
 package com.heymoose.resource;
 
+import com.heymoose.domain.accounting.Account;
+import com.heymoose.domain.accounting.Accounting;
+import com.heymoose.domain.accounting.AccountingEntry;
+import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.domain.user.MessengerType;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.domain.user.UserRepository.Ordering;
-import com.heymoose.domain.accounting.Account;
-import com.heymoose.domain.accounting.Accounting;
-import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.infrastructure.persistence.Transactional;
-import static com.heymoose.resource.Exceptions.conflict;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.Mappers.Details;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.resource.xml.XmlUsers;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
-import java.math.BigDecimal;
-import java.net.URI;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
@@ -34,6 +32,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.net.URI;
+
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static com.heymoose.resource.Exceptions.conflict;
 
 @Path("users")
 @Singleton
@@ -138,7 +141,10 @@ public class UserResource {
     User user = existing(id);
     if (!user.isAdvertiser())
       throw conflict();
-    AccountingEntry entry = new AccountingEntry(user.advertiserAccount(), new BigDecimal(amount));
+    AccountingEntry entry = new AccountingEntry()
+        .setAccount(user.advertiserAccount())
+        .setAmount(new BigDecimal(amount))
+        .setEvent(AccountingEvent.ADVERTISER_ACCOUNT_ADD);
     accounting.applyEntry(entry);
   }
 

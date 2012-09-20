@@ -2,8 +2,11 @@ package com.heymoose.infrastructure.util;
 
 
 import com.floreysoft.jmte.Engine;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
@@ -13,6 +16,59 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 public final class SqlLoader {
+
+  public static class TemplateQuery {
+    private final Session session;
+    private final String name;
+    private final ImmutableMap.Builder<String, Object> queryParamMap =
+        ImmutableMap.builder();
+    private final ImmutableMap.Builder<String, Object> templateParamMap =
+        ImmutableMap.builder();
+
+    private TemplateQuery(String name, Session session) {
+      this.session = session;
+      this.name = name;
+    }
+
+    public TemplateQuery addQueryParam(String name, Object value) {
+      queryParamMap.put(name, value);
+      return this;
+    }
+
+    public TemplateQuery addTemplateParam(String name, Object value) {
+      templateParamMap.put(name, value);
+      return this;
+    }
+
+    public QueryResult execute() {
+      String sql = getTemplate(name, templateParamMap.build());
+      Query query = session.createSQLQuery(sql)
+          .setResultTransformer(QueryResultTransformer.INSTANCE);
+      for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
+        query.setParameter(param.getKey(), param.getValue());
+      }
+      return (QueryResult) query.list();
+    }
+
+    public Pair<QueryResult, Long> executeAndCount(int offset, int limit) {
+      String sql = getTemplate(name, templateParamMap.build());
+      Query query = session.createSQLQuery(sql)
+          .setFirstResult(offset)
+          .setMaxResults(limit)
+          .setResultTransformer(QueryResultTransformer.INSTANCE);
+      Query countQuery = session.createSQLQuery(countSql(sql));
+      for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
+        query.setParameter(param.getKey(), param.getValue());
+        countQuery.setParameter(param.getKey(), param.getValue());
+      }
+      return Pair.of(
+          (QueryResult) query.list(),
+          ((BigInteger) countQuery.uniqueResult()).longValue());
+    }
+
+  }
+
+
   private static final String FOLDER = "sql/";
   private static final String SQL_EXTENSION = ".sql";
   private static final String TEMPLATE_EXTENSION = ".jmte.sql";
@@ -56,6 +112,11 @@ public final class SqlLoader {
     sql = sql.replaceFirst("select .* from ", "select count(*) from ");
     sql = sql.substring(0, sql.lastIndexOf("order by"));
     return "select count(*) from (" + sql + ") c";
+  }
+
+  public static TemplateQuery templateQuery(String name,
+                                                      Session session) {
+    return new TemplateQuery(name, session);
   }
 
   public static Long extractLong(Object val) {

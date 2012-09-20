@@ -45,7 +45,7 @@ public class AccountingEntry extends ModifiableEntity {
   @JoinColumn(name = "transaction")
   private AccountingTransaction transaction;
 
-  protected AccountingEntry() {}
+  public AccountingEntry() { }
 
   public AccountingEntry(Account account, BigDecimal amount, AccountingEvent event, Long sourceId, String descr) {
     this(account, amount);
@@ -65,8 +65,29 @@ public class AccountingEntry extends ModifiableEntity {
     return id;
   }
 
-  public void setTransaction(AccountingTransaction transaction) {
+  public AccountingEntry setEvent(AccountingEvent event) {
+    this.event = event;
+    return this;
+  }
+
+  public AccountingEntry setTransaction(AccountingTransaction transaction) {
     this.transaction = transaction;
+    return this;
+  }
+
+  public AccountingEntry setAmount(BigDecimal amount) {
+    this.amount = amount;
+    return this;
+  }
+
+  public AccountingEntry setAccount(Account account) {
+    this.account = account;
+    return this;
+  }
+
+  public AccountingEntry setSourceId(Long sourceId) {
+    this.sourceId = sourceId;
+    return this;
   }
 
   public AccountingTransaction transaction() {

@@ -10,5 +10,6 @@ public enum AccountingEvent {
   OFFER_ACCOUNT_REMOVE,
   MLM,
   CANCELLED,
-  WITHDRAW
+  WITHDRAW,
+  ADVERTISER_ACCOUNT_ADD
 }

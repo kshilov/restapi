@@ -1,16 +1,14 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.user.User;
-import com.heymoose.domain.user.UserRepository;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
-import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantFilter;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.CpaPolicy;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferFilter;
 import com.heymoose.domain.offer.OfferRepository;
@@ -18,9 +16,11 @@ import com.heymoose.domain.offer.OfferRepository.Ordering;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.user.User;
+import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.service.BannerStore;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -51,8 +51,8 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.heymoose.resource.Exceptions.*;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static com.heymoose.resource.Exceptions.*;
 
 @Path("offers")
 @Singleton
@@ -245,8 +245,7 @@ public class OfferResource {
     offers.put(offer);
 
     if (balance.signum() > 0)
-      accounting.transferMoney(advertiser.advertiserAccount(), offer.account(),
-          balance, AccountingEvent.OFFER_ACCOUNT_ADD, offer.id());
+      accounting.addOfferFunds(offer, balance);
 
     return offer.id().toString();
   }
@@ -512,9 +511,7 @@ public class OfferResource {
     BigDecimal amount = new BigDecimal(dAmount);
     if (offer.advertiser().advertiserAccount().balance().compareTo(amount) == -1)
       throw new WebApplicationException(409);
-    accounting.transferMoney(offer.advertiser().advertiserAccount(),
-        offer.account(), amount,
-        AccountingEvent.OFFER_ACCOUNT_ADD, null);
+    accounting.addOfferFunds(offer, amount);
   }
 
   @DELETE
