@@ -51,31 +51,24 @@ public final class Debts {
     this.accounting = accounting;
   }
 
-
-  public Pair<QueryResult, Long> groupedByAffiliate(
-      Long offerId, DataFilter<Ordering> filter) {
-    return SqlLoader.templateQuery("debt", repo.session())
-        .addTemplateParam("groupByUser", true)
-        .addTemplateParam("filterByOffer", true)
-        .addTemplateParam("ordering", filter.ordering().COLUMN)
-        .addTemplateParam("direction", filter.direction())
-        .addQueryParam("offer_id", offerId)
+  public Pair<QueryResult, Long> debtInfo(Long offerId,
+                                          Long affId,
+                                          DataFilter<Ordering> filter) {
+    SqlLoader.TemplateQuery query =
+        SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())
-        .executeAndCount(filter.offset(), filter.limit());
-  }
+        .addTemplateParam("ordering", filter.ordering().COLUMN);
 
-  public Pair<QueryResult, Long> groupedByOffer(Long affId,
-                                                DataFilter<Ordering> filter) {
-    return SqlLoader.templateQuery("debt", repo.session())
-        .addTemplateParam("groupByOffer", true)
-        .addTemplateParam("filterByAffiliate", true)
-        .addTemplateParam("ordering", filter.ordering().COLUMN)
-        .addTemplateParam("direction", filter.direction())
-        .addQueryParam("aff_id", affId)
-        .addQueryParam("from", filter.from())
-        .addQueryParam("to", filter.to())
-        .executeAndCount(filter.offset(), filter.limit());
+    if (offerId != null) {
+      query.addTemplateParam("filterByOffer", true);
+      query.addQueryParam("offer_id", offerId);
+    }
+    if (affId != null) {
+      query.addTemplateParam("filterByAffiliate", true);
+      query.addQueryParam("aff_id", affId);
+    }
+    return query.executeAndCount(filter.offset(), filter.limit());
   }
 
   public QueryResult sumDebt(Long affId, Long offerId,

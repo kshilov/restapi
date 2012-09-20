@@ -74,82 +74,46 @@ public class WithdrawalResource {
 
 
   @GET
-  @Path("debt/by_affiliate")
-  @Produces("application/xml")
-  @Transactional
-  public String debtByAffiliate(@QueryParam("offer_id") Long offerId,
-                                @QueryParam("from") @DefaultValue("0") Long from,
-                                @QueryParam("to") Long to,
-                                @QueryParam("ordering") @DefaultValue("DEBT")
-                                Debts.Ordering ord,
-                                @QueryParam("direction") @DefaultValue("DESC")
-                                OrderingDirection dir,
-                                @QueryParam("offset") int offset,
-                                @QueryParam("limit") @DefaultValue("20")
-                                int limit) {
-    checkNotNull(offerId);
-    DateTime dateFrom = new DateTime(from);
-    DateTime dateTo = new DateTime(to);
-    DataFilter<Debts.Ordering> filter = DataFilter.newInstance();
-    filter.setTo(dateTo)
-        .setFrom(dateFrom)
-        .setOrdering(ord)
-        .setDirection(dir)
-        .setOffset(offset)
-        .setLimit(limit);
-
-    Pair<QueryResult, Long> result = debts.groupedByAffiliate(
-        offerId, filter);
-    return new XmlQueryResult(result.fst)
-        .setElement("debt")
-        .setRoot("debts")
-        .addRootAttribute("count", result.snd)
-        .toString();
-  }
-
-
-  @GET
-  @Path("debt/by_offer")
-  @Produces("application/xml")
-  @Transactional
-  public String debtByOffer(@QueryParam("aff_id") Long affId,
-                            @QueryParam("from") @DefaultValue("0") Long from,
-                            @QueryParam("to") Long to,
-                            @QueryParam("ordering") @DefaultValue("DEBT")
-                            Debts.Ordering ord,
-                            @QueryParam("direction") @DefaultValue("DESC")
-                            OrderingDirection dir,
-                            @QueryParam("offset") int offset,
-                            @QueryParam("limit") @DefaultValue("20")
-                            int limit) {
-    checkNotNull(affId);
-    DateTime dateFrom = new DateTime(from);
-    DateTime dateTo = new DateTime(to);
-    DataFilter<Debts.Ordering> filter = DataFilter.newInstance();
-    filter.setTo(dateTo)
-        .setFrom(dateFrom)
-        .setOrdering(ord)
-        .setDirection(dir)
-        .setOffset(offset)
-        .setLimit(limit);
-
-    Pair<QueryResult, Long> result = debts.groupedByOffer(affId, filter);
-    return new XmlQueryResult(result.fst)
-        .setElement("debt")
-        .setRoot("debts")
-        .addRootAttribute("count", result.snd)
-        .toString();
-  }
-
-  @GET
   @Path("debt")
+  @Produces("application/xml")
+  @Transactional
+  public String debt(@QueryParam("offer_id") Long offerId,
+                     @QueryParam("aff_id") Long affId,
+                     @QueryParam("from") @DefaultValue("0") Long from,
+                     @QueryParam("to") Long to,
+                     @QueryParam("ordering") @DefaultValue("DEBT")
+                     Debts.Ordering ord,
+                     @QueryParam("direction") @DefaultValue("DESC")
+                     OrderingDirection dir,
+                     @QueryParam("offset") int offset,
+                     @QueryParam("limit") @DefaultValue("20")
+                     int limit) {
+    DateTime dateFrom = new DateTime(from);
+    DateTime dateTo = new DateTime(to);
+    DataFilter<Debts.Ordering> filter = DataFilter.newInstance();
+    filter.setTo(dateTo)
+        .setFrom(dateFrom)
+        .setOrdering(ord)
+        .setDirection(dir)
+        .setOffset(offset)
+        .setLimit(limit);
+
+    Pair<QueryResult, Long> result = debts.debtInfo(offerId, affId, filter);
+    return new XmlQueryResult(result.fst)
+        .setElement("debt")
+        .setRoot("debts")
+        .addRootAttribute("count", result.snd)
+        .toString();
+  }
+
+  @GET
+  @Path("debt/sum")
   @Transactional
   @Produces("application/xml")
   public String sumDebt(@QueryParam("aff_id") Long affId,
                         @QueryParam("offer_id") Long offerId,
                         @QueryParam("from") @DefaultValue("0") Long from,
                         @QueryParam("to") Long to) {
-    checkCondition(affId != null || offerId != null);
     return new XmlQueryResult(
         debts.sumDebt(affId, offerId, new DateTime(from), new DateTime(to)))
         .setElement("debt")
