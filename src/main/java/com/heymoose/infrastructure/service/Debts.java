@@ -92,12 +92,14 @@ public final class Debts {
 
 
   @SuppressWarnings("unchecked")
-  public void payOffToAffiliate(Offer offer, Long userId, BigDecimal available,
-                               DateTime from, DateTime to) {
-    Preconditions.checkArgument(offer != null, "Offer can not be null.");
-    log.info("Gonna make withdraws for offer: {} to user: {} amount: {} " +
-        "period: {} - {}.",
-        new Object[] { offer.id(), userId, available, from, to });
+  public void payOffToAffiliate(Offer offer, Long userId,
+                                Withdrawal.Basis basis,
+                                BigDecimal available,
+                                DateTime from, DateTime to) {
+    Preconditions.checkNotNull(offer, "Offer can not be null.");
+    log.info("Gonna make withdraws for offer: {} basis: {} " +
+        "to user: {} amount: {} period: {} - {}.",
+        new Object[] { offer.id(), basis, userId, available, from, to });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.between("creationTime", from, to))
         .add(Restrictions.isNotNull("orderTime"))
@@ -105,6 +107,9 @@ public final class Debts {
         .addOrder(Order.asc("creationTime"));
     if (userId != null) {
       criteria.add(Restrictions.eq("userId", userId));
+    }
+    if (basis != null) {
+      criteria.add(Restrictions.eq("basis", basis));
     }
 
     List<Withdrawal> matchedWithdrawalList = (List<Withdrawal>) criteria.list();
