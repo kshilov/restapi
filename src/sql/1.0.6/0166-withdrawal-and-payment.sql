@@ -57,7 +57,7 @@ select
   coalesce(offer.parent_id, offer_id) source_id,
   entry.source_id action_id,
   entry.amount,
-  entry.creation_time
+  action.creation_time
 from accounting_entry entry
 
 join offer_action action
