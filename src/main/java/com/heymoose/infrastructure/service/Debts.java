@@ -14,6 +14,7 @@ import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.QueryResultTransformer;
 import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 public final class Debts {
@@ -49,6 +51,16 @@ public final class Debts {
   public Debts(Repo repo, Accounting accounting) {
     this.repo = repo;
     this.accounting = accounting;
+  }
+  
+  public Pair<QueryResult, Long> orderedWithdrawals(DataFilter<Ordering> filter) {
+    return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
+        .addTemplateParam("grouped", true)
+        .executeAndCount(filter.offset(), filter.limit());
+  }
+  
+  public QueryResult sumOrderedWithdrawals() {
+    return SqlLoader.templateQuery("ordered-withdrawals", repo.session()).execute();
   }
 
   public Pair<QueryResult, Long> debtInfo(Long offerId,

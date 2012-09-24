@@ -37,8 +37,32 @@ public class WithdrawalResource {
     this.repo = repo;
     this.debts = debts;
   }
-
-
+  
+  @GET
+  @Produces("application/xml")
+  @Transactional
+  public String listOrdered(@QueryParam("offset") int offset,
+                            @QueryParam("limit") @DefaultValue("20") int limit) {
+    DataFilter<Debts.Ordering> filter = DataFilter.newInstance();
+    filter.setOffset(offset).setLimit(limit);
+    Pair<QueryResult, Long> result = debts.orderedWithdrawals(filter);
+    return new XmlQueryResult(result.fst)
+      .setRoot("debts")
+      .setElement("debt")
+      .addRootAttribute("count", result.snd)
+      .toString();
+  }
+  
+  @GET
+  @Path("sum")
+  @Produces("application/xml")
+  @Transactional
+  public String sumOrdered() {
+    return new XmlQueryResult(debts.sumOrderedWithdrawals())
+      .setElement("debt")
+      .toString();
+  }
+  
   @PUT
   @Transactional
   public Response makeWithdraw(@FormParam("offer_id") Long offerId,
@@ -119,8 +143,7 @@ public class WithdrawalResource {
         .setElement("debt")
         .toString();
   }
-
-
+  
   private Offer existingOffer(long id) {
     Offer offer = repo.get(Offer.class, id);
     if (offer == null)

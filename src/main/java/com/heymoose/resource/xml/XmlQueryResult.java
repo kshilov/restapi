@@ -4,7 +4,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.infrastructure.util.QueryResult;
 
+import java.sql.Timestamp;
 import java.util.Map;
+
+import org.joda.time.DateTime;
 
 public final class XmlQueryResult {
 
@@ -59,7 +62,11 @@ public final class XmlQueryResult {
       open(element);
           for (Map.Entry<String, Object> entry : record.entrySet()) {
             open(entry.getKey());
-            builder.append(entry.getValue());
+            Object val = entry.getValue();
+            if (val instanceof Timestamp)
+              builder.append(new DateTime(((Timestamp) val).getTime()));
+            else
+              builder.append(entry.getValue());
             close(entry.getKey());
           }
       close(element);
