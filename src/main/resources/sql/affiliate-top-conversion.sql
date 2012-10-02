@@ -28,7 +28,7 @@ from (
 
 where
   leads_count + sales_count > 10
-  and clicks_count > 1000
+  and ((leads_count + sales_count) * 100.0 / clicks_count) < 10
   and confirmed > canceled + not_confirmed
 order by conversion_rate desc
 
