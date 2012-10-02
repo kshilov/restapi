@@ -158,15 +158,16 @@ public class OfferActionsHiber implements OfferActions {
     debts.oweFee(action, adminValue);
 
     // approve mlm
-    if (mlmValue.signum() > 0) {
+    if (mlmValue.signum() == 1) {
       log.info("Approving mlm: {} to user: {}",
           mlmValue, affiliate.referrerId());
       accounting.newTransfer()
-          .from(adminAccountAccessor.getAdminAccount())
+          .from(adminAccountAccessor.getAdminAccountNotConfirmed())
           .to(repo.get(User.class, affiliate.referrerId()).affiliateAccount())
           .amount(mlmValue)
           .event(AccountingEvent.MLM)
-          .sourceId(action.id());
+          .sourceId(action.id())
+          .execute();
       debts.oweMlm(action, mlmValue);
     }
     action.approve();
