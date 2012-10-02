@@ -21,6 +21,7 @@ import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Query;
+import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
@@ -109,47 +110,63 @@ public class OfferActionsHiber implements OfferActions {
   public void approve(OfferAction action) {
     log.info("Approving action {}.", action.id());
     checkArgument(action.state() == OfferActionState.NOT_APPROVED);
-    List<AccountingEntry> entries = repo.allByHQL(
-        AccountingEntry.class,
-        "from AccountingEntry where amount < 0 and event = ? and sourceId = ?",
-        AccountingEvent.ACTION_CREATED,
-        action.id()
-    );
+    User affiliate = action.affiliate();
+
+    // entry to affiliate not confirmed account
+    AccountingEntry affEntry = (AccountingEntry) repo.session()
+        .createCriteria(AccountingEntry.class)
+        .add(Restrictions.eq("account", affiliate.affiliateAccountNotConfirmed()))
+        .add(Restrictions.gt("amount", 0))
+        .add(Restrictions.eq("event", AccountingEvent.ACTION_CREATED))
+        .add(Restrictions.eq("sourceId", action.id()))
+        .uniqueResult();
+
+    // entry to admin not confirmed account
+    AccountingEntry adminEntry = (AccountingEntry) repo.session()
+        .createCriteria(AccountingEntry.class)
+        .add(Restrictions.eq("account", adminAccountAccessor.getAdminAccountNotConfirmed()))
+        .add(Restrictions.gt("amount", 0))
+        .add(Restrictions.eq("event", AccountingEvent.ACTION_CREATED))
+        .add(Restrictions.eq("sourceId", action.id()))
+        .uniqueResult();
+
+    // approve affiliate money
+    accounting.newTransfer()
+        .from(affiliate.affiliateAccountNotConfirmed())
+        .to(affiliate.affiliateAccount())
+        .amount(affEntry.amount())
+        .event(AccountingEvent.ACTION_APPROVED)
+        .sourceId(action.id())
+        .execute();
+    action.stat().approveMoney(affEntry.amount());
+    debts.oweAffiliateRevenue(action, affEntry.amount());
+
+    // approve admin money
     BigDecimal mlmValue = BigDecimal.ZERO;
-    for (AccountingEntry entry : entries) {
-      Account dst = accounting.destination(entry.transaction());
-      if (dst.equals(action.affiliate().affiliateAccountNotConfirmed())) {
-        accounting.transferMoney(
-            action.affiliate().affiliateAccountNotConfirmed(),
-            action.affiliate().affiliateAccount(),
-            entry.amount().negate(),
-            AccountingEvent.ACTION_APPROVED,
-            action.id()
-        );
-        mlmValue = mlmRate.multiply(entry.amount().negate());
-        action.stat().approveMoney(entry.amount().negate());
-        debts.oweAffiliateRevenue(action, entry.amount().negate());
-      } else if (dst.equals(adminAccountAccessor.getAdminAccountNotConfirmed())) {
-        accounting.transferMoney(
-            adminAccountAccessor.getAdminAccountNotConfirmed(),
-            adminAccountAccessor.getAdminAccount(),
-            entry.amount().negate(),
-            AccountingEvent.ACTION_APPROVED,
-            action.id()
-        );
-        action.stat().approveFee(entry.amount().negate());
-        debts.oweFee(action, entry.amount().negate());
-      }
+    if (affiliate.referrerId() != null) {
+      mlmValue = mlmRate.multiply(affEntry.amount());
     }
-    Long referrerId = action.affiliate().referrerId();
-    if (referrerId != null && mlmValue.signum() > 0) {
-      log.info("Paying mlm: {} to user: {}", mlmValue, referrerId);
-      accounting.transferMoney(
-          adminAccountAccessor.getAdminAccount(),
-          repo.get(User.class, referrerId).affiliateAccount(),
-          mlmValue,
-          AccountingEvent.MLM,
-          action.id());
+    BigDecimal adminValue = adminEntry.amount().subtract(mlmValue);
+    accounting.newTransfer()
+        .from(adminAccountAccessor.getAdminAccountNotConfirmed())
+        .to(adminAccountAccessor.getAdminAccount())
+        .amount(adminValue)
+        .event(AccountingEvent.ACTION_APPROVED)
+        .sourceId(action.id())
+        .execute();
+    action.stat().approveFee(adminValue);
+    debts.oweFee(action, adminValue);
+
+    // approve mlm
+    if (mlmValue.signum() > 0) {
+      log.info("Approving mlm: {} to user: {}",
+          mlmValue, affiliate.referrerId());
+      accounting.newTransfer()
+          .from(adminAccountAccessor.getAdminAccount())
+          .to(repo.get(User.class, affiliate.referrerId()).affiliateAccount())
+          .amount(mlmValue)
+          .event(AccountingEvent.MLM)
+          .sourceId(action.id());
       debts.oweMlm(action, mlmValue);
     }
     action.approve();
