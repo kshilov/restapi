@@ -116,7 +116,7 @@ public class OfferActionsHiber implements OfferActions {
     AccountingEntry affEntry = (AccountingEntry) repo.session()
         .createCriteria(AccountingEntry.class)
         .add(Restrictions.eq("account", affiliate.affiliateAccountNotConfirmed()))
-        .add(Restrictions.gt("amount", 0))
+        .add(Restrictions.gt("amount", BigDecimal.ZERO))
         .add(Restrictions.eq("event", AccountingEvent.ACTION_CREATED))
         .add(Restrictions.eq("sourceId", action.id()))
         .uniqueResult();
@@ -125,7 +125,7 @@ public class OfferActionsHiber implements OfferActions {
     AccountingEntry adminEntry = (AccountingEntry) repo.session()
         .createCriteria(AccountingEntry.class)
         .add(Restrictions.eq("account", adminAccountAccessor.getAdminAccountNotConfirmed()))
-        .add(Restrictions.gt("amount", 0))
+        .add(Restrictions.gt("amount", BigDecimal.ZERO))
         .add(Restrictions.eq("event", AccountingEvent.ACTION_CREATED))
         .add(Restrictions.eq("sourceId", action.id()))
         .uniqueResult();
