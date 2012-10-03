@@ -28,6 +28,7 @@ import java.util.List;
 
 public final class Debts {
 
+  public enum  DateKind { CREATION, ORDER }
   public enum Ordering {
     OFFER_NAME("offer-name"), USER_EMAIL("user-email"),
     BASIS("basis"),
@@ -51,24 +52,34 @@ public final class Debts {
     this.accounting = accounting;
   }
   
-  public Pair<QueryResult, Long> orderedWithdrawals(Long affId,
-                                                    DataFilter<Ordering> filter) {
+  public Pair<QueryResult, Long> orderedByUser(Long affId,
+                                               DataFilter<Ordering> filter) {
     return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
-        .addTemplateParam("grouped", true)
-        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
-        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParam("groupByUser", true)
+        .addTemplateParamIfNotNull(affId, "filterByUser", true)
+        .addQueryParamIfNotNull(affId, "user_id", affId)
         .executeAndCount(filter.offset(), filter.limit());
   }
   
-  public QueryResult sumOrderedWithdrawals(Long affId) {
+  public QueryResult sumOrderedByUser(Long affId) {
     return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
-        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
-        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(affId, "filterByUser", true)
+        .addQueryParamIfNotNull(affId, "user_id", affId)
         .execute();
+  }
+
+  public Pair<QueryResult, Long> orderedByOffer(DataFilter<Ordering> filter) {
+    return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
+        .addTemplateParam("groupByOffer", true)
+        .addTemplateParam("filterByOrderTime", true)
+        .addQueryParam("from", filter.from())
+        .addQueryParam("to", filter.to())
+        .executeAndCount(filter.offset(), filter.limit());
   }
 
   public Pair<QueryResult, Long> debtInfo(Long offerId,
                                           Long affId,
+                                          DateKind dateKind,
                                           DataFilter<Ordering> filter) {
     SqlLoader.TemplateQuery query =
         SqlLoader.templateQuery("debt", repo.session())
@@ -76,30 +87,50 @@ public final class Debts {
         .addQueryParam("to", filter.to())
         .addTemplateParam("grouped", true)
         .addTemplateParam("ordering", filter.ordering().COLUMN)
-        .addTemplateParam("direction", filter.direction());
+        .addTemplateParam("direction", filter.direction())
 
-    query.addTemplateParamIfNotNull(offerId, "filterByOffer", true);
-    query.addQueryParamIfNotNull(offerId, "offer_id", offerId);
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId)
 
-    query.addTemplateParamIfNotNull(affId, "filterByAffiliate", true);
-    query.addQueryParamIfNotNull(affId, "aff_id", affId);
-    query.addTemplateParamIfNotNull(affId, "forAffiliate", true);
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(affId, "forAffiliate", true);
+
+    switch (dateKind) {
+      case CREATION:
+        query.addTemplateParam("filterByCreationTime", true);
+        break;
+      case ORDER:
+        query.addTemplateParam("filterByOrderTime", true);
+        break;
+    }
 
     return query.executeAndCount(filter.offset(), filter.limit());
   }
 
   public QueryResult sumDebt(Long affId, Long offerId,
-                             DateTime from, DateTime to) {
+                             DateKind dateKind, DateTime from,
+                             DateTime to) {
     SqlLoader.TemplateQuery query =
         SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate());
+        .addQueryParam("to", to.toDate())
 
-    query.addTemplateParamIfNotNull(affId, "filterByAffiliate", true);
-    query.addQueryParamIfNotNull(affId, "aff_id", affId);
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
 
-    query.addTemplateParamIfNotNull(offerId, "filterByOffer", true);
-    query.addQueryParamIfNotNull(offerId, "offer_id", offerId);
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId);
+
+    switch (dateKind) {
+      case CREATION:
+        query.addTemplateParam("filterByCreationTime", true);
+        break;
+      case ORDER:
+        query.addTemplateParam("filterByOrderTime", true);
+        break;
+    }
+
     return query.execute();
   }
 
@@ -219,7 +250,6 @@ public final class Debts {
           .setEvent(AccountingEvent.WITHDRAW));
     }
   }
-
 
 
 }
