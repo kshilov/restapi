@@ -122,6 +122,8 @@ public class WithdrawalResource {
   @Transactional
   public String debt(@QueryParam("offer_id") Long offerId,
                      @QueryParam("aff_id") Long affId,
+                     @QueryParam("date_kind") @DefaultValue("CREATION")
+                     Debts.DateKind dateKind,
                      @QueryParam("from") @DefaultValue("0") Long from,
                      @QueryParam("to") Long to,
                      @QueryParam("ordering") @DefaultValue("DEBT")
@@ -141,7 +143,8 @@ public class WithdrawalResource {
         .setOffset(offset)
         .setLimit(limit);
 
-    Pair<QueryResult, Long> result = debts.debtInfo(offerId, affId, filter);
+    Pair<QueryResult, Long> result =
+        debts.debtInfo(offerId, affId, dateKind, filter);
     return new XmlQueryResult(result.fst)
         .setElement("debt")
         .setRoot("debts")

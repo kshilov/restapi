@@ -52,7 +52,13 @@ left join (select withdrawal_id, coalesce(sum(amount), 0.00) amount
 on payed.withdrawal_id = withdrawal.id
 
 where
+${if filterByCreationTime}
   withdrawal.creation_time between :from and :to
+${end}
+
+${if filterByOrderTime}
+  withdrawal.order_time between :from and :to
+${end}
 
 ${if filterByOffer}
   and withdrawal.source_id = :offer_id

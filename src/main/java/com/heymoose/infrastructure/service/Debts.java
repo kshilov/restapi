@@ -28,6 +28,7 @@ import java.util.List;
 
 public final class Debts {
 
+  public enum  DateKind { CREATION, ORDER }
   public enum Ordering {
     OFFER_NAME("offer-name"), USER_EMAIL("user-email"),
     BASIS("basis"),
@@ -78,6 +79,7 @@ public final class Debts {
 
   public Pair<QueryResult, Long> debtInfo(Long offerId,
                                           Long affId,
+                                          DateKind dateKind,
                                           DataFilter<Ordering> filter) {
     SqlLoader.TemplateQuery query =
         SqlLoader.templateQuery("debt", repo.session())
@@ -85,14 +87,23 @@ public final class Debts {
         .addQueryParam("to", filter.to())
         .addTemplateParam("grouped", true)
         .addTemplateParam("ordering", filter.ordering().COLUMN)
-        .addTemplateParam("direction", filter.direction());
+        .addTemplateParam("direction", filter.direction())
 
-    query.addTemplateParamIfNotNull(offerId, "filterByOffer", true);
-    query.addQueryParamIfNotNull(offerId, "offer_id", offerId);
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId)
 
-    query.addTemplateParamIfNotNull(affId, "filterByAffiliate", true);
-    query.addQueryParamIfNotNull(affId, "aff_id", affId);
-    query.addTemplateParamIfNotNull(affId, "forAffiliate", true);
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(affId, "forAffiliate", true);
+
+    switch (dateKind) {
+      case CREATION:
+        query.addTemplateParam("filterByCreationTime", true);
+        break;
+      case ORDER:
+        query.addTemplateParam("filterByOrderTime", true);
+        break;
+    }
 
     return query.executeAndCount(filter.offset(), filter.limit());
   }
@@ -228,7 +239,6 @@ public final class Debts {
           .setEvent(AccountingEvent.WITHDRAW));
     }
   }
-
 
 
 }
