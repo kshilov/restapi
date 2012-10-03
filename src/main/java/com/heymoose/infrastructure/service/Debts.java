@@ -51,20 +51,29 @@ public final class Debts {
     this.accounting = accounting;
   }
   
-  public Pair<QueryResult, Long> orderedWithdrawals(Long affId,
-                                                    DataFilter<Ordering> filter) {
+  public Pair<QueryResult, Long> orderedByUser(Long affId,
+                                               DataFilter<Ordering> filter) {
     return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
-        .addTemplateParam("grouped", true)
-        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
-        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParam("groupByUser", true)
+        .addTemplateParamIfNotNull(affId, "filterByUser", true)
+        .addQueryParamIfNotNull(affId, "user_id", affId)
         .executeAndCount(filter.offset(), filter.limit());
   }
   
-  public QueryResult sumOrderedWithdrawals(Long affId) {
+  public QueryResult sumOrderedByUser(Long affId) {
     return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
-        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
-        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(affId, "filterByUser", true)
+        .addQueryParamIfNotNull(affId, "user_id", affId)
         .execute();
+  }
+
+  public Pair<QueryResult, Long> orderedByOffer(DataFilter<Ordering> filter) {
+    return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
+        .addTemplateParam("groupByOffer", true)
+        .addTemplateParam("filterByOrderTime", true)
+        .addQueryParam("from", filter.from())
+        .addQueryParam("to", filter.to())
+        .executeAndCount(filter.offset(), filter.limit());
   }
 
   public Pair<QueryResult, Long> debtInfo(Long offerId,
