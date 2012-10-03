@@ -158,10 +158,12 @@ public class WithdrawalResource {
   @Produces("application/xml")
   public String sumDebt(@QueryParam("aff_id") Long affId,
                         @QueryParam("offer_id") Long offerId,
+                        @QueryParam("date_kind") @DefaultValue("CREATION")
+                        Debts.DateKind dateKind,
                         @QueryParam("from") @DefaultValue("0") Long from,
                         @QueryParam("to") Long to) {
     return new XmlQueryResult(
-        debts.sumDebt(affId, offerId, new DateTime(from), new DateTime(to)))
+        debts.sumDebt(affId, offerId, dateKind, new DateTime(from), new DateTime(to)))
         .setElement("debt")
         .toString();
   }

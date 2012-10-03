@@ -109,17 +109,28 @@ public final class Debts {
   }
 
   public QueryResult sumDebt(Long affId, Long offerId,
-                             DateTime from, DateTime to) {
+                             DateKind dateKind, DateTime from,
+                             DateTime to) {
     SqlLoader.TemplateQuery query =
         SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate());
+        .addQueryParam("to", to.toDate())
 
-    query.addTemplateParamIfNotNull(affId, "filterByAffiliate", true);
-    query.addQueryParamIfNotNull(affId, "aff_id", affId);
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
 
-    query.addTemplateParamIfNotNull(offerId, "filterByOffer", true);
-    query.addQueryParamIfNotNull(offerId, "offer_id", offerId);
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId);
+
+    switch (dateKind) {
+      case CREATION:
+        query.addTemplateParam("filterByCreationTime", true);
+        break;
+      case ORDER:
+        query.addTemplateParam("filterByOrderTime", true);
+        break;
+    }
+
     return query.execute();
   }
 
