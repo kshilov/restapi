@@ -30,6 +30,11 @@ public final class AccountingStoredFunc implements Accounting {
   }
 
   @Override
+  public Transfer newTransfer() {
+    return new Transfer(this);
+  }
+
+  @Override
   public void transferMoney(Account src, Account dst, BigDecimal amount,
                             AccountingEvent event, Long sourceId) {
     this.transferMoney(src, dst, amount, event, sourceId, null);

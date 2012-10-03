@@ -36,6 +36,11 @@ public class AccountingHiber implements Accounting {
   }
 
   @Override
+  public Transfer newTransfer() {
+    return new Transfer(this);
+  }
+
+  @Override
   public void transferMoney(Account src, Account dst, BigDecimal amount,
                             AccountingEvent event, Long sourceId) {
     transferMoney(src, dst, amount, event, sourceId, null);

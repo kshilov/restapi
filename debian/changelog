@@ -1,3 +1,9 @@
+backend (1.0.7-1) precise; urgency=low
+
+  * release 1.0.7
+
+ -- filipovskii_off <filipovskii_off@Puppo>  Wed, 03 Oct 2012 13:47:59 +0400
+
 backend (1.0.6-1) precise; urgency=low
 
   * release 1.0.6
