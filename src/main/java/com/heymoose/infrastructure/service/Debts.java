@@ -14,7 +14,6 @@ import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.QueryResultTransformer;
 import com.heymoose.infrastructure.util.SqlLoader;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 
 public final class Debts {
@@ -53,14 +51,20 @@ public final class Debts {
     this.accounting = accounting;
   }
   
-  public Pair<QueryResult, Long> orderedWithdrawals(DataFilter<Ordering> filter) {
+  public Pair<QueryResult, Long> orderedWithdrawals(Long affId,
+                                                    DataFilter<Ordering> filter) {
     return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
         .addTemplateParam("grouped", true)
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
         .executeAndCount(filter.offset(), filter.limit());
   }
   
-  public QueryResult sumOrderedWithdrawals() {
-    return SqlLoader.templateQuery("ordered-withdrawals", repo.session()).execute();
+  public QueryResult sumOrderedWithdrawals(Long affId) {
+    return SqlLoader.templateQuery("ordered-withdrawals", repo.session())
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .execute();
   }
 
   public Pair<QueryResult, Long> debtInfo(Long offerId,

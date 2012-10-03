@@ -24,6 +24,9 @@ on payed.withdrawal_id = withdrawal.id
 where
   withdrawal.order_time is not null
   and withdrawal.basis <> 'FEE'
+  ${if filterByAffiliate}
+  and withdrawal.user_id = :aff_id
+  ${end}
 
 ${if grouped}
 group by usr.id, usr.email, withdrawal.order_time

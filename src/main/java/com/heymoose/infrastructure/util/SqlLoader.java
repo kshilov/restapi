@@ -40,6 +40,20 @@ public final class SqlLoader {
       return this;
     }
 
+    public TemplateQuery addQueryParamIfNotNull(Object nullable,
+                                                String name, Object value) {
+      if (nullable == null)
+        return this;
+      return addQueryParam(name, value);
+    }
+
+    public TemplateQuery addTemplateParamIfNotNull(Object nullable,
+                                                   String name, Object value) {
+      if (nullable == null)
+        return this;
+      return addTemplateParam(name, value);
+    }
+
     public QueryResult execute() {
       String sql = getTemplate(name, templateParamMap.build());
       Query query = session.createSQLQuery(sql)

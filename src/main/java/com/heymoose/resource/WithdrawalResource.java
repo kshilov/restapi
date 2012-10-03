@@ -42,11 +42,12 @@ public class WithdrawalResource {
   @GET
   @Produces("application/xml")
   @Transactional
-  public String listOrdered(@QueryParam("offset") int offset,
+  public String listOrdered(@QueryParam("aff_id") Long affId,
+                            @QueryParam("offset") int offset,
                             @QueryParam("limit") @DefaultValue("20") int limit) {
     DataFilter<Debts.Ordering> filter = DataFilter.newInstance();
     filter.setOffset(offset).setLimit(limit);
-    Pair<QueryResult, Long> result = debts.orderedWithdrawals(filter);
+    Pair<QueryResult, Long> result = debts.orderedWithdrawals(affId, filter);
     return new XmlQueryResult(result.fst)
       .setRoot("debts")
       .setElement("debt")
@@ -58,8 +59,8 @@ public class WithdrawalResource {
   @Path("sum")
   @Produces("application/xml")
   @Transactional
-  public String sumOrdered() {
-    return new XmlQueryResult(debts.sumOrderedWithdrawals())
+  public String sumOrdered(@QueryParam("aff_id") Long affId) {
+    return new XmlQueryResult(debts.sumOrderedWithdrawals(affId))
       .setElement("debt")
       .toString();
   }
