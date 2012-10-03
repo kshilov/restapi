@@ -78,15 +78,13 @@ public final class Debts {
         .addTemplateParam("ordering", filter.ordering().COLUMN)
         .addTemplateParam("direction", filter.direction());
 
-    if (offerId != null) {
-      query.addTemplateParam("filterByOffer", true);
-      query.addQueryParam("offer_id", offerId);
-    }
-    if (affId != null) {
-      query.addTemplateParam("filterByAffiliate", true);
-      query.addQueryParam("aff_id", affId);
-      query.addTemplateParam("forAffiliate", true);
-    }
+    query.addTemplateParamIfNotNull(offerId, "filterByOffer", true);
+    query.addQueryParamIfNotNull(offerId, "offer_id", offerId);
+
+    query.addTemplateParamIfNotNull(affId, "filterByAffiliate", true);
+    query.addQueryParamIfNotNull(affId, "aff_id", affId);
+    query.addTemplateParamIfNotNull(affId, "forAffiliate", true);
+
     return query.executeAndCount(filter.offset(), filter.limit());
   }
 
@@ -96,14 +94,12 @@ public final class Debts {
         SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", from.toDate())
         .addQueryParam("to", to.toDate());
-    if (affId != null) {
-      query.addTemplateParam("filterByAffiliate", true);
-      query.addQueryParam("aff_id", affId);
-    }
-    if (offerId != null) {
-      query.addTemplateParam("filterByOffer", true);
-      query.addQueryParam("offer_id", offerId);
-    }
+
+    query.addTemplateParamIfNotNull(affId, "filterByAffiliate", true);
+    query.addQueryParamIfNotNull(affId, "aff_id", affId);
+
+    query.addTemplateParamIfNotNull(offerId, "filterByOffer", true);
+    query.addQueryParamIfNotNull(offerId, "offer_id", offerId);
     return query.execute();
   }
 
