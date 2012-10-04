@@ -7,7 +7,7 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import org.joda.time.DateTime;
@@ -87,9 +87,7 @@ public final class OfferActionsStoredFunc implements OfferActions {
   @Override
   public Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
                                       DateKind dateKind,
-                                      ListFilter filter,
-                                      Ordering ordering,
-                                      OrderingDirection direction) {
-    return offerActionsHiber.list(offerId, state, dateKind, filter, ordering, direction);
+                                      DataFilter<Ordering> filter) {
+    return offerActionsHiber.list(offerId, state, dateKind, filter);
   }
 }

@@ -5,7 +5,7 @@ import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.infrastructure.service.ListFilter;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
@@ -107,13 +107,16 @@ public class OfferActionResource {
       @QueryParam("ordering") @DefaultValue("CREATION_TIME") OfferActions.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
     checkNotNull(offerId);
-    ListFilter filter = new ListFilter()
+    DataFilter<OfferActions.Ordering> filter =
+        new DataFilter<OfferActions.Ordering>()
         .setFrom(new DateTime(from))
         .setTo(new DateTime(to))
+        .setOrdering(ordering)
+        .setDirection(direction)
         .setLimit(limit)
         .setOffset(offset);
     Pair<QueryResult, Long> result =
-        actions.list(offerId, state, dateKind, filter, ordering, direction);
+        actions.list(offerId, state, dateKind, filter);
     return new XmlOfferActions(result.fst, result.snd);
 
   }

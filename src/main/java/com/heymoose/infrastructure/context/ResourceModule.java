@@ -20,6 +20,7 @@ import com.heymoose.resource.SettingResource;
 import com.heymoose.resource.SiteResource;
 import com.heymoose.resource.UserResource;
 import com.heymoose.resource.WithdrawalResource;
+import com.heymoose.resource.UserStatsResource;
 import com.heymoose.resource.api.ApiResource;
 
 public class ResourceModule extends AbstractModule {
@@ -43,6 +44,7 @@ public class ResourceModule extends AbstractModule {
     bind(RegionResource.class);
     bind(PublicDataResource.class);
     bind(WithdrawalResource.class);
+    bind(UserStatsResource.class);
     bindInterceptor(
         Matchers.any(),
         Matchers.annotatedWith(Cacheable.class),

@@ -26,20 +26,6 @@ public final class XmlOfferActions {
     this.count = count;
   }
 
-  private static final class XmlAffiliateBasic {
-    @XmlAttribute
-    public Long id;
-    @XmlElement
-    public String email;
-
-    public XmlAffiliateBasic(Map<String, Object> action) {
-      this.id = extractLong(action.get("affiliate_id"));
-      this.email = extractString(action.get("affiliate_email"));
-    }
-
-    protected XmlAffiliateBasic() { }
-  }
-
   private static final class XmlOfferBasic {
     @XmlAttribute
     public Long id;

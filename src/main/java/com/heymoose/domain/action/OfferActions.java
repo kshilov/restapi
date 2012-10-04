@@ -2,8 +2,7 @@ package com.heymoose.domain.action;
 
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.infrastructure.service.ListFilter;
-import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 
@@ -38,7 +37,6 @@ public interface OfferActions {
 
   Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
                                DateKind dateKind,
-                               ListFilter filter,
-                               Ordering ordering, OrderingDirection direction);
+                               DataFilter<Ordering> filter);
 
 }
