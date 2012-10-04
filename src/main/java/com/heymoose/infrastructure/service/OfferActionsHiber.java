@@ -279,8 +279,10 @@ public class OfferActionsHiber implements OfferActions {
         SqlLoader.templateQuery("offer_actions", repo.session())
         .addTemplateParam("ordering", filter.ordering())
         .addTemplateParam("direction", filter.direction())
-        .addTemplateParamIfNotNull(state, "filterByState", true)
-        .addQueryParamIfNotNull(state, "state", state.ordinal());
+        .addTemplateParamIfNotNull(state, "filterByState", true);
+    if (state != null) {
+      query.addQueryParam("state", state.ordinal());
+    }
     switch (dateKind) {
       case CREATION:
         query.addTemplateParam("filterByCreationTime", true);
