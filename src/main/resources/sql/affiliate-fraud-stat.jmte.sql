@@ -81,4 +81,5 @@ and affiliate.blocked = false
 ${end}
 
 group by affiliate_id, affiliate_email
+having sum(actions_count) > 5
 order by ${ordering} ${direction}, canceled desc, approved asc, affiliate_id
