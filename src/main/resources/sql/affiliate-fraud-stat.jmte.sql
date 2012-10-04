@@ -11,7 +11,7 @@ select
   sum(clicks_count)   clicks_count,
   sum(actions_count)  actions_count,
   case sum(clicks_count)
-    when 0 then null
+    when 0 then 0.00
     else sum(actions_count) / sum(clicks_count)
   end as "conversion"
 

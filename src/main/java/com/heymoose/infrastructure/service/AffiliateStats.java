@@ -21,7 +21,7 @@ public class AffiliateStats {
   public enum Ordering {
     AFFILIATE_ID, AFFILIATE_EMAIL,
     CANCELED, APPROVED, NOT_CONFIRMED, RATE,
-    CLICKS_COUNT, ACTIONS_COUNT, CONVERSION }
+    CLICKS, ACTIONS, CONVERSION }
 
   @Transactional
   public Pair<QueryResult, Long> fraudStat(boolean activeOnly,
