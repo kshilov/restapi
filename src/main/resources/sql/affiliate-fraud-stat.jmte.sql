@@ -12,7 +12,7 @@ select
   sum(actions_count)  actions_count,
   case sum(clicks_count)
     when 0 then 0.00
-    else sum(actions_count) / sum(clicks_count)
+    else sum(actions_count) * 100.0 / sum(clicks_count)
   end as "conversion"
 
 from (
