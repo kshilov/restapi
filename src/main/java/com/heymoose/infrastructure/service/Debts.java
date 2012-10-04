@@ -143,8 +143,8 @@ public final class Debts {
                                 DateTime to) {
     Preconditions.checkNotNull(offer, "Offer can not be null.");
     log.info("Gonna make withdraws for offer: {} basis: {} " +
-        "to user: {} amount: {} period: {} - {}.",
-        new Object[] { offer.id(), basis, userId, available, from, to });
+        "to user: {} amount: {} period: {} - {} of {} time.",
+        new Object[] { offer.id(), basis, userId, available, from, to, dateKind });
     Criteria criteria = repo.session().createCriteria(Withdrawal.class)
         .add(Restrictions.isNotNull("orderTime"))
         .add(Restrictions.eq("sourceId", offer.id()))
