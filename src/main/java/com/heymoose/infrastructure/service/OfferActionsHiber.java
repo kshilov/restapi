@@ -277,9 +277,12 @@ public class OfferActionsHiber implements OfferActions {
                                       DataFilter<Ordering> filter) {
     SqlLoader.TemplateQuery query =
         SqlLoader.templateQuery("offer_actions", repo.session())
-        .addTemplateParam("ordering", filter.ordering())
-        .addTemplateParam("direction", filter.direction())
-        .addTemplateParamIfNotNull(state, "filterByState", true);
+            .addQueryParam("offer_id", offerId)
+            .addQueryParam("from", filter.from())
+            .addQueryParam("to", filter.to())
+            .addTemplateParam("ordering", filter.ordering())
+            .addTemplateParam("direction", filter.direction())
+            .addTemplateParamIfNotNull(state, "filterByState", true);
     if (state != null) {
       query.addQueryParam("state", state.ordinal());
     }
