@@ -41,6 +41,3 @@ ${end}
 
 order by
   ${ordering} ${direction}
-
-offset :offset limit :limit
-
