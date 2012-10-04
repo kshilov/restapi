@@ -1,12 +1,11 @@
 package com.heymoose.resource;
 
 import com.heymoose.infrastructure.service.AffiliateStats;
-import com.heymoose.infrastructure.service.ListFilter;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.XmlFraudStat;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -36,13 +35,15 @@ public class UserStatsResource {
       AffiliateStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC")
       OrderingDirection direction) {
-    ListFilter filter = new ListFilter()
-        .setFrom(new DateTime(from))
-        .setTo(new DateTime(to))
+    DataFilter<AffiliateStats.Ordering> filter =
+        new DataFilter<AffiliateStats.Ordering>()
+        .setFrom(from)
+        .setTo(to)
+        .setOrdering(ordering)
+        .setDirection(direction)
         .setOffset(offset)
         .setLimit(limit);
-    Pair<QueryResult, Long> pair = affiliateStats.fraudStat(
-        activeOnly, filter, ordering, direction);
+    Pair<QueryResult, Long> pair = affiliateStats.fraudStat(activeOnly, filter);
     return new XmlFraudStat(pair);
   }
 
