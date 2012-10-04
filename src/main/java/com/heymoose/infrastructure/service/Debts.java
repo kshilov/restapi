@@ -153,11 +153,11 @@ public final class Debts {
     switch (dateKind) {
       case CREATION:
         criteria.add(
-            Restrictions.between("creation_time", from.toDate(), to.toDate()));
+            Restrictions.between("creationTime", from.toDate(), to.toDate()));
         break;
       case ORDER:
         criteria.add(
-            Restrictions.between("order_time", from.toDate(), to.toDate()));
+            Restrictions.between("orderTime", from.toDate(), to.toDate()));
         break;
     }
 
