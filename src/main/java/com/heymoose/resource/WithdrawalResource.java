@@ -88,6 +88,7 @@ public class WithdrawalResource {
                                @FormParam("user_id") List<Long> userIdList,
                                @FormParam("basis") List<Withdrawal.Basis> basisList,
                                @FormParam("amount") List<BigDecimal> amountList,
+                               @FormParam("date_kind") Debts.DateKind dateKind,
                                @FormParam("from") @DefaultValue("0") Long from,
                                @FormParam("to") Long to) {
     checkCondition(userIdList.size() == amountList.size());
@@ -98,7 +99,7 @@ public class WithdrawalResource {
       try {
         debts.payOffToAffiliate(
             offer, userIdList.get(i), basisList.get(i), amountList.get(i),
-            new DateTime(from) ,new DateTime(to));
+            dateKind, new DateTime(from) ,new DateTime(to));
       } catch (IllegalArgumentException e) {
         return Response.status(409).build();
       }
