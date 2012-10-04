@@ -30,6 +30,15 @@ public final class XmlFraudStat {
     @XmlElement(name = "not-confirmed")
     public Long notConfirmed;
 
+    @XmlElement(name = "actions")
+    public Long actionsCount;
+
+    @XmlElement(name = "clicks")
+    public Long clicksCount;
+
+    @XmlElement(name = "conversion")
+    public BigDecimal conversion;
+
     @XmlElement
     public BigDecimal rate;
 
@@ -39,6 +48,9 @@ public final class XmlFraudStat {
       this.canceled = SqlLoader.extractLong(map.get("canceled"));
       this.notConfirmed = SqlLoader.extractLong(map.get("not_confirmed"));
       this.rate = SqlLoader.scaledDecimal(map.get("rate"));
+      this.clicksCount = SqlLoader.extractLong(map.get("clicks_count"));
+      this.actionsCount = SqlLoader.extractLong(map.get("actions_count"));
+      this.conversion = SqlLoader.scaledDecimal(map.get("conversion"));
     }
 
     protected XmlStat() { }

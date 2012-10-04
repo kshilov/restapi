@@ -7,21 +7,26 @@ select
   case sum(approved + canceled)
     when 0 then 0.0
     else sum(canceled) * 100.0 / sum(approved + canceled)
-  end rate
+  end rate,
+  sum(clicks_count)   clicks_count,
+  sum(actions_count)  actions_count,
+  case sum(clicks_count)
+    when 0 then null
+    else sum(actions_count) / sum(clicks_count)
+  end as "conversion"
 
 from (
   select
     aff_id    affiliate_id,
     count(id) approved,
     0          canceled,
-    0          not_confirmed
-
+    0          not_confirmed,
+    0          clicks_count,
+    0          actions_count
   from offer_action
-
   where
     state = 1 /* APPROVED */
     and creation_time between :from and :to
-
   group by aff_id
 
   union
@@ -30,14 +35,13 @@ from (
     aff_id    affiliate_id,
     0         approved,
     count(id) canceled,
-    0          not_confirmed
-
+    0          not_confirmed,
+    0         clicks_count,
+    0         actions_count
   from offer_action
-
   where
     state = 2 /* CANCELED */
     and creation_time between :from and :to
-
   group by aff_id
 
   union
@@ -46,15 +50,28 @@ from (
     aff_id    affiliate_id,
     0         approved,
     0         canceled,
-    count(id) not_confirmed
-
+    count(id) not_confirmed,
+    0         clicks_count,
+    0         actions_count
   from offer_action
-
   where
     state = 0 /* CREATED */
     and creation_time between :from and :to
-
   group by aff_id
+
+  union
+
+  select
+    aff_id  affiliate_id,
+    0       approved,
+    0       canceled,
+    0       not_confirmed,
+    coalesce(sum(click_count), 0)              clicks_count,
+    coalesce(sum(sales_count + leads_count), 0) actions_count
+  from offer_stat
+  where creation_time between :from and :to
+  group by aff_id
+
 ) a
 
 join user_profile affiliate
@@ -65,5 +82,3 @@ ${end}
 
 group by affiliate_id, affiliate_email
 order by ${ordering} ${direction}, canceled desc, approved asc, affiliate_id
-
-offset :offset limit :limit
