@@ -15,6 +15,8 @@ and action.state = 1 /* CONFIRMED */
 
 left join withdrawal withdrawal
 on withdrawal.action_id = action.id
+and withdrawal.basis = 'MLM'
+and withdrawal.user_id = :aff_id
 
 left join withdrawal_payment payed
 on payed.withdrawal_id = withdrawal.id
