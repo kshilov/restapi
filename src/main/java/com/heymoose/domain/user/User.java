@@ -77,9 +77,6 @@ public class User extends IdEntity {
   @Basic
   private String phone;
   
-  @Column(name = "source_url")
-  private String sourceUrl;
-  
   @Enumerated
   @Column(name = "messenger_type")
   private MessengerType messengerType;
@@ -92,6 +89,9 @@ public class User extends IdEntity {
 
   @Column(name = "referrer")
   private Long referrerId;
+
+  @Basic
+  private String source;
   
   @Basic(optional = false)
   private boolean confirmed;
@@ -206,14 +206,6 @@ public class User extends IdEntity {
     this.phone = phone;
   }
   
-  public URI sourceUrl() {
-    return sourceUrl != null ? URI.create(sourceUrl) : null;
-  }
-  
-  public void setSourceUrl(URI sourceUrl) {
-    this.sourceUrl = sourceUrl != null ? sourceUrl.toString() : null;
-  }
-  
   public MessengerType messengerType() {
     return messengerType;
   }
@@ -225,6 +217,15 @@ public class User extends IdEntity {
   public void setMessenger(MessengerType type, String uid) {
     this.messengerType = type;
     this.messengerUid = uid;
+  }
+
+  public String source() {
+    return this.source;
+  }
+
+  public User setSource(String source) {
+    this.source = source;
+    return this;
   }
   
   public String wmr() {

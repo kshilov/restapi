@@ -81,8 +81,6 @@ public class Mappers {
       xmlUser.lastName = user.lastName();
       xmlUser.organization = user.organization();
       xmlUser.phone = user.phone();
-      if (user.sourceUrl() != null)
-        xmlUser.sourceUrl = user.sourceUrl().toString();
       if (user.messengerType() != null) {
         xmlUser.messengerType = user.messengerType().toString();
         xmlUser.messengerUid = user.messengerUid();

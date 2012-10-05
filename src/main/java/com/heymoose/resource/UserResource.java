@@ -81,12 +81,14 @@ public class UserResource {
                            @FormParam("password_hash") String passwordHash,
                            @FormParam("organization") String organization,
                            @FormParam("phone") String phone,
-                           @FormParam("referrer") Long referrerId) {
+                           @FormParam("referrer") Long referrerId,
+                           @FormParam("source") String source) {
     checkNotNull(email, passwordHash);
     User existing = users.byEmail(email);
     if (existing != null)
       return Response.status(409).build();
     User newUser = new User(email, passwordHash, organization, phone, referrerId);
+    newUser.setSource(source);
     users.put(newUser);
     return Response.created(URI.create(Long.toString(newUser.id()))).build();
   }
@@ -166,10 +168,6 @@ public class UserResource {
       user.setOrganization(nullableParam(params.getFirst("organization")));
     if (params.containsKey("phone"))
       user.setPhone(nullableParam(params.getFirst("phone")));
-    if (params.containsKey("source_url")) {
-      String sourceUrlParam = params.getFirst("source_url");
-      user.setSourceUrl(!isNull(sourceUrlParam) ? URI.create(sourceUrlParam) : null);
-    }
     if (params.containsKey("messenger_type")) {
       String messengerTypeParam = params.getFirst("messenger_type");
       String messengerUidParam = params.containsKey("messenger_uid") ? params.getFirst("messenger_uid") : "";
