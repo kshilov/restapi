@@ -18,10 +18,15 @@ public class AffiliateStats {
   }
 
 
+
   public enum Ordering {
     AFFILIATE_ID, AFFILIATE_EMAIL,
     CANCELED, APPROVED, NOT_CONFIRMED, RATE,
     CLICKS, ACTIONS, CONVERSION }
+
+  public enum ReferralOrdering {
+    EMAIL, AMOUNT
+  }
 
   @Transactional
   public Pair<QueryResult, Long> fraudStat(boolean activeOnly,
@@ -37,4 +42,17 @@ public class AffiliateStats {
         .addQueryParam("to", filter.to())
         .executeAndCount(filter.offset(), filter.limit());
   }
+
+  @Transactional
+  public Pair<QueryResult, Long> referralStat(Long affId, String source,
+                                              DataFilter<ReferralOrdering> filter) {
+    return SqlLoader.templateQuery("referral-stat", repo.session())
+        .addQueryParam("aff_id", affId)
+        .addTemplateParamIfNotNull(source, "filterBySource", true)
+        .addQueryParamIfNotNull(source, "source", source)
+        .addTemplateParam("ordering", filter.ordering())
+        .addTemplateParam("direction", filter.direction())
+        .executeAndCount(filter.offset(), filter.limit());
+  }
+
 }
