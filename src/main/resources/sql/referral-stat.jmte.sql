@@ -8,14 +8,14 @@ select
 
 from user_profile referral
 
-join offer_action action
+left join offer_action action
 on action.aff_id = referral.id
 and action.state = 1 /* CONFIRMED */
 
-join withdrawal withdrawal
+left join withdrawal withdrawal
 on withdrawal.action_id = action.id
 
-join withdrawal_payment payed
+left join withdrawal_payment payed
 on payed.withdrawal_id = withdrawal.id
 
 where referral.referrer = :aff_id
