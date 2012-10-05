@@ -20,7 +20,7 @@ on payed.withdrawal_id = withdrawal.id
 
 where referral.referrer = :aff_id
        ${if filterBySource}
-       and referral.source = :source
+       and coalesce(referral.source, '') = :source
        ${end}
 
 ${if !sumUp}
