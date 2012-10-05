@@ -8,6 +8,8 @@ import com.google.common.io.Resources;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -75,14 +77,16 @@ public final class SqlLoader {
         query.setParameter(param.getKey(), param.getValue());
         countQuery.setParameter(param.getKey(), param.getValue());
       }
-      return Pair.of(
-          (QueryResult) query.list(),
-          ((BigInteger) countQuery.uniqueResult()).longValue());
+      QueryResult resultList = (QueryResult) query.list();
+      Long resultCount = ((BigInteger) countQuery.uniqueResult()).longValue();
+      log.debug("Query executed successfully. List size: {}, total count: {}",
+          resultList.size(), resultCount);
+      return Pair.of(resultList, resultCount);
     }
 
   }
 
-
+  private static final Logger log = LoggerFactory.getLogger(SqlLoader.class);
   private static final String FOLDER = "sql/";
   private static final String SQL_EXTENSION = ".sql";
   private static final String TEMPLATE_EXTENSION = ".jmte.sql";
