@@ -25,9 +25,12 @@ public class AffiliateStats {
 
   @Transactional
   public Pair<QueryResult, Long> fraudStat(boolean activeOnly,
+                                           Long offerId,
                                            DataFilter<Ordering> filter) {
     return SqlLoader.templateQuery("affiliate-fraud-stat", repo.session())
         .addTemplateParam("activeOnly", activeOnly)
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId)
         .addTemplateParam("ordering", filter.ordering())
         .addTemplateParam("direction", filter.direction())
         .addQueryParam("from", filter.from())

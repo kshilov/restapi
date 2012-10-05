@@ -18,15 +18,20 @@ select
 from (
   select
     aff_id    affiliate_id,
-    count(id) approved,
+    count(offer_action.id) approved,
     0          canceled,
     0          not_confirmed,
     0          clicks_count,
     0          actions_count
   from offer_action
+  ${if filterByOffer}
+  join offer
+  on  coalesce(offer.parent_id, offer.id) = offer_action.offer_id
+  and coalesce(offer.parent_id, offer.id) = :offer_id
+  ${end}
   where
     state = 1 /* APPROVED */
-    and creation_time between :from and :to
+    and offer_action.creation_time between :from and :to
   group by aff_id
 
   union
@@ -34,14 +39,19 @@ from (
   select
     aff_id    affiliate_id,
     0         approved,
-    count(id) canceled,
+    count(offer_action.id) canceled,
     0          not_confirmed,
     0         clicks_count,
     0         actions_count
   from offer_action
+  ${if filterByOffer}
+  join offer
+  on  coalesce(offer.parent_id, offer.id) = offer_action.offer_id
+  and coalesce(offer.parent_id, offer.id) = :offer_id
+  ${end}
   where
     state = 2 /* CANCELED */
-    and creation_time between :from and :to
+    and offer_action.creation_time between :from and :to
   group by aff_id
 
   union
@@ -50,13 +60,18 @@ from (
     aff_id    affiliate_id,
     0         approved,
     0         canceled,
-    count(id) not_confirmed,
+    count(offer_action.id) not_confirmed,
     0         clicks_count,
     0         actions_count
   from offer_action
+  ${if filterByOffer}
+  join offer
+  on  coalesce(offer.parent_id, offer.id) = offer_action.offer_id
+  and coalesce(offer.parent_id, offer.id) = :offer_id
+  ${end}
   where
     state = 0 /* CREATED */
-    and creation_time between :from and :to
+    and offer_action.creation_time between :from and :to
   group by aff_id
 
   union
@@ -69,7 +84,12 @@ from (
     coalesce(sum(click_count), 0)              clicks_count,
     coalesce(sum(sales_count + leads_count), 0) actions_count
   from offer_stat
-  where creation_time between :from and :to
+  ${if filterByOffer}
+  join offer
+  on  offer.id = offer_stat.master
+  and offer.id = :offer_id
+  ${end}
+  where offer_stat.creation_time between :from and :to
   group by aff_id
 
 ) a

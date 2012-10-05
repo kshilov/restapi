@@ -27,6 +27,7 @@ public class UserStatsResource {
   @Path("fraud")
   public XmlFraudStat fraudStat(
       @QueryParam("active") @DefaultValue("true") boolean activeOnly,
+      @QueryParam("offer_id") Long offerId,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") int offset,
@@ -43,7 +44,8 @@ public class UserStatsResource {
         .setDirection(direction)
         .setOffset(offset)
         .setLimit(limit);
-    Pair<QueryResult, Long> pair = affiliateStats.fraudStat(activeOnly, filter);
+    Pair<QueryResult, Long> pair =
+        affiliateStats.fraudStat(activeOnly, offerId, filter);
     return new XmlFraudStat(pair);
   }
 
