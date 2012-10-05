@@ -1,7 +1,7 @@
 select
+  ${if !sumUp}
   referral.id,
   referral.email,
-  ${if !filterBySource}
   coalesce(referral.source, '') source,
   ${end}
   coalesce(sum(payed.amount), 0.0) amount
@@ -23,6 +23,8 @@ where referral.referrer = :aff_id
        and referral.source = :source
        ${end}
 
-group by referral.id, referral.email ${if !filterBySource} , source ${end}
+${if !sumUp}
+group by referral.id, referral.email, source
 order by ${ordering} ${direction}
+${end}
 

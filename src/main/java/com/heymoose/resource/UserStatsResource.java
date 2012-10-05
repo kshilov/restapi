@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.AffiliateStats;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
@@ -15,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import java.math.BigDecimal;
 
 @Path("user-stats")
 public class UserStatsResource {
@@ -28,6 +30,7 @@ public class UserStatsResource {
 
   @GET
   @Path("fraud")
+  @Transactional
   public XmlFraudStat fraudStat(
       @QueryParam("active") @DefaultValue("true") boolean activeOnly,
       @QueryParam("offer_id") Long offerId,
@@ -55,6 +58,7 @@ public class UserStatsResource {
   @GET
   @Path("{id}/referrals")
   @Produces("application/xml")
+  @Transactional
   public String referralStat(@PathParam("id") Long affId,
                              @QueryParam("source") String source,
                              @QueryParam("offset") int offset,
@@ -72,9 +76,11 @@ public class UserStatsResource {
         .setDirection(direction);
     Pair<QueryResult, Long> result =
         affiliateStats.referralStat(affId, source, filter);
+    BigDecimal sum = affiliateStats.sumReferralStat(affId, source);
     return new XmlQueryResult(result.fst)
         .setRoot("stats")
         .addRootAttribute("count", result.snd)
+        .addRootAttribute("sum", sum)
         .setElement("stat")
         .toString();
   }

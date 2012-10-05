@@ -1,12 +1,14 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
+
+import java.math.BigDecimal;
 
 public class AffiliateStats {
 
@@ -18,7 +20,6 @@ public class AffiliateStats {
   }
 
 
-
   public enum Ordering {
     AFFILIATE_ID, AFFILIATE_EMAIL,
     CANCELED, APPROVED, NOT_CONFIRMED, RATE,
@@ -28,7 +29,6 @@ public class AffiliateStats {
     EMAIL, AMOUNT
   }
 
-  @Transactional
   public Pair<QueryResult, Long> fraudStat(boolean activeOnly,
                                            Long offerId,
                                            DataFilter<Ordering> filter) {
@@ -43,9 +43,9 @@ public class AffiliateStats {
         .executeAndCount(filter.offset(), filter.limit());
   }
 
-  @Transactional
   public Pair<QueryResult, Long> referralStat(Long affId, String source,
                                               DataFilter<ReferralOrdering> filter) {
+    Preconditions.checkNotNull(affId, "Affiliate id can not be null.");
     return SqlLoader.templateQuery("referral-stat", repo.session())
         .addQueryParam("aff_id", affId)
         .addTemplateParamIfNotNull(source, "filterBySource", true)
@@ -54,5 +54,17 @@ public class AffiliateStats {
         .addTemplateParam("direction", filter.direction())
         .executeAndCount(filter.offset(), filter.limit());
   }
+
+  public BigDecimal sumReferralStat(Long affId, String source) {
+    Preconditions.checkNotNull(affId, "Affiliate id can not be null.");
+    Object amount = SqlLoader.templateQuery("referral-stat", repo.session())
+        .addTemplateParam("sumUp", true)
+        .addTemplateParamIfNotNull(source, "filterBySource", true)
+        .addQueryParamIfNotNull(source, "source", source)
+        .addQueryParam("aff_id", affId)
+        .execute().get(0).get("amount");
+    return SqlLoader.scaledDecimal(amount);
+  }
+
 
 }
