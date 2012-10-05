@@ -26,7 +26,7 @@ public class AffiliateStats {
     CLICKS, ACTIONS, CONVERSION }
 
   public enum ReferralOrdering {
-    EMAIL, AMOUNT
+    EMAIL, AMOUNT, SOURCE, REGISTER_TIME
   }
 
   public Pair<QueryResult, Long> fraudStat(boolean activeOnly,
