@@ -2,7 +2,6 @@ package com.heymoose.infrastructure.service.action;
 
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Offer;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 
 import java.math.BigDecimal;
@@ -14,9 +13,8 @@ public final class PercentPerItemYmlWrapper extends YmlCatalogWrapperBase {
   private final Map<String, BigDecimal> idPercentMap;
   private final BigDecimal defaultPercent;
 
-  public PercentPerItemYmlWrapper(YmlCatalog catalog, BigDecimal defaultPercent,
+  public PercentPerItemYmlWrapper(BigDecimal defaultPercent,
                                   Map<String, BigDecimal> idPercentMap) {
-    super(catalog);
     this.defaultPercent = defaultPercent;
     this.idPercentMap = idPercentMap;
   }

@@ -4,6 +4,7 @@ import com.heymoose.infrastructure.util.QueryUtil;
 import org.joda.time.DateTime;
 
 import javax.inject.Provider;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public final class SapatoUrlProvider implements Provider<URL> {
@@ -15,6 +16,14 @@ public final class SapatoUrlProvider implements Provider<URL> {
 
   public SapatoUrlProvider(URL base) {
     this.baseUrl = base;
+  }
+
+  public SapatoUrlProvider(String base) {
+    try {
+      this.baseUrl = new URL(base);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

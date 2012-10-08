@@ -5,7 +5,6 @@ import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Model;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.Vendor;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 import com.heymoose.infrastructure.service.yml.YmlUtil;
 
@@ -27,10 +26,6 @@ public final class ShoesBagsYmlWrapper extends YmlCatalogWrapperBase {
   private static final BigDecimal REGULAR_PERCENT = new BigDecimal(15);
   private static final BigDecimal EXCLUSIVE_COST = new BigDecimal(1950);
 
-
-  public ShoesBagsYmlWrapper(YmlCatalog catalog) {
-    super(catalog);
-  }
 
   @Override
   public CpaPolicy getCpaPolicy(Offer catalogOffer) {

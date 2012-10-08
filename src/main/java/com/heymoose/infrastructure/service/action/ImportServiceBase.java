@@ -1,5 +1,7 @@
 package com.heymoose.infrastructure.service.action;
 
+import com.google.common.base.Objects;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -46,4 +48,11 @@ public abstract class ImportServiceBase implements ImportService {
   @Override
   public abstract ImportService start();
 
+  @Override
+  public String toString() {
+      return Objects.toStringHelper(this.getClass())
+          .add("url", url)
+          .add("period", importPeriod)
+          .add("time-unit", importTimeUnit).toString();
+  }
 }

@@ -116,30 +116,30 @@ public final class YmlImport {
     switch (arguments.wrapper) {
       case DEFAULT:
         wrapper = new PercentPerItemYmlWrapper(
-            catalog,
             arguments.defaultPercent,
             parseCsv(arguments.csvPath));
         break;
       case TOPSHOP:
-        wrapper = new TopShopYmlWrapper(catalog);
+        wrapper = new TopShopYmlWrapper();
         break;
       case TRENDSBRANDS:
-        wrapper = new TrendsBrandsYmlWrapper(catalog);
+        wrapper = new TrendsBrandsYmlWrapper();
         break;
       case CAROLINES:
-        wrapper = new CarolinesYmlWrapper(catalog);
+        wrapper = new CarolinesYmlWrapper();
         break;
       case SHOESBAGS:
-        wrapper = new ShoesBagsYmlWrapper(catalog);
+        wrapper = new ShoesBagsYmlWrapper();
         break;
       case MEBELRAMA:
-        wrapper = new MebelramaYmlWrapper(catalog);
+        wrapper = new MebelramaYmlWrapper();
     }
     if (wrapper == null) {
       log.error("Wrapper not found. Arguments: {}", arguments);
       return;
     }
     log.info("Wrapper chosen: {}", wrapper.getClass().getSimpleName());
+    wrapper.wrapCatalog(catalog);
 
     if (arguments.doImport) {
       log.info("** Starting import with arguments: {} **", arguments);

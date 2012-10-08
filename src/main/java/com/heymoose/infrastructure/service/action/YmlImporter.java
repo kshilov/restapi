@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
@@ -19,6 +20,7 @@ public class YmlImporter {
 
   private final Repo repo;
 
+  @Inject
   public YmlImporter(Repo repo) {
     this.repo = repo;
   }

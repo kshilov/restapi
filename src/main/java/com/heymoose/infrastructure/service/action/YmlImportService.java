@@ -10,6 +10,17 @@ import org.slf4j.LoggerFactory;
 
 public abstract class YmlImportService extends ImportServiceBase {
 
+  public static YmlImportService forWrapper(
+      final Class<? extends YmlCatalogWrapper> wrapperClass,
+      Injector injector) {
+    return new YmlImportService(injector) {
+      @Override
+      protected Class<? extends YmlCatalogWrapper> ymlWrapperCls() {
+        return wrapperClass;
+      }
+    };
+  }
+
   private static final Logger log =
       LoggerFactory.getLogger(YmlImportService.class);
 
@@ -23,6 +34,7 @@ public abstract class YmlImportService extends ImportServiceBase {
   public ImportService start() {
     Preconditions.checkNotNull(offerId, "Offer not set.");
     Preconditions.checkNotNull(url, "Yml url not set.");
+    log.info("Starting import service: {}.", this);
     final YmlImporter importer = injector.getInstance(YmlImporter.class);
     final YmlCatalogWrapper wrapper = injector.getInstance(ymlWrapperCls());
     Runnable ymlImport = new Runnable() {

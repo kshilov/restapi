@@ -9,9 +9,7 @@ public abstract class YmlCatalogWrapperBase implements YmlCatalogWrapper {
 
   protected YmlCatalog catalog;
 
-  public YmlCatalogWrapperBase(YmlCatalog catalog) {
-    this.catalog = catalog;
-  }
+  public YmlCatalogWrapperBase() { }
 
   public YmlCatalogWrapperBase wrapCatalog(YmlCatalog catalog) {
     this.catalog = catalog;
