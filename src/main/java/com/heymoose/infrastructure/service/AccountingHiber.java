@@ -61,9 +61,9 @@ public class AccountingHiber implements Accounting {
   public void transferMoney(Account src, Account dst, BigDecimal amount,
                             AccountingEvent event, Long sourceId, String descr) {
     checkArgument(amount.signum() == 1);
-    log.info("Entering transfer money src {} dst {}, " +
+    log.info("Entering transfer money src: {} dst: {}, " +
         "amount: {}, event: {}, sourceId: {}, descr: {}",
-        new Object[] { src, dst, amount, event, sourceId, descr });
+        new Object[] { src.id(), dst.id(), amount, event, sourceId, descr });
     AccountingEntry srcEntry = new AccountingEntry(src, amount.negate(), event, sourceId, descr);
     AccountingEntry dstEntry = new AccountingEntry(dst, amount, event, sourceId, descr);
     createTransaction(srcEntry, dstEntry);
