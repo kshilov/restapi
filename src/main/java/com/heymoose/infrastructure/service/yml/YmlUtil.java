@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service.yml;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -13,6 +14,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +24,20 @@ public final class YmlUtil {
   private static final Logger log = LoggerFactory.getLogger(YmlUtil.class);
 
   private YmlUtil() { }
+
+  public static YmlCatalog loadYml(String url) {
+    try {
+      return loadYml(new URL(url));
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static YmlCatalog loadYml(URL url) {
+    InputSupplier<InputStream> inputSupplier =
+        Resources.newInputStreamSupplier(url);
+    return parse(inputSupplier);
+  }
 
   public static YmlCatalog parse(InputSupplier<? extends InputStream> input) {
     InputStream inputStream = null;

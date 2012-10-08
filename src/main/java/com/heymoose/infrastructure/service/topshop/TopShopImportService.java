@@ -2,12 +2,12 @@ package com.heymoose.infrastructure.service.topshop;
 
 import com.google.inject.Injector;
 import com.heymoose.domain.action.ItemListActionData;
-import com.heymoose.infrastructure.service.action.ImportServiceBase;
+import com.heymoose.infrastructure.service.action.ActionDataImportService;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
 import com.heymoose.infrastructure.service.action.ActionDataParser;
 
 public final class TopShopImportService
-    extends ImportServiceBase<ItemListActionData> {
+    extends ActionDataImportService<ItemListActionData> {
 
   public TopShopImportService(Injector injector) {
     super(injector);

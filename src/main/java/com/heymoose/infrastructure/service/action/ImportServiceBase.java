@@ -1,32 +1,27 @@
 package com.heymoose.infrastructure.service.action;
 
-import com.google.inject.Injector;
-import com.google.inject.util.Providers;
-import com.heymoose.domain.action.ActionData;
-
-import javax.inject.Provider;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public abstract class ImportServiceBase<T extends ActionData>
-    implements ImportService {
+public abstract class ImportServiceBase implements ImportService {
 
-  private final Injector injector;
-  private ScheduledThreadPoolExecutor scheduler;
-
-  protected Long parentOfferId;
-  protected Integer periodMinutes;
+  protected final ScheduledThreadPoolExecutor scheduler =
+      new ScheduledThreadPoolExecutor(1);
+  protected Long offerId;
   protected URL url;
-
-  public ImportServiceBase(Injector injector) {
-    this.injector = injector;
-  }
-
+  protected Integer importPeriod;
+  protected TimeUnit importTimeUnit;
 
   @Override
-  public final ImportService setUrl(String url) {
+  public final ImportService forOffer(Long offerId) {
+    this.offerId = offerId;
+    return this;
+  }
+
+  @Override
+  public final ImportService loadDataFromUrl(String url) {
     try {
       this.url = new URL(url);
     } catch (MalformedURLException e) {
@@ -36,30 +31,9 @@ public abstract class ImportServiceBase<T extends ActionData>
   }
 
   @Override
-  public final ImportService setParentOfferId(Long parentOfferId) {
-    this.parentOfferId = parentOfferId;
-    return this;
-  }
-
-  @Override
-  public final ImportService setImportPeriod(Integer minutes) {
-    this.periodMinutes = minutes;
-    return this;
-  }
-
-
-  @Override
-  public final ImportService start() {
-    scheduler = new ScheduledThreadPoolExecutor(1);
-    ActionDataImporter<T> importer = injector.getInstance(importerCls());
-    ActionDataParser<T> parser = injector.getInstance(parserCls());
-
-    ActionDataImportJob<T> importJob = new ActionDataImportJob<T>(
-        urlProvider(), this.parentOfferId, importer, parser);
-
-    scheduler.scheduleAtFixedRate(
-        importJob, 0, this.periodMinutes, TimeUnit.MINUTES);
-
+  public final ImportService loadEvery(Integer period, TimeUnit timeUnit) {
+    this.importPeriod = period;
+    this.importTimeUnit = timeUnit;
     return this;
   }
 
@@ -69,10 +43,7 @@ public abstract class ImportServiceBase<T extends ActionData>
     return this;
   }
 
-  protected Provider<URL> urlProvider() {
-    return Providers.of(this.url);
-  }
+  @Override
+  public abstract ImportService start();
 
-  protected abstract Class<? extends ActionDataImporter<T>> importerCls();
-  protected abstract Class<? extends ActionDataParser<T>> parserCls();
 }

@@ -7,10 +7,15 @@ import java.util.Map;
 
 public abstract class YmlCatalogWrapperBase implements YmlCatalogWrapper {
 
-  protected final YmlCatalog catalog;
+  protected YmlCatalog catalog;
 
   public YmlCatalogWrapperBase(YmlCatalog catalog) {
     this.catalog = catalog;
+  }
+
+  public YmlCatalogWrapperBase wrapCatalog(YmlCatalog catalog) {
+    this.catalog = catalog;
+    return this;
   }
 
   @Override

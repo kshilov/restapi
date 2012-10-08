@@ -6,7 +6,6 @@ import com.google.inject.Key;
 import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.heymoose.domain.action.ActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.action.BasicItemListImportService;
@@ -20,6 +19,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.ServletContextEvent;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class AppContextListener extends GuiceServletContextListener {
 
@@ -90,7 +90,7 @@ public class AppContextListener extends GuiceServletContextListener {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T extends ActionData> void startImportService(
+  private static void startImportService(
       String shopName, Properties properties,
       final ImportService actionImportService) {
     try {
@@ -100,9 +100,9 @@ public class AppContextListener extends GuiceServletContextListener {
           properties.get(shopName + ".import.period").toString());
       String url = properties.get(shopName + ".import.url").toString();
 
-      actionImportService.setImportPeriod(importPeriod)
-          .setUrl(url)
-          .setParentOfferId(parentOfferId);
+      actionImportService.forOffer(parentOfferId)
+          .loadDataFromUrl(url)
+          .loadEvery(importPeriod, TimeUnit.MINUTES);
 
       log.info("Starting import service for {}", shopName);
       actionImportService.start();
