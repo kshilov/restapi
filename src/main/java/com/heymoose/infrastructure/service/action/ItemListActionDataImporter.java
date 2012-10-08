@@ -7,6 +7,7 @@ import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Tracking;
 import org.slf4j.Logger;
@@ -43,10 +44,15 @@ public abstract class ItemListActionDataImporter
           parentOfferId, item.id());
       if (productOffer == null) {
         log.warn("Product with code '{}' does not present in our db! " +
-            "Parent offer: '{}'. Skipping..", item.id(), parentOfferId);
-        continue;
+            "Parent offer: '{}'. Using default.", item.id(), parentOfferId);
+        productOffer = repo.get(Offer.class, parentOfferId);
       }
       BigDecimal price = namePrice(item, productOffer);
+      if (price == null || price.signum() < 1) {
+        log.warn("Can't calculate price for item with code: {}, offer: {}." +
+            "Skipping..", item.id(), productOffer.id());
+        continue;
+      }
       for (int i = 1; i <= item.quantity(); i++) {
         log.info("Adding conversion for offer '{}' code '{}' price '{}'",
             new Object[] {

@@ -4,6 +4,7 @@ import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.service.action.ItemListActionDataImporter;
 
@@ -19,6 +20,9 @@ public class TopShopDataImporter extends ItemListActionDataImporter {
   }
 
   protected BigDecimal namePrice(ItemListActionData.Item item, BaseOffer offer) {
+    if (offer instanceof Offer) {
+      return null;
+    }
     return offer.itemPrice();
   }
 }
