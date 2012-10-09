@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
-import com.heymoose.domain.product.ProductCategory;
+import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.persistence.Transactional;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -32,20 +32,20 @@ public class ProductYmlImporter {
   public void doImport(Document document, Long parentOfferId) {
     log.info("Entring YML import for offer: {}.", parentOfferId);
     for (Element category : listCategories(document)) {
-      ProductCategory productCategory = repo.byHQL(
-          ProductCategory.class,
-          "from ProductCategory where offerId = ? and originalId = ?",
+      ShopCategory shopCategory = repo.byHQL(
+          ShopCategory.class,
+          "from ShopCategory where offerId = ? and originalId = ?",
           parentOfferId, category.getAttributeValue("id"));
-      if (productCategory != null) {
+      if (shopCategory != null) {
         continue; // todo: not skip saved categories?
       }
-      productCategory = new ProductCategory();
-      repo.put(productCategory
+      shopCategory = new ShopCategory();
+      repo.put(shopCategory
           .setOriginalId(category.getAttributeValue("id"))
           .setName(category.getText())
           .setOfferId(parentOfferId)
-          .setParentId(category.getAttributeValue("parentId")));
-      log.info("Product category saved: {}", productCategory);
+          .setParentOriginalId(category.getAttributeValue("parentId")));
+      log.info("Product category saved: {}", shopCategory);
     }
     for (Element offer : listOffers(document)) {
       String originalId = offer.getAttributeValue("id");

@@ -12,12 +12,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "product_category")
-public class ProductCategory extends IdEntity {
+@Table(name = "shop_category")
+public class ShopCategory extends IdEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_category-seq")
-  @SequenceGenerator(name = "product_category-seq", sequenceName = "product_category_seq", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shop_category-seq")
+  @SequenceGenerator(name = "shop_category-seq", sequenceName = "shop_category_seq", allocationSize = 1)
   protected Long id;
 
   @Column(name = "offer_id", nullable = false)
@@ -29,8 +29,8 @@ public class ProductCategory extends IdEntity {
   @Column(nullable = false)
   protected String name;
 
-  @Column(name = "parent_id")
-  protected String parentId;
+  @Column(name = "parent_original_id")
+  protected String parentOriginalId;
 
   @Override
   public Long id() {
@@ -41,17 +41,17 @@ public class ProductCategory extends IdEntity {
     return name;
   }
 
-  public ProductCategory setName(String name) {
+  public ShopCategory setName(String name) {
     this.name = name;
     return this;
   }
 
-  public String parentId() {
-    return parentId;
+  public String parentOriginalId() {
+    return parentOriginalId;
   }
 
-  public ProductCategory setParentId(String parentId) {
-    this.parentId = parentId;
+  public ShopCategory setParentOriginalId(String parentOriginalId) {
+    this.parentOriginalId = parentOriginalId;
     return this;
   }
 
@@ -59,7 +59,7 @@ public class ProductCategory extends IdEntity {
     return this.offerId;
   }
 
-  public ProductCategory setOfferId(Long offerId) {
+  public ShopCategory setOfferId(Long offerId) {
     this.offerId = offerId;
     return this;
   }
@@ -68,18 +68,18 @@ public class ProductCategory extends IdEntity {
     return this.originalId;
   }
 
-  public ProductCategory setOriginalId(String originalId) {
+  public ShopCategory setOriginalId(String originalId) {
     this.originalId = originalId;
     return this;
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(ProductCategory.class)
+    return Objects.toStringHelper(ShopCategory.class)
         .add("id", id)
         .add("originalId", originalId)
         .add("offerId", offerId)
         .add("name", name)
-        .add("parentId", parentId).toString();
+        .add("parentOriginalId", parentOriginalId).toString();
   }
 }

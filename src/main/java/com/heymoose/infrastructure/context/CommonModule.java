@@ -27,7 +27,7 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
-import com.heymoose.domain.product.ProductCategory;
+import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.statistics.OfferStat;
@@ -94,7 +94,7 @@ public class CommonModule extends AbstractModule {
         AdminAccountNotConfirmed.class, Token.class, MlmExecution.class,
         KeywordPattern.class, ErrorInfo.class,
         Withdrawal.class, WithdrawalPayment.class,
-        Product.class, ProductCategory.class, ProductAttribute.class);
+        Product.class, ShopCategory.class, ProductAttribute.class);
   }
 
   protected void bindEntities(Class... classes) {
