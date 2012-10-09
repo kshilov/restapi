@@ -1,9 +1,7 @@
-package com.heymoose.infrastructure.service.action;
+package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.io.Closeables;
 import com.google.common.io.OutputSupplier;
-import com.heymoose.infrastructure.service.yml.Offer;
-import com.heymoose.infrastructure.service.yml.YmlCatalogWrapper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;

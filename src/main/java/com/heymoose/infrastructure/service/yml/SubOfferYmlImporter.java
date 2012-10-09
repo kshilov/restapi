@@ -1,4 +1,4 @@
-package com.heymoose.infrastructure.service.action;
+package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -6,25 +6,24 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.infrastructure.service.yml.Offer;
-import com.heymoose.infrastructure.service.yml.YmlCatalogWrapper;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
-public class YmlImporter {
+public class SubOfferYmlImporter implements YmlImporter {
 
-  private static final Logger log = LoggerFactory.getLogger(YmlImporter.class);
+  private static final Logger log = LoggerFactory.getLogger(SubOfferYmlImporter.class);
 
   private final Repo repo;
 
   @Inject
-  public YmlImporter(Repo repo) {
+  public SubOfferYmlImporter(Repo repo) {
     this.repo = repo;
   }
 
+  @Override
   public void doImport(YmlCatalogWrapper catalog, Long parentOfferId) {
     Transaction tx = repo.session().getTransaction();
     if (!tx.isActive())

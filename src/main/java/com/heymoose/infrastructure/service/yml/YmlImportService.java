@@ -1,10 +1,9 @@
-package com.heymoose.infrastructure.service.action;
+package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Injector;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
-import com.heymoose.infrastructure.service.yml.YmlCatalogWrapper;
-import com.heymoose.infrastructure.service.yml.YmlUtil;
+import com.heymoose.infrastructure.service.ImportService;
+import com.heymoose.infrastructure.service.ImportServiceBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ public final class YmlImportService extends ImportServiceBase {
     Preconditions.checkNotNull(offerId, "Offer not set.");
     Preconditions.checkNotNull(url, "Yml url not set.");
     log.info("Starting import service: {}.", this);
-    final YmlImporter importer = injector.getInstance(YmlImporter.class);
+    final YmlImporter importer = injector.getInstance(SubOfferYmlImporter.class);
     final YmlCatalogWrapper wrapper = injector.getInstance(ymlWrapperCls);
     Runnable ymlImport = new Runnable() {
       @Override

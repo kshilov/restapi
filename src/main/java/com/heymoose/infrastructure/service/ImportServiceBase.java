@@ -1,4 +1,4 @@
-package com.heymoose.infrastructure.service.action;
+package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Objects;
 

@@ -15,8 +15,9 @@ import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
 import com.heymoose.infrastructure.service.action.PercentPerItemYmlWrapper;
-import com.heymoose.infrastructure.service.action.YmlImporter;
-import com.heymoose.infrastructure.service.action.YmlToExcel;
+import com.heymoose.infrastructure.service.yml.SubOfferYmlImporter;
+import com.heymoose.infrastructure.service.yml.YmlImporter;
+import com.heymoose.infrastructure.service.yml.YmlToExcel;
 import com.heymoose.infrastructure.service.carolines.CarolinesYmlWrapper;
 import com.heymoose.infrastructure.service.mebelrama.MebelramaYmlWrapper;
 import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlWrapper;
@@ -143,7 +144,7 @@ public final class YmlImport {
 
     if (arguments.doImport) {
       log.info("** Starting import with arguments: {} **", arguments);
-      YmlImporter importer = new YmlImporter(repo);
+      YmlImporter importer = new SubOfferYmlImporter(repo);
       importer.doImport(wrapper, arguments.offerId);
     }
     if (arguments.doExport) {
