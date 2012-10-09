@@ -8,26 +8,24 @@ import com.heymoose.infrastructure.service.yml.YmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class YmlImportService extends ImportServiceBase {
+public final class YmlImportService extends ImportServiceBase {
 
   public static YmlImportService forWrapper(
       final Class<? extends YmlCatalogWrapper> wrapperClass,
       Injector injector) {
-    return new YmlImportService(injector) {
-      @Override
-      protected Class<? extends YmlCatalogWrapper> ymlWrapperCls() {
-        return wrapperClass;
-      }
-    };
+    return new YmlImportService(injector, wrapperClass);
   }
 
   private static final Logger log =
       LoggerFactory.getLogger(YmlImportService.class);
 
   private final Injector injector;
+  private final Class<? extends YmlCatalogWrapper> ymlWrapperCls;
 
-  public YmlImportService(Injector injector) {
+  private YmlImportService(Injector injector,
+                          Class<? extends YmlCatalogWrapper> wrapper) {
     this.injector = injector;
+    this.ymlWrapperCls = wrapper;
   }
 
   @Override
@@ -36,7 +34,7 @@ public abstract class YmlImportService extends ImportServiceBase {
     Preconditions.checkNotNull(url, "Yml url not set.");
     log.info("Starting import service: {}.", this);
     final YmlImporter importer = injector.getInstance(YmlImporter.class);
-    final YmlCatalogWrapper wrapper = injector.getInstance(ymlWrapperCls());
+    final YmlCatalogWrapper wrapper = injector.getInstance(ymlWrapperCls);
     Runnable ymlImport = new Runnable() {
       @Override
       public void run() {
@@ -51,6 +49,4 @@ public abstract class YmlImportService extends ImportServiceBase {
     scheduler.scheduleAtFixedRate(ymlImport, 0, importPeriod, importTimeUnit);
     return this;
   }
-
-  protected abstract Class<? extends YmlCatalogWrapper> ymlWrapperCls();
 }
