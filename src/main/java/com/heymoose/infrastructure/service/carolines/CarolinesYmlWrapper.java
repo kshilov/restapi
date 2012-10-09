@@ -5,7 +5,6 @@ import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Model;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.Vendor;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 import com.heymoose.infrastructure.service.yml.YmlUtil;
 
@@ -49,10 +48,6 @@ public final class CarolinesYmlWrapper extends YmlCatalogWrapperBase {
 
   private static final BigDecimal DEFAULT_COST = new BigDecimal(50);
 
-
-  public CarolinesYmlWrapper(YmlCatalog catalog) {
-    super(catalog);
-  }
 
   @Override
   public CpaPolicy getCpaPolicy(Offer catalogOffer) {

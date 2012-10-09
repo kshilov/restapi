@@ -46,41 +46,15 @@ public final class TopShopYmlWrapper extends YmlCatalogWrapperBase {
   private static final Set<Integer> EXCLUSIVE_CATEGORIES =
       ImmutableSet.of(12, 17, 18, 19);
 
-  private static Map<Integer, Integer> mapChildToParent(YmlCatalog catalog) {
-    HashMap<Integer, Integer> parentMap = Maps.newHashMap();
-    for (Category category : catalog.getShop().getCategories().getCategory()) {
-      Integer parentId = null;
-      if (category.getParentId() != null) {
-        parentId = Integer.valueOf(category.getParentId());
-      }
-      parentMap.put(Integer.valueOf(category.getId()), parentId);
-    }
-    boolean changed = true;
-    // map child to the top level parent
-    outer:
-    while (changed) {
-      for (Integer categoryId : parentMap.keySet()) {
-        Integer parentId = parentMap.get(categoryId);
-        // if parent of the category has parents itself
-        if (parentId != null && parentMap.get(parentId) != null) {
-          parentMap.put(categoryId, parentMap.get(parentId));
-          continue outer;
-        }
-      }
-      changed = false;
-    }
-    return parentMap;
+
+  private Map<Integer, Integer> childToParentCategory;
+
+  @Override
+  public YmlCatalogWrapperBase wrapCatalog(YmlCatalog catalog) {
+    super.wrapCatalog(catalog);
+    mapChildToParent();
+    return this;
   }
-
-
-  private final Map<Integer, Integer> childToParentCategory;
-
-  public TopShopYmlWrapper(YmlCatalog catalog) {
-    super(catalog);
-    this.childToParentCategory = mapChildToParent(catalog);
-  }
-
-
 
   @Override
   public CpaPolicy getCpaPolicy(Offer catalogOffer) {
@@ -120,5 +94,32 @@ public final class TopShopYmlWrapper extends YmlCatalogWrapperBase {
     }
     return parentCategory;
   }
+
+  private void mapChildToParent() {
+    HashMap<Integer, Integer> parentMap = Maps.newHashMap();
+    for (Category category : catalog.getShop().getCategories().getCategory()) {
+      Integer parentId = null;
+      if (category.getParentId() != null) {
+        parentId = Integer.valueOf(category.getParentId());
+      }
+      parentMap.put(Integer.valueOf(category.getId()), parentId);
+    }
+    boolean changed = true;
+    // map child to the top level parent
+    outer:
+    while (changed) {
+      for (Integer categoryId : parentMap.keySet()) {
+        Integer parentId = parentMap.get(categoryId);
+        // if parent of the category has parents itself
+        if (parentId != null && parentMap.get(parentId) != null) {
+          parentMap.put(categoryId, parentMap.get(parentId));
+          continue outer;
+        }
+      }
+      changed = false;
+    }
+    this.childToParentCategory = parentMap;
+  }
+
 
 }

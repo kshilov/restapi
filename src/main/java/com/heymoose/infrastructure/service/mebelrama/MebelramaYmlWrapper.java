@@ -2,7 +2,6 @@ package com.heymoose.infrastructure.service.mebelrama;
 
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Offer;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 
 import java.math.BigDecimal;
@@ -12,10 +11,6 @@ public final class MebelramaYmlWrapper extends YmlCatalogWrapperBase {
   private static final BigDecimal EXCLUSIVE_LIMIT = new BigDecimal(15000);
   private static final BigDecimal EXCLUSIVE_PERCENT = new BigDecimal(11);
   private static final BigDecimal DEFAULT_PERCENT = new BigDecimal(10);
-
-  public MebelramaYmlWrapper(YmlCatalog catalog) {
-    super(catalog);
-  }
 
   @Override
   public CpaPolicy getCpaPolicy(Offer catalogOffer) {

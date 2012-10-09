@@ -13,6 +13,8 @@ public interface YmlCatalogWrapper {
     }
   }
 
+  YmlCatalogWrapper wrapCatalog(YmlCatalog catalog);
+
   Iterable<Offer> listOffers();
 
   /**

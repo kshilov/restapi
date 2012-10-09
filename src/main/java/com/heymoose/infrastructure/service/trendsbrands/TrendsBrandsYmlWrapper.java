@@ -5,7 +5,6 @@ import com.heymoose.infrastructure.service.yml.Model;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.TypePrefix;
 import com.heymoose.infrastructure.service.yml.Vendor;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 import com.heymoose.infrastructure.service.yml.YmlUtil;
 
@@ -16,10 +15,6 @@ public final class TrendsBrandsYmlWrapper extends YmlCatalogWrapperBase {
   private static final BigDecimal EXCLUSIVE_LIMIT = new BigDecimal(6000);
   private static final BigDecimal EXCLUSIVE_COST = new BigDecimal(1950);
   private static final BigDecimal REGULAR_COST = new BigDecimal(650);
-
-  public TrendsBrandsYmlWrapper(YmlCatalog catalog) {
-    super(catalog);
-  }
 
   @Override
   public CpaPolicy getCpaPolicy(Offer catalogOffer) {
