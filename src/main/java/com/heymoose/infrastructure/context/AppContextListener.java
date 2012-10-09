@@ -62,8 +62,8 @@ public class AppContextListener extends GuiceServletContextListener {
         ActionDataImportService.itemList(injector)
             .withImporter(TopShopDataImporter.class)
             .withParser(TopShopActionParser.class));
-    startImportService("topshop.yml", properties,
-        YmlImportService.forWrapper(TopShopYmlWrapper.class, injector));
+    //startImportService("topshop.yml", properties,
+    //    YmlImportService.forWrapper(TopShopYmlWrapper.class, injector));
 
     startImportService("delikateska", properties,
         ActionDataImportService.basic(injector));
