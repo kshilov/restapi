@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(name = "", propOrder = {
     "value"
 })
-@XmlRootElement(name = "categoryId")
+@XmlRootElement(name = "categoryOriginalId")
 public class CategoryId {
 
     @XmlAttribute

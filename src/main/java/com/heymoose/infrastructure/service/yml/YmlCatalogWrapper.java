@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service.yml;
 import com.heymoose.domain.offer.CpaPolicy;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface YmlCatalogWrapper {
 
@@ -29,5 +30,7 @@ public interface YmlCatalogWrapper {
   BigDecimal getPercent(Offer catalogOffer) throws NoInfoException;
   BigDecimal getCost(Offer catalogOffer) throws NoInfoException;
   boolean isExclusive(Offer catalogOffer) throws NoInfoException;
+  YmlCatalog getWrappedCatalog();
+  Iterable<Category> listCategories();
 
 }

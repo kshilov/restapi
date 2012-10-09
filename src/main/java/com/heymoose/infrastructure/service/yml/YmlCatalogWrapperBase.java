@@ -56,4 +56,14 @@ public abstract class YmlCatalogWrapperBase implements YmlCatalogWrapper {
       throws NoInfoException {
     return false;
   }
+
+  @Override
+  public YmlCatalog getWrappedCatalog() {
+    return this.catalog;
+  }
+
+  @Override
+  public Iterable<Category> listCategories() {
+    return this.catalog.getShop().getCategories().getCategory();
+  }
 }
