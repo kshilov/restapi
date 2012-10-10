@@ -46,7 +46,7 @@ create sequence shop_category_seq
     cache 1;
 
 create table shop_category(
-  id bigint default nextval('product_category_seq'),
+  id bigint default nextval('shop_category_seq'),
   offer_id bigint not null,
   original_id varchar(32) not null,
   name varchar(255) not null,
