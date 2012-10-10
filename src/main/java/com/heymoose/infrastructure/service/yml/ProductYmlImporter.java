@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 
 public class ProductYmlImporter {
@@ -31,22 +33,35 @@ public class ProductYmlImporter {
   @Transactional
   public void doImport(Document document, Long parentOfferId) {
     log.info("Entring YML import for offer: {}.", parentOfferId);
+    HashMap<String, ShopCategory> categoryMap = Maps.newHashMap();
+    // importing categories
     for (Element category : listCategories(document)) {
+      String originalId = category.getAttributeValue("id");
       ShopCategory shopCategory = repo.byHQL(
           ShopCategory.class,
           "from ShopCategory where offerId = ? and originalId = ?",
-          parentOfferId, category.getAttributeValue("id"));
-      if (shopCategory != null) {
-        continue; // todo: not skip saved categories?
+          parentOfferId, originalId);
+      if (shopCategory == null) {
+        shopCategory = new ShopCategory();
+        repo.put(shopCategory
+            .setOriginalId(originalId)
+            .setName(category.getText())
+            .setOfferId(parentOfferId));
+        log.info("Product category saved: {}", shopCategory);
       }
-      shopCategory = new ShopCategory();
-      repo.put(shopCategory
-          .setOriginalId(category.getAttributeValue("id"))
-          .setName(category.getText())
-          .setOfferId(parentOfferId)
-          .setParentOriginalId(category.getAttributeValue("parentId")));
-      log.info("Product category saved: {}", shopCategory);
+      categoryMap.put(originalId, shopCategory);
     }
+    // setting correct parent for all categories
+    for (Element category : listCategories(document)) {
+      ShopCategory shopCategory =
+          categoryMap.get(category.getAttributeValue("id"));
+      String parentOriginalId = category.getAttributeValue("parentId");
+      if (parentOriginalId == null) continue;
+      shopCategory.setParent(categoryMap.get(parentOriginalId));
+      repo.put(shopCategory);
+      log.info("Parent updated for category: {}", shopCategory);
+    }
+    // importing products
     for (Element offer : listOffers(document)) {
       String originalId = offer.getAttributeValue("id");
       Product product = repo.byHQL(
@@ -54,7 +69,8 @@ public class ProductYmlImporter {
           "from Product where offerId = ? and originalId = ?",
           parentOfferId, originalId);
       if (product == null) product = new Product();
-      product.setCategoryOriginalId(offer.getChildText("categoryId"))
+      String categoryOriginalId = offer.getChildText("categoryId");
+      product.setCategory(categoryMap.get(categoryOriginalId))
           .setName(getTitle(offer))
           .setOfferId(parentOfferId)
           .setOriginalId(offer.getAttributeValue("id"))
@@ -62,6 +78,7 @@ public class ProductYmlImporter {
           .setUrl(offer.getChildText("url"));
       repo.put(product);
       log.info("Product saved: {}", product);
+      // importing attributes
       for (Element productAttribute : offer.getChildren()) {
         repo.session().createSQLQuery(
             "delete from product_attribute where product_id = ?")

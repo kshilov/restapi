@@ -5,9 +5,12 @@ import com.heymoose.domain.base.IdEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -29,8 +32,9 @@ public class ShopCategory extends IdEntity {
   @Column(nullable = false)
   protected String name;
 
-  @Column(name = "parent_original_id")
-  protected String parentOriginalId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parent_id")
+  private ShopCategory parentCategory;
 
   @Override
   public Long id() {
@@ -43,15 +47,6 @@ public class ShopCategory extends IdEntity {
 
   public ShopCategory setName(String name) {
     this.name = name;
-    return this;
-  }
-
-  public String parentOriginalId() {
-    return parentOriginalId;
-  }
-
-  public ShopCategory setParentOriginalId(String parentOriginalId) {
-    this.parentOriginalId = parentOriginalId;
     return this;
   }
 
@@ -75,11 +70,21 @@ public class ShopCategory extends IdEntity {
 
   @Override
   public String toString() {
+    Long parentId = parent() == null ? null : parent().id();
     return Objects.toStringHelper(ShopCategory.class)
         .add("id", id)
         .add("originalId", originalId)
         .add("offerId", offerId)
         .add("name", name)
-        .add("parentOriginalId", parentOriginalId).toString();
+        .add("parentId", parentId).toString();
+  }
+
+  public ShopCategory parent() {
+    return this.parentCategory;
+  }
+
+  public ShopCategory setParent(ShopCategory category) {
+    this.parentCategory = category;
+    return this;
   }
 }

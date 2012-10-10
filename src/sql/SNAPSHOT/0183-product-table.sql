@@ -16,7 +16,7 @@ create sequence product_seq
 
 create table product(
   id bigint default nextval('product_seq'),
-  category_original_id varchar(32),
+  shop_category_id bigint not null,
   offer_id bigint not null,
   name varchar(255) not null,
   url varchar(255) not null,
@@ -50,6 +50,6 @@ create table shop_category(
   offer_id bigint not null,
   original_id varchar(32) not null,
   name varchar(255) not null,
-  parent_original_id varchar(32));
+  parent_id bigint);
 
 end;

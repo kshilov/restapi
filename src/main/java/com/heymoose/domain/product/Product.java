@@ -1,16 +1,23 @@
 package com.heymoose.domain.product;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.heymoose.domain.base.ModifiableEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -20,9 +27,6 @@ public class Product extends ModifiableEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product-seq")
   @SequenceGenerator(name = "product-seq", sequenceName = "product_seq", allocationSize = 1)
   protected Long id;
-
-  @Column(name = "category_original_id")
-  protected String categoryOriginalId;
 
   @Column(name = "offer_id", nullable = false)
   protected Long offerId;
@@ -38,6 +42,13 @@ public class Product extends ModifiableEntity {
 
   @Column(name = "price")
   private BigDecimal price;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "shop_category_id")
+  private ShopCategory category;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "productId")
+  private List<ProductAttribute> attributeList = Lists.newArrayList();
 
   public Product() {
     super();
@@ -76,15 +87,6 @@ public class Product extends ModifiableEntity {
     return this;
   }
 
-  public String categoryOriginalId() {
-    return this.categoryOriginalId;
-  }
-
-  public Product setCategoryOriginalId(String categoryId) {
-    this.categoryOriginalId = categoryId;
-    return this;
-  }
-
   public Long offerId() {
     return offerId;
   }
@@ -110,7 +112,25 @@ public class Product extends ModifiableEntity {
         .add("id", id)
         .add("originalId", originalId)
         .add("offerId", offerId)
-        .add("categoryOriginalId", categoryOriginalId)
+        .add("categoryId", category.id())
         .add("name", name).toString();
+  }
+
+  public ShopCategory category() {
+    return this.category;
+  }
+
+  public Product setCategory(ShopCategory category) {
+    this.category = category;
+    return this;
+  }
+
+  public Iterable<ProductAttribute> attributes() {
+    return ImmutableList.copyOf(this.attributeList);
+  }
+
+  public Product addAttribute(ProductAttribute attribute) {
+    this.attributeList.add(attribute);
+    return this;
   }
 }
