@@ -11,6 +11,9 @@ import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 import org.joda.time.DateTime;
 
 import javax.ws.rs.DefaultValue;
@@ -24,6 +27,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.*;
 
@@ -60,9 +64,7 @@ public class WithdrawalResource {
   @Produces("application/xml")
   @Transactional
   public String sumOrdered(@QueryParam("aff_id") Long affId) {
-    return new XmlQueryResult(debts.sumOrderedByUser(affId))
-      .setElement("debt")
-      .toString();
+    return toXmlSum(debts.sumOrderedByUser(affId));
   }
 
   @GET
@@ -163,10 +165,8 @@ public class WithdrawalResource {
                         Debts.DateKind dateKind,
                         @QueryParam("from") @DefaultValue("0") Long from,
                         @QueryParam("to") Long to) {
-    return new XmlQueryResult(
-        debts.sumDebt(affId, offerId, dateKind, new DateTime(from), new DateTime(to)))
-        .setElement("debt")
-        .toString();
+    return toXmlSum(debts.sumDebt(affId, offerId,
+            dateKind, new DateTime(from), new DateTime(to)));
   }
   
   private Offer existingOffer(long id) {
@@ -174,5 +174,15 @@ public class WithdrawalResource {
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;
+  }
+
+  private String toXmlSum(QueryResult result) {
+    Element root = new Element("debt");
+    for (Map.Entry<String, Object> entry: result.get(0).entrySet()) {
+      Element attribute = new Element(entry.getKey())
+          .setText(entry.getValue().toString());
+      root.addContent(attribute);
+    }
+    return new XMLOutputter().outputString(new Document(root));
   }
 }
