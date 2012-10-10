@@ -142,10 +142,12 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   }
 
   private void fillCriteriaFromFilter(Criteria criteria, OfferGrantFilter filter) {
+    criteria.createAlias("offer", "offer");
     addEqRestrictionIfNotNull(criteria, "offer.id", filter.offerId());
     addEqRestrictionIfNotNull(criteria, "affiliate.id", filter.affiliateId());
     addEqRestrictionIfNotNull(criteria, "state", filter.state());
     addEqRestrictionIfNotNull(criteria, "blocked", filter.blocked());
+    addEqRestrictionIfNotNull(criteria, "offer.exclusive", filter.exclusiveOnly());
 
     if (filter.moderation() != null) {
       LogicalExpression or = Restrictions.or(

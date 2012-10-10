@@ -17,6 +17,7 @@ public final class OfferGrantFilter {
   private List<Long> categoryIdList = ImmutableList.of();
   private PayMethod payMethod;
   private CpaPolicy cpaPolicy;
+  private Boolean onlyExclusiveOffers;
 
   public OfferGrantFilter() { }
 
@@ -108,5 +109,14 @@ public final class OfferGrantFilter {
 
   public CpaPolicy cpaPolicy() {
     return this.cpaPolicy;
+  }
+
+  public Boolean exclusiveOnly() {
+    return onlyExclusiveOffers;
+  }
+
+  public OfferGrantFilter setExclusiveOnly(boolean only) {
+    this.onlyExclusiveOffers = only;
+    return this;
   }
 }

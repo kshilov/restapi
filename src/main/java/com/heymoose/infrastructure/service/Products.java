@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service;
 import com.google.common.base.Strings;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
+import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.util.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
@@ -51,5 +52,10 @@ public class Products {
           StandardBasicTypes.STRING));
     }
     return (List<Product>) criteria.list();
+  }
+
+  public List<ShopCategory> categoryList(Long offerId) {
+    return repo.allByHQL(ShopCategory.class,
+        "from ShopCategory where offerId = ?", offerId);
   }
 }
