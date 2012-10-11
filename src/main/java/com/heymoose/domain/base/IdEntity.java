@@ -1,11 +1,24 @@
 package com.heymoose.domain.base;
 
-import java.io.Serializable;
-import javax.persistence.MappedSuperclass;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.builder.CompareToBuilder;
+
+import javax.persistence.MappedSuperclass;
+import java.io.Serializable;
+import java.util.Map;
 
 @MappedSuperclass
 public abstract class IdEntity implements Comparable<IdEntity>, Serializable {
+
+
+  public static <T extends IdEntity> Map<Long, T> toMap(Iterable<T> list) {
+    ImmutableMap.Builder<Long, T> builder = ImmutableMap.builder();
+    for (T entity : list) {
+      builder.put(entity.id(), entity);
+    }
+    return builder.build();
+  }
+
 
   public abstract Long id();
 

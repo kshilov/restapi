@@ -1,13 +1,15 @@
 package com.heymoose.domain.user;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.IdEntity;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import java.net.URI;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
+
+import java.util.Random;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -31,6 +33,17 @@ import org.joda.time.DateTime;
 @Entity
 @Table(name = "user_profile", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 public class User extends IdEntity {
+
+  public static final int SECRET_KEY_LENGTH = 32;
+
+  private static String genKey() {
+    char[] result = new char[SECRET_KEY_LENGTH];
+    Random random = new Random();
+    for (int i = 0; i < result.length; i++ ) {
+      result[i] = (char) random.nextInt(Character.MAX_VALUE);
+    }
+    return new String(result);
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user-seq")
@@ -105,6 +118,9 @@ public class User extends IdEntity {
   @Type(type = "org.joda.time.contrib.hibernate.PersistentDateTime")
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
+
+  @Column(name = "secret_key")
+  private String secretKey;
 
   protected User() {}
 
@@ -284,6 +300,15 @@ public class User extends IdEntity {
   
   public DateTime registerTime() {
     return registerTime;
+  }
+
+  public String secretKey() {
+    return this.secretKey;
+  }
+
+  public User updateSecreteKey() {
+    this.secretKey = User.genKey();
+    return this;
   }
   
 }

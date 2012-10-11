@@ -1,15 +1,19 @@
 package com.heymoose.infrastructure.persistence;
 
-import com.heymoose.domain.user.User;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantFilter;
 import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.grant.OfferGrantState;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.offer.OfferRepository.Ordering;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -26,8 +30,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.heymoose.infrastructure.util.HibernateUtil.addEqRestrictionIfNotNull;
-import static com.heymoose.infrastructure.util.HibernateUtil.addSqlInRestriction;
+import static com.heymoose.infrastructure.util.HibernateUtil.*;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements
     OfferGrantRepository {
@@ -104,6 +107,29 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
         .setMaxResults(limit)
         .list();
   }
+
+
+
+  @Override
+  public Iterable<Offer> exclusiveGrantedOffers(Long affId) {
+    Preconditions.checkNotNull(affId, "Affiliate can not be null.");
+    OfferGrantFilter filter = new OfferGrantFilter()
+        .setAffiliateId(affId)
+        .setBlocked(false)
+        .setActive(true)
+        .setExclusiveOnly(true)
+        .setState(OfferGrantState.APPROVED);
+    ImmutableSet.Builder<Offer> result = ImmutableSet.builder();
+    for (OfferGrant grant: this.list(
+        OfferRepository.Ordering.ID,
+        OrderingDirection.ASC,
+        0, Integer.MAX_VALUE, filter)) {
+      result.add(grant.offer());
+    }
+    return result.build();
+  }
+
+
 
   @Override
   public long count(OfferGrantFilter filter) {

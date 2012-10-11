@@ -1,21 +1,17 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.heymoose.domain.base.IdEntity;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantFilter;
 import com.heymoose.domain.grant.OfferGrantRepository;
-import com.heymoose.domain.grant.OfferGrantState;
-import com.heymoose.domain.offer.OfferRepository;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.Products;
 import com.heymoose.infrastructure.util.Cacheable;
-import com.heymoose.infrastructure.util.OrderingDirection;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -27,29 +23,28 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static com.heymoose.domain.base.IdEntity.toMap;
 
 @Path("products")
 public class ProductResource {
 
-  private static <T extends IdEntity> Map<Long, T> toMap(Iterable<T> list) {
-    ImmutableMap.Builder<Long, T> builder = ImmutableMap.builder();
-    for (T entity : list) {
-      builder.put(entity.id(), entity);
-    }
-    return builder.build();
-  }
-
   private final Products products;
   private final OfferGrantRepository grants;
+  private final UserRepositoryHiber users;
 
   @Inject
   public ProductResource(Products products,
-                         OfferGrantRepository grants)  {
+                         OfferGrantRepository grants,
+                         UserRepositoryHiber users) {
     this.products = products;
     this.grants = grants;
+    this.users = users;
   }
 
 
@@ -58,11 +53,30 @@ public class ProductResource {
   @Produces("application/xml")
   @Transactional
   @Cacheable(period = "PT1H") // cache for 1 hour
-  public String feed(@QueryParam("s") List<Long> offerList,
+  public String feed(@QueryParam("key") String key,
+                     @QueryParam("s") List<Long> offerList,
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString,
                      @QueryParam("p") @DefaultValue("0") int page) {
-    return toYml(products.list(offerList, categoryList, queryString, page));
+    if (key == null) throw new WebApplicationException(400);
+    User user = users.bySecretKey(key);
+    if (user == null) throw new WebApplicationException(401);
+    Iterable<Offer> grantedOffers = grants.exclusiveGrantedOffers(user.id());
+    Map<Long, Offer> grantedOffersMap = toMap(grantedOffers);
+
+    Collection<Long> offersToSearch = offerList;
+    if (offerList.isEmpty()) {
+      // search through all granted exclusive offers
+      offersToSearch = grantedOffersMap.keySet();
+    } else {
+      // search through all given offers, if they are granted
+      Iterator<Long> offerListIterator = offerList.iterator();
+      while (offerListIterator.hasNext()) {
+        final Long id = offerListIterator.next();
+        if (!grantedOffersMap.containsKey(id)) offerListIterator.remove();
+      }
+    }
+    return toYml(products.list(offersToSearch, categoryList, queryString, page));
   }
 
 
@@ -73,31 +87,23 @@ public class ProductResource {
   @Cacheable(period = "PT1H") // cache for 1 hour
   public String categoryList(@QueryParam("aff_id") Long affId) {
     if (affId == null) throw new WebApplicationException(400);
-    OfferGrantFilter filter = new OfferGrantFilter()
-        .setAffiliateId(affId)
-        .setBlocked(false)
-        .setActive(true)
-        .setExclusiveOnly(true)
-        .setState(OfferGrantState.APPROVED);
-    Iterable<OfferGrant> exclusiveGrants = grants.list(
-        OfferRepository.Ordering.ID, OrderingDirection.ASC,
-        0, Integer.MAX_VALUE, filter);
+    Iterable<Offer> exclusiveGrantedOffers =
+        grants.exclusiveGrantedOffers(affId);
 
     Element result = new Element("result");
-    for (OfferGrant grant : exclusiveGrants) {
-      Long offerId = grant.offer().id();
-      Element offer = new Element("offer");
+    for (Offer offer : exclusiveGrantedOffers) {
+      Element offerElement = new Element("offer");
 
-      List<ShopCategory> categoryList = products.categoryList(offerId);
+      List<ShopCategory> categoryList = products.categoryList(offer.id());
       if (categoryList.isEmpty()) continue;
       Map<Long, ShopCategory> categoryMap =
-          toMap(products.categoryList(offerId));
+          toMap(products.categoryList(offer.id()));
 
-      offer.addContent(new Element("name").setText(grant.offer().name()));
-      offer.addContent(toXmlCategories(categoryMap));
-      offer.setAttribute("id", offerId.toString());
+      offerElement.addContent(new Element("name").setText(offer.name()));
+      offerElement.addContent(toXmlCategories(categoryMap));
+      offerElement.setAttribute("id", offer.id().toString());
 
-      result.addContent(offer);
+      result.addContent(offerElement);
     }
     return wrapRoot(result);
   }

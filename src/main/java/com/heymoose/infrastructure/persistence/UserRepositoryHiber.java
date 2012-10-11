@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.persistence;
 
+import com.google.common.base.Preconditions;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
@@ -90,6 +91,16 @@ public class UserRepositoryHiber extends RepositoryHiber<User> implements
     return Long.parseLong(query
       .uniqueResult()
       .toString());
+  }
+
+  public User bySecretKey(String key) {
+    Preconditions.checkArgument(key.length() == User.SECRET_KEY_LENGTH,
+        "Key length " + key.length() + " incorrect. " +
+            "Should be " + User.SECRET_KEY_LENGTH);
+    return (User) hiber()
+        .createQuery("from User where secretKey = ?")
+        .setParameter(0, key)
+        .uniqueResult();
   }
 
   @Override

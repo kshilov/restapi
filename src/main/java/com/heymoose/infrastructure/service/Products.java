@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
@@ -11,6 +12,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 public class Products {
@@ -26,15 +28,16 @@ public class Products {
 
 
   @SuppressWarnings("unchecked")
-  public Iterable<Product> list(List<Long> offerList,
+  public Iterable<Product> list(Collection<Long> offerList,
                                 List<Long> categoryList,
                                 String queryString,
                                 int page) {
+    if (offerList.isEmpty()) return ImmutableList.of();
+
     Criteria criteria = repo.session().createCriteria(Product.class);
-    if (!offerList.isEmpty()) {
-      criteria.createAlias("offer", "offer");
-      criteria.add(Restrictions.in("offer.id", offerList));
-    }
+    criteria.createAlias("offer", "offer");
+    criteria.add(Restrictions.in("offer.id", offerList));
+
     if (!categoryList.isEmpty()) {
       criteria.createAlias("category", "category");
       Criterion categoryMatches = Restrictions.in("category.id", categoryList);
