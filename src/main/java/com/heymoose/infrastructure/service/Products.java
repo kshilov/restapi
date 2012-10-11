@@ -15,6 +15,8 @@ import java.util.List;
 
 public class Products {
 
+  private static final int ITEMS_PER_PAGE = 100;
+
   private final Repo repo;
 
   @Inject
@@ -26,7 +28,8 @@ public class Products {
   @SuppressWarnings("unchecked")
   public Iterable<Product> list(List<Long> offerList,
                                 List<Long> categoryList,
-                                String queryString) {
+                                String queryString,
+                                int page) {
     Criteria criteria = repo.session().createCriteria(Product.class);
     if (!offerList.isEmpty()) {
       criteria.createAlias("offer", "offer");
@@ -53,6 +56,8 @@ public class Products {
           "%" + queryString.toLowerCase() + "%",
           StandardBasicTypes.STRING));
     }
+    criteria.setFirstResult(page * ITEMS_PER_PAGE);
+    criteria.setMaxResults(ITEMS_PER_PAGE);
     return (List<Product>) criteria.list();
   }
 

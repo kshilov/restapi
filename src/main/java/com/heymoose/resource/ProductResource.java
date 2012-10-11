@@ -21,6 +21,7 @@ import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 import org.joda.time.DateTime;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -59,8 +60,9 @@ public class ProductResource {
   @Cacheable(period = "PT1H") // cache for 1 hour
   public String feed(@QueryParam("s") List<Long> offerList,
                      @QueryParam("c") List<Long> categoryList,
-                     @QueryParam("q") String queryString) {
-    return toYml(products.list(offerList, categoryList, queryString));
+                     @QueryParam("q") String queryString,
+                     @QueryParam("p") @DefaultValue("0") int page) {
+    return toYml(products.list(offerList, categoryList, queryString, page));
   }
 
 
