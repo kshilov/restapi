@@ -57,10 +57,10 @@ public class ProductResource {
   @Produces("application/xml")
   @Transactional
   @Cacheable(period = "PT1H") // cache for 1 hour
-  public String feed(@QueryParam("s") Long offerId,
+  public String feed(@QueryParam("s") List<Long> offerList,
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString) {
-    return toYml(products.list(offerId, categoryList, queryString));
+    return toYml(products.list(offerList, categoryList, queryString));
   }
 
 

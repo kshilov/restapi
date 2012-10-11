@@ -24,11 +24,13 @@ public class Products {
 
 
   @SuppressWarnings("unchecked")
-  public Iterable<Product> list(Long offerId, List<Long> categoryList,
+  public Iterable<Product> list(List<Long> offerList,
+                                List<Long> categoryList,
                                 String queryString) {
     Criteria criteria = repo.session().createCriteria(Product.class);
-    if (offerId != null) {
-      criteria.add(Restrictions.eq("offerId", offerId));
+    if (!offerList.isEmpty()) {
+      criteria.createAlias("offer", "offer");
+      criteria.add(Restrictions.in("offer.id", offerList));
     }
     if (!categoryList.isEmpty()) {
       criteria.createAlias("category", "category");
