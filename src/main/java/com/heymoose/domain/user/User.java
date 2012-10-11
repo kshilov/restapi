@@ -40,7 +40,11 @@ public class User extends IdEntity {
     char[] result = new char[SECRET_KEY_LENGTH];
     Random random = new Random();
     for (int i = 0; i < result.length; i++ ) {
-      result[i] = (char) random.nextInt(Character.MAX_VALUE);
+      char sample = (char) random.nextInt(Character.MAX_VALUE);
+      while (!Character.isLetterOrDigit(sample)) {
+        sample = (char) random.nextInt(Character.MAX_VALUE);
+      }
+      result[i] = sample;
     }
     return new String(result);
   }
