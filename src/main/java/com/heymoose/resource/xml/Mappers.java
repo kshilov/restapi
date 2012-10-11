@@ -86,6 +86,7 @@ public class Mappers {
         xmlUser.messengerUid = user.messengerUid();
       }
       xmlUser.wmr = user.wmr();
+      xmlUser.secretKey = user.secretKey();
       xmlUser.confirmed = user.confirmed();
       xmlUser.blocked = user.blocked();
       xmlUser.blockReason = user.blockReason();

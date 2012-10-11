@@ -1,11 +1,12 @@
 package com.heymoose.resource.xml;
 
-import static com.google.common.collect.Sets.newHashSet;
-import java.util.Set;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 @XmlRootElement(name = "user")
 public class XmlUser {
@@ -41,6 +42,9 @@ public class XmlUser {
   
   @XmlElement(name = "wmr")
   public String wmr;
+
+  @XmlElement(name = "secret-key")
+  public String secretKey;
 
   @XmlElement(name = "customer-account")
   public XmlAccount customerAccount;
