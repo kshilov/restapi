@@ -9,6 +9,7 @@ import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.persistence.Transactional;
+import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.slf4j.Logger;
@@ -83,16 +84,19 @@ public class ProductYmlImporter {
       repo.put(product);
       log.info("Product saved: {}", product);
       // importing attributes
-      for (Element productAttribute : offer.getChildren()) {
+      for (Element offerChild : offer.getChildren()) {
         repo.session().createSQLQuery(
             "delete from product_attribute where product_id = ?")
             .setParameter(0, product.id());
-        ProductAttribute attribute = new ProductAttribute()
+        ProductAttribute productAttribute = new ProductAttribute()
             .setProductId(product.id())
-            .setKey(productAttribute.getName())
-            .setValue(productAttribute.getText());
-        repo.put(attribute);
-        log.info("Product attribute saved: {}.", attribute);
+            .setKey(offerChild.getName())
+            .setValue(offerChild.getText());
+        for (Attribute attr : offerChild.getAttributes()) {
+          productAttribute.addExtraInfo(attr.getName(), attr.getValue());
+        }
+        repo.put(productAttribute);
+        log.info("Product attribute saved: {}.", productAttribute);
       }
     }
   }

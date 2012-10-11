@@ -1,6 +1,9 @@
 package com.heymoose.domain.product;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.heymoose.domain.base.IdEntity;
 
 import javax.persistence.Column;
@@ -10,10 +13,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Map;
 
 @Entity
 @Table(name = "product_attribute")
 public class ProductAttribute extends IdEntity {
+
+  private static final char FIELD_SEPARATOR = '&';
+  private static final char KEY_VAL_SEPARATOR = '=';
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_attribute-seq")
@@ -28,6 +35,9 @@ public class ProductAttribute extends IdEntity {
 
   @Column(nullable = false)
   protected String value;
+
+  @Column(name = "extra_info", nullable = true)
+  protected String extraInfo;
 
   @Override
   public Long id() {
@@ -68,5 +78,18 @@ public class ProductAttribute extends IdEntity {
         .add("key", key)
         .add("value", value)
         .toString();
+  }
+
+  public ProductAttribute addExtraInfo(String name, String value) {
+    this.extraInfo = Joiner.on(FIELD_SEPARATOR).skipNulls()
+        .join(this.extraInfo, Joiner.on(KEY_VAL_SEPARATOR).join(name, value));
+    return this;
+  }
+
+  public Map<String, String> getExtraInfo() {
+    return Splitter.on(FIELD_SEPARATOR)
+        .omitEmptyStrings()
+        .withKeyValueSeparator(Splitter.on(KEY_VAL_SEPARATOR))
+        .split(Strings.nullToEmpty(this.extraInfo));
   }
 }

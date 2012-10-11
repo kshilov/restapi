@@ -116,7 +116,13 @@ public class ProductResource {
     for (Product product : productList) {
       Element offer = new Element("offer");
       for (ProductAttribute attribute : product.attributes()) {
-        offer.addContent(new Element(attribute.key()).setText(attribute.value()));
+        Element attributeElement = new Element(attribute.key())
+            .setText(attribute.value());
+        for (Map.Entry<String, String> extraAttr :
+            attribute.getExtraInfo().entrySet()) {
+          attributeElement.setAttribute(extraAttr.getKey(), extraAttr.getValue());
+        }
+        offer.addContent(attributeElement);
       }
       offer.getChild("categoryId").setText(product.category().id().toString());
       offer.setAttribute("id", product.id().toString());
