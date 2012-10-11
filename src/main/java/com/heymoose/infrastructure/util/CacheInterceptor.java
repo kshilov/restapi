@@ -2,7 +2,7 @@ package com.heymoose.infrastructure.util;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -61,7 +61,7 @@ public final class CacheInterceptor implements MethodInterceptor {
     log.info("Searching value in cache.");
     cache = cacheMap.get(cacheName);
     final List<Object> argsList =
-        ImmutableList.copyOf(invocation.getArguments());
+        Lists.newArrayList(invocation.getArguments());
     return cache.get(argsList, new Callable<Object>() {
       @Override
       public Object call() throws Exception {

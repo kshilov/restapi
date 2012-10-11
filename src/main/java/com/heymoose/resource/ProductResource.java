@@ -14,6 +14,7 @@ import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Products;
+import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -24,6 +25,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,7 @@ public class ProductResource {
   @Path("feed")
   @Produces("application/xml")
   @Transactional
+  @Cacheable(period = "PT1H") // cache for 1 hour
   public String feed(@QueryParam("offer_id") Long offerId,
                      @QueryParam("category") List<Long> categoryList,
                      @QueryParam("q") String queryString) {
@@ -65,7 +68,9 @@ public class ProductResource {
   @Path("categories")
   @Produces("application/xml")
   @Transactional
+  @Cacheable(period = "PT1H") // cache for 1 hour
   public String categoryList(@QueryParam("aff_id") Long affId) {
+    if (affId == null) throw new WebApplicationException(400);
     OfferGrantFilter filter = new OfferGrantFilter()
         .setAffiliateId(affId)
         .setBlocked(false)
