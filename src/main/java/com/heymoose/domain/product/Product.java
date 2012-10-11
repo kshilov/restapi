@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.heymoose.domain.base.ModifiableEntity;
+import com.heymoose.domain.offer.Offer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,8 +29,9 @@ public class Product extends ModifiableEntity {
   @SequenceGenerator(name = "product-seq", sequenceName = "product_seq", allocationSize = 1)
   protected Long id;
 
-  @Column(name = "offer_id", nullable = false)
-  protected Long offerId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "offer_id")
+  protected Offer offer;
 
   @Column(nullable = false)
   protected String name;
@@ -87,12 +89,12 @@ public class Product extends ModifiableEntity {
     return this;
   }
 
-  public Long offerId() {
-    return offerId;
+  public Offer offer() {
+    return offer;
   }
 
-  public Product setOfferId(Long offerId) {
-    this.offerId = offerId;
+  public Product setOffer(Offer offer) {
+    this.offer = offer;
     return this;
   }
 
@@ -111,7 +113,7 @@ public class Product extends ModifiableEntity {
     return Objects.toStringHelper(Product.class)
         .add("id", id)
         .add("originalId", originalId)
-        .add("offerId", offerId)
+        .add("offerId", offer.id())
         .add("categoryId", category.id())
         .add("name", name).toString();
   }

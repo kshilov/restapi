@@ -111,9 +111,14 @@ public class ProductResource {
       for (ProductAttribute attribute : product.attributes()) {
         offer.addContent(new Element(attribute.key()).setText(attribute.value()));
       }
-      offer.getChild("url").setText("http://heymoose.com");
       offer.getChild("categoryId").setText(product.category().id().toString());
       offer.setAttribute("id", product.id().toString());
+
+      offer.addContent(param("hm_offer_id", product.offer().id()));
+      offer.addContent(param("hm_offer_name", product.offer().name()));
+      offer.addContent(param("hm_original_url", offer.getChildText("url")));
+
+      offer.getChild("url").setText("http://heymoose.com");
       offers.addContent(offer);
 
       ShopCategory category = product.category();
@@ -153,6 +158,12 @@ public class ProductResource {
       categories.addContent(categoryElement);
     }
     return categories;
+  }
+
+  private Element param(String key, Object value) {
+    return new Element("param")
+        .setAttribute("name", key)
+        .setText(value.toString());
   }
 
 }

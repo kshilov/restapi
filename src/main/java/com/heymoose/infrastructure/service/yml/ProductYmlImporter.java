@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service.yml;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -33,6 +34,9 @@ public class ProductYmlImporter {
   @Transactional
   public void doImport(Document document, Long parentOfferId) {
     log.info("Entring YML import for offer: {}.", parentOfferId);
+    com.heymoose.domain.offer.Offer parentOffer =
+        repo.get(com.heymoose.domain.offer.Offer.class, parentOfferId);
+    Preconditions.checkNotNull(parentOffer, "Offer does not exist.");
     HashMap<String, ShopCategory> categoryMap = Maps.newHashMap();
     // importing categories
     for (Element category : listCategories(document)) {
@@ -66,13 +70,13 @@ public class ProductYmlImporter {
       String originalId = offer.getAttributeValue("id");
       Product product = repo.byHQL(
           Product.class,
-          "from Product where offerId = ? and originalId = ?",
+          "from Product where offer.id = ? and originalId = ?",
           parentOfferId, originalId);
       if (product == null) product = new Product();
       String categoryOriginalId = offer.getChildText("categoryId");
       product.setCategory(categoryMap.get(categoryOriginalId))
           .setName(getTitle(offer))
-          .setOfferId(parentOfferId)
+          .setOffer(parentOffer)
           .setOriginalId(offer.getAttributeValue("id"))
           .setPrice(new BigDecimal(offer.getChildText("price")))
           .setUrl(offer.getChildText("url"));
