@@ -26,14 +26,13 @@ public final class CacheInterceptor implements MethodInterceptor {
 
 
   private static String buildCacheName(MethodInvocation invocation) {
-    StringBuilder cacheNameBuilder = new StringBuilder();
-    cacheNameBuilder.append(invocation.getThis().getClass().getName());
-    cacheNameBuilder.append('.');
-    cacheNameBuilder.append(invocation.getMethod().getName());
-    cacheNameBuilder.append('(');
+    StringBuilder cacheNameBuilder = new StringBuilder()
+        .append(invocation.getThis().getClass().getName())
+        .append('.')
+        .append(invocation.getMethod().getName())
+        .append('(');
     for (Class<?> parameterType : invocation.getMethod().getParameterTypes()) {
-      cacheNameBuilder.append(parameterType);
-      cacheNameBuilder.append(' ');
+      cacheNameBuilder.append(parameterType).append(' ');
     }
     cacheNameBuilder.setLength(cacheNameBuilder.length() - 1);
     cacheNameBuilder.append(')');
@@ -82,7 +81,4 @@ public final class CacheInterceptor implements MethodInterceptor {
       throw e.getCause();
     }
   }
-
-
-
 }
