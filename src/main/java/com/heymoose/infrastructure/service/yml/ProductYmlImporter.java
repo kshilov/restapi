@@ -11,6 +11,7 @@ import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Products;
+import com.heymoose.infrastructure.service.Tariffs;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -30,11 +31,14 @@ public class ProductYmlImporter {
 
   private final Repo repo;
   private final Products products;
+  private final Tariffs tariffs;
 
   @Inject
-  public ProductYmlImporter(Repo repo, Products products) {
+  public ProductYmlImporter(Repo repo, Products products,
+                            Tariffs tariffs) {
     this.repo = repo;
     this.products = products;
+    this.tariffs = tariffs;
   }
 
   @Transactional
@@ -87,13 +91,14 @@ public class ProductYmlImporter {
           .setPrice(new BigDecimal(offer.getChildText("price")))
           .setExclusive(exclusive)
           .setUrl(offer.getChildText("url"));
-      Element revenueElement = (Element) XPathFactory.instance()
+      Element valueElement = (Element) XPathFactory.instance()
           .compile("param[@name='hm_value']")
           .evaluateFirst(offer);
-      if (revenueElement != null) {
-        String unitUpper = revenueElement.getAttributeValue("unit").toUpperCase();
-        BigDecimal revenue = new BigDecimal(revenueElement.getText());
-        products.setRevenue(product, CpaPolicy.valueOf(unitUpper), revenue);
+      if (valueElement != null) {
+        String unit = valueElement.getAttributeValue("unit");
+        CpaPolicy cpaPolicy = CpaPolicy.valueOf(unit.toUpperCase());
+        BigDecimal value = new BigDecimal(valueElement.getText());
+        product.setTariff(tariffs.createIfNotExists(cpaPolicy, value));
       }
       repo.put(product);
       log.info("Product saved: {}", product);

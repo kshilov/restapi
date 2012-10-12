@@ -3,10 +3,8 @@ package com.heymoose.infrastructure.service;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
-import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.util.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
@@ -14,7 +12,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -90,21 +87,5 @@ public class Products {
   public void clearAttributes(Product product) {
     repo.session().createQuery("delete from ProductAttribute where product = ?")
         .setParameter(0, product);
-  }
-
-  public void setRevenue(Product product,
-                         CpaPolicy policy, BigDecimal revenue) {
-    Tariff tariff = repo.byHQL(Tariff.class,
-        "from Tariff where offer = ? and cpaPolicy = ? and value = ?",
-        product.offer(), policy, revenue);
-    if (tariff == null) {
-      tariff = new Tariff()
-          .setOffer(product.offer())
-          .setValue(revenue)
-          .setCpaPolicy(policy);
-      repo.put(tariff);
-    }
-    product.setTariff(tariff);
-    repo.put(product);
   }
 }
