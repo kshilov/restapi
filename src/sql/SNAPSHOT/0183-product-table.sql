@@ -41,10 +41,12 @@ create table product(
   id bigint default nextval('product_seq'),
   shop_category_id bigint not null,
   offer_id bigint not null,
+  tariff_id bigint,
   name varchar(255) not null,
   url varchar(255) not null,
   original_id varchar(32) not null,
   price numeric(19,2),
+  exclusive boolean not null,
   creation_time timestamp without time zone default now() not null,
   last_change_time timestamp without time zone default now() not null);
 

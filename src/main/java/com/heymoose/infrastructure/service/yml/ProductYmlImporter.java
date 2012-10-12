@@ -5,13 +5,16 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.service.Products;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +29,12 @@ public class ProductYmlImporter {
       LoggerFactory.getLogger(ProductYmlImporter.class);
 
   private final Repo repo;
+  private final Products products;
 
   @Inject
-  public ProductYmlImporter(Repo repo) {
+  public ProductYmlImporter(Repo repo, Products products) {
     this.repo = repo;
+    this.products = products;
   }
 
   @Transactional
@@ -42,10 +47,8 @@ public class ProductYmlImporter {
     // importing categories
     for (Element category : listCategories(document)) {
       String originalId = category.getAttributeValue("id");
-      ShopCategory shopCategory = repo.byHQL(
-          ShopCategory.class,
-          "from ShopCategory where offerId = ? and originalId = ?",
-          parentOfferId, originalId);
+      ShopCategory shopCategory =
+          products.categoryByOriginalId(parentOfferId, originalId);
       if (shopCategory == null) {
         shopCategory = new ShopCategory();
         repo.put(shopCategory
@@ -69,25 +72,34 @@ public class ProductYmlImporter {
     // importing products
     for (Element offer : listOffers(document)) {
       String originalId = offer.getAttributeValue("id");
-      Product product = repo.byHQL(
-          Product.class,
-          "from Product where offer.id = ? and originalId = ?",
-          parentOfferId, originalId);
+      Product product = products.productByOriginalId(parentOfferId, originalId);
       if (product == null) product = new Product();
       String categoryOriginalId = offer.getChildText("categoryId");
+      Element exclusiveElement = (Element) XPathFactory.instance()
+          .compile("param[@name='hm_exclusive']")
+          .evaluateFirst(offer);
+      boolean exclusive = exclusiveElement != null &&
+          Boolean.valueOf(exclusiveElement.getText());
       product.setCategory(categoryMap.get(categoryOriginalId))
           .setName(getTitle(offer))
           .setOffer(parentOffer)
           .setOriginalId(offer.getAttributeValue("id"))
           .setPrice(new BigDecimal(offer.getChildText("price")))
+          .setExclusive(exclusive)
           .setUrl(offer.getChildText("url"));
+      Element revenueElement = (Element) XPathFactory.instance()
+          .compile("param[@name='hm_value']")
+          .evaluateFirst(offer);
+      if (revenueElement != null) {
+        String unitUpper = revenueElement.getAttributeValue("unit").toUpperCase();
+        BigDecimal revenue = new BigDecimal(revenueElement.getText());
+        products.setRevenue(product, CpaPolicy.valueOf(unitUpper), revenue);
+      }
       repo.put(product);
       log.info("Product saved: {}", product);
       // importing attributes
       for (Element offerChild : offer.getChildren()) {
-        repo.session().createSQLQuery(
-            "delete from product_attribute where product_id = ?")
-            .setParameter(0, product.id());
+        products.clearAttributes(product);
         ProductAttribute productAttribute = new ProductAttribute()
             .setProductId(product.id())
             .setKey(offerChild.getName())

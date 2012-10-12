@@ -33,6 +33,7 @@ import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.AdminAccount;
 import com.heymoose.domain.user.AdminAccountNotConfirmed;
 import com.heymoose.domain.user.Site;
@@ -94,7 +95,7 @@ public class CommonModule extends AbstractModule {
         AdminAccountNotConfirmed.class, Token.class, MlmExecution.class,
         KeywordPattern.class, ErrorInfo.class,
         Withdrawal.class, WithdrawalPayment.class,
-        Product.class, ShopCategory.class, ProductAttribute.class);
+        Product.class, ShopCategory.class, ProductAttribute.class, Tariff.class);
   }
 
   protected void bindEntities(Class... classes) {

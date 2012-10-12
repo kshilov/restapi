@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.tariff.Tariff;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,6 +52,14 @@ public class Product extends ModifiableEntity {
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "productId")
   private List<ProductAttribute> attributeList = Lists.newArrayList();
+
+  @Column(nullable = false)
+  private boolean exclusive = false;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tariff_id")
+  private Tariff tariff;
+
 
   public Product() {
     super();
@@ -135,4 +144,23 @@ public class Product extends ModifiableEntity {
     this.attributeList.add(attribute);
     return this;
   }
+
+  public boolean exclusive() {
+    return this.exclusive;
+  }
+
+  public Product setExclusive(boolean exclusive) {
+    this.exclusive = exclusive;
+    return this;
+  }
+
+  public Tariff tariff() {
+    return this.tariff;
+  }
+
+  public Product setTariff(Tariff tariff) {
+    this.tariff = tariff;
+    return this;
+  }
+
 }
