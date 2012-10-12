@@ -9,6 +9,7 @@ import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Products;
 import com.heymoose.infrastructure.service.Tariffs;
@@ -98,7 +99,8 @@ public class ProductYmlImporter {
         String unit = valueElement.getAttributeValue("unit");
         CpaPolicy cpaPolicy = CpaPolicy.valueOf(unit.toUpperCase());
         BigDecimal value = new BigDecimal(valueElement.getText());
-        product.setTariff(tariffs.createIfNotExists(cpaPolicy, value));
+        Tariff tariff = tariffs.createIfNotExists(cpaPolicy, value, parentOffer);
+        product.setTariff(tariff);
       }
       repo.put(product);
       log.info("Product saved: {}", product);

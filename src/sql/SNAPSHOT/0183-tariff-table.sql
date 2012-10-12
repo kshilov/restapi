@@ -13,6 +13,7 @@ create sequence tariff_seq
 
 create table tariff(
   id bigint not null default nextval('tariff_seq'),
+  offer_id bigint not null,
   cpa_policy varchar(255) not null,
   cost numeric(19,2),
   percent numeric(19,2),
@@ -23,7 +24,6 @@ create table tariff(
 
 alter table tariff add constraint tariff_pk primary key (id);
 
-create index tariff_all_idx on tariff
-(cpa_policy, cost, percent, first_action_cost, other_action_cost, fee, fee_type);
+create index tariff_offer_idx on tariff (offer_id);
 
 end;

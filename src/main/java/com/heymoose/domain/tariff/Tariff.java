@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.FeeType;
+import com.heymoose.domain.offer.Offer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +14,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -27,11 +30,19 @@ public class Tariff extends IdEntity {
   public static Tariff forValue(CpaPolicy policy, BigDecimal value) {
     return new Tariff().setValue(policy, value);
   }
+  public static Tariff forOffer(Offer offer) {
+    return new Tariff().setOffer(offer);
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tariff-seq")
   @SequenceGenerator(name = "tariff-seq", sequenceName = "tariff_seq", allocationSize = 1)
   protected Long id;
+
+
+  @ManyToOne
+  @JoinColumn(name = "offer_id")
+  private Offer offer;
 
   @Column(name = "cpa_policy", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -59,6 +70,15 @@ public class Tariff extends IdEntity {
   @Override
   public Long id() {
     return this.id;
+  }
+
+  public Offer offer() {
+    return this.offer;
+  }
+
+  public Tariff setOffer(Offer offer) {
+    this.offer = offer;
+    return this;
   }
 
   public CpaPolicy cpaPolicy() {

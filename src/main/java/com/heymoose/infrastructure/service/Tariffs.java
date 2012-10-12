@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.tariff.Tariff;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -18,8 +19,9 @@ public class Tariffs {
     this.repo = repo;
   }
 
-  public Tariff createIfNotExists(CpaPolicy policy, BigDecimal value) {
-    Tariff tariff = Tariff.forValue(policy, value);
+  public Tariff createIfNotExists(CpaPolicy policy, BigDecimal value,
+                                  Offer offer) {
+    Tariff tariff = Tariff.forOffer(offer).setValue(policy, value);
     Tariff exists = findIdentical(tariff);
     if (exists != null) return exists;
     repo.put(tariff);
@@ -28,6 +30,7 @@ public class Tariffs {
 
   private Tariff findIdentical(Tariff tariff) {
     return (Tariff) repo.session().createCriteria(Tariff.class)
+        .add(Restrictions.eq("offer", tariff.offer()))
         .add(eqOrIsNull("cpaPolicy", tariff.cpaPolicy()))
         .add(eqOrIsNull("cost", tariff.cost()))
         .add(eqOrIsNull("percent", tariff.percent()))
