@@ -30,9 +30,13 @@ import java.util.List;
 import java.util.Map;
 
 import static com.heymoose.domain.base.IdEntity.toMap;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Path("products")
 public class ProductResource {
+
+  private static final String URL_MASK =
+      "http://heymoose.com/api?method=click&offer_id=%s&aff_id=%s&ulp=%s";
 
   private final Products products;
   private final OfferGrantRepository grants;
@@ -58,7 +62,7 @@ public class ProductResource {
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString,
                      @QueryParam("p") @DefaultValue("0") int page) {
-    if (key == null) throw new WebApplicationException(400);
+    checkNotNull(key);
     User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
     Iterable<Offer> grantedOffers = grants.exclusiveGrantedOffers(user.id());
@@ -76,7 +80,9 @@ public class ProductResource {
         if (!grantedOffersMap.containsKey(id)) offerListIterator.remove();
       }
     }
-    return toYml(products.list(offersToSearch, categoryList, queryString, page));
+    Iterable<Product> productList =
+        products.list(offersToSearch, categoryList, queryString, page);
+    return toYml(productList, user);
   }
 
 
@@ -108,7 +114,7 @@ public class ProductResource {
     return wrapRoot(result);
   }
 
-  private String toYml(Iterable<Product> productList) {
+  private String toYml(Iterable<Product> productList, User user) {
     HashMap<Long, ShopCategory> categoryMap = Maps.newHashMap();
     Element shop = new Element("shop");
     shop.addContent(new Element("name").setText("HeyMoose!"));
@@ -133,11 +139,14 @@ public class ProductResource {
       offer.getChild("categoryId").setText(product.category().id().toString());
       offer.setAttribute("id", product.id().toString());
 
+      String originalUrl = offer.getChildText("url");
       offer.addContent(param("hm_offer_id", product.offer().id()));
       offer.addContent(param("hm_offer_name", product.offer().name()));
-      offer.addContent(param("hm_original_url", offer.getChildText("url")));
+      offer.addContent(param("hm_original_url", originalUrl));
 
-      offer.getChild("url").setText("http://heymoose.com");
+      String newUrl = String.format(
+          URL_MASK, product.offer().id(), user.id(), originalUrl);
+      offer.getChild("url").setText(newUrl);
       offers.addContent(offer);
 
       ShopCategory category = product.category();

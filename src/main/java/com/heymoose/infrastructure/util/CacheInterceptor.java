@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.Period;
@@ -62,18 +63,24 @@ public final class CacheInterceptor implements MethodInterceptor {
     cache = cacheMap.get(cacheName);
     final List<Object> argsList =
         Lists.newArrayList(invocation.getArguments());
-    return cache.get(argsList, new Callable<Object>() {
-      @Override
-      public Object call() throws Exception {
-        try {
-          log.info("Value not found in cache {}, params: {}. Invoking method..",
-              cacheName, argsList);
-          return invocation.proceed();
-        } catch (Throwable throwable) {
-          throw new Exception(throwable);
+    try {
+      return cache.get(argsList, new Callable<Object>() {
+        @Override
+        public Object call() throws Exception {
+          try {
+            log.info(
+                "Value not found in cache {}, params: {}. Invoking method..",
+                cacheName, argsList);
+            return invocation.proceed();
+          } catch (Throwable throwable) {
+            if (throwable instanceof Exception) throw (Exception) throwable;
+            throw new Exception(throwable);
+          }
         }
-      }
-    });
+      });
+    } catch (UncheckedExecutionException e) {
+      throw e.getCause();
+    }
   }
 
 
