@@ -1,13 +1,10 @@
 package com.heymoose.domain.offer;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.BaseEntity;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
-import java.util.Set;
+import com.heymoose.domain.tariff.Tariff;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -22,6 +19,11 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.math.BigDecimal;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(name = "offer")
@@ -323,6 +325,17 @@ public abstract class BaseOffer extends BaseEntity {
     checkArgument(holdDays >= 0 && holdDays <= 180);
     this.holdDays = holdDays;
     return this;
+  }
+
+  public Tariff tariff() {
+    Tariff tariff = Tariff.forOffer(this)
+        .setCpaPolicy(cpaPolicy)
+        .setFee(fee).setFeeType(feeType)
+        .setCost(cost).setPercent(percent);
+    if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      tariff.setFirstActionCost(cost).setOtherActionCost(cost2).setCost(null);
+    }
+    return tariff;
   }
 
   public abstract Account account();

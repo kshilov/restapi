@@ -1,34 +1,15 @@
 package com.heymoose.resource.api;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Multimap;
-import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.errorinfo.ErrorInfoRepository;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantRepository;
-import com.heymoose.domain.offer.Banner;
-import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.domain.offer.Subs;
-import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
-import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.persistence.KeywordPatternDao;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.infrastructure.service.GeoTargeting;
-import com.heymoose.infrastructure.util.QueryUtil;
+import com.heymoose.infrastructure.service.tracking.ActionTracker;
+import com.heymoose.infrastructure.service.tracking.ClickTracker;
+import com.heymoose.infrastructure.service.tracking.ShowTracker;
 import com.sun.jersey.api.core.HttpRequestContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.joda.time.DateTime;
-import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -40,9 +21,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -54,12 +33,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.heymoose.infrastructure.util.QueryUtil.appendQueryParam;
-import static com.heymoose.resource.api.ApiExceptions.*;
-import static java.util.Arrays.asList;
+import static com.heymoose.infrastructure.service.tracking.TrackingUtils.ensureNotNull;
+import static com.heymoose.resource.api.ApiExceptions.badValue;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
 @Path("api")
@@ -67,36 +44,25 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 public class ApiResource {
 
   private final static Logger log = LoggerFactory.getLogger(ApiResource.class);
-  private final static int MIN_REPEAT_INTERVAL = 5;
-  private final static Object DUMMY = new Object();
-  private final static Cache<String, Object> RECENT_REQUEST_MAP =
-      CacheBuilder.newBuilder()
-      .expireAfterAccess(MIN_REPEAT_INTERVAL, TimeUnit.SECONDS)
-      .maximumSize(100)
-      .build();
 
   private final Provider<HttpRequestContext> requestContextProvider;
-  private final Provider<UriInfo> uriInfoProvider;
-  private final Tracking tracking;
-  private final Repo repo;
-  private final GeoTargeting geoTargeting;
-  private final OfferGrantRepository offerGrants;
-  private final KeywordPatternDao keywordPatternDao;
+  private final ClickTracker clickTracker;
+  private final ShowTracker showTracker;
+  private final ActionTracker actionTracker;
   private final ErrorInfoRepository errorInfoRepo;
 
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
-  public ApiResource(Provider<HttpRequestContext> requestContextProvider, Provider<UriInfo> uriInfoProvider,
-                     Tracking tracking, Repo repo, GeoTargeting geoTargeting, OfferGrantRepository offerGrants,
-                     KeywordPatternDao keywordPatternDao, ErrorInfoRepository errorInfoRepo) {
+  public ApiResource(Provider<HttpRequestContext> requestContextProvider,
+                     ShowTracker showTracker,
+                     ClickTracker clickTracker,
+                     ActionTracker actionTracker,
+                     ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
-    this.uriInfoProvider = uriInfoProvider;
-    this.tracking = tracking;
-    this.repo = repo;
-    this.geoTargeting = geoTargeting;
-    this.offerGrants = offerGrants;
-    this.keywordPatternDao = keywordPatternDao;
+    this.clickTracker = clickTracker;
+    this.showTracker = showTracker;
+    this.actionTracker = actionTracker;
     this.errorInfoRepo = errorInfoRepo;
   }
 
@@ -117,310 +83,47 @@ public class ApiResource {
     }
   }
 
-  private Response callMethodInternal(@QueryParam("method") String method) throws ApiRequestException {
+  private Response callMethodInternal(@QueryParam("method") String method)
+      throws ApiRequestException {
 
     ensureNotNull("method", method);
-    Map<String, String> params = queryParams();
     if (method.equals("track"))
-      return track(params);
+      return track();
     else if (method.equals("click"))
-      return click(params);
+      return click();
     else if (method.equals("reportAction"))
-      return reportAction(params);
+      return reportAction();
     else
       throw badValue("method", method);
   }
 
   @Transactional
-  public Response reportAction(Map<String, String> params) throws ApiRequestException {
-    long advertiserId = safeGetLongParam(params, "advertiser_id");
-    String txId = safeGetParam(params, "transaction_id");
-    String sOffer = safeGetParam(params, "offer");
-    String sToken = params.get("token");
-    if (sToken == null || sToken.length() != 32)
-      sToken = cookies().get("hm_token_" + advertiserId);
-    if (sToken == null)
-      throw nullParam("token");
-
-    HttpRequestContext context = requestContextProvider.get();
-    String requestKey = context.getRequestUri() + ";token=" + sToken;
-    if (RECENT_REQUEST_MAP.asMap().putIfAbsent(requestKey, DUMMY) != null) {
-      log.warn("Ignoring repeated request: {}", requestKey);
-      return Response.status(304).build();
-    }
-
-    Token token = repo.byHQL(Token.class, "from Token where value = ?", sToken);
-    if (token == null)
-      throw notFound(Token.class, sToken);
-    String[] pairs = sOffer.split(",");
-    ImmutableMultimap.Builder<BaseOffer, Optional<Double>> offers =
-        ImmutableMultimap.builder();
-    for (String pair : pairs) {
-      String[] parts = pair.split(":");
-      String code = parts[0];
-      BaseOffer offer = findOffer(advertiserId, code);
-      if (offer == null)
-        throw new ApiRequestException(404, "Offer not found, params code: " + code + ", " + "advertiser_id: " + advertiserId);
-      Optional<Double> price = (parts.length == 2)
-          ? Optional.of(Double.parseDouble(parts[1]))
-          : Optional.<Double>absent();
-      offers.put(offer, price);
-    }
-    tracking.trackConversion(token, txId, offers.build());
-    return noCache(Response.ok()).build();
-  }
-
-  private BaseOffer findOffer(long advertiserId, String code) {
-    SubOffer existentSub = repo.byHQL(
-        SubOffer.class,
-        "from SubOffer o where o.active = true and o.code = ? and o.parent.advertiser.id = ?",
-        code, advertiserId
-    );
-
-    if (existentSub != null)
-      return existentSub;
-
-    Offer existentOffer = repo.byHQL(
-        Offer.class,
-        "from Offer o where o.active = true and o.code = ? and o.advertiser.id = ?",
-        code, advertiserId
-    );
-
-    return existentOffer;
+  public Response reportAction() throws ApiRequestException {
+    return actionTracker.track(requestContextProvider.get());
   }
 
   @Transactional
-  public Response click(Map<String, String> params) throws ApiRequestException {
-    String sBannerId = params.get("banner_id");
-    Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
-    long offerId = safeGetLongParam(params, "offer_id");
-    long affId = safeGetLongParam(params, "aff_id");
-    Offer offer = repo.get(Offer.class, offerId);
-    if (offer == null)
-      throw notFound(Offer.class, offerId);
-    User affiliate = repo.get(User.class, affId);
-    if (affiliate == null)
-      throw notFound(Offer.class, offerId);
-    OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
-    if (grant == null)
-      return Response.status(409).build();
-    if (!visible(offer))
-      return forbidden(grant);
-
-    // sourceId and subIds extracting
-    Subs subs = new Subs(
-        params.get("sub_id"),
-        params.get("sub_id1"),
-        params.get("sub_id2"),
-        params.get("sub_id3"),
-        params.get("sub_id4")
-    );
-    String sourceId = params.get("source_id");
-
-    // geo targeting
-    Long ipNum = getRealIp();
-    if (ipNum == null)
-      throw new ApiRequestException(409, "Can't get IP address");
-    if (!geoTargeting.isAllowed(offer, ipNum))
-      return forbidden(grant);
-
-    // keywords
-    String referer = extractReferer();
-    String keywords;
-    if (params.containsKey("keywords"))
-      keywords = params.get("keywords");
-    else
-      keywords = keywordPatternDao.extractKeywords(referer);
-
-    // postback feature parameters
-    Map<String, String> affParams = newHashMap(params);
-    for (String param : asList("method", "banner_id", "offer_id", "aff_id",
-        "sub_id", "sub_id1", "sub_id2", "sub_id3", "sub_id4", "source_id"))
-      affParams.remove(param);
-
-    // track
-    String token = tracking.trackClick(bannerId, offerId, offer.master(), affId, sourceId, subs, affParams, referer, keywords);
-
-    // location
-    URI location = null;
-    if (offer.allowDeeplink()) {
-      String ulp = params.get("ulp");
-      if (ulp != null) {
-        if (!ulp.contains("://")) {
-          ulp = "http://" + ulp;
-        }
-        try {
-          location = QueryUtil.removeQueryParam(URI.create(ulp), "ulp");
-        } catch (IllegalArgumentException e) {
-          location = null;
-        }
-      }
-    }
-    if (location == null) {
-      Banner banner = (bannerId == null) ? null : repo.get(Banner.class, bannerId);
-      location = (banner != null && banner.url() != null) ? URI.create(banner.url()) : URI.create(offer.url());
-    }
-    location = appendQueryParam(location, offer.tokenParamName(), token);
-    location = appendQueryParam(location, "_hm_ttl", offer.cookieTtl());
-
-    String getParams = offer.requiredGetParameters();
-    if (!Strings.isNullOrEmpty(getParams)) {
-      for (String keyVal : getParams.split("&")) {
-        String[] kv = keyVal.split("=");
-        location = QueryUtil.appendQueryParam(location, kv[0], kv[1]);
-      }
-    }
-
-    Response.ResponseBuilder response = Response.status(302).location(location);
-    int maxAge = Seconds.secondsBetween(DateTime.now(), DateTime.now().plusDays(offer.cookieTtl())).getSeconds();
-    addCookie(response, "hm_token_" + offer.advertiser().id(), token, maxAge);
-    noCache(response);
-    return response.build();
-  }
-
-  private String extractReferer() {
-    if (requestContextProvider.get().getHeaderValue("Referer") != null)
-      return requestContextProvider.get().getHeaderValue("Referer");
-    else
-      return requestContextProvider.get().getHeaderValue("X-Real-IP");
-  }
-
-  private static boolean visible(BaseOffer offer) {
-    if (offer instanceof Offer) {
-      Offer newOffer = (Offer) offer;
-      return newOffer.visible();
-    } else if (offer instanceof SubOffer) {
-      SubOffer subOffer = (SubOffer) offer;
-      return subOffer.active();
-    } else {
-      return false;
-    }
+  public Response click() throws ApiRequestException {
+    return clickTracker.track(requestContextProvider.get());
   }
 
   @Transactional
-  public Response track(Map<String, String> params) throws ApiRequestException {
-    String sBannerId = params.get("banner_id");
-    Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
-    long offerId = safeGetLongParam(params, "offer_id");
-    long affId = safeGetLongParam(params, "aff_id");
-    Offer offer = repo.get(Offer.class, offerId);
-    if (offer == null)
-      throw notFound(Offer.class, offerId);
-    User affiliate = repo.get(User.class, affId);
-    if (affiliate == null)
-      throw notFound(Offer.class, offerId);
-    if (offerGrants.visibleByOfferAndAff(offer, affiliate) == null)
-      throw illegalState("Offer was not granted: " + offerId);
-
-    Subs subs = new Subs(
-        params.get("sub_id"),
-        params.get("sub_id1"),
-        params.get("sub_id2"),
-        params.get("sub_id3"),
-        params.get("sub_id4")
-    );
-    String sourceId = params.get("source_id");
-    tracking.trackShow(bannerId, offerId, offer.master(), affId, sourceId, subs);
-    return noCache(Response.ok()).build();
+  public Response track() throws ApiRequestException {
+    return showTracker.track(requestContextProvider.get());
   }
 
   private Map<String, String> queryParams() {
     Map<String, String> params = newHashMap();
-    for (Map.Entry<String, List<String>> ent : requestContextProvider.get().getQueryParameters().entrySet())
+    for (Map.Entry<String, List<String>> ent : requestContextProvider.get()
+        .getQueryParameters().entrySet())
       if (!ent.getValue().isEmpty())
         params.put(ent.getKey(), ent.getValue().get(0));
     return params;
   }
 
-  private Map<String, String> cookies() {
-    Map<String, String> params = newHashMap();
-    for (Map.Entry<String, List<String>> ent : requestContextProvider.get().getCookieNameValueMap().entrySet())
-      if (!ent.getValue().isEmpty())
-        params.put(ent.getKey(), ent.getValue().get(0));
-    return params;
-  }
-
-  private Long getRealIp() {
-    String hRealIp = requestContextProvider.get().getHeaderValue("X-Real-IP");
-    if (hRealIp == null)
-      return null;
-    String[] parts = hRealIp.split("\\.");
-    long a = Long.valueOf(parts[0]);
-    long b = Long.valueOf(parts[1]);
-    long c = Long.valueOf(parts[2]);
-    long d = Long.valueOf(parts[3]);
-    return (a << 24) | (b << 16) | (c << 8) | d;
-  }
-
-  private Multimap<String, String> queryParamsMulti() {
-    Multimap<String, String> params = HashMultimap.create();
-    for (Map.Entry<String, List<String>> ent : requestContextProvider.get().getQueryParameters().entrySet())
-      params.putAll(ent.getKey(), ent.getValue());
-    return params;
-  }
-
-  public long safeGetLongParam(Map<String, String> params, String paramName) throws ApiRequestException {
-    String val = safeGetParam(params, paramName);
-    try {
-      return Long.valueOf(val);
-    } catch (NumberFormatException e) {
-      throw badValue(paramName, val);
-    }
-  }
-
-  public int safeGetIntParam(Map<String, String> params, String paramName) throws ApiRequestException {
-    String val = safeGetParam(params, paramName);
-    try {
-      return Integer.valueOf(val);
-    } catch (NumberFormatException e) {
-      throw badValue(paramName, val);
-    }
-  }
-
-  private Integer parseInt(String name, String s) throws ApiRequestException {
-    try {
-      return Integer.valueOf(s);
-    } catch (NumberFormatException e) {
-      throw badValue(name, s);
-    }
-  }
-
-  private Long parseLong(String name, String s) throws ApiRequestException {
-    try {
-      return Long.valueOf(s);
-    } catch (NumberFormatException e) {
-      throw badValue(name, s);
-    }
-  }
-
-
-  public String safeGetParam(Map<String, String> params, String paramName) throws ApiRequestException {
-    String val = params.get(paramName);
-    ensureNotNull(paramName, val);
-    return val;
-  }
-
-  private static void ensureNotNull(String paramName, Object value) throws ApiRequestException {
-    if (value == null)
-      throw nullParam(paramName);
-  }
-
-  private static Response successResponse() {
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode jsSuccess = mapper.createObjectNode();
-    jsSuccess.put("success", true);
-    String json;
-    try {
-      json = mapper.writeValueAsString(jsSuccess);
-    } catch (Exception e) {
-      throw new RuntimeException(e.getMessage(), e);
-    }
-    return Response.ok(json).build();
-  }
-
-
-  private Response errorResponse(String message, Throwable cause, int status, boolean includeStackTrace) {
-    URI requestUri = uriInfoProvider.get().getRequestUri();
+  private Response errorResponse(String message, Throwable cause, int status,
+                                 boolean includeStackTrace) {
+    URI requestUri = requestContextProvider.get().getRequestUri();
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode jsError = mapper.createObjectNode();
     jsError.put("success", false);
@@ -480,29 +183,10 @@ public class ApiResource {
     return randomAlphanumeric(10);
   }
 
-  private static Response forbidden(OfferGrant grant) {
-    if (grant.backUrl() == null)
-      return Response.status(403).build();
-    else
-      return Response.status(302).location(URI.create(grant.backUrl())).build();
-  }
-
-  private static void addCookie(Response.ResponseBuilder resp, String name, String value, int age) {
-    long expires = System.currentTimeMillis() + age * 1000L;
-    resp.header("Set-Cookie", String.format("%s=%s;Version=1;expires=%s;Path=/", name, value, formatAsGMT(expires)));
-  }
-
   private static String formatAsGMT(long time) {
     // Wed, 19 Jan 2011 12:05:26 GMT
     SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
     return format.format(new Date(time));
-  }
-
-  private static Response.ResponseBuilder noCache(Response.ResponseBuilder response) {
-    CacheControl cacheControl = new CacheControl();
-    cacheControl.setMaxAge(0);
-    cacheControl.setNoCache(true);
-    return response.cacheControl(cacheControl);
   }
 }

@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.util;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
@@ -55,6 +56,14 @@ public class HibernateUtil {
     }
     criteria.add(sqlInRestriction(sql, elementCollection, type));
     return criteria;
+  }
+
+
+
+  public static DetachedCriteria addEqOrIsNull(DetachedCriteria criteria,
+                                               String property, Object value) {
+    if (value == null) return criteria.add(Restrictions.isNull(property));
+    return criteria.add(Restrictions.eq(property, value));
   }
 
 }

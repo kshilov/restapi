@@ -1,11 +1,10 @@
 package com.heymoose.domain.tariff;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.heymoose.domain.base.IdEntity;
+import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.FeeType;
-import com.heymoose.domain.offer.Offer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,7 +29,7 @@ public class Tariff extends IdEntity {
   public static Tariff forValue(CpaPolicy policy, BigDecimal value) {
     return new Tariff().setValue(policy, value);
   }
-  public static Tariff forOffer(Offer offer) {
+  public static Tariff forOffer(BaseOffer offer) {
     return new Tariff().setOffer(offer);
   }
 
@@ -42,7 +41,7 @@ public class Tariff extends IdEntity {
 
   @ManyToOne
   @JoinColumn(name = "offer_id")
-  private Offer offer;
+  private BaseOffer offer;
 
   @Column(name = "cpa_policy", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -72,11 +71,11 @@ public class Tariff extends IdEntity {
     return this.id;
   }
 
-  public Offer offer() {
+  public BaseOffer offer() {
     return this.offer;
   }
 
-  public Tariff setOffer(Offer offer) {
+  public Tariff setOffer(BaseOffer offer) {
     this.offer = offer;
     return this;
   }
@@ -151,30 +150,38 @@ public class Tariff extends IdEntity {
   }
 
   public Tariff setFeeType(FeeType type) {
-    if (cpaPolicy == CpaPolicy.PERCENT) {
-      Preconditions.checkArgument(type == FeeType.PERCENT,
-          "FeeType should be percent for percent offers.");
-    }
     this.feeType = type;
     return this;
   }
 
   public Tariff setFee(BigDecimal fee) {
-    switch (feeType) {
-      case PERCENT:
-        double feeDouble = fee.doubleValue();
-        Preconditions.checkArgument(feeDouble > 0,
-            "Fee should be more than 0%.");
-        Preconditions.checkArgument(feeDouble < 100,
-            "Fee should be less than 100%.");
-        break;
-      case FIX:
-        Preconditions.checkArgument(fee.compareTo(cost) < 0,
-            "Fee should be less than offers cost.");
-        break;
-    }
     this.fee = fee;
     return this;
+  }
+
+  public BigDecimal affiliatePart(BigDecimal amount) {
+    switch (this.feeType) {
+      case PERCENT:
+        // cost = aff_part + our_part
+        // our_part =  aff_part * (our_fee / 100%)
+        // our_fee = offer.fee()
+        // cost = aff_part + aff_part * offer.fee() / 100%
+        // aff_part = cost / (1 + offer.fee() / 100%)
+        BigDecimal divider = this.fee
+            .divide(new BigDecimal(100))
+            .add(BigDecimal.ONE);
+        return amount.divide(divider, 2, BigDecimal.ROUND_UP);
+      case FIX:
+        // cost = aff_part + our_part
+        // our_part = offer.fee()
+        // aff_part = cost - offer.fee()
+        return amount.subtract(this.fee);
+    }
+    throw new RuntimeException("Unknown FeeType: " + this.feeType);
+  }
+
+  public BigDecimal heymoosePart(BigDecimal amount) {
+    return amount.subtract(affiliatePart(amount));
   }
 
   @Override

@@ -3,7 +3,6 @@ package com.heymoose.domain.statistics;
 import com.heymoose.domain.base.BaseEntity;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.user.User;
 
@@ -126,7 +125,7 @@ public class OfferStat extends BaseEntity {
     return id;
   }
 
-  protected OfferStat() {
+  public OfferStat() {
   }
 
   public OfferStat(@Nullable Long bannerId, Long offerId, Long master, Long affId, String sourceId, Subs subs,
@@ -147,6 +146,49 @@ public class OfferStat extends BaseEntity {
 
   public Long bannerId() {
     return bannerId;
+  }
+
+  public OfferStat setBannerId(Long bannerId) {
+    this.bannerId = bannerId;
+    return this;
+  }
+
+  public OfferStat setOfferId(Long offerId) {
+    this.offerId = offerId;
+    return this;
+  }
+
+  public OfferStat setAffiliateId(Long affiliateId) {
+    this.affiliateId = affiliateId;
+    return this;
+  }
+
+  public OfferStat setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+    return this;
+  }
+
+  public OfferStat setReferer(String referer) {
+    this.referer = referer;
+    return this;
+  }
+
+  public OfferStat setKeywords(String keywords) {
+    this.keywords = keywords;
+    return this;
+  }
+
+  public OfferStat setMaster(Long master) {
+    this.master = master;
+    return this;
+  }
+
+  public Long affiliateId() {
+    return affiliateId;
+  }
+
+  public Long offerId() {
+    return this.offerId;
   }
 
   public BaseOffer offer() {
@@ -201,20 +243,24 @@ public class OfferStat extends BaseEntity {
     return master;
   }
 
-  public void incClicks() {
+  public OfferStat incClicks() {
     clickCount++;
+    return this;
   }
 
-  public void incShows() {
+  public OfferStat incShows() {
     showCount++;
+    return this;
   }
 
-  public void incLeads() {
+  public OfferStat incLeads() {
     leadsCount++;
+    return this;
   }
 
-  public void incSales() {
+  public OfferStat incSales() {
     salesCount++;
+    return this;
   }
 
   public void addToConfirmedRevenue(BigDecimal amount) {
@@ -285,5 +331,14 @@ public class OfferStat extends BaseEntity {
     checkArgument(fee.signum() == 1);
     notConfirmedFee = nullToZero(notConfirmedFee).subtract(fee);
     confirmedFee = nullToZero(confirmedFee).add(fee);
+  }
+
+  public OfferStat setSubs(Subs subs) {
+    this.subId = subs.subId();
+    this.subId1 = subs.subId1();
+    this.subId2 = subs.subId2();
+    this.subId3 = subs.subId3();
+    this.subId4 = subs.subId4();
+    return this;
   }
 }
