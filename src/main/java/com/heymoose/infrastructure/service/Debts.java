@@ -269,14 +269,6 @@ public final class Debts {
     }
   }
 
-  public QueryResult massPayment(DateTime from, DateTime to) {
-    SqlLoader.SqlQuery query = SqlLoader
-        .sqlQuery("masspayment", repo.session())
-        .addQueryParam("from", from.toDate())
-        .addQueryParam("to", to.toDate());
-    return query.execute();
-  }
-
   public Pair<QueryResult, Long> payments(PayMethod payMethod,
                                           DataFilter<PaymentOrdering> filter) {
     return SqlLoader.templateQuery("withdrawal-payments", repo.session())
