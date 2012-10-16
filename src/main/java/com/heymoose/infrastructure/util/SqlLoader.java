@@ -160,7 +160,6 @@ public final class SqlLoader {
   }
 
   public static String countSql(String sql) {
-    sql = sql.replaceFirst("select .* from ", "select count(*) from ");
     sql = sql.substring(0, sql.lastIndexOf("order by"));
     return "select count(*) from (" + sql + ") c";
   }
