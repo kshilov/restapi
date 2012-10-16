@@ -271,14 +271,16 @@ public final class Debts {
 
   public Pair<QueryResult, Long> payments(PayMethod payMethod,
                                           DataFilter<PaymentOrdering> filter) {
-    return SqlLoader.templateQuery("withdrawal-payments", repo.session())
+    SqlLoader.TemplateQuery query = SqlLoader.templateQuery("withdrawal-payments", repo.session())
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())
         .addTemplateParam("ordering", filter.ordering())
-        .addTemplateParam("direction", filter.direction())
-        .addTemplateParamIfNotNull(payMethod, "filterByPayMethod", true)
-        .addQueryParamIfNotNull(payMethod, "pay_method", payMethod.toString())
-        .executeAndCount(filter.offset(), filter.limit());
+        .addTemplateParam("direction", filter.direction());
+    if (payMethod != null) {
+      query.addTemplateParam("filterByPayMethod", true);
+      query.addQueryParam("pay_method", payMethod.toString());
+    }
+    return query.executeAndCount(filter.offset(), filter.limit());
   }
 
 }
