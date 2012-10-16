@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.base.Repo;
@@ -13,6 +14,7 @@ import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.jdom2.output.XMLOutputter;
 import org.joda.time.DateTime;
 
@@ -33,6 +35,8 @@ import static com.heymoose.infrastructure.util.WebAppUtil.*;
 
 @Path("withdrawals")
 public class WithdrawalResource {
+
+  private static final XMLOutputter OUTPUTTER = new XMLOutputter();
 
   private final Repo repo;
   private final Debts debts;
@@ -182,13 +186,98 @@ public class WithdrawalResource {
   @Produces("application/xml")
   public String massPayment(@QueryParam("from") @DefaultValue("0") Long from,
                             @QueryParam("to") Long to) {
-    return new XmlQueryResult(debts.massPayment(
-        new DateTime(from), new DateTime(to)))
-        .setRoot("payments")
-        .addRootAttribute("xmlns", "http://tempuri.org/ds.xsd")
-        .setElement("payment")
-        .toString();
+    DataFilter<Debts.PaymentOrdering> filter = DataFilter.newInstance();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOrdering(Debts.PaymentOrdering.AMOUNT)
+        .setDirection(OrderingDirection.DESC);
+    return massPaymentXml(debts.payments(Debts.PayMethod.AUTO, filter));
   }
+
+  @GET
+  @Path("payments")
+  @Transactional
+  @Produces("application/xml")
+  public String payments(@QueryParam("pay_method") Debts.PayMethod payMethod,
+                         @QueryParam("from") @DefaultValue("0") Long from,
+                         @QueryParam("to") Long to,
+                         @QueryParam("offset") int offset,
+                         @QueryParam("limit") @DefaultValue("20") int limit,
+                         @QueryParam("ordering") @DefaultValue("AMOUNT")
+                         Debts.PaymentOrdering ordering,
+                         @QueryParam("direction") @DefaultValue("DESC")
+                         OrderingDirection direction) {
+    DataFilter<Debts.PaymentOrdering> filter = DataFilter.newInstance();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    return paymentsXml(debts.payments(payMethod, filter));
+  }
+
+
+
+  private String paymentsXml(Pair<QueryResult, Long> queryResult) {
+    Element rootElement = new Element("payments");
+    rootElement.setAttribute("count", queryResult.snd.toString());
+    for (Map<String, Object> record : queryResult.fst) {
+      Element affiliateElement = new Element("affiliate")
+          .setAttribute("id", record.get("affiliate_id").toString())
+          .addContent(element("email", record.get("affiliate_email")))
+          .addContent(element("wmr", record.get("affiliate_wmr")));
+
+      Element offerElement = new Element("offer")
+          .setAttribute("id", record.get("offer_id").toString())
+          .addContent(element("name", record.get("offer_name")));
+
+      Element paymentElement = new Element("payment")
+          .addContent(affiliateElement)
+          .addContent(offerElement)
+          .addContent(element("basis", record.get("basis")))
+          .addContent(element("amount", record.get("amount")))
+          .addContent(element("pay-method", record.get("pay_method")));
+
+      rootElement.addContent(paymentElement);
+    }
+    return OUTPUTTER.outputString(rootElement);
+  }
+
+  private String massPaymentXml(Pair<QueryResult, Long> result) {
+    Element rootElement = new Element("payments")
+        .setNamespace(Namespace.getNamespace("http://tempuri.org/ds.xsd"));
+    for (Map<String, Object> payment : result.fst) {
+      Withdrawal.Basis basis = Withdrawal.Basis.valueOf(
+          payment.get("basis").toString());
+      String description = null;
+      switch (basis) {
+        case AFFILIATE_REVENUE:
+          description = String.format(
+              "Выплата вознаграждения партнёру %s. Оффер \"%s\".",
+              payment.get("affiliate_email"), payment.get("offer_name"));
+          break;
+        case MLM:
+          description = String.format(
+              "Выплата вознаграждения партнёру %s. Реферальная программа.",
+              payment.get("affiliate_email"));
+          break;
+      }
+      String id = Joiner.on('_').skipNulls().join(
+          payment.get("affiliate_id"),
+          payment.get("offer_id"),
+          payment.get("basis"));
+      Element paymentElement = new Element("payment")
+          .addContent(element("Destination", payment.get("affiliate_wmr")))
+          .addContent(element("Amount", payment.get("amount")))
+          .addContent(element("Description", description))
+          .addContent(element("Id", id));
+
+      rootElement.addContent(paymentElement);
+    }
+    return OUTPUTTER.outputString(rootElement);
+  }
+
 
   private String toXmlSum(QueryResult result) {
     Element root = new Element("debt");
@@ -197,6 +286,10 @@ public class WithdrawalResource {
           .setText(entry.getValue().toString());
       root.addContent(attribute);
     }
-    return new XMLOutputter().outputString(new Document(root));
+    return OUTPUTTER.outputString(new Document(root));
+  }
+
+  private Element element(String name, Object content) {
+    return new Element(name).setText(content.toString());
   }
 }

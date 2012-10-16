@@ -41,6 +41,14 @@ public final class Debts {
     Ordering(String colName) { this.COLUMN = colName; }
   }
 
+  public enum PaymentOrdering {
+    USER_EMAIL, USER_WMR, BASIS, AMOUNT, OFFER_NAME, PAY_METHOD
+  }
+
+  public enum PayMethod {
+    ALL, AUTO, MANUAL
+  }
+
   private static Logger log = LoggerFactory.getLogger(Debts.class);
 
   private final Repo repo;
@@ -267,6 +275,18 @@ public final class Debts {
         .addQueryParam("from", from.toDate())
         .addQueryParam("to", to.toDate());
     return query.execute();
+  }
+
+  public Pair<QueryResult, Long> payments(PayMethod payMethod,
+                                          DataFilter<PaymentOrdering> filter) {
+    return SqlLoader.templateQuery("withdrawal-payments", repo.session())
+        .addQueryParam("from", filter.from())
+        .addQueryParam("to", filter.to())
+        .addTemplateParam("ordering", filter.ordering())
+        .addTemplateParam("direction", filter.direction())
+        .addTemplateParamIfNotNull(payMethod, "filterByPayMethod", true)
+        .addQueryParamIfNotNull(payMethod, "pay_method", payMethod.toString())
+        .executeAndCount(filter.offset(), filter.limit());
   }
 
 }

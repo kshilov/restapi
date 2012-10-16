@@ -14,7 +14,7 @@ public final class DataFilter<T extends Enum<?>> {
   }
 
   private int offset;
-  private int limit;
+  private int limit = Integer.MAX_VALUE;
   private DateTime dateFrom;
   private DateTime dateTo;
   private T ordering;
