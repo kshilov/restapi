@@ -228,16 +228,19 @@ public class WithdrawalResource {
           .addContent(element("email", record.get("affiliate_email")))
           .addContent(element("wmr", record.get("affiliate_wmr")));
 
-      Element offerElement = new Element("offer")
-          .setAttribute("id", record.get("offer_id").toString())
-          .addContent(element("name", record.get("offer_name")));
 
       Element paymentElement = new Element("payment")
           .addContent(affiliateElement)
-          .addContent(offerElement)
           .addContent(element("basis", record.get("basis")))
           .addContent(element("amount", record.get("amount")))
           .addContent(element("pay-method", record.get("pay_method")));
+
+      if (record.get("offer_id") != null) {
+        Element offerElement = new Element("offer")
+            .setAttribute("id", record.get("offer_id").toString())
+            .addContent(element("name", record.get("offer_name")));
+        paymentElement.addContent(offerElement);
+      }
 
       rootElement.addContent(paymentElement);
     }
