@@ -46,7 +46,7 @@ public final class Debts {
   }
 
   public enum PayMethod {
-    ALL, AUTO, MANUAL
+    AUTO, MANUAL
   }
 
   private static Logger log = LoggerFactory.getLogger(Debts.class);
