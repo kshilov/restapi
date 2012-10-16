@@ -290,6 +290,8 @@ public class WithdrawalResource {
   }
 
   private Element element(String name, Object content) {
+    if (content == null)
+      return new Element(name);
     return new Element(name).setText(content.toString());
   }
 }

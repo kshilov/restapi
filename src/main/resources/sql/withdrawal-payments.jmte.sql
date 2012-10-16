@@ -25,6 +25,7 @@ join user_profile usr
 on usr.id = withdrawal.user_id
 
 where withdrawal.basis = 'AFFILIATE_REVENUE'
+and usr.wmr is not null
 
 group by usr.wmr, usr.id, usr.email, offer.id, offer.name, withdrawal.basis
 
@@ -53,6 +54,7 @@ join user_profile usr
 on usr.id = withdrawal.user_id
 
 where withdrawal.basis = 'MLM'
+and usr.wmr is not null
 
 group by usr.wmr, usr.id, usr.email, withdrawal.basis
 ) as t
