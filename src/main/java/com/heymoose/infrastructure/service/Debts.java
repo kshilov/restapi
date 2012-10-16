@@ -261,5 +261,12 @@ public final class Debts {
     }
   }
 
+  public QueryResult massPayment(DateTime from, DateTime to) {
+    SqlLoader.SqlQuery query = SqlLoader
+        .sqlQuery("masspayment", repo.session())
+        .addQueryParam("from", from.toDate())
+        .addQueryParam("to", to.toDate());
+    return query.execute();
+  }
 
 }

@@ -176,6 +176,20 @@ public class WithdrawalResource {
     return offer;
   }
 
+  @GET
+  @Path("masspayment")
+  @Transactional
+  @Produces("application/xml")
+  public String massPayment(@QueryParam("from") @DefaultValue("0") Long from,
+                            @QueryParam("to") Long to) {
+    return new XmlQueryResult(debts.massPayment(
+        new DateTime(from), new DateTime(to)))
+        .setRoot("payments")
+        .addRootAttribute("xmlns", "http://tempuri.org/ds.xsd")
+        .setElement("payment")
+        .toString();
+  }
+
   private String toXmlSum(QueryResult result) {
     Element root = new Element("debt");
     for (Map.Entry<String, Object> entry: result.get(0).entrySet()) {

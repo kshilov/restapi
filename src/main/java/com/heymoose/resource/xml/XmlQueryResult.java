@@ -2,6 +2,7 @@ package com.heymoose.resource.xml;
 
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.infrastructure.util.QueryResult;
+import org.jdom2.Namespace;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -52,6 +53,12 @@ public final class XmlQueryResult {
   public String toString() {
     Element rootElement = new Element(root);
     for (Map.Entry<String, Object> entry : rootAttributeMap.build().entrySet()) {
+      if (entry.getKey().equals("xmlns")) {
+        String namespaceString = entry.getValue().toString();
+        Namespace namespace = Namespace.getNamespace(namespaceString);
+        rootElement.setNamespace(namespace);
+        continue;
+      }
       rootElement.setAttribute(entry.getKey(), entry.getValue().toString());
     }
 
