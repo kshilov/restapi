@@ -27,15 +27,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static com.heymoose.infrastructure.service.tracking.TrackingUtils.ensureNotNull;
+import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
 import static com.heymoose.resource.api.ApiExceptions.badValue;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -112,15 +106,6 @@ public class ApiResource {
     return showTracker.track(requestContextProvider.get());
   }
 
-  private Map<String, String> queryParams() {
-    Map<String, String> params = newHashMap();
-    for (Map.Entry<String, List<String>> ent : requestContextProvider.get()
-        .getQueryParameters().entrySet())
-      if (!ent.getValue().isEmpty())
-        params.put(ent.getKey(), ent.getValue().get(0));
-    return params;
-  }
-
   private Response errorResponse(String message, Throwable cause, int status,
                                  boolean includeStackTrace) {
     URI requestUri = requestContextProvider.get().getRequestUri();
@@ -154,7 +139,7 @@ public class ApiResource {
    */
   @Transactional
   protected void storeError(URI uri, Throwable cause) {
-    Map<String, String> params = queryParams();
+    Map<String, String> params = queryParams(requestContextProvider.get());
 
     // Build uri part with query string params sorted
     StringBuilder uriBuilder = new StringBuilder();
@@ -181,12 +166,5 @@ public class ApiResource {
 
   private static String randomString() {
     return randomAlphanumeric(10);
-  }
-
-  private static String formatAsGMT(long time) {
-    // Wed, 19 Jan 2011 12:05:26 GMT
-    SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
-    return format.format(new Date(time));
   }
 }
