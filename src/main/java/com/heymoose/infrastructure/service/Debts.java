@@ -271,7 +271,8 @@ public final class Debts {
 
   public Pair<QueryResult, Long> payments(PayMethod payMethod,
                                           DataFilter<PaymentOrdering> filter) {
-    SqlLoader.TemplateQuery query = SqlLoader.templateQuery("withdrawal-payments", repo.session())
+    SqlLoader.TemplateQuery query = SqlLoader
+        .templateQuery("withdrawal-payments", repo.session())
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())
         .addTemplateParam("ordering", filter.ordering())
