@@ -5,15 +5,17 @@ import com.google.inject.Inject;
 public final class ActionProcessor implements Processor {
 
   private final FixActionProcessor fixProcessor;
+  private final PercentActionProcessor percentProcessor;
+  private final DoubleFixActionProcessor doubleFixProcessor;
 
   @Inject
   public ActionProcessor(FixActionProcessor fixProcessor,
-                         PercentActionProcessor percentProcessor) {
+                         PercentActionProcessor percentProcessor,
+                         DoubleFixActionProcessor doubleFixProcessor) {
     this.fixProcessor = fixProcessor;
     this.percentProcessor = percentProcessor;
+    this.doubleFixProcessor = doubleFixProcessor;
   }
-
-  private final PercentActionProcessor percentProcessor;
 
   public void process(ProcessableData data) {
     switch (data.offer().cpaPolicy()) {
@@ -22,6 +24,9 @@ public final class ActionProcessor implements Processor {
         return;
       case PERCENT:
         percentProcessor.process(data);
+        return;
+      case DOUBLE_FIXED:
+        doubleFixProcessor.process(data);
         return;
     }
 
