@@ -52,7 +52,6 @@ import com.heymoose.infrastructure.persistence.OfferRepositoryHiber;
 import com.heymoose.infrastructure.persistence.SubOfferRepositoryHiber;
 import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.AccountingHiber;
-import com.heymoose.infrastructure.service.Mlm;
 import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.TrackingImpl;
@@ -68,7 +67,6 @@ public class CommonModule extends AbstractModule {
   protected void configure() {
     install(new HibernateModule());
 
-    bind(Mlm.class);
     bind(Settings.class);
     bind(OfferLoader.class);
     bind(BufferedShows.class);

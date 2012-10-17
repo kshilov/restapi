@@ -277,18 +277,20 @@ public class OfferStat extends BaseEntity {
     confirmedRevenue = confirmedRevenue.subtract(amount);
   }
 
-  public void addToNotConfirmedRevenue(BigDecimal amount) {
+  public OfferStat addToNotConfirmedRevenue(BigDecimal amount) {
     checkArgument(amount.signum() == 1);
     if (notConfirmedRevenue == null)
       notConfirmedRevenue = ZERO;
     notConfirmedRevenue = notConfirmedRevenue.add(amount);
+    return this;
   }
 
-  public void addToNotConfirmedFee(BigDecimal fee) {
+  public OfferStat addToNotConfirmedFee(BigDecimal fee) {
     checkArgument(fee.signum() == 1);
     if (notConfirmedFee == null)
       notConfirmedFee = ZERO;
     notConfirmedFee = notConfirmedFee.add(fee);
+    return this;
   }
 
   public void approveMoney(BigDecimal amount) {

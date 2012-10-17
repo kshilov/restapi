@@ -6,8 +6,10 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
+import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.user.AdminAccountAccessor;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -29,10 +31,12 @@ public class AccountingHiber implements Accounting {
       LoggerFactory.getLogger(AccountingHiber.class);
 
   private final Repo repo;
+  private final AdminAccountAccessor adminAccounts;
 
   @Inject
-  public AccountingHiber(Repo repo) {
+  public AccountingHiber(Repo repo, AdminAccountAccessor adminAccounts) {
     this.repo = repo;
+    this.adminAccounts = adminAccounts;
   }
 
   @Override
@@ -165,5 +169,24 @@ public class AccountingHiber implements Accounting {
         "Can't transfer more, than advertiser has on his account.");
     this.transferMoney(advertiserAcc, offer.account(), amount,
         AccountingEvent.OFFER_ACCOUNT_ADD, null);
+  }
+
+  @Override
+  public void notConfirmedActionPayments(OfferAction action,
+                                         BigDecimal affiliatePart,
+                                         BigDecimal heymoosePart) {
+
+    this.newTransfer()
+        .from(action.offer().account())
+        .to(action.affiliate().affiliateAccountNotConfirmed())
+        .amount(affiliatePart)
+        .event(AccountingEvent.ACTION_CREATED)
+        .sourceId(action.id()).execute();
+    this.newTransfer()
+        .from(action.offer().account())
+        .to(adminAccounts.getAdminAccountNotConfirmed())
+        .amount(heymoosePart)
+        .event(AccountingEvent.ACTION_CREATED)
+        .sourceId(action.id()).execute();
   }
 }

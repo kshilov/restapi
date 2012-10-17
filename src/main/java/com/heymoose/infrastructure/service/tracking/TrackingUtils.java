@@ -75,7 +75,7 @@ public final class TrackingUtils {
   }
 
   public static void ensurePresent(Map<String, String> map, String key)
-      throws ApiRequestException{
+      throws ApiRequestException {
     if (map.containsKey(key) && map.get(key) != null) return;
     throw nullParam(key);
   }

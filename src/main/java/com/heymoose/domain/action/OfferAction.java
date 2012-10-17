@@ -63,7 +63,7 @@ public class OfferAction extends ModifiableEntity {
   }
 
   protected OfferAction() {}
-  
+
   public OfferAction(Token token, User affiliate, OfferStat stat, OfferStat source, BaseOffer offer, String transactionId) {
     this.token = token;
     this.affiliate = affiliate;
@@ -109,5 +109,9 @@ public class OfferAction extends ModifiableEntity {
   public OfferAction setCreationTime(DateTime time) {
     this.creationTime = time;
     return this;
+  }
+
+  public Token token() {
+    return this.token;
   }
 }

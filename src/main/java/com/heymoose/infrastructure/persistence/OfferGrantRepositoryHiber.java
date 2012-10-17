@@ -229,5 +229,16 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     addSqlInRestriction(criteria, existsCategory, filter.categoryIdList(),
         StandardBasicTypes.LONG);
   }
-  
+
+
+  @Override
+  public OfferGrant checkGrant(User user, BaseOffer offer) {
+    OfferGrant grant = this.visibleByOfferAndAff(offer, user);
+    if (grant == null) {
+      throw new IllegalStateException("Offer not granted: " + offer.id());
+    }
+    return grant;
+  }
+
+
 }
