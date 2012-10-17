@@ -1,17 +1,22 @@
 package com.heymoose.infrastructure.service.processing;
 
-import com.google.common.collect.Maps;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.offer.BaseOffer;
 
-import java.util.EnumMap;
-import java.util.Map;
+import java.math.BigDecimal;
 
 public final class ProcessableData extends ActionData implements Cloneable {
 
+
+  public static ProcessableData copyActionData(ActionData actionData) {
+    ProcessableData data = new ProcessableData();
+    data.setTransactionId(actionData.transactionId())
+        .setToken(actionData.token());
+    return data;
+  }
+
   protected boolean processed;
-  protected EnumMap<ActionParam, String> paramMap =
-      Maps.newEnumMap(ActionParam.class);
+  protected BigDecimal price;
   protected BaseOffer offer;
 
   public ProcessableData setProcessed(boolean processed) {
@@ -28,17 +33,13 @@ public final class ProcessableData extends ActionData implements Cloneable {
     return this;
   }
 
-  public Map<ActionParam, String> paramMap() {
-    return this.paramMap;
-  }
-
-  public String paramValue(ActionParam key) {
-    return paramMap.get(key);
-  }
-
-  public ProcessableData putParam(ActionParam key, String value) {
-    this.paramMap.put(key, value);
+  public ProcessableData setPrice(BigDecimal price) {
+    this.price = price;
     return this;
+  }
+
+  public BigDecimal price() {
+    return price;
   }
 
   @Override
@@ -46,9 +47,10 @@ public final class ProcessableData extends ActionData implements Cloneable {
     ProcessableData data = new ProcessableData();
     data.setToken(this.token());
     data.setTransactionId(this.transactionId());
-    data.paramMap = Maps.newEnumMap(this.paramMap);
+    data.price = this.price;
     data.offer = this.offer;
     data.processed = processed;
     return data;
   }
+
 }

@@ -1,19 +1,20 @@
 package com.heymoose.infrastructure.service.action;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.action.ItemListActionData;
+import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
+import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public abstract class ItemListActionDataImporter
     extends ActionDataImporterBase<ItemListActionData> {
@@ -21,31 +22,27 @@ public abstract class ItemListActionDataImporter
   private static final Logger log =
       LoggerFactory.getLogger(ItemListActionDataImporter.class);
 
-  public ItemListActionDataImporter(Repo repo, Tracking tracking,
-                                    OfferActions actions) {
-    super(repo, tracking, actions);
+  protected final PercentActionProcessor processor;
+
+  public ItemListActionDataImporter(Repo repo,
+                                    OfferActions actions,
+                                    PercentActionProcessor processor) {
+    super(repo, actions);
+    this.processor = processor;
   }
 
-
   @Override
-  protected final Multimap<BaseOffer, Optional<Double>> extractOffers(
-      ItemListActionData payment, Long parentOfferId) {
-
-    if (payment.itemList().isEmpty()) {
-      log.warn("Action with no items! TransactionId: {}",
-          payment.transactionId());
-    }
-
-    ImmutableMultimap.Builder<BaseOffer, Optional<Double>> offerMap =
-        ImmutableMultimap.builder();
+  protected List<OfferAction> process(ItemListActionData payment,
+                                      Offer parentOffer) {
+    ImmutableList.Builder<OfferAction> actionList = ImmutableList.builder();
     for (ItemListActionData.Item item : payment.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
-          parentOfferId, item.id());
+          parentOffer.id(), item.id());
       if (productOffer == null) {
         log.warn("Product with code '{}' does not present in our db! " +
-            "Parent offer: '{}'. Using default.", item.id(), parentOfferId);
-        productOffer = repo.get(Offer.class, parentOfferId);
+            "Parent offer: '{}'. Using default.", item.id(), parentOffer.id());
+        productOffer = parentOffer;
       }
       BigDecimal price = namePrice(item, productOffer);
       if (price == null || price.signum() < 1) {
@@ -59,12 +56,16 @@ public abstract class ItemListActionDataImporter
                 productOffer.id() ,
                 productOffer.code(),
                 price });
-        offerMap.put(productOffer, Optional.of(price.doubleValue()));
+        ProcessableData data = ProcessableData
+            .copyActionData(payment)
+            .setPrice(price)
+            .setOffer(productOffer);
+        OfferAction action = processor.process(data);
+        actionList.add(action);
       }
     }
-    return offerMap.build();
+    return actionList.build();
   }
-
   protected abstract BigDecimal namePrice(ItemListActionData.Item item,
-                                          BaseOffer offer);
+                                          BaseOffer parentOffer);
 }

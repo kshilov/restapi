@@ -32,7 +32,6 @@ import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.AdminAccount;
 import com.heymoose.domain.user.AdminAccountNotConfirmed;
@@ -54,7 +53,8 @@ import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.AccountingHiber;
 import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
-import com.heymoose.infrastructure.service.TrackingImpl;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
+import com.heymoose.infrastructure.service.processing.Processor;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -75,7 +75,7 @@ public class CommonModule extends AbstractModule {
     bind(Accounting.class).to(AccountingHiber.class);
     bind(OfferActions.class).to(OfferActionsStoredFunc.class);
 
-    bind(Tracking.class).to(TrackingImpl.class);
+    bind(Processor.class).to(ActionProcessor.class);
     bind(Repo.class).to(HibernateRepo.class);
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(OfferRepository.class).to(OfferRepositoryHiber.class);

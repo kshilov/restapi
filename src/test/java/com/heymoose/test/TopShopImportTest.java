@@ -13,10 +13,10 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
+import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
+import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -70,8 +70,8 @@ public final class TopShopImportTest extends RestTest {
     Repo repo = injector().getInstance(Repo.class);
     TopShopDataImporter importer = new TopShopDataImporter(
         repo,
-        injector().getInstance(Tracking.class),
-        injector().getInstance(OfferActions.class));
+        injector().getInstance(OfferActions.class),
+        injector().getInstance(PercentActionProcessor.class));
     TopShopActionParser converter = new TopShopActionParser();
     String topShopXml =
         "<payment_list>" +

@@ -1,6 +1,8 @@
 package com.heymoose.infrastructure.service.processing;
 
+import com.heymoose.domain.action.OfferAction;
+
 public interface Processor {
 
-  void process(ProcessableData data);
+  OfferAction process(ProcessableData data);
 }

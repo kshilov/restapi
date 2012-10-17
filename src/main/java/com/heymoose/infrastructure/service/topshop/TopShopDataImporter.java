@@ -5,8 +5,8 @@ import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.service.action.ItemListActionDataImporter;
+import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -14,9 +14,10 @@ import java.math.BigDecimal;
 public class TopShopDataImporter extends ItemListActionDataImporter {
 
   @Inject
-  public TopShopDataImporter(Repo repo, Tracking tracking,
-                             OfferActions actions) {
-    super(repo, tracking, actions);
+  public TopShopDataImporter(Repo repo,
+                             OfferActions actions,
+                             PercentActionProcessor processor) {
+    super(repo, actions, processor);
   }
 
   protected BigDecimal namePrice(ItemListActionData.Item item, BaseOffer offer) {

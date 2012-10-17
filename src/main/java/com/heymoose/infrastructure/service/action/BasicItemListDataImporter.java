@@ -5,7 +5,7 @@ import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
 
 import java.math.BigDecimal;
 
@@ -13,9 +13,9 @@ public class BasicItemListDataImporter extends ItemListActionDataImporter {
 
   @Inject
   public BasicItemListDataImporter(Repo repo,
-                                   Tracking tracking,
-                                   OfferActions actions) {
-    super(repo, tracking, actions);
+                                   OfferActions actions,
+                                   PercentActionProcessor processor) {
+    super(repo, actions, processor);
   }
 
   @Override

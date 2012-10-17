@@ -6,7 +6,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.infrastructure.service.OfferLoader;
-import com.heymoose.infrastructure.service.processing.ActionParam;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
 import com.heymoose.resource.api.ApiRequestException;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +78,7 @@ public final class ActionTracker implements  Tracker {
             advertiserId, keyValIterator.next());
         ProcessableData data = template.clone()
             .setOffer(offer)
-            .putParam(ActionParam.PRICE, keyValIterator.next());
+            .setPrice(new BigDecimal(keyValIterator.next()));
         actionProcessor.process(data);
       }
     }

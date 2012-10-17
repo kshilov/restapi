@@ -1,6 +1,7 @@
 package com.heymoose.domain.tariff;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 @Table(name = "tariff")
 public class Tariff extends IdEntity {
 
+  private static final BigDecimal HUNDRED = new BigDecimal(100);
   public static final FeeType DEFAULT_FEE_TYPE = FeeType.PERCENT;
   public static final BigDecimal DEFAULT_FEE = new BigDecimal("30.0");
 
@@ -159,6 +161,12 @@ public class Tariff extends IdEntity {
     return this;
   }
 
+  public BigDecimal percentOf(BigDecimal amount) {
+    Preconditions.checkState(cpaPolicy() == CpaPolicy.PERCENT,
+        "Wrong CpaPolicy");
+    return this.percent().divide(HUNDRED).multiply(amount);
+  }
+
   public BigDecimal affiliatePart(BigDecimal amount) {
     switch (this.feeType) {
       case PERCENT:
@@ -168,7 +176,7 @@ public class Tariff extends IdEntity {
         // cost = aff_part + aff_part * offer.fee() / 100%
         // aff_part = cost / (1 + offer.fee() / 100%)
         BigDecimal divider = this.fee
-            .divide(new BigDecimal(100))
+            .divide(HUNDRED)
             .add(BigDecimal.ONE);
         return amount.divide(divider, 2, BigDecimal.ROUND_UP);
       case FIX:

@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.processing;
 
 import com.google.inject.Inject;
+import com.heymoose.domain.action.OfferAction;
 
 public final class ActionProcessor implements Processor {
 
@@ -17,18 +18,15 @@ public final class ActionProcessor implements Processor {
     this.doubleFixProcessor = doubleFixProcessor;
   }
 
-  public void process(ProcessableData data) {
+  public OfferAction process(ProcessableData data) {
     switch (data.offer().cpaPolicy()) {
       case FIXED:
-        fixProcessor.process(data);
-        return;
+        return fixProcessor.process(data);
       case PERCENT:
-        percentProcessor.process(data);
-        return;
+        return percentProcessor.process(data);
       case DOUBLE_FIXED:
-        doubleFixProcessor.process(data);
-        return;
+        return doubleFixProcessor.process(data);
     }
-
+    throw new IllegalArgumentException("Unknown cpa policy.");
   }
 }

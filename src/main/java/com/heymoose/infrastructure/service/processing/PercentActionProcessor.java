@@ -27,7 +27,7 @@ public final class PercentActionProcessor extends BaseActionProcessor {
   @Override
   protected BigDecimal advertiserCharge(ProcessableData data,
                                         OfferAction existedAction) {
-    return new BigDecimal(data.paramValue(ActionParam.PRICE));
+    return data.offer().tariff().percentOf(data.price());
   }
 
   @Override

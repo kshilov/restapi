@@ -33,7 +33,7 @@ public abstract class BaseActionProcessor
   }
 
 
-  public void process(ProcessableData data) {
+  public OfferAction process(ProcessableData data) {
     Token token = checkToken(repo, data.token());
     BaseOffer offer = data.offer();
     String transactionId = data.transactionId();
@@ -60,6 +60,7 @@ public abstract class BaseActionProcessor
 
     doPostBack(grant, action);
     data.setProcessed(true);
+    return action;
   }
 
   protected abstract BigDecimal advertiserCharge(ProcessableData data,
