@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import com.heymoose.domain.accounting.Withdrawal;
 import com.heymoose.domain.base.Repo;
@@ -266,10 +265,7 @@ public class WithdrawalResource {
               payment.get("affiliate_email"));
           break;
       }
-      String id = Joiner.on('_').skipNulls().join(
-          payment.get("affiliate_id"),
-          payment.get("offer_id"),
-          payment.get("basis"));
+      String id = payment.get("affiliate_id").toString();
       Element paymentElement = new Element("payment")
           .addContent(element("Destination", payment.get("affiliate_wmr")))
           .addContent(element("Amount", payment.get("amount")))
