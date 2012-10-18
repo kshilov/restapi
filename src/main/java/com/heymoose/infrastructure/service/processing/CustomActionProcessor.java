@@ -8,8 +8,10 @@ import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.service.processing.internal.MoneyDivider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,37 @@ public final class CustomActionProcessor implements Processor {
     OfferStat source = token.stat();
     OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
 
-    checkIfActionExists(repo, offer, token, transactionId);
+    OfferAction exists = checkIfActionExists(repo, offer, token, transactionId);
+
+
+    Tariff tariff = null;
+    if (offer instanceof Offer && ((Offer) offer).isProductOffer()) {
+      if (data.product() == null) {
+        tariff = offer.tariff();
+      } else {
+        tariff = data.product().tariff();
+      }
+    }
+
+    BigDecimal advertiserCharge = BigDecimal.ZERO;
+    switch (tariff.cpaPolicy()) {
+      case FIXED:
+        advertiserCharge = tariff.cost();
+        break;
+      case PERCENT:
+        advertiserCharge = tariff.percentOf(data.price());
+        break;
+      case DOUBLE_FIXED:
+        if (exists == null) {
+          advertiserCharge = tariff.firstActionCost();
+        } else {
+          advertiserCharge = tariff.otherActionCost();
+        }
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown cpa policy. " +
+            tariff.cpaPolicy());
+    }
 
     BigDecimal affiliatePart = money.affiliatePart();
     BigDecimal heymoosePart = money.heymoosePart();
