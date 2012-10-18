@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.processing;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 
 import static com.heymoose.infrastructure.service.processing.ProcessorUtils.*;
 
+@Singleton
 public final class ActionProcessor implements Processor {
 
   private static final Logger log =
