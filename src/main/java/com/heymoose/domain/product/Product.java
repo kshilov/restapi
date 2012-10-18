@@ -31,7 +31,7 @@ public class Product extends ModifiableEntity {
   protected Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "offer_id")
+  @JoinColumn(name = "offer_id", nullable = false)
   protected Offer offer;
 
   @Column(nullable = false)
@@ -123,7 +123,7 @@ public class Product extends ModifiableEntity {
         .add("id", id)
         .add("originalId", originalId)
         .add("offerId", offer.id())
-        .add("categoryId", category.id())
+        .add("categoryId", category == null ? null : category.id())
         .add("name", name).toString();
   }
 

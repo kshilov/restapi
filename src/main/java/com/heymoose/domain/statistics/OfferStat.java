@@ -4,6 +4,7 @@ import com.heymoose.domain.base.BaseEntity;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.product.Product;
 import com.heymoose.domain.user.User;
 
 import javax.annotation.Nullable;
@@ -119,6 +120,10 @@ public class OfferStat extends BaseEntity {
   @Column(name = "keywords")
   @Nullable
   private String keywords;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id")
+  private Product product;
 
   @Override
   public Long id() {
@@ -341,6 +346,11 @@ public class OfferStat extends BaseEntity {
     this.subId2 = subs.subId2();
     this.subId3 = subs.subId3();
     this.subId4 = subs.subId4();
+    return this;
+  }
+
+  public OfferStat setProduct(Product product) {
+    this.product = product;
     return this;
   }
 }

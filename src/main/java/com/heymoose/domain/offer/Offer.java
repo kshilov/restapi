@@ -1,17 +1,13 @@
 package com.heymoose.domain.offer;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static com.google.common.collect.Sets.newTreeSet;
-
-import com.heymoose.domain.user.User;
 import com.heymoose.domain.accounting.Account;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
-import java.net.URI;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
-import java.util.Set;
-import java.util.SortedSet;
+import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.user.User;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -26,12 +22,14 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.util.Set;
+import java.util.SortedSet;
 
-import com.heymoose.domain.grant.OfferGrant;
-import org.hibernate.annotations.Sort;
-import org.hibernate.annotations.SortType;
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
+import static com.google.common.collect.Sets.*;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static java.util.Collections.*;
 
 @Entity
 @DiscriminatorValue("1")
@@ -85,6 +83,9 @@ public class Offer extends BaseOffer {
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "account_id")
   protected Account account;
+
+  @Column(name = "is_product_offer")
+  protected boolean isProductOffer;
 
   @ManyToMany
   @JoinTable(
@@ -348,6 +349,15 @@ public class Offer extends BaseOffer {
 
   public Offer setRequiredGetParameters(String params) {
     this.requiredGetParameters = params;
+    return this;
+  }
+
+  public boolean isProductOffer() {
+    return this.isProductOffer;
+  }
+
+  public Offer setIsProductOffer(boolean productOffer) {
+    this.isProductOffer = productOffer;
     return this;
   }
 }

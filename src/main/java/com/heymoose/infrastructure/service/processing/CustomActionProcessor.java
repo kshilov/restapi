@@ -7,10 +7,10 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.service.processing.internal.MoneyDivider;
-import com.heymoose.infrastructure.service.processing.internal.OfferStatProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,6 @@ public final class CustomActionProcessor implements Processor {
   protected OfferGrantRepository offerGrants;
 
   private MoneyDivider money;
-  private OfferStatProcessor offerStatProcessor;
 
   @Inject
   protected CustomActionProcessor(Repo repo, Accounting accounting,
@@ -48,13 +47,17 @@ public final class CustomActionProcessor implements Processor {
 
     checkIfActionExists(repo, offer, token, transactionId);
 
-    BigDecimal advertiserCharge = money.advertiserCharge();
     BigDecimal affiliatePart = money.affiliatePart();
     BigDecimal heymoosePart = money.heymoosePart();
     OfferStat stat = copyStat(source, offer)
+        .setProduct(data.product())
         .addToNotConfirmedRevenue(affiliatePart)
         .addToNotConfirmedFee(heymoosePart);
-    offerStatProcessor.process(stat);
+    if (money.tariff().cpaPolicy() == CpaPolicy.PERCENT) {
+      stat.incSales();
+    } else {
+      stat.incLeads();
+    }
     repo.put(stat);
     OfferAction action = new OfferAction(token, source.affiliate(), stat,
         source, offer, transactionId);
@@ -71,10 +74,6 @@ public final class CustomActionProcessor implements Processor {
 
   public void setMoneyDivider(MoneyDivider money) {
     this.money = money;
-  }
-
-  public void setOfferStatProcessor(OfferStatProcessor offerStatProcessor) {
-    this.offerStatProcessor = offerStatProcessor;
   }
 }
 

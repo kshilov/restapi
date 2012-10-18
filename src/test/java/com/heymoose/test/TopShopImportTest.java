@@ -5,18 +5,18 @@ import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.offer.PayMethod;
-import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
+import com.heymoose.infrastructure.service.Tariffs;
+import com.heymoose.infrastructure.service.action.ItemListProductImporter;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
-import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -68,7 +68,7 @@ public final class TopShopImportTest extends RestTest {
     Double price = 100.0;
     Long productSubOfferId = null;
     Repo repo = injector().getInstance(Repo.class);
-    TopShopDataImporter importer = new TopShopDataImporter(
+    ItemListProductImporter importer = new ItemListProductImporter(
         repo,
         injector().getInstance(OfferActions.class),
         injector().getInstance(ActionProcessor.class));
@@ -87,24 +87,20 @@ public final class TopShopImportTest extends RestTest {
     // manually start transaction, because not using guice
     Session session = injector().getProvider(Session.class).get();
     Transaction tx = session.beginTransaction();
-    SubOffer productSubOffer = null;
+    Product product = null;
     try {
       Offer parentOffer = repo.get(Offer.class, offerId);
-      productSubOffer = new SubOffer();
-      productSubOffer.setParentId(parentOffer.id())
-          .setCode(itemCode.toString())
-          .setItemPrice(new BigDecimal(price))
-          .setTitle("ProductName")
-          .setPercent(new BigDecimal(PERCENT))
-          .setPayMethod(PayMethod.CPA)
-          .setCpaPolicy(CpaPolicy.PERCENT)
-          .setAutoApprove(false)
-          .setReentrant(true)
-          .setHoldDays(parentOffer.holdDays());
-      repo.put(productSubOffer);
-      OfferGrant grant = new OfferGrant(productSubOffer.id(), affId, "");
-      grant.approve();
-      repo.put(grant);
+      product = new Product()
+          .setName("name")
+          .setPrice(new BigDecimal(price))
+          .setUrl("http://url.com")
+          .setOffer(parentOffer)
+          .setOriginalId(itemCode.toString());
+      Tariffs tariffs = new Tariffs(repo);
+      Tariff tariff = tariffs.createIfNotExists(CpaPolicy.PERCENT,
+          new BigDecimal(PERCENT), parentOffer);
+      product.setTariff(tariff);
+      repo.put(product);
       tx.commit();
     } catch (Exception e) {
       tx.rollback();
@@ -129,7 +125,8 @@ public final class TopShopImportTest extends RestTest {
     User affiliate = select(User.class, Restrictions.eq("id", affId)).get(0);
     BigDecimal cost = new BigDecimal(price * PERCENT / 100.0);
     BigDecimal expectedRevenue = cost.divide(
-        new BigDecimal((100 + productSubOffer.fee().doubleValue()) / 100.0), 2, RoundingMode.UP);
+        new BigDecimal((100 + product.tariff().fee().doubleValue()) / 100.0), 2,
+        RoundingMode.UP);
 
     assertEquals(txId, createdAction.transactionId());
     assertEquals(expectedRevenue, offerStat.notConfirmedRevenue());
