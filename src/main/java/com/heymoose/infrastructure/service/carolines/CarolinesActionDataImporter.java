@@ -16,7 +16,7 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
-import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +44,12 @@ public class CarolinesActionDataImporter
 
   private final Repo repo;
   private final OfferActions actionService;
-  private final PercentActionProcessor processor;
+  private final ActionProcessor processor;
 
   @Inject
   public CarolinesActionDataImporter(Repo repo,
                                      OfferActions actionService,
-                                     PercentActionProcessor processor) {
+                                     ActionProcessor processor) {
     this.repo = repo;
     this.actionService = actionService;
     this.processor = processor;
@@ -103,7 +103,7 @@ public class CarolinesActionDataImporter
 
     Offer parentOffer = repo.get(Offer.class, parentOfferId);
 
-    List<OfferAction> trackedActions = process(payment, parentOffer);
+    List<OfferAction> trackedActions = process(payment, parentOffer, token);
 
     if (payment.status().equals(ActionStatus.CANCELED)) {
       for (OfferAction action : trackedActions) {
@@ -121,7 +121,7 @@ public class CarolinesActionDataImporter
   }
 
   private List<OfferAction> process(ItemListActionData actionData,
-                                    Offer parentOffer) {
+                                    Offer parentOffer, Token token) {
     ImmutableList.Builder<OfferAction> actionList = ImmutableList.builder();
     for (ItemListActionData.Item item : actionData.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
@@ -139,8 +139,9 @@ public class CarolinesActionDataImporter
                 productOffer.id() ,
                 productOffer.code(),
                 price });
-        ProcessableData data = ProcessableData
-            .copyActionData(actionData)
+        ProcessableData data = new ProcessableData()
+            .setToken(token)
+            .setTransactionId(actionData.transactionId())
             .setOffer(productOffer)
             .setPrice(price);
         actionList.add(processor.process(data));

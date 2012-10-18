@@ -9,7 +9,8 @@ import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.infrastructure.service.processing.FixActionProcessor;
+import com.heymoose.domain.statistics.Token;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +24,18 @@ public class FixPriceActionDataImporter
   private static final Logger log =
       LoggerFactory.getLogger(FixPriceActionData.class);
 
-  private FixActionProcessor processor;
+  private ActionProcessor processor;
   @Inject
   public FixPriceActionDataImporter(Repo repo,
                                     OfferActions actions,
-                                    FixActionProcessor processor) {
+                                    ActionProcessor processor) {
     super(repo, actions);
     this.processor = processor;
   }
 
   @Override
   protected List<OfferAction> process(FixPriceActionData actionData,
-                                      Offer parentOffer) {
+                                      Offer parentOffer, Token token) {
     BaseOffer offer = repo.byHQL(Offer.class,
         "from Offer where id = ? and code = ?",
         parentOffer.id(), actionData.offerCode());
@@ -54,8 +55,9 @@ public class FixPriceActionDataImporter
     }
     log.info("Adding conversion with fix revenue for offer '{}' - '{}'",
         offer.id(), offer.title());
-    ProcessableData data = ProcessableData
-        .copyActionData(actionData)
+    ProcessableData data = new ProcessableData()
+        .setToken(token)
+        .setTransactionId(actionData.transactionId())
         .setOffer(offer);
     return ImmutableList.of(processor.process(data));
   }

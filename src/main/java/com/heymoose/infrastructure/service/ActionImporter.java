@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,7 +85,11 @@ public class ActionImporter implements Runnable {
       }
 
       BaseOffer offer = offerLoader.findOffer(advertiserId, action.offerCode);
-      ProcessableData data = action.toProcessableData().setOffer(offer);
+      ProcessableData data = new ProcessableData()
+          .setToken(token)
+          .setOffer(offer)
+          .setPrice(new BigDecimal(action.price))
+          .setTransactionId(action.transactionId);
       actionProcessor.process(data);
     }
   }

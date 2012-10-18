@@ -15,7 +15,7 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
-import com.heymoose.infrastructure.service.processing.FixActionProcessor;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +30,11 @@ public class SapatoImporter
 
   private final Repo repo;
   private final OfferActions actions;
-  private final FixActionProcessor processor;
+  private final ActionProcessor processor;
 
   @Inject
   public SapatoImporter(Repo repo, OfferActions actions,
-                        FixActionProcessor processor) {
+                        ActionProcessor processor) {
     this.repo = repo;
     this.actions = actions;
     this.processor = processor;
@@ -96,7 +96,7 @@ public class SapatoImporter
             offerAction.id(), prev.id(), prev.title(), cur.id(), cur.title()});
         actions.cancel(offerAction);
 
-        List<OfferAction> actionList = process(actionData, cur);
+        List<OfferAction> actionList = process(actionData, cur, token);
 
         for (OfferAction resultAction : actionList) {
           resultAction.setCreationTime(offerAction.creationTime());
@@ -128,7 +128,7 @@ public class SapatoImporter
       return;
     }
 
-    List<OfferAction> resultActions = process(actionData, subOffer);
+    List<OfferAction> resultActions = process(actionData, subOffer, token);
 
     if (actionData.status() == ActionStatus.CANCELED) {
       log.info("Cancelling just imported actions.");
@@ -147,8 +147,10 @@ public class SapatoImporter
   }
 
   private List<OfferAction> process(FixPriceActionData actionData,
-                                    BaseOffer offer) {
-    ProcessableData data = ProcessableData.copyActionData(actionData)
+                                    BaseOffer offer, Token token) {
+    ProcessableData data = new ProcessableData()
+        .setToken(token)
+        .setTransactionId(actionData.transactionId())
         .setOffer(offer);
     return ImmutableList.of(this.processor.process(data));
   }

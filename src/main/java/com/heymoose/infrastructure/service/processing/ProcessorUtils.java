@@ -26,15 +26,6 @@ public final class ProcessorUtils {
 
   private ProcessorUtils() { }
 
-  public static Token checkToken(Repo repo, String tokenValue) {
-    Token token = repo.byHQL(Token.class,
-        "from Token where value = ?", tokenValue);
-    if (token == null) throw new IllegalArgumentException("Token [" +
-          tokenValue + " ] not found.");
-
-    return token;
-  }
-
   public static OfferStat copyStat(OfferStat source, BaseOffer offer) {
     return new OfferStat(
             source.bannerId(),
@@ -80,6 +71,12 @@ public final class ProcessorUtils {
           " has same transactionId.");
     }
     return existent;
+  }
+
+  public static OfferAction checkIfActionExists(Repo repo,
+                                                ProcessableData data) {
+    return checkIfActionExists(repo, data.offer(), data.token(),
+        data.transactionId());
   }
 
 

@@ -2,10 +2,12 @@ package com.heymoose.infrastructure.service.tracking;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
+import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
 
@@ -160,5 +162,15 @@ public final class TrackingUtils {
         params.put(ent.getKey(), ent.getValue().get(0));
     return params;
   }
+
+  public static Token checkToken(Repo repo, String tokenValue) {
+    Token token = repo.byHQL(Token.class,
+        "from Token where value = ?", tokenValue);
+    if (token == null) throw new IllegalArgumentException("Token [" +
+        tokenValue + " ] not found.");
+
+    return token;
+  }
+
 
 }

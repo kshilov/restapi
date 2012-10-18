@@ -78,7 +78,7 @@ public abstract class ActionDataImporterBase<T extends ActionData>
           parentOfferId);
     }
 
-    List<OfferAction> trackedActions = process(payment, parentOffer);
+    List<OfferAction> trackedActions = process(payment, parentOffer, token);
 
     if (payment.status().equals(ActionStatus.CANCELED)) {
       for (OfferAction action : trackedActions) {
@@ -89,7 +89,8 @@ public abstract class ActionDataImporterBase<T extends ActionData>
   }
 
 
-  protected abstract List<OfferAction> process(T actionData, Offer parentOffer);
+  protected abstract List<OfferAction> process(T actionData, Offer parentOffer,
+                                               Token token);
 
   private List<Long> idList(Iterable<? extends IdEntity> entityList) {
     ImmutableList.Builder<Long> idList = ImmutableList.builder();

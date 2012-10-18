@@ -8,7 +8,8 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
+import com.heymoose.domain.statistics.Token;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +23,18 @@ public abstract class ItemListActionDataImporter
   private static final Logger log =
       LoggerFactory.getLogger(ItemListActionDataImporter.class);
 
-  protected final PercentActionProcessor processor;
+  protected final ActionProcessor processor;
 
   public ItemListActionDataImporter(Repo repo,
                                     OfferActions actions,
-                                    PercentActionProcessor processor) {
+                                    ActionProcessor processor) {
     super(repo, actions);
     this.processor = processor;
   }
 
   @Override
   protected List<OfferAction> process(ItemListActionData payment,
-                                      Offer parentOffer) {
+                                      Offer parentOffer, Token token) {
     ImmutableList.Builder<OfferAction> actionList = ImmutableList.builder();
     for (ItemListActionData.Item item : payment.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
@@ -56,8 +57,9 @@ public abstract class ItemListActionDataImporter
                 productOffer.id() ,
                 productOffer.code(),
                 price });
-        ProcessableData data = ProcessableData
-            .copyActionData(payment)
+        ProcessableData data = new ProcessableData()
+            .setToken(token)
+            .setTransactionId(payment.transactionId())
             .setPrice(price)
             .setOffer(productOffer);
         OfferAction action = processor.process(data);

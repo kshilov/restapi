@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service.processing;
 
+import com.google.inject.Inject;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
@@ -8,6 +9,8 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
+import com.heymoose.infrastructure.service.processing.internal.MoneyDivider;
+import com.heymoose.infrastructure.service.processing.internal.OfferStatProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,18 +18,21 @@ import java.math.BigDecimal;
 
 import static com.heymoose.infrastructure.service.processing.ProcessorUtils.*;
 
-public abstract class BaseActionProcessor
-    implements Processor {
+public final class CustomActionProcessor implements Processor {
 
   private static final Logger log =
-      LoggerFactory.getLogger(FixActionProcessor.class);
+      LoggerFactory.getLogger(CustomActionProcessor.class);
 
-  private Repo repo;
-  private Accounting accounting;
-  private OfferGrantRepository offerGrants;
+  protected Repo repo;
+  protected Accounting accounting;
+  protected OfferGrantRepository offerGrants;
 
-  protected BaseActionProcessor(Repo repo, Accounting accounting,
-                                OfferGrantRepository offerGrants) {
+  private MoneyDivider money;
+  private OfferStatProcessor offerStatProcessor;
+
+  @Inject
+  protected CustomActionProcessor(Repo repo, Accounting accounting,
+                                  OfferGrantRepository offerGrants) {
     this.repo = repo;
     this.accounting = accounting;
     this.offerGrants = offerGrants;
@@ -34,21 +40,21 @@ public abstract class BaseActionProcessor
 
 
   public OfferAction process(ProcessableData data) {
-    Token token = checkToken(repo, data.token());
+    Token token = data.token();
     BaseOffer offer = data.offer();
     String transactionId = data.transactionId();
     OfferStat source = token.stat();
     OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
 
-    OfferAction existed = checkIfActionExists(repo, offer, token, transactionId);
+    checkIfActionExists(repo, offer, token, transactionId);
 
-    BigDecimal advertiserCharge = advertiserCharge(data, existed);
-    BigDecimal affiliatePart = offer.tariff().affiliatePart(advertiserCharge);
-    BigDecimal heymoosePart = offer.tariff().heymoosePart(advertiserCharge);
+    BigDecimal advertiserCharge = money.advertiserCharge();
+    BigDecimal affiliatePart = money.affiliatePart();
+    BigDecimal heymoosePart = money.heymoosePart();
     OfferStat stat = copyStat(source, offer)
         .addToNotConfirmedRevenue(affiliatePart)
         .addToNotConfirmedFee(heymoosePart);
-    setCustomStatFields(data, stat);
+    offerStatProcessor.process(stat);
     repo.put(stat);
     OfferAction action = new OfferAction(token, source.affiliate(), stat,
         source, offer, transactionId);
@@ -63,8 +69,12 @@ public abstract class BaseActionProcessor
     return action;
   }
 
-  protected abstract BigDecimal advertiserCharge(ProcessableData data,
-                                                 OfferAction existedAction);
-  protected abstract void setCustomStatFields(ProcessableData data,
-                                              OfferStat stat);
+  public void setMoneyDivider(MoneyDivider money) {
+    this.money = money;
+  }
+
+  public void setOfferStatProcessor(OfferStatProcessor offerStatProcessor) {
+    this.offerStatProcessor = offerStatProcessor;
+  }
 }
+

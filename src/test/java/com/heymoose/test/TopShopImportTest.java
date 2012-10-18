@@ -14,7 +14,7 @@ import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.service.processing.PercentActionProcessor;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
 import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import com.heymoose.test.base.RestTest;
@@ -71,7 +71,7 @@ public final class TopShopImportTest extends RestTest {
     TopShopDataImporter importer = new TopShopDataImporter(
         repo,
         injector().getInstance(OfferActions.class),
-        injector().getInstance(PercentActionProcessor.class));
+        injector().getInstance(ActionProcessor.class));
     TopShopActionParser converter = new TopShopActionParser();
     String topShopXml =
         "<payment_list>" +

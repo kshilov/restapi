@@ -1,23 +1,19 @@
 package com.heymoose.infrastructure.service.processing;
 
-import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.product.Product;
+import com.heymoose.domain.statistics.Token;
 
 import java.math.BigDecimal;
 
-public final class ProcessableData extends ActionData implements Cloneable {
+public final class ProcessableData {
 
-
-  public static ProcessableData copyActionData(ActionData actionData) {
-    ProcessableData data = new ProcessableData();
-    data.setTransactionId(actionData.transactionId())
-        .setToken(actionData.token());
-    return data;
-  }
-
-  protected boolean processed;
-  protected BigDecimal price;
-  protected BaseOffer offer;
+  private boolean processed;
+  private BigDecimal price;
+  private BaseOffer offer;
+  private Token token;
+  private String transactionId;
+  protected Product product;
 
   public ProcessableData setProcessed(boolean processed) {
     this.processed = processed;
@@ -42,15 +38,32 @@ public final class ProcessableData extends ActionData implements Cloneable {
     return price;
   }
 
-  @Override
-  public ProcessableData clone() {
-    ProcessableData data = new ProcessableData();
-    data.setToken(this.token());
-    data.setTransactionId(this.transactionId());
-    data.price = this.price;
-    data.offer = this.offer;
-    data.processed = processed;
-    return data;
+  public Product product() {
+    return this.product;
   }
+
+  public ProcessableData setProduct(Product product) {
+    this.product = product;
+    return this;
+  }
+
+  public ProcessableData setTransactionId(String transactionId) {
+    this.transactionId = transactionId;
+    return this;
+  }
+
+  public ProcessableData setToken(Token token) {
+    this.token = token;
+    return this;
+  }
+
+  public Token token() {
+    return this.token;
+  }
+
+  public String transactionId() {
+    return this.transactionId;
+  }
+
 
 }

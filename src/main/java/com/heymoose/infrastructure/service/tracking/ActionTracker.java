@@ -4,7 +4,9 @@ import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
+import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
@@ -39,11 +41,14 @@ public final class ActionTracker implements  Tracker {
 
   private ActionProcessor actionProcessor;
   private OfferLoader offerLoader;
+  private Repo repo;
 
   @Inject
-  public ActionTracker(ActionProcessor processor, OfferLoader offerLoader) {
+  public ActionTracker(Repo repo, ActionProcessor processor,
+                       OfferLoader offerLoader) {
     this.actionProcessor = processor;
     this.offerLoader = offerLoader;
+    this.repo = repo;
   }
 
   @Override
@@ -58,6 +63,7 @@ public final class ActionTracker implements  Tracker {
       sToken = context.getCookieNameValueMap()
           .getFirst("hm_token_" + advertiserId);
     ensureNotNull("token", sToken);
+    Token token = checkToken(repo, sToken);
 
     String requestKey = context.getRequestUri() + ";token=" + sToken;
     if (RECENT_REQUEST_MAP.asMap().putIfAbsent(requestKey, DUMMY) != null) {
@@ -65,18 +71,22 @@ public final class ActionTracker implements  Tracker {
       return Response.status(304).build();
     }
 
-    ProcessableData template = new ProcessableData();
-    template.setToken(sToken).setTransactionId(transactionId);
     if (!offerString.contains(":")) {
       BaseOffer offer = offerLoader.findOffer(advertiserId, offerString);
-      actionProcessor.process(template.clone().setOffer(offer));
+      ProcessableData data = new ProcessableData()
+          .setToken(token)
+          .setTransactionId(transactionId)
+          .setOffer(offer);
+      actionProcessor.process(data);
     } else {
       for (String keyVal : PERIOD_SPLITTER.split(offerString)) {
         Iterator<String> keyValIterator = COLON_SPLITTER.split(keyVal)
             .iterator();
         BaseOffer offer = offerLoader.findOffer(
             advertiserId, keyValIterator.next());
-        ProcessableData data = template.clone()
+        ProcessableData data = new ProcessableData()
+            .setToken(token)
+            .setTransactionId(transactionId)
             .setOffer(offer)
             .setPrice(new BigDecimal(keyValIterator.next()));
         actionProcessor.process(data);
