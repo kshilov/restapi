@@ -13,7 +13,7 @@ public final class ProcessableData {
   private BaseOffer offer;
   private Token token;
   private String transactionId;
-  protected Product product;
+  private Product product;
 
   public ProcessableData setProcessed(boolean processed) {
     this.processed = processed;
