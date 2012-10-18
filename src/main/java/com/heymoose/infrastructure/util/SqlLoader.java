@@ -86,6 +86,39 @@ public final class SqlLoader {
 
   }
 
+  public static class SqlQuery {
+    private final Session session;
+    private final String name;
+    private final ImmutableMap.Builder<String, Object> queryParamMap =
+        ImmutableMap.builder();
+
+    private SqlQuery(String name, Session session) {
+      this.session = session;
+      this.name = name;
+    }
+
+    public SqlQuery addQueryParam(String name, Object value) {
+      queryParamMap.put(name, value);
+      return this;
+    }
+
+    public SqlQuery addQueryParamIfNotNull(String name, Object value) {
+      if (value != null)
+        queryParamMap.put(name, value);
+      return this;
+    }
+
+    public QueryResult execute() {
+      String sql = getSql(name);
+      Query query = session.createSQLQuery(sql)
+          .setResultTransformer(QueryResultTransformer.INSTANCE);
+      for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
+        query.setParameter(param.getKey(), param.getValue());
+      }
+      return (QueryResult) query.list();
+    }
+  }
+
   private static final Logger log = LoggerFactory.getLogger(SqlLoader.class);
   private static final String FOLDER = "sql/";
   private static final String SQL_EXTENSION = ".sql";
@@ -127,14 +160,16 @@ public final class SqlLoader {
   }
 
   public static String countSql(String sql) {
-    sql = sql.replaceFirst("select .* from ", "select count(*) from ");
     sql = sql.substring(0, sql.lastIndexOf("order by"));
     return "select count(*) from (" + sql + ") c";
   }
 
-  public static TemplateQuery templateQuery(String name,
-                                                      Session session) {
+  public static TemplateQuery templateQuery(String name, Session session) {
     return new TemplateQuery(name, session);
+  }
+
+  public static SqlQuery sqlQuery(String name, Session session) {
+    return new SqlQuery(name, session);
   }
 
   public static Long extractLong(Object val) {
