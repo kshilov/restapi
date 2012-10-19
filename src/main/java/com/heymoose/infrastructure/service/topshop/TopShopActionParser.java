@@ -53,7 +53,7 @@ public final class TopShopActionParser
 
   private static final Logger log =
       LoggerFactory.getLogger(TopShopActionParser.class);
-  private static final int STATUS_CREATED = 1;
+  private static final int STATUS_CREATED = 10;
   private static final int STATUS_COMPLETE = 20;
   private static final int STATUS_CANCELED = 30;
 

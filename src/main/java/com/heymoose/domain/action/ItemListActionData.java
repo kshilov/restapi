@@ -1,5 +1,6 @@
 package com.heymoose.domain.action;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -41,6 +42,14 @@ public final class ItemListActionData extends ActionData {
 
     public int quantity() {
       return quantity;
+    }
+
+    public String toString() {
+      return Objects.toStringHelper(Item.class)
+          .add("id", id)
+          .add("price", price)
+          .add("quantity", quantity)
+          .toString();
     }
   }
   private List<Item> itemList = Lists.newArrayList();
