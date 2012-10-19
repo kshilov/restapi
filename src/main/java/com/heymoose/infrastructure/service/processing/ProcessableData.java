@@ -20,6 +20,10 @@ public final class ProcessableData {
     return this;
   }
 
+  public boolean isProcessed() {
+    return this.processed;
+  }
+
   public BaseOffer offer() {
     return offer;
   }

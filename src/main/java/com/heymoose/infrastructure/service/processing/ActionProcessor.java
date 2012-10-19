@@ -46,7 +46,7 @@ public final class ActionProcessor implements Processor {
     OfferStat source = token.stat();
     OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
 
-    OfferAction exists = checkIfActionExists(repo, offer, token, transactionId);
+    OfferAction exists = checkIfActionExists(repo, data);
 
 
     Tariff tariff = data.offer().tariff();
