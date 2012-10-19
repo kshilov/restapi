@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Singleton
-public final class ItemListProductImporter
+public class ItemListProductImporter
     extends ActionDataImporterBase<ItemListActionData> {
 
   private static final Logger log =
