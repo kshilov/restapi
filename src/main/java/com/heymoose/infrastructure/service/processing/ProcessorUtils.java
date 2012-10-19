@@ -56,29 +56,18 @@ public final class ProcessorUtils {
 
   }
 
-  public static OfferAction checkIfActionExists(Repo repo,
-                                                BaseOffer offer,
-                                                Token token,
-                                                String transactionId) {
-    OfferAction existent = repo.byHQL(OfferAction.class,
+  public static OfferAction findAction(Repo repo, BaseOffer offer, Token token) {
+    return repo.byHQL(OfferAction.class,
+        "from OfferAction where offer = ? and token = ?",
+        offer ,token);
+  }
+
+  public static OfferAction findAction(Repo repo, BaseOffer offer, Token token,
+                                       String transactionId) {
+    return repo.byHQL(OfferAction.class,
         "from OfferAction where offer = ? and token = ? and transactionId = ?",
         offer, token, transactionId);
-    if (existent != null  && !offer.reentrant()) {
-      log.warn("Action '{}' has same transaction id: '{}'. " +
-          "Offer is not reentrant. Skipping..",
-          existent.id(), transactionId);
-      throw new IllegalStateException("Action " + existent.id() +
-          " has same transactionId.");
-    }
-    return existent;
   }
-
-  public static OfferAction checkIfActionExists(Repo repo,
-                                                ProcessableData data) {
-    return checkIfActionExists(repo, data.offer(), data.token(),
-        data.transactionId());
-  }
-
 
   private static URI makeFullPostBackUri(
       URI uri, String sourceId, Subs subs, String referer, String keywords,

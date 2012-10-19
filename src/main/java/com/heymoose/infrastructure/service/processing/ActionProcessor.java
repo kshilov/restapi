@@ -32,7 +32,7 @@ public final class ActionProcessor implements Processor {
 
   @Inject
   protected ActionProcessor(Repo repo, Accounting accounting,
-                                  OfferGrantRepository offerGrants) {
+                            OfferGrantRepository offerGrants) {
     this.repo = repo;
     this.accounting = accounting;
     this.offerGrants = offerGrants;
@@ -46,7 +46,15 @@ public final class ActionProcessor implements Processor {
     OfferStat source = token.stat();
     OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
 
-    OfferAction exists = checkIfActionExists(repo, data);
+    if (!offer.reentrant()) {
+      OfferAction existed = findAction(repo, offer, token, transactionId);
+      if (existed != null) {
+        log.warn("Non-reentrant offer {} with existing action {}. Skipping..",
+            offer, existed);
+        throw new IllegalStateException("Offer is not reentrant. " +
+            "Action exists: " + existed.id());
+      }
+    }
 
 
     Tariff tariff = data.offer().tariff();
@@ -64,6 +72,7 @@ public final class ActionProcessor implements Processor {
         advertiserCharge = tariff.percentOf(data.price());
         break;
       case DOUBLE_FIXED:
+        OfferAction exists = findAction(repo, offer, token);
         if (exists == null) {
           advertiserCharge = tariff.firstActionCost();
         } else {
