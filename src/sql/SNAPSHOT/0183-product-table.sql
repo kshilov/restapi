@@ -39,7 +39,7 @@ create sequence product_seq
 
 create table product(
   id bigint default nextval('product_seq'),
-  shop_category_id bigint not null,
+  shop_category_id bigint,
   offer_id bigint not null,
   tariff_id bigint,
   name varchar(255) not null,
