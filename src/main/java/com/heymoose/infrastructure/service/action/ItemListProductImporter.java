@@ -43,14 +43,7 @@ public class ItemListProductImporter
           "from Product where offer = ? and originalId = ?",
           parentOffer, item.id());
       BigDecimal price = item.price();
-      if (price == null) {
-        if (product == null) {
-          log.warn("Can't price item: {}. Skipping..", item);
-          continue;
-        } else {
-          price = product.price();
-        }
-      }
+      if (price == null && product != null) price = product.price();
       for (int i = 1; i <= item.quantity(); i++) {
         log.info("Adding conversion for offer '{}' product {} price {}",
             new Object[] {
@@ -62,8 +55,13 @@ public class ItemListProductImporter
             .setPrice(price)
             .setOffer(parentOffer)
             .setProduct(product);
-        OfferAction action = processor.process(data);
-        actionList.add(action);
+        try {
+          OfferAction action = processor.process(data);
+          actionList.add(action);
+        } catch (Exception ex) {
+          log.warn("Exception during processing. data: {}", data);
+          log.error("Processing exception", ex);
+        }
       }
     }
     return actionList.build();

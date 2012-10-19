@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service.processing;
 
+import com.google.common.base.Objects;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.Token;
@@ -69,5 +70,16 @@ public final class ProcessableData {
     return this.transactionId;
   }
 
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(ProcessableData.class)
+        .add("token", token)
+        .add("transactionId", transactionId)
+        .add("offer", offer)
+        .add("product", product)
+        .add("price", price)
+        .toString();
+  }
 
 }

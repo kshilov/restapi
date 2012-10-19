@@ -1,5 +1,6 @@
 package com.heymoose.domain.offer;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.BaseEntity;
@@ -336,6 +337,14 @@ public abstract class BaseOffer extends BaseEntity {
       tariff.setFirstActionCost(cost).setOtherActionCost(cost2).setCost(null);
     }
     return tariff;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(BaseOffer.class)
+        .add("id", id)
+        .add("title", title)
+        .toString();
   }
 
   public abstract Account account();

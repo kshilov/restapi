@@ -164,6 +164,8 @@ public class Tariff extends IdEntity {
   public BigDecimal percentOf(BigDecimal amount) {
     Preconditions.checkState(cpaPolicy() == CpaPolicy.PERCENT,
         "Wrong CpaPolicy");
+    Preconditions.checkNotNull(this.percent, "No percent given.");
+    Preconditions.checkNotNull(amount, "No amount given.");
     return this.percent().divide(HUNDRED).multiply(amount);
   }
 
