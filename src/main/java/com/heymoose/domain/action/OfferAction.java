@@ -2,6 +2,7 @@ package com.heymoose.domain.action;
 
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
@@ -56,6 +57,10 @@ public class OfferAction extends ModifiableEntity {
   @OneToOne
   @JoinColumn(name = "token_id")
   private Token token;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @JoinColumn(name = "product_id")
+  private Product product;
 
   @Override
   public Long id() {
@@ -113,5 +118,14 @@ public class OfferAction extends ModifiableEntity {
 
   public Token token() {
     return this.token;
+  }
+
+  public Product product() {
+    return this.product;
+  }
+
+  public OfferAction setProduct(Product product) {
+    this.product = product;
+    return this;
   }
 }
