@@ -106,8 +106,10 @@ public final class ActionProcessor implements Processor {
     log.info("Tracked conversion of data: {}:\n" +
         "   advertiser charge:  {}\n" +
         "   affiliate money:    {}\n" +
-        "   heymoose fee:       {}",
-        new Object[] { data, advertiserCharge, affiliatePart, heymoosePart } );
+        "   heymoose fee:       {}\n" +
+        "   action id:          {}",
+        new Object[] { data,
+            advertiserCharge, affiliatePart, heymoosePart, action.id() } );
 
     doPostBack(grant, action);
     data.setProcessed(true);
