@@ -64,8 +64,8 @@ public final class ActionProcessor implements Processor {
       tariff = data.product().tariff();
     }
 
-    log.info("Processing tariff {} chosen for data {}", tariff, data);
-    BigDecimal advertiserCharge = BigDecimal.ZERO;
+    log.debug("Processing tariff {} chosen for data {}", tariff, data);
+    BigDecimal advertiserCharge;
     switch (tariff.cpaPolicy()) {
       case FIXED:
         advertiserCharge = tariff.cost();
