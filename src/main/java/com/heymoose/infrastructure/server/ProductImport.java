@@ -22,6 +22,6 @@ public final class ProductImport {
     SAXBuilder builder = new SAXBuilder();
     Document document = builder.build(new File(args[0]));
     injector.getInstance(ProductYmlImporter.class)
-        .doImport(document, 171L);
+        .doImport(document, Long.valueOf(args[1]));
   }
 }
