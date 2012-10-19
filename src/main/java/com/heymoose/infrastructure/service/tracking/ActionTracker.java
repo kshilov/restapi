@@ -77,7 +77,7 @@ public final class ActionTracker implements  Tracker {
           .setToken(token)
           .setTransactionId(transactionId)
           .setOffer(offer);
-      actionProcessor.process(data);
+      processSafe(data);
     } else {
       for (String keyVal : PERIOD_SPLITTER.split(offerString)) {
         Iterator<String> keyValIterator = COLON_SPLITTER.split(keyVal)
@@ -89,9 +89,24 @@ public final class ActionTracker implements  Tracker {
             .setTransactionId(transactionId)
             .setOffer(offer)
             .setPrice(new BigDecimal(keyValIterator.next()));
-        actionProcessor.process(data);
+        processSafe(data);
       }
     }
     return noCache(Response.ok()).build();
+  }
+
+  private void processSafe(ProcessableData data) throws ApiRequestException {
+    try{
+      actionProcessor.process(data);
+    } catch (IllegalStateException e) {
+      throw new ApiRequestException(409, e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw new ApiRequestException(400, e.getMessage());
+    } catch (NullPointerException e) {
+      throw new ApiRequestException(400, e.getMessage());
+    } catch (RuntimeException e) {
+      log.warn("Exception during processing data: {}. {}", data, e);
+      throw e;
+    }
   }
 }
