@@ -1,6 +1,8 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
@@ -16,14 +18,16 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Singleton
 public final class ItemListProductImporter
     extends ActionDataImporterBase<ItemListActionData> {
 
   private static final Logger log =
       LoggerFactory.getLogger(ItemListProductImporter.class);
 
-  protected ActionProcessor processor;
+  protected final ActionProcessor processor;
 
+  @Inject
   public ItemListProductImporter(Repo repo, OfferActions actions,
                                  ActionProcessor processor) {
     super(repo, actions);
