@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service.action;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
@@ -39,15 +38,14 @@ public final class ItemListProductImporter
       Product product = repo.byHQL(Product.class,
           "from Product where offer = ? and originalId = ?",
           parentOffer, item.id());
-      if (product == null) {
-        log.warn("Product with code '{}' does not present in our db! " +
-            "Parent offer: '{}'. Using default.", item.id(), parentOffer.id());
-      }
-      BigDecimal price = Objects.firstNonNull(item.price(), product.price());
-      if (price == null || price.signum() < 1) {
-        log.warn("Can't calculate price for item with code: {}, offer: {}." +
-            "Skipping..", item.id(), parentOffer.id());
-        continue;
+      BigDecimal price = item.price();
+      if (price == null) {
+        if (product == null) {
+          log.warn("Can't price item: {}. Skipping..", item);
+          continue;
+        } else {
+          price = product.price();
+        }
       }
       for (int i = 1; i <= item.quantity(); i++) {
         log.info("Adding conversion for offer '{}' product {} price {}",

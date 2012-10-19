@@ -12,11 +12,11 @@ import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.ImportService;
 import com.heymoose.infrastructure.service.action.ActionDataImportService;
 import com.heymoose.infrastructure.service.action.HeymooseFixPriceParser;
+import com.heymoose.infrastructure.service.action.ItemListProductImporter;
 import com.heymoose.infrastructure.service.carolines.CarolinesActionDataImporter;
 import com.heymoose.infrastructure.service.sapato.SapatoImporter;
 import com.heymoose.infrastructure.service.sapato.SapatoUrlProvider;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
-import com.heymoose.infrastructure.service.topshop.TopShopDataImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -58,7 +58,7 @@ public class AppContextListener extends GuiceServletContextListener {
 
     startImportService("topshop", properties,
         ActionDataImportService.itemList(injector)
-            .withImporter(TopShopDataImporter.class)
+            .withImporter(ItemListProductImporter.class)
             .withParser(TopShopActionParser.class));
     //startImportService("topshop.yml", properties,
     //    YmlImportService.forWrapper(TopShopYmlWrapper.class, injector));
