@@ -54,7 +54,7 @@ public final class YmlToExcel {
       offerRow.createCell(cols++).setCellValue(offer.getCurrencyId());
       try {
         offerRow.createCell(cols++).setCellValue(catalog.isExclusive(offer));
-      } catch (YmlCatalogWrapper.NoInfoException e) {
+      } catch (NoInfoException e) {
         offerRow.createCell(cols++).setCellValue(false);
       }
       try {
@@ -71,7 +71,7 @@ public final class YmlToExcel {
                     .toString());
             break;
         }
-      } catch (YmlCatalogWrapper.NoInfoException e) {
+      } catch (NoInfoException e) {
         log.warn("No info for offer: {} - {}. Skipping.", code, title);
       }
     }

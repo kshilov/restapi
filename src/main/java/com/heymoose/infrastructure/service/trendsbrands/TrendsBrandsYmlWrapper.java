@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.trendsbrands;
 
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Model;
+import com.heymoose.infrastructure.service.yml.NoInfoException;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.TypePrefix;
 import com.heymoose.infrastructure.service.yml.Vendor;

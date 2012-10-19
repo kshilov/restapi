@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.action;
 
 import com.heymoose.domain.offer.CpaPolicy;
+import com.heymoose.infrastructure.service.yml.NoInfoException;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;
 

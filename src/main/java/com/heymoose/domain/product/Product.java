@@ -163,4 +163,11 @@ public class Product extends ModifiableEntity {
     return this;
   }
 
+  public String attributeValue(String key) {
+    for (ProductAttribute attr : attributeList) {
+      if (attr.key().equals(key)) return attr.value();
+    }
+    return null;
+  }
+
 }

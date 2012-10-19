@@ -6,6 +6,7 @@ import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.FeeType;
+import com.heymoose.domain.product.Product;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,10 @@ public class Tariff extends IdEntity {
   }
   public static Tariff forOffer(BaseOffer offer) {
     return new Tariff().setOffer(offer);
+  }
+
+  public static Tariff forProduct(Product product) {
+    return new Tariff().setOffer(product.offer());
   }
 
   @Id

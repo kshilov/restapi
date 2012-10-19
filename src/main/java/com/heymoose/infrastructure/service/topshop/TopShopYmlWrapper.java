@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.infrastructure.service.yml.Category;
+import com.heymoose.infrastructure.service.yml.NoInfoException;
 import com.heymoose.infrastructure.service.yml.Offer;
 import com.heymoose.infrastructure.service.yml.YmlCatalog;
 import com.heymoose.infrastructure.service.yml.YmlCatalogWrapperBase;

@@ -70,7 +70,7 @@ public class SubOfferYmlImporter implements YmlImporter {
             percent = catalog.getPercent(catalogOffer);
             break;
         }
-      } catch (YmlCatalogWrapper.NoInfoException e) {
+      } catch (NoInfoException e) {
         log.warn("No pricing info in YML for product: {} - {}. Skipping..",
             code, productName);
       }
@@ -89,7 +89,7 @@ public class SubOfferYmlImporter implements YmlImporter {
       boolean isExclusive = false;
       try {
         isExclusive = catalog.isExclusive(catalogOffer);
-      } catch (YmlCatalogWrapper.NoInfoException e) {
+      } catch (NoInfoException e) {
         log.warn("No info about exclusiveness for product {} - {}. " +
             "Setting exclusive = false..",
             code, productName);

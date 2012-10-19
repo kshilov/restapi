@@ -3,16 +3,8 @@ package com.heymoose.infrastructure.service.yml;
 import com.heymoose.domain.offer.CpaPolicy;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public interface YmlCatalogWrapper {
-
-  public static class NoInfoException extends Exception {
-
-    public NoInfoException(String msg) {
-      super(msg);
-    }
-  }
 
   YmlCatalogWrapper wrapCatalog(YmlCatalog catalog);
 
