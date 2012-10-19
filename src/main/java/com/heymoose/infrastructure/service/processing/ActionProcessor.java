@@ -40,6 +40,7 @@ public final class ActionProcessor implements Processor {
 
 
   public OfferAction process(ProcessableData data) {
+    log.info("Entering processing: {}", data);
     Token token = data.token();
     BaseOffer offer = data.offer();
     String transactionId = data.transactionId();
@@ -63,6 +64,7 @@ public final class ActionProcessor implements Processor {
       tariff = data.product().tariff();
     }
 
+    log.info("Processing tariff {} chosen for data {}", tariff, data);
     BigDecimal advertiserCharge = BigDecimal.ZERO;
     switch (tariff.cpaPolicy()) {
       case FIXED:
@@ -101,9 +103,11 @@ public final class ActionProcessor implements Processor {
     action.setProduct(data.product());
     repo.put(action);
     accounting.notConfirmedActionPayments(action, affiliatePart, heymoosePart);
-    log.info("Tracked conversion for offer: '{} - {}'. " +
-        "Affiliate money: '{}', heymoose fee: '{}'",
-        new Object[] { offer.id(), offer.title(), affiliatePart, heymoosePart} );
+    log.info("Tracked conversion of data: {}:\n" +
+        "   advertiser charge:  {}\n" +
+        "   affiliate money:    {}\n" +
+        "   heymoose fee:       {}",
+        new Object[] { data, advertiserCharge, affiliatePart, heymoosePart } );
 
     doPostBack(grant, action);
     data.setProcessed(true);
