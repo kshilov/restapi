@@ -1,5 +1,6 @@
 package com.heymoose.domain.action;
 
+import com.google.common.base.Objects;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.product.Product;
@@ -127,5 +128,16 @@ public class OfferAction extends ModifiableEntity {
   public OfferAction setProduct(Product product) {
     this.product = product;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(OfferAction.class)
+        .add("id", id)
+        .add("state", state)
+        .add("offer", offer)
+        .add("token", token)
+        .add("transactionId", transactionId)
+        .add("product", product).toString();
   }
 }
