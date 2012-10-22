@@ -25,7 +25,7 @@ public final class ProductExcelExporter {
       "экслюзивный", "вознаграждение" };
 
   public void doExport(Iterable<Product> productList,
-                       OutputSupplier<OutputStream> outputSupplier) {
+                       OutputSupplier<? extends OutputStream> outputSupplier) {
 
     log.info("Starting export of yml catalog to XLS.");
     Workbook workbook = new HSSFWorkbook();

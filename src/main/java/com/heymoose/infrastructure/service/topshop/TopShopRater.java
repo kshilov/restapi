@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.product.Product;
+import com.heymoose.domain.product.ProductRater;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.service.yml.NoInfoException;
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
-public final class TopShopRater {
+public final class TopShopRater implements ProductRater {
 
 
   private static final Logger log = LoggerFactory

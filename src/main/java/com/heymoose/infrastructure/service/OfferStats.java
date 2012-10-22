@@ -74,12 +74,10 @@ public class OfferStats {
   public static final String EXPIRED_FEE = "expired_fee";
   public static final String EXPIRED_SUM = "expired_sum";
 
-  //private final Provider<Session> sessionProvider;
   private final Repo repo;
 
   @Inject
-  public OfferStats(/*Provider<Session> sessionProvider,*/ Repo repo) {
-    //this.sessionProvider = sessionProvider;
+  public OfferStats(Repo repo) {
     this.repo = repo;
   }
 

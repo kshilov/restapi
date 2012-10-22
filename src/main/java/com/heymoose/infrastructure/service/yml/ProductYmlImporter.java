@@ -90,7 +90,8 @@ public class ProductYmlImporter {
       product.setCategory(categoryMap.get(categoryOriginalId))
           .setName(getTitle(offer))
           .setOffer(parentOffer)
-          .setOriginalId(offer.getAttributeValue("id"))
+          // groupId for trendsbrands
+          .setOriginalId(attrCoalesce(offer, "id", "groupId"))
           .setPrice(new BigDecimal(offer.getChildText("price")))
           .setUrl(offer.getChildText("url"));
       // importing attributes
@@ -131,6 +132,15 @@ public class ProductYmlImporter {
         .getChild("shop")
         .getChild("offers")
         .getChildren();
+  }
+
+  private String attrCoalesce(Element element, String key1, String... keys) {
+    String value = element.getAttributeValue(key1);
+    int i = 0;
+    while (value == null && i < keys.length) {
+      value = element.getAttributeValue(keys[i++]);
+    }
+    return value;
   }
 
   private String getTitle(Element offer) {
