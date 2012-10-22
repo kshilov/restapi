@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.List;
 
 @Entity
@@ -168,7 +169,9 @@ public class Product extends ModifiableEntity {
   }
 
   public String attributeValue(String key) {
-    return attributeList(key).iterator().next().value();
+    Iterator<ProductAttribute> iterator = attributeList(key).iterator();
+    if (iterator.hasNext()) return iterator.next().value();
+    return null;
   }
 
   public Iterable<ProductAttribute> attributeList(String key) {
