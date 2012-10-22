@@ -2,11 +2,13 @@ package com.heymoose.domain.product;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.tariff.Tariff;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -20,9 +22,11 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "product")
+@NotThreadSafe
 public class Product extends ModifiableEntity {
 
   @Id
@@ -59,6 +63,8 @@ public class Product extends ModifiableEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tariff_id")
   private Tariff tariff;
+
+  private Map<String, String> attributeMap;
 
 
   public Product() {
@@ -141,6 +147,7 @@ public class Product extends ModifiableEntity {
   }
 
   public Product addAttribute(ProductAttribute attribute) {
+    attributeMap = null;
     this.attributeList.add(attribute);
     return this;
   }
@@ -164,10 +171,14 @@ public class Product extends ModifiableEntity {
   }
 
   public String attributeValue(String key) {
-    for (ProductAttribute attr : attributeList) {
-      if (attr.key().equals(key)) return attr.value();
+    if (attributeMap == null) {
+      ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+      for (ProductAttribute att: attributeList) {
+        builder.put(att.key(), att.value());
+      }
+      this.attributeMap = builder.build();
     }
-    return null;
+    return attributeMap.get(key);
   }
 
 }

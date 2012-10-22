@@ -9,6 +9,7 @@ import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 
@@ -162,9 +163,10 @@ public class Mappers {
     xmlOffer.cost = offer.cost();
     xmlOffer.cost2 = offer.cost2();
     xmlOffer.percent = offer.percent();
-    xmlOffer.affiliateCost = offer.affiliateCost();
-    xmlOffer.affiliatePercent = offer.affiliatePercent();
-    xmlOffer.affiliateCost2 = offer.affiliateCost2();
+    Tariff tariff = offer.tariff();
+    xmlOffer.affiliateCost = tariff.affiliateCost();
+    xmlOffer.affiliatePercent = tariff.affiliatePercent();
+    xmlOffer.affiliateCost2 = tariff.affiliateCost2();
     xmlOffer.feeType = offer.feeType().toString();
     xmlOffer.approved = offer.approved();
     xmlOffer.active = offer.active();
@@ -249,9 +251,10 @@ public class Mappers {
     xmlSubOffer.holdDays = offer.holdDays();
     xmlSubOffer.exclusive = offer.exclusive();
     xmlSubOffer.feeType = offer.feeType().toString();
-    xmlSubOffer.affiliateCost = offer.affiliateCost();
-    xmlSubOffer.affiliatePercent = offer.affiliatePercent();
-    xmlSubOffer.affiliateCost2 = offer.affiliateCost2();
+    Tariff tariff = offer.tariff();
+    xmlSubOffer.affiliateCost = tariff.affiliateCost();
+    xmlSubOffer.affiliatePercent = tariff.affiliatePercent();
+    xmlSubOffer.affiliateCost2 = tariff.affiliateCost2();
     return xmlSubOffer;
   }
 

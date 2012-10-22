@@ -199,6 +199,62 @@ public class Tariff extends IdEntity {
     return amount.subtract(affiliatePart(amount));
   }
 
+
+  /**
+   * Returns affiliate revenue, if it is fixed or can be
+   * calculated, using data in tariff. Returns null otherwise.
+   *
+   * @return fixed affiliate revenue or null
+   */
+  public BigDecimal affiliateCost() {
+    if (cpaPolicy != null && cpaPolicy == CpaPolicy.PERCENT)
+      return null; // affiliatePercent() should not return null in this case
+    BigDecimal cost = this.cost;
+    if (this.cpaPolicy == CpaPolicy.DOUBLE_FIXED) cost = this.firstActionCost;
+    switch (feeType) {
+      case FIX:
+        return cost.subtract(fee);
+      case PERCENT:
+        BigDecimal divider = fee
+            .divide(new BigDecimal(100))
+            .add(BigDecimal.ONE);
+        return cost.divide(divider, 2, BigDecimal.ROUND_UP);
+    }
+    throw new RuntimeException("Unknown fee type for offer " + id);
+  }
+
+  /**
+   * Returns affiliate revenue for repeated action in case of
+   * {@link CpaPolicy.DOUBLE_FIXED} policy or null otherwise.
+   *
+   * @return affiliate revenue for repeated action or null
+   */
+  public BigDecimal affiliateCost2() {
+    if (cpaPolicy == null || cpaPolicy != CpaPolicy.DOUBLE_FIXED)
+      return null;
+    BigDecimal divider = fee
+        .divide(new BigDecimal(100))
+        .add(BigDecimal.ONE);
+    return otherActionCost.divide(divider, 2, BigDecimal.ROUND_UP);
+  }
+
+  /**
+   * Returns affiliate revenue, in case of {@link CpaPolicy.PERCENT},
+   * null otherwise.
+   *
+   * @return affiliate revenue for {@link CpaPolicy.PERCENT} offers
+   */
+  public BigDecimal affiliatePercent() {
+    if (cpaPolicy == null || cpaPolicy != CpaPolicy.PERCENT)
+      return null; // affiliateCost() should not return null in this case
+    if (feeType == FeeType.FIX)
+      throw new IllegalStateException("Wrong feeType");
+    BigDecimal divider = fee
+        .divide(new BigDecimal(100))
+        .add(BigDecimal.ONE);
+    return percent.divide(divider, 2, BigDecimal.ROUND_UP);
+  }
+
   @Override
   public String toString() {
     Objects.ToStringHelper builder = Objects.toStringHelper(Tariff.class)
