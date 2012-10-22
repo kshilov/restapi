@@ -52,7 +52,7 @@ public final class TopShopRater implements ProductRater {
     while (percent == null && category != null) {
       Integer originalId = Integer.valueOf(category.originalId());
       percent = CATEGORY_PERCENT_MAP.get(originalId);
-      if (EXCLUSIVE_CATEGORIES.contains(originalId)) product.setExclusive(true);
+      if (EXCLUSIVE_CATEGORIES.contains(originalId)) tariff.setExclusive(true);
       category = category.parent();
     }
     if (percent == null) throw new NoInfoException(

@@ -73,6 +73,9 @@ public class Tariff extends IdEntity {
   @Column(name = "fee", nullable = false)
   protected BigDecimal fee = DEFAULT_FEE;
 
+  @Column(nullable = false)
+  private boolean exclusive = false;
+
   @Override
   public Long id() {
     return this.id;
@@ -165,6 +168,16 @@ public class Tariff extends IdEntity {
     this.fee = fee;
     return this;
   }
+
+  public boolean exclusive() {
+    return this.exclusive;
+  }
+
+  public Tariff setExclusive(boolean exclusive) {
+    this.exclusive = exclusive;
+    return this;
+  }
+
 
   public BigDecimal percentOf(BigDecimal amount) {
     Preconditions.checkState(cpaPolicy() == CpaPolicy.PERCENT,

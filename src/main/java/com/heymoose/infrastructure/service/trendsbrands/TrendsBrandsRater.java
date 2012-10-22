@@ -21,7 +21,7 @@ public final class TrendsBrandsRater implements ProductRater {
     BigDecimal basePrice = new BigDecimal(product.attributeValue("baseprice"));
     isExclusive = basePrice.compareTo(EXCLUSIVE_LIMIT) > 0 &&
         basePrice.equals(price);
-    product.setExclusive(isExclusive);
+    tariff.setExclusive(isExclusive);
     if (isExclusive) tariff.setCost(EXCLUSIVE_COST);
     else tariff.setCost(REGULAR_COST);
     return tariff;

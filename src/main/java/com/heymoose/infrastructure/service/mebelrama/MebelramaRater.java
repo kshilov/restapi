@@ -17,7 +17,7 @@ public final class MebelramaRater implements ProductRater {
   public Tariff rate(Product product) {
     Tariff tariff = Tariff.forProduct(product).setCpaPolicy(CpaPolicy.PERCENT);
     boolean isExclusive = product.price().compareTo(EXCLUSIVE_LIMIT) > 0;
-    product.setExclusive(isExclusive);
+    tariff.setExclusive(isExclusive);
     if (isExclusive) tariff.setPercent(EXCLUSIVE_PERCENT);
     else tariff.setPercent(DEFAULT_PERCENT);
     return tariff;

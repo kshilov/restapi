@@ -53,7 +53,7 @@ public final class ProductExcelExporter {
       offerRow.createCell(cols++).setCellValue(product.price().toString());
       offerRow.createCell(cols++).setCellValue(
           product.attributeValue("currencyId"));
-      offerRow.createCell(cols++).setCellValue(product.exclusive());
+      offerRow.createCell(cols++).setCellValue(product.tariff().exclusive());
       switch (product.tariff().cpaPolicy()) {
         case PERCENT:
           String revenue = String.format("%s%%",

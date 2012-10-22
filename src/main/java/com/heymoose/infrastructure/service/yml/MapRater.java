@@ -23,7 +23,7 @@ public final class MapRater implements ProductRater {
   public Tariff rate(Product product) throws NoInfoException {
     Tariff tariff = Tariff.forProduct(product).setCpaPolicy(CpaPolicy.PERCENT);
     if (idPercent.containsKey(product.originalId())) {
-      product.setExclusive(true);
+      tariff.setExclusive(true);
       return tariff.setPercent(idPercent.get(product.originalId()));
     }
     return tariff.setPercent(defaultPercent);

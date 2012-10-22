@@ -35,13 +35,14 @@ public class Tariffs {
   private Tariff findIdentical(Tariff tariff) {
     return (Tariff) repo.session().createCriteria(Tariff.class)
         .add(Restrictions.eq("offer", tariff.offer()))
-        .add(eqOrIsNull("cpaPolicy", tariff.cpaPolicy()))
+        .add(Restrictions.eq("exclusive", tariff.exclusive()))
+        .add(Restrictions.eq("cpaPolicy", tariff.cpaPolicy()))
         .add(eqOrIsNull("cost", tariff.cost()))
         .add(eqOrIsNull("percent", tariff.percent()))
         .add(eqOrIsNull("firstActionCost", tariff.firstActionCost()))
         .add(eqOrIsNull("otherActionCost", tariff.otherActionCost()))
-        .add(eqOrIsNull("fee", tariff.fee()))
-        .add(eqOrIsNull("feeType", tariff.feeType())).uniqueResult();
+        .add(Restrictions.eq("fee", tariff.fee()))
+        .add(Restrictions.eq("feeType", tariff.feeType())).uniqueResult();
 
   }
 

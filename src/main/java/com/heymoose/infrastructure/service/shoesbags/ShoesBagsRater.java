@@ -28,7 +28,7 @@ public final class ShoesBagsRater implements ProductRater {
     Tariff tariff = Tariff.forProduct(product);
     String vendor = product.attributeValue("vendor").toLowerCase();
     boolean isExclusive = EXCLUSIVE_VENDORS.contains(vendor);
-    product.setExclusive(isExclusive);
+    tariff.setExclusive(isExclusive);
     if (isExclusive)
       tariff.setCpaPolicy(CpaPolicy.FIXED).setCost(EXCLUSIVE_COST);
     else

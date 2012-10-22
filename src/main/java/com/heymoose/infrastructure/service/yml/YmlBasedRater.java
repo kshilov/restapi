@@ -22,7 +22,7 @@ public final class YmlBasedRater implements ProductRater {
         tariff.setValue(cpaPolicy, value);
       }
       if (attr.getExtraInfo().get("name").equals("hm_exclusive")) {
-        product.setExclusive(Boolean.valueOf(attr.value()));
+        tariff.setExclusive(Boolean.valueOf(attr.value()));
       }
     }
     if (tariff.cpaPolicy() == null)

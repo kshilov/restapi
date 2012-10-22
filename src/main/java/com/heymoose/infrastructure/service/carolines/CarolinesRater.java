@@ -57,7 +57,7 @@ public final class CarolinesRater implements ProductRater {
     if (GROUP2.contains(originalId)) cost = GROUP2_COST;
     if (GROUP3.contains(originalId)) cost = GROUP3_COST;
     tariff.setCost(cost);
-    product.setExclusive(!cost.equals(DEFAULT_COST));
+    tariff.setExclusive(!cost.equals(DEFAULT_COST));
     return tariff;
   }
 }

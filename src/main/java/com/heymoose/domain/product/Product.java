@@ -59,9 +59,6 @@ public class Product extends ModifiableEntity {
       cascade = CascadeType.ALL)
   private List<ProductAttribute> attributeList = Lists.newArrayList();
 
-  @Column(nullable = false)
-  private boolean exclusive = false;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tariff_id")
   private Tariff tariff;
@@ -159,15 +156,6 @@ public class Product extends ModifiableEntity {
         .setProduct(this)
         .setKey(key)
         .setValue(value));
-  }
-
-  public boolean exclusive() {
-    return this.exclusive;
-  }
-
-  public Product setExclusive(boolean exclusive) {
-    this.exclusive = exclusive;
-    return this;
   }
 
   public Tariff tariff() {
