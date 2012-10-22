@@ -107,11 +107,14 @@ public final class YmlImport {
         new ProductionModule());
 
     String ymlPath = arguments.ymlPath.get(0);
+    URL url;
     if (!ymlPath.contains("://")) {
-      ymlPath = "file://" + ymlPath;
+      url = YmlImport.class.getClassLoader().getResource(ymlPath);
+    } else {
+      url = new URL(ymlPath);
     }
     InputSupplier<InputStream> inputSupplier =
-        Resources.newInputStreamSupplier(new URL(ymlPath));
+        Resources.newInputStreamSupplier(url);
 
     Repo repo = injector.getInstance(Repo.class);
     ProductRater rater = null;
