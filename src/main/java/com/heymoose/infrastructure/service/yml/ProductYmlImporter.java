@@ -5,10 +5,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
+import com.heymoose.domain.product.ProductRater;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -17,7 +18,6 @@ import com.heymoose.infrastructure.service.Tariffs;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
+@Singleton
 public class ProductYmlImporter {
 
   private static final Splitter DOT = Splitter.on('.');
@@ -44,11 +45,15 @@ public class ProductYmlImporter {
   }
 
   @Transactional
-  public List<Product> doImport(Document document, Long parentOfferId) {
+  public List<Product> doImport(Document document, Long parentOfferId,
+                                ProductRater rater) {
     log.info("Entring YML import for offer: {}.", parentOfferId);
     com.heymoose.domain.offer.Offer parentOffer =
         repo.get(com.heymoose.domain.offer.Offer.class, parentOfferId);
     Preconditions.checkNotNull(parentOffer, "Offer does not exist.");
+    parentOffer.setIsProductOffer(true);
+    repo.put(parentOffer);
+
     HashMap<String, ShopCategory> categoryMap = Maps.newHashMap();
     ImmutableList.Builder<Product> resultList = ImmutableList.builder();
     // importing categories
@@ -82,44 +87,33 @@ public class ProductYmlImporter {
       Product product = products.productByOriginalId(parentOfferId, originalId);
       if (product == null) product = new Product();
       String categoryOriginalId = offer.getChildText("categoryId");
-      Element exclusiveElement = (Element) XPathFactory.instance()
-          .compile("param[@name='hm_exclusive']")
-          .evaluateFirst(offer);
-      boolean exclusive = exclusiveElement != null &&
-          Boolean.valueOf(exclusiveElement.getText());
       product.setCategory(categoryMap.get(categoryOriginalId))
           .setName(getTitle(offer))
           .setOffer(parentOffer)
           .setOriginalId(offer.getAttributeValue("id"))
           .setPrice(new BigDecimal(offer.getChildText("price")))
-          .setExclusive(exclusive)
           .setUrl(offer.getChildText("url"));
-      Element valueElement = (Element) XPathFactory.instance()
-          .compile("param[@name='hm_value']")
-          .evaluateFirst(offer);
-      if (valueElement != null) {
-        String unit = valueElement.getAttributeValue("unit");
-        CpaPolicy cpaPolicy = CpaPolicy.valueOf(unit.toUpperCase());
-        BigDecimal value = new BigDecimal(valueElement.getText());
-        Tariff tariff = tariffs.createIfNotExists(cpaPolicy, value, parentOffer);
-        product.setTariff(tariff);
-      }
-      repo.put(product);
-      log.info("Product saved: {}", product);
       // importing attributes
       for (Element offerChild : offer.getChildren()) {
         products.clearAttributes(product);
         ProductAttribute productAttribute = new ProductAttribute()
-            .setProductId(product.id())
+            .setProduct(product)
             .setKey(offerChild.getName())
             .setValue(offerChild.getText());
         for (Attribute attr : offerChild.getAttributes()) {
           productAttribute.addExtraInfo(attr.getName(), attr.getValue());
         }
-        repo.put(productAttribute);
         product.addAttribute(productAttribute);
-        log.info("Product attribute saved: {}.", productAttribute);
       }
+      try {
+        Tariff tariff = rater.rate(product);
+        tariff = tariffs.createIfNotExists(tariff);
+        product.setTariff(tariff);
+      } catch (NoInfoException e) {
+        log.info("No pricing info found for product: {}", product);
+      }
+      repo.put(product);
+      log.info("Product saved: {}", product);
       resultList.add(product);
     }
     return resultList.build();

@@ -19,13 +19,17 @@ public class Tariffs {
     this.repo = repo;
   }
 
-  public Tariff createIfNotExists(CpaPolicy policy, BigDecimal value,
-                                  Offer offer) {
-    Tariff tariff = Tariff.forOffer(offer).setValue(policy, value);
+  public Tariff createIfNotExists(Tariff tariff) {
     Tariff exists = findIdentical(tariff);
     if (exists != null) return exists;
     repo.put(tariff);
     return tariff;
+  }
+
+  public Tariff createIfNotExists(CpaPolicy policy, BigDecimal value,
+                                  Offer offer) {
+    Tariff tariff = Tariff.forOffer(offer).setValue(policy, value);
+    return createIfNotExists(tariff);
   }
 
   private Tariff findIdentical(Tariff tariff) {

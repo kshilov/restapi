@@ -2,13 +2,15 @@ package com.heymoose.domain.product;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.tariff.Tariff;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,7 +24,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "product")
@@ -54,7 +55,8 @@ public class Product extends ModifiableEntity {
   @JoinColumn(name = "shop_category_id")
   private ShopCategory category;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "productId")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "product",
+      cascade = CascadeType.ALL)
   private List<ProductAttribute> attributeList = Lists.newArrayList();
 
   @Column(nullable = false)
@@ -64,7 +66,7 @@ public class Product extends ModifiableEntity {
   @JoinColumn(name = "tariff_id")
   private Tariff tariff;
 
-  private Map<String, String> attributeMap;
+  private transient Multimap<String, ProductAttribute> attributeMap;
 
 
   public Product() {
@@ -152,6 +154,13 @@ public class Product extends ModifiableEntity {
     return this;
   }
 
+  public Product addAttribute(String key, String value) {
+    return addAttribute(new ProductAttribute()
+        .setProduct(this)
+        .setKey(key)
+        .setValue(value));
+  }
+
   public boolean exclusive() {
     return this.exclusive;
   }
@@ -171,10 +180,15 @@ public class Product extends ModifiableEntity {
   }
 
   public String attributeValue(String key) {
+    return attributeList(key).iterator().next().value();
+  }
+
+  public Iterable<ProductAttribute> attributeList(String key) {
     if (attributeMap == null) {
-      ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+      ImmutableMultimap.Builder<String, ProductAttribute> builder =
+          ImmutableMultimap.builder();
       for (ProductAttribute att: attributeList) {
-        builder.put(att.key(), att.value());
+        builder.put(att.key(), att);
       }
       this.attributeMap = builder.build();
     }
