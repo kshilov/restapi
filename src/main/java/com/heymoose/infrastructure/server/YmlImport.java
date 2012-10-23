@@ -4,7 +4,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
@@ -142,19 +141,17 @@ public final class YmlImport {
     }
     log.info("Rater chosen: {}", rater.getClass().getSimpleName());
 
-    List<Product> productList = ImmutableList.of();
     if (arguments.doImport) {
       log.info("** Starting import with arguments: {} **", arguments);
       ProductYmlImporter importer =
           injector.getInstance(ProductYmlImporter.class);
       SAXBuilder builder = new SAXBuilder();
       Document document = builder.build(inputSupplier.getInput());
-      productList = importer.doImport(document, arguments.offerId, rater);
+      importer.doImport(document, arguments.offerId, rater);
     }
     if (arguments.doExport) {
       log.info("Starting export to XLS.");
-      if (productList.isEmpty())
-        productList = repo.allByHQL(Product.class,
+      List<Product> productList = repo.allByHQL(Product.class,
             "from Product where offer.id = ?",
             arguments.offerId);
       ProductExcelExporter exporter = new ProductExcelExporter();
