@@ -1,5 +1,7 @@
 #!/bin/sh
 
-java  -DsettingsFile=/etc/backend/settings.properties \
+java  -Dcom.sun.management.jmxremote.port=3333 \
+      -Dcom.sun.management.jmxremote.ssl=false \
+      -DsettingsFile=/etc/backend/settings.properties \
       -cp /usr/share/backend/backend.jar \
       com.heymoose.infrastructure.server.YmlImport $@
