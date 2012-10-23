@@ -10,7 +10,9 @@ ${else}
   coalesce(sum(not_confirmed_revenue),  0.00) not_confirmed_revenue,
   coalesce(sum(canceled_revenue),       0.00) canceled_revenue,
 ${end}
-  o.id id, coalesce(parent.name, o.name) || ' — ' || o.title descr, o.exclusive
+  o.id id,
+  coalesce(parent.name, o.name) || ' — ' || coalesce(product.name, o.title) descr,
+  coalesce(tariff.exclusive, o.exclusive, false) as exclusive
 
 from offer o
 
@@ -20,6 +22,12 @@ and o.id = offer_stat.offer_id
 
 left join offer parent
 on parent.id = o.parent_id
+
+left join product
+on product.id = offer_stat.product_id
+
+left join tariff
+on tariff.id = product.tariff_id
 
 where
   offer_stat.leads_count + offer_stat.sales_count > 0
@@ -53,7 +61,7 @@ ${if filterByKeywords}
   and coalesce(offer_stat.keywords, '') = coalesce(:keywords, '')
 ${end}
 
-group by o.id, o.title, parent.name, o.name, o.exclusive
+group by o.id, o.title, parent.name, o.name, o.exclusive, product.name, tariff.exclusive
 
 order by ${ordering} ${direction}
 offset :offset limit :limit
