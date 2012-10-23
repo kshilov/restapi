@@ -80,6 +80,12 @@ public final class OfferActionsStoredFunc implements OfferActions {
   }
 
   @Override
+  public int verify(Offer offer, Collection<String> transactionIdList,
+                    OfferActionState state) {
+    return offerActionsHiber.verify(offer, transactionIdList, state);
+  }
+
+  @Override
   public void fix() {
     offerActionsHiber.fix();
   }

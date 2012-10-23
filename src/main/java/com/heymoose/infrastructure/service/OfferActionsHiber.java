@@ -87,20 +87,33 @@ public class OfferActionsHiber implements OfferActions {
 
   @Override
   public Integer cancelByTransactions(Offer offer, Set<String> transactionIds) {
-    if (transactionIds.isEmpty())
-      return 0;
-    String hql = "from OfferAction a where a.offer.id in (:offerIds) and a.state = :state " +
-        "and a.transactionId in (:transactionIds)";
+    return verify(offer, transactionIds, OfferActionState.CANCELED);
+  }
 
+  @Override
+  public int verify(Offer offer, Collection<String> transactionIdList,
+                     OfferActionState state) {
+    if (transactionIdList.isEmpty()) return 0;
     @SuppressWarnings("unchecked")
-    List<OfferAction> actionsToCancel = repo.session().createQuery(hql)
-        .setParameterList("offerIds", offer.subofferIds())
-        .setParameter("state", OfferActionState.NOT_APPROVED)
-        .setParameterList("transactionIds", transactionIds)
+    List<OfferAction> actionsToVerify = repo.session()
+        .createCriteria(OfferAction.class)
+        .add(Restrictions.in("offer.id", offer.subofferIds()))
+        .add(Restrictions.eq("state", OfferActionState.NOT_APPROVED))
+        .add(Restrictions.in("transactionId", transactionIdList))
         .list();
-    for (OfferAction action : actionsToCancel)
-      cancel(action);
-    return actionsToCancel.size();
+    for (OfferAction action : actionsToVerify) {
+      switch (state) {
+        case APPROVED:
+          approve(action);
+          break;
+        case CANCELED:
+          cancel(action);
+          break;
+        default:
+          throw new IllegalArgumentException("Wrong state " + state);
+      }
+    }
+    return actionsToVerify.size();
   }
 
   @Override

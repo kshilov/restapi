@@ -78,6 +78,28 @@ public class OfferActionResource {
     return Response.ok().build();
   }
 
+  @PUT
+  @Path("verify")
+  @Transactional
+  public String approveByTransactions(@FormParam("offer_id") Long offerId,
+                                   @FormParam("transactions")
+                                   List<String> transactionIdList) {
+    checkNotNull(offerId);
+    return String.valueOf(actions.verify(existingOffer(offerId), transactionIdList,
+        OfferActionState.APPROVED));
+  }
+
+  @DELETE
+  @Path("verify")
+  @Transactional
+  public String cancelByTransactions(@FormParam("offer_id") Long offerId,
+                                  @FormParam("transactions")
+                                  List<String> transactionIdList) {
+    checkNotNull(offerId);
+    return String.valueOf(actions.verify(existingOffer(offerId), transactionIdList,
+        OfferActionState.CANCELED));
+  }
+
   private Offer existingOffer(long id) {
     Offer offer = offers.byId(id);
     if (offer == null)
