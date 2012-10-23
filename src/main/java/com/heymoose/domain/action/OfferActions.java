@@ -31,6 +31,10 @@ public interface OfferActions {
 
   void approveByIdList(Offer offer, List<Long> idList);
 
+  int verify(Offer offer, Collection<String> transactionIdList,
+             OfferActionState state);
+
+
 
   @Transactional
   void fix();
