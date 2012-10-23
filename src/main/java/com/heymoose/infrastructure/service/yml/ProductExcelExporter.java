@@ -2,7 +2,10 @@ package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.io.Closeables;
 import com.google.common.io.OutputSupplier;
+import com.google.inject.Inject;
+import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
+import com.heymoose.infrastructure.persistence.Transactional;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -12,11 +15,19 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
-public final class ProductExcelExporter {
+public class ProductExcelExporter {
 
   private static final Logger log =
       LoggerFactory.getLogger(ProductExcelExporter.class);
+
+  private final Repo repo;
+
+  @Inject
+  public ProductExcelExporter(Repo repo) {
+    this.repo = repo;
+  }
 
 
   private static final String[] HEADER = new String[] {
@@ -24,10 +35,12 @@ public final class ProductExcelExporter {
       "url", "изображение", "цена", "валюта",
       "экслюзивный", "вознаграждение" };
 
-  public void doExport(Iterable<Product> productList,
+  @Transactional
+  public void doExport(Long parentOfferId,
                        OutputSupplier<? extends OutputStream> outputSupplier) {
-
     log.info("Starting export of yml catalog to XLS.");
+    List<Product> productList = repo.allByHQL(Product.class,
+        "from Product where offer.id = ?", parentOfferId);
     Workbook workbook = new HSSFWorkbook();
     Sheet sheet = workbook.createSheet("items");
     int rows = 0;

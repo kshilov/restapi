@@ -11,7 +11,6 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductRater;
 import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
@@ -151,12 +150,10 @@ public final class YmlImport {
     }
     if (arguments.doExport) {
       log.info("Starting export to XLS.");
-      List<Product> productList = repo.allByHQL(Product.class,
-            "from Product where offer.id = ?",
-            arguments.offerId);
-      ProductExcelExporter exporter = new ProductExcelExporter();
+      ProductExcelExporter exporter = injector.getInstance(
+          ProductExcelExporter.class);
       File xls = new File(arguments.offerId + ".xls");
-      exporter.doExport(productList, Files.newOutputStreamSupplier(xls));
+      exporter.doExport(arguments.offerId, Files.newOutputStreamSupplier(xls));
     }
   }
 
