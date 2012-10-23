@@ -10,7 +10,6 @@ import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.ProductRater;
 import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
@@ -111,7 +110,6 @@ public final class YmlImport {
     } else {
       inputSupplier = Resources.newInputStreamSupplier(new URL(ymlPath));
     }
-    Repo repo = injector.getInstance(Repo.class);
     ProductRater rater = null;
     switch (arguments.rater) {
       case DEFAULT:
@@ -145,6 +143,9 @@ public final class YmlImport {
       ProductYmlImporter importer =
           injector.getInstance(ProductYmlImporter.class);
       SAXBuilder builder = new SAXBuilder();
+      builder.setFeature(
+          "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+          false);
       Document document = builder.build(inputSupplier.getInput());
       importer.doImport(document, arguments.offerId, rater);
     }
