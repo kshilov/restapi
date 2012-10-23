@@ -2,7 +2,6 @@ package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -45,8 +44,8 @@ public class ProductYmlImporter {
   }
 
   @Transactional
-  public List<Product> doImport(Document document, Long parentOfferId,
-                                ProductRater rater) {
+  public void doImport(Document document, Long parentOfferId,
+                       ProductRater rater) {
     log.info("Entring YML import for offer: {}.", parentOfferId);
     com.heymoose.domain.offer.Offer parentOffer =
         repo.get(com.heymoose.domain.offer.Offer.class, parentOfferId);
@@ -55,7 +54,6 @@ public class ProductYmlImporter {
     repo.put(parentOffer);
 
     HashMap<String, ShopCategory> categoryMap = Maps.newHashMap();
-    ImmutableList.Builder<Product> resultList = ImmutableList.builder();
     // importing categories
     for (Element category : listCategories(document)) {
       String originalId = category.getAttributeValue("id");
@@ -115,9 +113,7 @@ public class ProductYmlImporter {
       }
       repo.put(product);
       log.info("Product saved: {}", product);
-      resultList.add(product);
     }
-    return resultList.build();
   }
 
   private List<Element> listCategories(Document document) {

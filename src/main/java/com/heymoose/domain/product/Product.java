@@ -186,4 +186,7 @@ public class Product extends ModifiableEntity {
     return attributeMap.get(key);
   }
 
+  public boolean exclusive() {
+    return this.tariff != null && this.tariff().exclusive();
+  }
 }
