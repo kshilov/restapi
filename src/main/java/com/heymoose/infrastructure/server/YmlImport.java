@@ -109,7 +109,7 @@ public final class YmlImport {
     String ymlPath = arguments.ymlPath.get(0);
     URL url;
     if (!ymlPath.contains("://")) {
-      url = YmlImport.class.getClassLoader().getResource(ymlPath);
+      url = Resources.getResource(ymlPath);
     } else {
       url = new URL(ymlPath);
     }
