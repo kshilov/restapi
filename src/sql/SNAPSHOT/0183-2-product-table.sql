@@ -70,7 +70,7 @@ create table product_attribute(
   id bigint default nextval('product_attribute_seq'),
   product_id bigint not null,
   key varchar(255) not null,
-  value varchar(1000) not null,
+  value varchar(3000) not null,
   extra_info varchar(255));
 
 alter table product_attribute add constraint product_attribute_pk
