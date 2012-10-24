@@ -54,6 +54,11 @@ public class ProductAttribute extends IdEntity {
     return this;
   }
 
+
+  public Product product() {
+    return product;
+  }
+
   public String key() {
     return key;
   }
@@ -94,4 +99,9 @@ public class ProductAttribute extends IdEntity {
         .withKeyValueSeparator(Splitter.on(KEY_VAL_SEPARATOR))
         .split(Strings.nullToEmpty(this.extraInfo));
   }
+
+  public String extraInfoString() {
+    return this.extraInfo;
+  }
+
 }

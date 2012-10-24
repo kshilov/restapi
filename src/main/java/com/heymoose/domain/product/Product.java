@@ -189,4 +189,8 @@ public class Product extends ModifiableEntity {
   public boolean exclusive() {
     return this.tariff != null && this.tariff().exclusive();
   }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
 }

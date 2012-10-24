@@ -14,6 +14,9 @@ import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Products;
 import com.heymoose.infrastructure.service.Tariffs;
+import com.heymoose.infrastructure.util.BatchQuery;
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -21,13 +24,74 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 
 @Singleton
 public class ProductYmlImporter {
 
-  private static final int BATCH_SIZE = 20;
+  private static final class ProductAttributeBatch
+      extends BatchQuery<ProductAttribute> {
+
+    private static final String SQL = "insert into product_attribute " +
+        "(product_id, key, value, extra_info) values (?, ?, ?, ?)";
+    private static final int BATCH_SIZE = 100;
+
+    public ProductAttributeBatch(Session session) {
+      super(BATCH_SIZE, session, SQL);
+    }
+
+
+    @Override
+    protected void transform(ProductAttribute item, PreparedStatement statement)
+        throws SQLException {
+      int i = 1;
+      statement.setLong(i++, item.product().id());
+      statement.setString(i++, item.key());
+      statement.setString(i++, item.value());
+      statement.setString(i++, item.extraInfoString());
+    }
+  }
+
+  private static final class SaveProductWork implements Work {
+
+    private static final String sql = "insert into product " +
+        "(shop_category_id, offer_id, tariff_id, name, url, original_id, price) " +
+        "values (?, ?, ?, ?, ?, ?, ?) " +
+        "returning id";
+
+    private final Product product;
+
+    private SaveProductWork(Product product) {
+      this.product = product;
+    }
+
+    @Override
+    public void execute(Connection connection) throws SQLException {
+      PreparedStatement statement = connection.prepareStatement(sql);
+      int i = 1;
+      statement.setLong(i++, product.category().id());
+      statement.setLong(i++, product.offer().id());
+      if (product.tariff() != null) {
+        statement.setLong(i++, product.tariff().id());
+      } else {
+        statement.setNull(i++, Types.BIGINT);
+      }
+      statement.setString(i++, product.name());
+      statement.setString(i++, product.url());
+      statement.setString(i++, product.originalId());
+      statement.setBigDecimal(i++, product.price());
+      statement.execute();
+      ResultSet keys = statement.getResultSet();
+      if (keys.next()) product.setId(keys.getLong(1));
+    }
+  }
+
   private static final Splitter DOT = Splitter.on('.');
   private static final Logger log =
       LoggerFactory.getLogger(ProductYmlImporter.class);
@@ -81,11 +145,13 @@ public class ProductYmlImporter {
       log.info("Parent updated for category: {}", shopCategory);
     }
     // importing products
-    int i = 0;
+    ProductAttributeBatch attributeBatchInsert =
+        new ProductAttributeBatch(repo.session());
     for (Element offer : listOffers(document)) {
       String originalId = offer.getAttributeValue("id");
-      Product product = products.productByOriginalId(parentOfferId, originalId);
-      if (product == null) product = new Product();
+//      Product product = products.productByOriginalId(parentOfferId, originalId);
+//      if (product == null) product = new Product();
+      Product product = new Product();
       String categoryOriginalId = offer.getChildText("categoryId");
       product.setCategory(categoryMap.get(categoryOriginalId))
           .setName(getTitle(offer))
@@ -105,6 +171,7 @@ public class ProductYmlImporter {
           productAttribute.addExtraInfo(attr.getName(), attr.getValue());
         }
         product.addAttribute(productAttribute);
+        attributeBatchInsert.add(productAttribute);
       }
       try {
         Tariff tariff = rater.rate(product);
@@ -113,14 +180,10 @@ public class ProductYmlImporter {
       } catch (NoInfoException e) {
         log.info("No pricing info found for product: {}", product);
       }
-      repo.put(product);
-      if (i++ % BATCH_SIZE == 0) {
-        repo.session().flush();
-        repo.session().clear();
-        log.debug("Session flushed.");
-      }
-      log.info("Product saved: {}", product);
+      save(product);
+      attributeBatchInsert.flush();
     }
+    attributeBatchInsert.flush();
   }
 
   private List<Element> listCategories(Document document) {
@@ -135,6 +198,11 @@ public class ProductYmlImporter {
         .getChild("shop")
         .getChild("offers")
         .getChildren();
+  }
+
+  private void save(Product product) {
+    repo.session().doWork(new SaveProductWork(product));
+    log.info("Product saved: {}", product);
   }
 
   private String attrCoalesce(Element element, String key1, String... keys) {
