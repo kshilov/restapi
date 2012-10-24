@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -47,11 +46,6 @@ public abstract class BatchQuery<T> {
           statement.addBatch();
         }
         statement.executeBatch();
-        ResultSet idSet = statement.getGeneratedKeys();
-        log.info("Column count: {}", idSet.getMetaData().getColumnCount());
-        for (int i = 0; i < idSet.getMetaData().getColumnCount(); i++) {
-          log.info("Column {}", idSet.getMetaData().getColumnLabel(i));
-        }
       }
     });
     this.itemList = Lists.newArrayListWithExpectedSize(this.batchSize);
