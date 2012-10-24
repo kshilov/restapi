@@ -201,8 +201,8 @@ public class ProductYmlImporter {
   }
 
   private void save(Product product) {
+    log.info("Saving product: {}", product);
     repo.session().doWork(new SaveProductWork(product));
-    log.info("Product saved: {}", product);
   }
 
   private String attrCoalesce(Element element, String key1, String... keys) {
