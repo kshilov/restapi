@@ -1,6 +1,6 @@
 begin;
 
-drop table if exists tariff;
+drop table if exists tariff cascade;
 
 drop sequence if exists tariff_seq;
 

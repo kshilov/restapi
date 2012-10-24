@@ -1,7 +1,7 @@
 begin;
-drop table if exists product_attribute;
+drop table if exists product_attribute cascade;
 drop table if exists product cascade;
-drop table if exists shop_category;
+drop table if exists shop_category cascade;
 
 drop sequence if exists product_seq;
 drop sequence if exists shop_category_seq;
