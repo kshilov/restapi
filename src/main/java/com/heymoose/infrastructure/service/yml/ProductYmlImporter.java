@@ -189,7 +189,7 @@ public class ProductYmlImporter {
         save(product);
         attributeBatchInsert.flush();
       } catch (RuntimeException e) {
-        log.warn("Error importing product: {}. Skipping..",
+        log.warn("Error importing product. Skipping..:\n{}.",
             new XMLOutputter().outputString(offer));
         log.error("Error importing product: ", e);
       }
