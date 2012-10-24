@@ -154,10 +154,10 @@ public class ProductYmlImporter {
       Product product = new Product();
       String categoryOriginalId = offer.getChildText("categoryId");
       product.setCategory(categoryMap.get(categoryOriginalId))
-          .setName(getTitle(offer))
+          .setName(extractTitle(offer))
           .setOffer(parentOffer)
           // groupId for trendsbrands
-          .setOriginalId(attrCoalesce(offer, "id", "groupId"))
+          .setOriginalId(extractOriginalId(offer))
           .setPrice(new BigDecimal(offer.getChildText("price")))
           .setUrl(offer.getChildText("url"));
       // importing attributes
@@ -214,7 +214,11 @@ public class ProductYmlImporter {
     return value;
   }
 
-  private String getTitle(Element offer) {
+  private String extractOriginalId(Element offer) {
+    return attrCoalesce(offer, "id", "group_id");
+  }
+
+  private String extractTitle(Element offer) {
     String type = offer.getAttributeValue("type");
     if (type == null) return offer.getChildText("name");
 
