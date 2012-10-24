@@ -75,7 +75,11 @@ public class ProductYmlImporter {
     public void execute(Connection connection) throws SQLException {
       PreparedStatement statement = connection.prepareStatement(sql);
       int i = 1;
-      statement.setLong(i++, product.category().id());
+      if (product.category() == null) {
+        statement.setNull(i++, Types.BIGINT);
+      } else {
+        statement.setLong(i++, product.category().id());
+      }
       statement.setLong(i++, product.offer().id());
       if (product.tariff() != null) {
         statement.setLong(i++, product.tariff().id());
