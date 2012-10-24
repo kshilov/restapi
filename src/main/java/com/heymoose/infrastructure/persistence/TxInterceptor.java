@@ -29,6 +29,8 @@ public class TxInterceptor implements MethodInterceptor {
       currentSession.setFlushMode(FlushMode.MANUAL);
     try {
       result = invocation.proceed();
+      session.get().flush();
+      session.get().clear();
       if (ann.rollBack())
         tx.rollback();
       else

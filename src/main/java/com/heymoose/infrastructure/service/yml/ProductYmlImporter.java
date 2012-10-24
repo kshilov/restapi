@@ -27,6 +27,7 @@ import java.util.List;
 @Singleton
 public class ProductYmlImporter {
 
+  private static final int BATCH_SIZE = 20;
   private static final Splitter DOT = Splitter.on('.');
   private static final Logger log =
       LoggerFactory.getLogger(ProductYmlImporter.class);
@@ -80,6 +81,7 @@ public class ProductYmlImporter {
       log.info("Parent updated for category: {}", shopCategory);
     }
     // importing products
+    int i = 0;
     for (Element offer : listOffers(document)) {
       String originalId = offer.getAttributeValue("id");
       Product product = products.productByOriginalId(parentOfferId, originalId);
@@ -112,6 +114,11 @@ public class ProductYmlImporter {
         log.info("No pricing info found for product: {}", product);
       }
       repo.put(product);
+      if (i++ % BATCH_SIZE == 0) {
+        repo.session().flush();
+        repo.session().clear();
+        log.debug("Session flushed.");
+      }
       log.info("Product saved: {}", product);
     }
   }
