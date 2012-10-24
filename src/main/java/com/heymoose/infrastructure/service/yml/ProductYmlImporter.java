@@ -20,6 +20,7 @@ import org.hibernate.jdbc.Work;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,40 +153,46 @@ public class ProductYmlImporter {
     ProductAttributeBatch attributeBatchInsert =
         new ProductAttributeBatch(repo.session());
     for (Element offer : listOffers(document)) {
-      String originalId = offer.getAttributeValue("id");
-//      Product product = products.productByOriginalId(parentOfferId, originalId);
-//      if (product == null) product = new Product();
-      Product product = new Product();
-      String categoryOriginalId = offer.getChildText("categoryId");
-      product.setCategory(categoryMap.get(categoryOriginalId))
-          .setName(extractTitle(offer))
-          .setOffer(parentOffer)
-          // groupId for trendsbrands
-          .setOriginalId(extractOriginalId(offer))
-          .setPrice(new BigDecimal(offer.getChildText("price")))
-          .setUrl(offer.getChildText("url"));
-      // importing attributes
-      for (Element offerChild : offer.getChildren()) {
-        products.clearAttributes(product);
-        ProductAttribute productAttribute = new ProductAttribute()
-            .setProduct(product)
-            .setKey(offerChild.getName())
-            .setValue(offerChild.getText());
-        for (Attribute attr : offerChild.getAttributes()) {
-          productAttribute.addExtraInfo(attr.getName(), attr.getValue());
-        }
-        product.addAttribute(productAttribute);
-        attributeBatchInsert.add(productAttribute);
-      }
       try {
-        Tariff tariff = rater.rate(product);
-        tariff = tariffs.createIfNotExists(tariff);
-        product.setTariff(tariff);
-      } catch (NoInfoException e) {
-        log.info("No pricing info found for product: {}", product);
+        String originalId = offer.getAttributeValue("id");
+  //      Product product = products.productByOriginalId(parentOfferId, originalId);
+  //      if (product == null) product = new Product();
+        Product product = new Product();
+        String categoryOriginalId = offer.getChildText("categoryId");
+        product.setCategory(categoryMap.get(categoryOriginalId))
+            .setName(extractTitle(offer))
+            .setOffer(parentOffer)
+            // groupId for trendsbrands
+            .setOriginalId(extractOriginalId(offer))
+            .setPrice(new BigDecimal(offer.getChildText("price")))
+            .setUrl(offer.getChildText("url"));
+        // importing attributes
+        for (Element offerChild : offer.getChildren()) {
+          products.clearAttributes(product);
+          ProductAttribute productAttribute = new ProductAttribute()
+              .setProduct(product)
+              .setKey(offerChild.getName())
+              .setValue(offerChild.getText());
+          for (Attribute attr : offerChild.getAttributes()) {
+            productAttribute.addExtraInfo(attr.getName(), attr.getValue());
+          }
+          product.addAttribute(productAttribute);
+          attributeBatchInsert.add(productAttribute);
+        }
+        try {
+          Tariff tariff = rater.rate(product);
+          tariff = tariffs.createIfNotExists(tariff);
+          product.setTariff(tariff);
+        } catch (NoInfoException e) {
+          log.info("No pricing info found for product: {}", product);
+        }
+        save(product);
+        attributeBatchInsert.flush();
+      } catch (RuntimeException e) {
+        log.warn("Error importing product: {}. Skipping..",
+            new XMLOutputter().outputString(offer));
+        log.error("Error importing product: ", e);
       }
-      save(product);
-      attributeBatchInsert.flush();
     }
     attributeBatchInsert.flush();
   }
