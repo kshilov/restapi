@@ -98,6 +98,7 @@ public class ProductYmlImporter {
   }
 
   private static final Splitter DOT = Splitter.on('.');
+  private static final XMLOutputter OUTPUTTER = new XMLOutputter();
   private static final Logger log =
       LoggerFactory.getLogger(ProductYmlImporter.class);
 
@@ -190,7 +191,7 @@ public class ProductYmlImporter {
         attributeBatchInsert.flush();
       } catch (RuntimeException e) {
         log.warn("Error importing product. Skipping..:\n{}.",
-            new XMLOutputter().outputString(offer));
+            OUTPUTTER.outputString(offer));
         log.error("Error importing product: ", e);
       }
     }
