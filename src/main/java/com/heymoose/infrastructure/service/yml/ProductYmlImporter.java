@@ -14,9 +14,6 @@ import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Products;
 import com.heymoose.infrastructure.service.Tariffs;
-import com.heymoose.infrastructure.util.BatchQuery;
-import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -25,77 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 
 @Singleton
 public class ProductYmlImporter {
-
-  private static final class ProductAttributeBatch
-      extends BatchQuery<ProductAttribute> {
-
-    private static final String SQL = "insert into product_attribute " +
-        "(product_id, key, value, extra_info) values (?, ?, ?, ?)";
-    private static final int BATCH_SIZE = 100;
-
-    public ProductAttributeBatch(Session session) {
-      super(BATCH_SIZE, session, SQL);
-    }
-
-
-    @Override
-    protected void transform(ProductAttribute item, PreparedStatement statement)
-        throws SQLException {
-      int i = 1;
-      statement.setLong(i++, item.product().id());
-      statement.setString(i++, item.key());
-      statement.setString(i++, item.value());
-      statement.setString(i++, item.extraInfoString());
-    }
-  }
-
-  private static final class SaveProductWork implements Work {
-
-    private static final String sql = "insert into product " +
-        "(shop_category_id, offer_id, tariff_id, name, url, original_id, price) " +
-        "values (?, ?, ?, ?, ?, ?, ?) " +
-        "returning id";
-
-    private final Product product;
-
-    private SaveProductWork(Product product) {
-      this.product = product;
-    }
-
-    @Override
-    public void execute(Connection connection) throws SQLException {
-      PreparedStatement statement = connection.prepareStatement(sql);
-      int i = 1;
-      if (product.category() == null) {
-        statement.setNull(i++, Types.BIGINT);
-      } else {
-        statement.setLong(i++, product.category().id());
-      }
-      statement.setLong(i++, product.offer().id());
-      if (product.tariff() != null) {
-        statement.setLong(i++, product.tariff().id());
-      } else {
-        statement.setNull(i++, Types.BIGINT);
-      }
-      statement.setString(i++, product.name());
-      statement.setString(i++, product.url());
-      statement.setString(i++, product.originalId());
-      statement.setBigDecimal(i++, product.price());
-      statement.execute();
-      ResultSet keys = statement.getResultSet();
-      if (keys.next()) product.setId(keys.getLong(1));
-    }
-  }
 
   private static final Splitter DOT = Splitter.on('.');
   private static final XMLOutputter OUTPUTTER = new XMLOutputter();
@@ -155,9 +86,6 @@ public class ProductYmlImporter {
         new ProductAttributeBatch(repo.session());
     for (Element offer : listOffers(document)) {
       try {
-        String originalId = offer.getAttributeValue("id");
-  //      Product product = products.productByOriginalId(parentOfferId, originalId);
-  //      if (product == null) product = new Product();
         Product product = new Product();
         String categoryOriginalId = offer.getChildText("categoryId");
         product.setCategory(categoryMap.get(categoryOriginalId))
@@ -187,7 +115,7 @@ public class ProductYmlImporter {
         } catch (NoInfoException e) {
           log.info("No pricing info found for product: {}", product);
         }
-        save(product);
+        saveOrUpdate(product);
         attributeBatchInsert.flush();
       } catch (RuntimeException e) {
         log.warn("Error importing product. Skipping..:\n{}.",
@@ -212,9 +140,9 @@ public class ProductYmlImporter {
         .getChildren();
   }
 
-  private void save(Product product) {
+  private void saveOrUpdate(Product product) {
     log.info("Saving product: {}", product);
-    repo.session().doWork(new SaveProductWork(product));
+    repo.session().doWork(new SaveOrUpdateProductWork(product));
   }
 
   private String attrCoalesce(Element element, String key1, String... keys) {
