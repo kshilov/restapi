@@ -71,15 +71,14 @@ public class ProductExcelExporter {
       Tariff tariff = product.tariff();
       if (tariff == null) tariff = product.offer().tariff();
       if (tariff == null) continue;
-      switch (product.tariff().cpaPolicy()) {
+      switch (tariff.cpaPolicy()) {
         case PERCENT:
-          String revenue = String.format("%s%%",
-              product.tariff().affiliatePercent());
+          String revenue = String.format("%s%%", tariff.affiliatePercent());
           offerRow.createCell(cols++).setCellValue(revenue);
           break;
         case FIXED:
           offerRow.createCell(cols++).setCellValue(
-              product.tariff().affiliateCost().toString());
+              tariff.affiliateCost().toString());
           break;
       }
     }
