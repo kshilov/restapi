@@ -141,6 +141,12 @@ public class ProductResource {
         if (product.category() == null) offer.removeContent(categoryElement);
         offer.getChild("categoryId").setText(product.category().id().toString());
       }
+      Element name = offer.getChild("name");
+      if (name == null) {
+        name = new Element("name");
+        offer.addContent(name);
+      }
+      name.setText(product.name());
       offer.getChild("categoryId").setText(product.category().id().toString());
       offer.setAttribute("id", product.id().toString());
 
