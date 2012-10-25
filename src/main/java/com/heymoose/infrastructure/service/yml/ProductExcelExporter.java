@@ -5,6 +5,7 @@ import com.google.common.io.OutputSupplier;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.infrastructure.persistence.Transactional;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -67,6 +68,9 @@ public class ProductExcelExporter {
       offerRow.createCell(cols++).setCellValue(
           product.attributeValue("currencyId"));
       offerRow.createCell(cols++).setCellValue(product.exclusive());
+      Tariff tariff = product.tariff();
+      if (tariff == null) tariff = product.offer().tariff();
+      if (tariff == null) continue;
       switch (product.tariff().cpaPolicy()) {
         case PERCENT:
           String revenue = String.format("%s%%",
