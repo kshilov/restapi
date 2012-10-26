@@ -133,6 +133,12 @@ public class ProductResource {
       }
       offer.setAttribute("id", product.id().toString());
 
+      for (ShopCategory category : product.directCategoryList()) {
+        Element categoryElement = new Element("categoryId")
+            .setText(category.id().toString());
+        offer.addContent(categoryElement);
+      }
+
       for (ProductAttribute attribute : product.attributes()) {
         Element attributeElement = new Element(attribute.key())
             .setText(attribute.value());
@@ -142,11 +148,7 @@ public class ProductResource {
         }
         offer.addContent(attributeElement);
       }
-      Element categoryElement = offer.getChild("categoryId");
-      if (categoryElement != null) {
-        if (product.category() == null) offer.removeContent(categoryElement);
-        offer.getChild("categoryId").setText(product.category().id().toString());
-      }
+
       Element name = offer.getChild("name");
       if (name == null) {
         name = new Element("name");
@@ -165,12 +167,9 @@ public class ProductResource {
       offer.getChild("url").setText(newUrl);
       offers.addContent(offer);
 
-      ShopCategory category = product.category();
-      while (category.parent() != null) {
+      for (ShopCategory category : product.categoryList()) {
         categoryMap.put(category.id(), category);
-        category = category.parent();
       }
-      categoryMap.put(category.id(), category);
     }
 
     toXmlCategories(categories, categoryMap);

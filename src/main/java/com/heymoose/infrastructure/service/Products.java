@@ -7,7 +7,6 @@ import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.util.HibernateUtil;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
@@ -43,19 +42,10 @@ public class Products {
     criteria.add(Restrictions.in("offer.id", offerList));
 
     if (!categoryList.isEmpty()) {
-      criteria.createAlias("category", "category");
-      Criterion categoryMatches = Restrictions.in("category.id", categoryList);
-      Criterion parentMatches = HibernateUtil.sqlInRestriction(
-          "exists (with recursive children(id, parent_id) as (" +
-            "select id, parent_id from shop_category where parent_id is not null " +
-            "union " +
-            "select children.id, shop_category.parent_id " +
-              "from children " +
-              "join shop_category on shop_category.id = children.parent_id) " +
-          "select * from children " +
-              "where parent_id in (?) and id = {alias}.shop_category_id)",
-          categoryList, StandardBasicTypes.LONG);
-      criteria.add(Restrictions.or(categoryMatches, parentMatches));
+      criteria.add(HibernateUtil.sqlInRestriction(
+          "exists (select * from product_category " +
+              "where product_id = {alias}.id and category_id in (?))",
+          categoryList, StandardBasicTypes.LONG));
     }
     if (!Strings.isNullOrEmpty(queryString)) {
       criteria.add(Restrictions.sqlRestriction(

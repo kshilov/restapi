@@ -249,4 +249,12 @@ public class Product extends ModifiableEntity {
     }
     return result.build();
   }
+
+  public ImmutableList<ShopCategory> categoryList() {
+    ImmutableList.Builder<ShopCategory> result = ImmutableList.builder();
+    for (ProductCategoryMapping mapping : categoryMappingList) {
+      result.add(mapping.category());
+    }
+    return result.build();
+  }
 }
