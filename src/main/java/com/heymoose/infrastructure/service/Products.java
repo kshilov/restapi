@@ -10,6 +10,8 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -18,6 +20,7 @@ import java.util.List;
 public class Products {
 
   private static final int ITEMS_PER_PAGE = 100;
+  private static final Logger log = LoggerFactory.getLogger(Products.class);
 
   private final Repo repo;
 
@@ -86,15 +89,19 @@ public class Products {
   }
 
   public void clearAttributes(Product product) {
-    repo.session().createQuery("delete from ProductAttribute where product.id = ?")
-        .setParameter(0, product.id());
+    int deleted = repo.session()
+        .createQuery("delete from ProductAttribute where product.id = ?")
+        .setParameter(0, product.id())
+        .executeUpdate();
+    log.debug("Deleted {} attributes of product {}", deleted, product);
   }
 
   public void deactivateAll(Long parentOfferId) {
-    repo.session().createSQLQuery(
+    int updated = repo.session().createSQLQuery(
         "update product set active = false " +
             "where offer_id = ?")
         .setParameter(0, parentOfferId)
         .executeUpdate();
+    log.debug("Deactivated {} products of offer {}", updated, parentOfferId);
   }
 }
