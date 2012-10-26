@@ -34,7 +34,8 @@ public class Products {
                                 int page) {
     if (offerList.isEmpty()) return ImmutableList.of();
 
-    Criteria criteria = repo.session().createCriteria(Product.class);
+    Criteria criteria = repo.session().createCriteria(Product.class)
+        .add(Restrictions.eq("active", true));
     criteria.createAlias("offer", "offer");
     criteria.add(Restrictions.in("offer.id", offerList));
 
@@ -85,7 +86,15 @@ public class Products {
   }
 
   public void clearAttributes(Product product) {
-    repo.session().createQuery("delete from ProductAttribute where product = ?")
-        .setParameter(0, product);
+    repo.session().createQuery("delete from ProductAttribute where product.id = ?")
+        .setParameter(0, product.id());
+  }
+
+  public void deactivateAll(Long parentOfferId) {
+    repo.session().createSQLQuery(
+        "update product set active = false " +
+            "where offer_id = ?")
+        .setParameter(0, parentOfferId)
+        .executeUpdate();
   }
 }

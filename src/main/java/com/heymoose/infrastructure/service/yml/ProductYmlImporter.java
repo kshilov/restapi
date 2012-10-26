@@ -82,6 +82,8 @@ public class ProductYmlImporter {
       log.info("Parent updated for category: {}", shopCategory);
     }
     // importing products
+    // set active = false for all existing products
+    products.deactivateAll(parentOfferId);
     ProductAttributeBatch attributeBatchInsert =
         new ProductAttributeBatch(repo.session());
     for (Element offer : listOffers(document)) {
@@ -95,9 +97,13 @@ public class ProductYmlImporter {
             .setOriginalId(extractOriginalId(offer))
             .setPrice(new BigDecimal(offer.getChildText("price")))
             .setUrl(offer.getChildText("url"));
+        for (Attribute offerAttribute : offer.getAttributes()) {
+          product.addExtraInfo(
+              offerAttribute.getName(),
+              offerAttribute.getValue());
+        }
         // importing attributes
         for (Element offerChild : offer.getChildren()) {
-          products.clearAttributes(product);
           ProductAttribute productAttribute = new ProductAttribute()
               .setProduct(product)
               .setKey(offerChild.getName())
@@ -116,6 +122,7 @@ public class ProductYmlImporter {
           log.info("No pricing info found for product: {}", product);
         }
         saveOrUpdate(product);
+        products.clearAttributes(product); // delete all attributes first
         attributeBatchInsert.flush();
       } catch (RuntimeException e) {
         log.warn("Error importing product. Skipping..:\n{}.",

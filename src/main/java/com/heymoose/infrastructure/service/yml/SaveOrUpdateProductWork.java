@@ -18,17 +18,20 @@ final class SaveOrUpdateProductWork implements Work {
       LoggerFactory.getLogger(SaveOrUpdateProductWork.class);
 
   private static final String INSERT = "insert into product " +
-      "(shop_category_id, offer_id, tariff_id, name, url, original_id, price) " +
-      "values (?, ?, ?, ?, ?, ?, ?)";
-  private static final String UPDATE = "update product " +
-      "set shop_category_id = ?, " +
-      "offer_id = ?, " +
-      "tariff_id = ?, " +
-      "name = ?, " +
-      "url = ?, " +
-      "original_id = ?, " +
-      "price = ? " +
-      "where offer_id = ? and original_id = ?";
+      "(shop_category_id, offer_id, tariff_id, name, url, original_id, price, " +
+      "active, extra_info) " +
+      "values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  private static final String UPDATE = "update product" +
+      " set shop_category_id = ?" +
+      ", offer_id = ?" +
+      ", tariff_id = ?" +
+      ", name = ?" +
+      ", url = ?" +
+      ", original_id = ?" +
+      ", price = ?" +
+      ", active = ?" +
+      ", extra_info = ?" +
+      " where offer_id = ? and original_id = ?";
 
   private final Product product;
 
@@ -77,6 +80,8 @@ final class SaveOrUpdateProductWork implements Work {
     statement.setString(i++, product.url());
     statement.setString(i++, product.originalId());
     statement.setBigDecimal(i++, product.price());
+    statement.setBoolean(i++, product.active());
+    statement.setString(i++, product.extraInfoString());
     return i;
   }
 

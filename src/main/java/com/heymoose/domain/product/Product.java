@@ -1,6 +1,9 @@
 package com.heymoose.domain.product;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
@@ -25,11 +28,15 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "product")
 @NotThreadSafe
 public class Product extends ModifiableEntity {
+
+  private static final char FIELD_SEPARATOR = '&';
+  private static final char KEY_VAL_SEPARATOR = '=';
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product-seq")
@@ -51,6 +58,12 @@ public class Product extends ModifiableEntity {
 
   @Column(name = "price")
   private BigDecimal price;
+
+  @Column(name = "extra_info")
+  private String extraInfo;
+
+  @Column(nullable = false)
+  private boolean active = true;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "shop_category_id")
@@ -193,4 +206,33 @@ public class Product extends ModifiableEntity {
   public void setId(Long id) {
     this.id = id;
   }
+
+
+  public Product addExtraInfo(String name, String value) {
+    this.extraInfo = Joiner.on(FIELD_SEPARATOR).skipNulls()
+        .join(this.extraInfo, Joiner.on(KEY_VAL_SEPARATOR).join(name, value));
+    return this;
+  }
+
+  public Map<String, String> extraInfo() {
+    return Splitter.on(FIELD_SEPARATOR)
+        .omitEmptyStrings()
+        .withKeyValueSeparator(Splitter.on(KEY_VAL_SEPARATOR))
+        .split(Strings.nullToEmpty(this.extraInfo));
+  }
+
+  public String extraInfoString() {
+    return this.extraInfo;
+  }
+
+  public boolean active() {
+    return this.active;
+  }
+
+  public Product setActive(boolean active) {
+    this.active = active;
+    return this;
+  }
+
+
 }

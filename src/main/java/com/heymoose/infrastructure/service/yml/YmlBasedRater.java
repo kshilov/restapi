@@ -15,13 +15,13 @@ public final class YmlBasedRater implements ProductRater {
     Tariff tariff = Tariff.forProduct(product);
     Iterable<ProductAttribute> paramList = product.attributeList("param");
     for (ProductAttribute attr : paramList) {
-      if (attr.getExtraInfo().get("name").equals("hm_value")) {
-        String cpaPolicyString = attr.getExtraInfo().get("unit").toUpperCase();
+      if (attr.extraInfo().get("name").equals("hm_value")) {
+        String cpaPolicyString = attr.extraInfo().get("unit").toUpperCase();
         CpaPolicy cpaPolicy = CpaPolicy.valueOf(cpaPolicyString);
         BigDecimal value = new BigDecimal(attr.value());
         tariff.setValue(cpaPolicy, value);
       }
-      if (attr.getExtraInfo().get("name").equals("hm_exclusive")) {
+      if (attr.extraInfo().get("name").equals("hm_exclusive")) {
         tariff.setExclusive(Boolean.valueOf(attr.value()));
       }
     }

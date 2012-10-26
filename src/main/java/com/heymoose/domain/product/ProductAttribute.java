@@ -93,7 +93,7 @@ public class ProductAttribute extends IdEntity {
     return this;
   }
 
-  public Map<String, String> getExtraInfo() {
+  public Map<String, String> extraInfo() {
     return Splitter.on(FIELD_SEPARATOR)
         .omitEmptyStrings()
         .withKeyValueSeparator(Splitter.on(KEY_VAL_SEPARATOR))

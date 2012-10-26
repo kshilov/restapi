@@ -127,11 +127,17 @@ public class ProductResource {
 
     for (Product product : productList) {
       Element offer = new Element("offer");
+
+      for (Map.Entry<String, String> extra : product.extraInfo().entrySet()) {
+        offer.setAttribute(extra.getKey(), extra.getValue());
+      }
+      offer.setAttribute("id", product.id().toString());
+
       for (ProductAttribute attribute : product.attributes()) {
         Element attributeElement = new Element(attribute.key())
             .setText(attribute.value());
         for (Map.Entry<String, String> extraAttr :
-            attribute.getExtraInfo().entrySet()) {
+            attribute.extraInfo().entrySet()) {
           attributeElement.setAttribute(extraAttr.getKey(), extraAttr.getValue());
         }
         offer.addContent(attributeElement);
@@ -148,7 +154,6 @@ public class ProductResource {
       }
       name.setText(product.name());
       offer.getChild("categoryId").setText(product.category().id().toString());
-      offer.setAttribute("id", product.id().toString());
 
       String originalUrl = offer.getChildText("url");
       offer.addContent(param("hm_offer_id", product.offer().id()));
