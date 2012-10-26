@@ -18,12 +18,11 @@ final class SaveOrUpdateProductWork implements Work {
       LoggerFactory.getLogger(SaveOrUpdateProductWork.class);
 
   private static final String INSERT = "insert into product " +
-      "(shop_category_id, offer_id, tariff_id, name, url, original_id, price, " +
+      "(offer_id, tariff_id, name, url, original_id, price, " +
       "active, extra_info) " +
-      "values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      "values (?, ?, ?, ?, ?, ?, ?, ?)";
   private static final String UPDATE = "update product" +
-      " set shop_category_id = ?" +
-      ", offer_id = ?" +
+      " set offer_id = ?" +
       ", tariff_id = ?" +
       ", name = ?" +
       ", url = ?" +
@@ -65,11 +64,6 @@ final class SaveOrUpdateProductWork implements Work {
   private int fillStatementBase(PreparedStatement statement)
       throws SQLException {
     int i = 1;
-    if (product.category() == null) {
-      statement.setNull(i++, Types.BIGINT);
-    } else {
-      statement.setLong(i++, product.category().id());
-    }
     statement.setLong(i++, product.offer().id());
     if (product.tariff() != null) {
       statement.setLong(i++, product.tariff().id());

@@ -104,4 +104,13 @@ public class Products {
         .executeUpdate();
     log.debug("Deactivated {} products of offer {}", updated, parentOfferId);
   }
+
+  public void clearCategories(Product product) {
+    int deleted = repo.session()
+        .createSQLQuery("delete from product_category " +
+            "where product_id = ?")
+        .setParameter(0, product.id())
+        .executeUpdate();
+    log.debug("Deleted {} product - category mappings of {}", deleted, product);
+  }
 }

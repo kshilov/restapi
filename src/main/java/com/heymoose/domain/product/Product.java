@@ -65,9 +65,10 @@ public class Product extends ModifiableEntity {
   @Column(nullable = false)
   private boolean active = true;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "shop_category_id")
-  private ShopCategory category;
+  @OneToMany
+  @JoinColumn(name = "product_id")
+  private List<ProductCategoryMapping> categoryMappingList =
+      Lists.newArrayList();
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "product",
       cascade = CascadeType.ALL)
@@ -142,16 +143,11 @@ public class Product extends ModifiableEntity {
         .add("id", id)
         .add("originalId", originalId)
         .add("offerId", offer.id())
-        .add("categoryId", category == null ? null : category.id())
         .add("name", name).toString();
   }
 
-  public ShopCategory category() {
-    return this.category;
-  }
-
-  public Product setCategory(ShopCategory category) {
-    this.category = category;
+  public Product addCategoryMapping(ProductCategoryMapping mapping) {
+    this.categoryMappingList.add(mapping);
     return this;
   }
 
@@ -235,4 +231,22 @@ public class Product extends ModifiableEntity {
   }
 
 
+  /**
+   * Returns first own category
+   */
+  public ShopCategory category() {
+    if (categoryMappingList.isEmpty()) return null;
+    for (ProductCategoryMapping mapping : categoryMappingList) {
+      if (mapping.isDirect()) return mapping.category();
+    }
+    return null;
+  }
+
+  public ImmutableList<ShopCategory> directCategoryList() {
+    ImmutableList.Builder<ShopCategory> result = ImmutableList.builder();
+    for (ProductCategoryMapping mapping : categoryMappingList) {
+      if (mapping.isDirect()) result.add(mapping.category());
+    }
+    return result.build();
+  }
 }

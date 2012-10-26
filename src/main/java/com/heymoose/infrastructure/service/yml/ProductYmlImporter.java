@@ -8,6 +8,7 @@ import com.google.inject.Singleton;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
+import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ProductRater;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class ProductYmlImporter {
@@ -83,14 +85,10 @@ public class ProductYmlImporter {
     }
     // importing products
     products.deactivateAll(parentOfferId);
-    ProductAttributeBatch attributeBatchInsert =
-        new ProductAttributeBatch(repo.session());
     for (Element offer : listOffers(document)) {
       try {
         Product product = new Product();
-        String categoryOriginalId = offer.getChildText("categoryId");
-        product.setCategory(categoryMap.get(categoryOriginalId))
-            .setName(extractTitle(offer))
+        product.setName(extractTitle(offer))
             .setOffer(parentOffer)
             // groupId for trendsbrands
             .setOriginalId(extractOriginalId(offer))
@@ -101,20 +99,9 @@ public class ProductYmlImporter {
               offerAttribute.getName(),
               offerAttribute.getValue());
         }
-        saveOrUpdate(product);
-        products.clearAttributes(product); // delete all attributes
-        // importing attributes
-        for (Element offerChild : offer.getChildren()) {
-          ProductAttribute productAttribute = new ProductAttribute()
-              .setProduct(product)
-              .setKey(offerChild.getName())
-              .setValue(offerChild.getText());
-          for (Attribute attr : offerChild.getAttributes()) {
-            productAttribute.addExtraInfo(attr.getName(), attr.getValue());
-          }
-          product.addAttribute(productAttribute);
-          attributeBatchInsert.add(productAttribute);
-        }
+        saveOrUpdateProduct(product);
+        saveCategoryMappings(offer, product, categoryMap);
+        saveAttributes(offer, product);
         try {
           Tariff tariff = rater.rate(product);
           tariff = tariffs.createIfNotExists(tariff);
@@ -122,14 +109,60 @@ public class ProductYmlImporter {
         } catch (NoInfoException e) {
           log.info("No pricing info found for product: {}", product);
         }
-        attributeBatchInsert.flush();
       } catch (RuntimeException e) {
         log.warn("Error importing product. Skipping..:\n{}.",
             OUTPUTTER.outputString(offer));
         log.error("Error importing product: ", e);
       }
     }
+  }
+
+  private void saveAttributes(Element offer, Product product) {
+    ProductAttributeBatch attributeBatchInsert =
+        new ProductAttributeBatch(repo.session());
+    products.clearAttributes(product); // delete all attributes
+    // importing attributes
+    for (Element offerChild : offer.getChildren()) {
+      if (offerChild.getName().equals("categoryId")) continue;
+      ProductAttribute productAttribute = new ProductAttribute()
+          .setProduct(product)
+          .setKey(offerChild.getName())
+          .setValue(offerChild.getText());
+      for (Attribute attr : offerChild.getAttributes()) {
+        productAttribute.addExtraInfo(attr.getName(), attr.getValue());
+      }
+      product.addAttribute(productAttribute);
+      attributeBatchInsert.add(productAttribute);
+    }
     attributeBatchInsert.flush();
+  }
+
+  private void saveCategoryMappings(Element offer, Product product,
+                                    Map<String, ShopCategory> categoryMap) {
+
+    ProductCategoryBatch categoryMappingBatchInsert =
+        new ProductCategoryBatch(repo.session());
+    products.clearCategories(product);
+    for (Element categoryIdElement : offer.getChildren("categoryId")) {
+      ShopCategory category = categoryMap.get(categoryIdElement.getText());
+      ProductCategoryMapping mapping = new ProductCategoryMapping()
+          .setCategory(category)
+          .setProduct(product);
+      categoryMappingBatchInsert.add(mapping);
+      product.addCategoryMapping(mapping);
+      while (category.parent() != null) {
+        category = category.parent();
+        mapping = new ProductCategoryMapping()
+            .setCategory(category)
+            .setProduct(product)
+            .isNotDirect();
+        categoryMappingBatchInsert.add(mapping);
+        product.addCategoryMapping(mapping);
+      }
+
+      categoryMappingBatchInsert.flush();
+    }
+
   }
 
   private List<Element> listCategories(Document document) {
@@ -146,7 +179,7 @@ public class ProductYmlImporter {
         .getChildren();
   }
 
-  private void saveOrUpdate(Product product) {
+  private void saveOrUpdateProduct(Product product) {
     log.info("Saving product: {}", product);
     repo.session().doWork(new SaveOrUpdateProductWork(product));
   }
