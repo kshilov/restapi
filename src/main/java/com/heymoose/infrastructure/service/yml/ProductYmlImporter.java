@@ -82,6 +82,10 @@ public class ProductYmlImporter {
       repo.put(shopCategory);
       log.info("Parent updated for category: {}", shopCategory);
     }
+
+    repo.session().flush();
+    repo.session().clear();
+
     // importing products
     products.deactivateAll(parentOfferId);
     for (Element offer : listOffers(document)) {
