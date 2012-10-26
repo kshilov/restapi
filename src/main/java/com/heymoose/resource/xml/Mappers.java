@@ -185,6 +185,7 @@ public class Mappers {
     xmlOffer.cookieTtl = offer.cookieTtl();
     xmlOffer.tokenParamName = offer.tokenParamName();
     xmlOffer.exclusive = offer.exclusive();
+    xmlOffer.isProductOffer = offer.isProductOffer();
 
     if (!offer.exclusive()) {
       for (SubOffer suboffer : offer.suboffers())

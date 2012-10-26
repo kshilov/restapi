@@ -126,6 +126,9 @@ public class XmlOffer {
   @XmlElement(name = "token-param-name")
   public String tokenParamName;
 
+  @XmlElement(name = "is-product-offer")
+  public Boolean isProductOffer;
+
   @XmlElement
   public boolean exclusive;
   
