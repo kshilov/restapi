@@ -11,10 +11,9 @@ class ProductCategoryBatch extends BatchQuery<ProductCategoryMapping> {
 
   private static final String SQL = "insert into product_category " +
       "(product_id, shop_category_id, is_direct) values (?, ?, ?)";
-  private static final int BATCH_SIZE = 10;
 
   public ProductCategoryBatch(Session session) {
-    super(BATCH_SIZE, session, SQL);
+    super(session, SQL);
   }
 
   @Override

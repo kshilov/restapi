@@ -15,21 +15,17 @@ public abstract class BatchQuery<T> {
 
   private static final Logger log = LoggerFactory.getLogger(BatchQuery.class);
 
-  private final int batchSize;
   private final Session session;
   private final String sql;
   private List<T> itemList;
 
-  public BatchQuery(int batchSize, Session session,
-                    String sql) {
-    this.batchSize = batchSize;
+  public BatchQuery(Session session, String sql) {
     this.session = session;
     this.sql = sql;
-    this.itemList = Lists.newArrayListWithExpectedSize(batchSize);
+    this.itemList = Lists.newArrayList();
   }
 
   public <X extends T> BatchQuery<T> add(X item) {
-    if (itemList.size() == batchSize) flush();
     itemList.add(item);
     return this;
   }
@@ -48,7 +44,7 @@ public abstract class BatchQuery<T> {
         statement.executeBatch();
       }
     });
-    this.itemList = Lists.newArrayListWithExpectedSize(this.batchSize);
+    this.itemList = Lists.newArrayList();
   }
 
   protected abstract void transform(T item, PreparedStatement statement)

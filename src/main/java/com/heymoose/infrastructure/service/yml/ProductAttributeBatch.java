@@ -12,10 +12,9 @@ final class ProductAttributeBatch
 
   private static final String SQL = "insert into product_attribute " +
       "(product_id, key, value, extra_info) values (?, ?, ?, ?)";
-  private static final int BATCH_SIZE = 40;
 
   public ProductAttributeBatch(Session session) {
-    super(BATCH_SIZE, session, SQL);
+    super(session, SQL);
   }
 
 
