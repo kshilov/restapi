@@ -7,6 +7,7 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
@@ -161,6 +162,13 @@ public class ProductResource {
       offer.addContent(param("hm_offer_id", product.offer().id()));
       offer.addContent(param("hm_offer_name", product.offer().name()));
       offer.addContent(param("hm_original_url", originalUrl));
+
+      Tariff tariff = product.tariff();
+      if (tariff != null) {
+        Element hmRevenue = param("hm_revenue", tariff.value())
+            .setAttribute("unit", tariff.cpaPolicy().toString().toLowerCase());
+        offer.addContent(hmRevenue);
+      }
 
       String newUrl = String.format(
           URL_MASK, product.offer().id(), user.id(), originalUrl);

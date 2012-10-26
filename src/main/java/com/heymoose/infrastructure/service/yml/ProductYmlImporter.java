@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Singleton
 public class ProductYmlImporter {
@@ -99,70 +98,65 @@ public class ProductYmlImporter {
               offerAttribute.getName(),
               offerAttribute.getValue());
         }
-        saveOrUpdateProduct(product);
-        saveCategoryMappings(offer, product, categoryMap);
-        saveAttributes(offer, product);
+
+        // adding attributes
+        ProductAttributeBatch attributeBatchInsert =
+            new ProductAttributeBatch(repo.session());
+        // importing attributes
+        for (Element offerChild : offer.getChildren()) {
+          if (offerChild.getName().equals("categoryId")) continue;
+          ProductAttribute productAttribute = new ProductAttribute()
+              .setProduct(product)
+              .setKey(offerChild.getName())
+              .setValue(offerChild.getText());
+          for (Attribute attr : offerChild.getAttributes()) {
+            productAttribute.addExtraInfo(attr.getName(), attr.getValue());
+          }
+          product.addAttribute(productAttribute);
+          attributeBatchInsert.add(productAttribute);
+        }
+
+        // adding category mappings
+        ProductCategoryBatch categoryMappingBatchInsert =
+            new ProductCategoryBatch(repo.session());
+        for (Element categoryIdElement : offer.getChildren("categoryId")) {
+          ShopCategory category = categoryMap.get(categoryIdElement.getText());
+          ProductCategoryMapping mapping = new ProductCategoryMapping()
+              .setCategory(category)
+              .setProduct(product);
+          categoryMappingBatchInsert.add(mapping);
+          product.addCategoryMapping(mapping);
+          while (category.parent() != null) {
+            category = category.parent();
+            mapping = new ProductCategoryMapping()
+                .setCategory(category)
+                .setProduct(product)
+                .isNotDirect();
+            categoryMappingBatchInsert.add(mapping);
+            product.addCategoryMapping(mapping);
+          }
+        }
+
         try {
+          // rater needs fully filled product!
           Tariff tariff = rater.rate(product);
           tariff = tariffs.createIfNotExists(tariff);
           product.setTariff(tariff);
         } catch (NoInfoException e) {
           log.info("No pricing info found for product: {}", product);
         }
+        saveOrUpdateProduct(product);
+        // this should be flushed after saving product because of product id
+        products.clearAttributes(product);
+        attributeBatchInsert.flush();
+        products.clearCategories(product);
+        categoryMappingBatchInsert.flush();
       } catch (RuntimeException e) {
         log.warn("Error importing product. Skipping..:\n{}.",
             OUTPUTTER.outputString(offer));
         log.error("Error importing product: ", e);
       }
     }
-  }
-
-  private void saveAttributes(Element offer, Product product) {
-    ProductAttributeBatch attributeBatchInsert =
-        new ProductAttributeBatch(repo.session());
-    products.clearAttributes(product); // delete all attributes
-    // importing attributes
-    for (Element offerChild : offer.getChildren()) {
-      if (offerChild.getName().equals("categoryId")) continue;
-      ProductAttribute productAttribute = new ProductAttribute()
-          .setProduct(product)
-          .setKey(offerChild.getName())
-          .setValue(offerChild.getText());
-      for (Attribute attr : offerChild.getAttributes()) {
-        productAttribute.addExtraInfo(attr.getName(), attr.getValue());
-      }
-      product.addAttribute(productAttribute);
-      attributeBatchInsert.add(productAttribute);
-    }
-    attributeBatchInsert.flush();
-  }
-
-  private void saveCategoryMappings(Element offer, Product product,
-                                    Map<String, ShopCategory> categoryMap) {
-
-    ProductCategoryBatch categoryMappingBatchInsert =
-        new ProductCategoryBatch(repo.session());
-    products.clearCategories(product);
-    for (Element categoryIdElement : offer.getChildren("categoryId")) {
-      ShopCategory category = categoryMap.get(categoryIdElement.getText());
-      ProductCategoryMapping mapping = new ProductCategoryMapping()
-          .setCategory(category)
-          .setProduct(product);
-      categoryMappingBatchInsert.add(mapping);
-      product.addCategoryMapping(mapping);
-      while (category.parent() != null) {
-        category = category.parent();
-        mapping = new ProductCategoryMapping()
-            .setCategory(category)
-            .setProduct(product)
-            .isNotDirect();
-        categoryMappingBatchInsert.add(mapping);
-        product.addCategoryMapping(mapping);
-      }
-
-      categoryMappingBatchInsert.flush();
-    }
-
   }
 
   private List<Element> listCategories(Document document) {

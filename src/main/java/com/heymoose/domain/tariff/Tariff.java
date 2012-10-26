@@ -289,4 +289,11 @@ public class Tariff extends IdEntity {
     return builder.toString();
   }
 
+  public BigDecimal value() {
+    switch (cpaPolicy) {
+      case FIXED: return cost;
+      case PERCENT: return percent;
+      default: throw new IllegalStateException("Wrong policy " + cpaPolicy);
+    }
+  }
 }
