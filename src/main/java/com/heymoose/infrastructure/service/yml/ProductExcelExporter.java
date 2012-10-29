@@ -64,7 +64,11 @@ public class ProductExcelExporter {
       offerRow.createCell(cols++).setCellValue(product.url());
       offerRow.createCell(cols++).setCellValue(
           product.attributeValue("picture"));
-      offerRow.createCell(cols++).setCellValue(product.price().toString());
+      if (product.price() == null) {
+        offerRow.createCell(cols++).setCellValue("");
+      } else {
+        offerRow.createCell(cols++).setCellValue(product.price().toString());
+      }
       offerRow.createCell(cols++).setCellValue(
           product.attributeValue("currencyId"));
       offerRow.createCell(cols++).setCellValue(product.exclusive());
