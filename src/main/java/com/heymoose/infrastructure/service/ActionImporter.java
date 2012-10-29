@@ -84,7 +84,13 @@ public class ActionImporter implements Runnable {
         continue;
       }
 
-      BaseOffer offer = offerLoader.findOffer(advertiserId, action.offerCode);
+      BaseOffer offer = offerLoader.findActiveOffer(advertiserId,
+          action.offerCode);
+      if (offer == null) {
+        log.warn("No active offer found for advertiser {} with code {}",
+            advertiserId, action.offerCode);
+        continue;
+      }
       ProcessableData data = new ProcessableData()
           .setToken(token)
           .setOffer(offer)
