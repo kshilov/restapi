@@ -64,6 +64,7 @@ public class TestModule extends AbstractModule {
     settings.setProperty("robokassaPass", "robokassaPass");
     settings.setProperty("banners.dir", "target/banners");
     settings.setProperty("mlm-ratio", "0.1");
+    settings.setProperty("tracker.host", "http://test.heymoose.com");
     return settings;
   }
 
