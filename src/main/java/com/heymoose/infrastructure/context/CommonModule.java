@@ -124,4 +124,9 @@ public class CommonModule extends AbstractModule {
   protected double mlmRatio(@Named("settings") Properties settings) {
     return Double.parseDouble(settings.get("mlm-ratio").toString());
   }
+
+  @Provides @Named("tracker.host") @Singleton
+  protected String trackerHostName(@Named("settings") Properties settings) {
+    return settings.get("tracker.host").toString();
+  }
 }

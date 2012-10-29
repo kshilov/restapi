@@ -2,6 +2,8 @@ package com.heymoose.resource;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
@@ -35,23 +37,25 @@ import java.util.Map;
 import static com.heymoose.domain.base.IdEntity.toMap;
 import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
+@Singleton
 @Path("products")
 public class ProductResource {
-
-  private static final String URL_MASK =
-      "http://heymoose.com/api?method=click&offer_id=%s&aff_id=%s&ulp=%s";
 
   private final Products products;
   private final OfferGrantRepository grants;
   private final UserRepositoryHiber users;
+  private final String urlMask;
 
   @Inject
   public ProductResource(Products products,
                          OfferGrantRepository grants,
-                         UserRepositoryHiber users) {
+                         UserRepositoryHiber users,
+                         @Named("tracker.host") String trackerHost) {
     this.products = products;
     this.grants = grants;
     this.users = users;
+    this.urlMask = trackerHost +
+        "/api?method=click&offer_id=%s&aff_id=%s&ulp=%s";
   }
 
 
@@ -176,7 +180,7 @@ public class ProductResource {
       try {
         originalUrlEncoded = URLEncoder.encode(originalUrl, "utf-8");
       } catch (UnsupportedEncodingException e) {  }
-      String newUrl = String.format(URL_MASK,
+      String newUrl = String.format(urlMask,
           product.offer().id(), user.id(), originalUrlEncoded);
       offer.getChild("url").setText(newUrl);
       offers.addContent(offer);
