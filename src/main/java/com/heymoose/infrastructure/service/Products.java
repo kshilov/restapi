@@ -44,7 +44,7 @@ public class Products {
     if (!categoryList.isEmpty()) {
       criteria.add(HibernateUtil.sqlInRestriction(
           "exists (select * from product_category " +
-              "where product_id = {alias}.id and category_id in (?))",
+              "where product_id = {alias}.id and shop_category_id in (?))",
           categoryList, StandardBasicTypes.LONG));
     }
     if (!Strings.isNullOrEmpty(queryString)) {
