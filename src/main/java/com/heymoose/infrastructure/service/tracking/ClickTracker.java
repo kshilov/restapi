@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
@@ -31,14 +32,15 @@ import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
 import static com.heymoose.infrastructure.util.QueryUtil.appendQueryParam;
 import static com.heymoose.resource.api.ApiExceptions.notFound;
 
+@Singleton
 public class ClickTracker implements Tracker {
 
-  private Repo repo;
-  private GeoTargeting geoTargeting;
-  private OfferGrantRepository offerGrants;
-  private OfferStats offerStats;
-  private KeywordPatternDao keywordPatternDao;
-  private BufferedClicks bufferedClicks;
+  private final Repo repo;
+  private final GeoTargeting geoTargeting;
+  private final OfferGrantRepository offerGrants;
+  private final OfferStats offerStats;
+  private final KeywordPatternDao keywordPatternDao;
+  private final BufferedClicks bufferedClicks;
 
   @Inject
   public ClickTracker(BufferedClicks bufferedClicks, GeoTargeting geoTargeting,
@@ -119,7 +121,8 @@ public class ClickTracker implements Tracker {
       stat.incClicks();
       repo.put(stat);
     } else {
-      bufferedClicks.inc(stat.id());
+      bufferedClicks.inc(existedStat.id());
+      stat = existedStat;
     }
     Token token = new Token(stat);
     token.setAffParams(affParams);

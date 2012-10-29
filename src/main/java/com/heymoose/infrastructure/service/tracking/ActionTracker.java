@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.statistics.Token;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
 
+@Singleton
 public final class ActionTracker implements  Tracker {
 
   private static final Logger log =
