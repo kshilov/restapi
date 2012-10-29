@@ -95,8 +95,10 @@ public class ProductYmlImporter {
             .setOffer(parentOffer)
             // groupId for trendsbrands
             .setOriginalId(extractOriginalId(offer))
-            .setPrice(new BigDecimal(offer.getChildText("price")))
             .setUrl(offer.getChildText("url"));
+        String priceString = offer.getChildText("price");
+        if (priceString != null) product.setPrice(new BigDecimal(priceString));
+
         for (Attribute offerAttribute : offer.getAttributes()) {
           product.addExtraInfo(
               offerAttribute.getName(),
