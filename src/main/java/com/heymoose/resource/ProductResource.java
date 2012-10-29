@@ -24,6 +24,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -170,8 +172,12 @@ public class ProductResource {
         offer.addContent(hmRevenue);
       }
 
-      String newUrl = String.format(
-          URL_MASK, product.offer().id(), user.id(), originalUrl);
+      String originalUrlEncoded = "";
+      try {
+        originalUrlEncoded = URLEncoder.encode(originalUrl, "utf-8");
+      } catch (UnsupportedEncodingException e) {  }
+      String newUrl = String.format(URL_MASK,
+          product.offer().id(), user.id(), originalUrlEncoded);
       offer.getChild("url").setText(newUrl);
       offers.addContent(offer);
 
