@@ -174,7 +174,6 @@ public class ApiResource {
     SubOffer existentSub = repo.byHQL(SubOffer.class,
         "from SubOffer o" +
             " where o.active = true" +
-            " and o.approved = true" +
             " and o.code = ?" +
             " and o.parent.advertiser.id = ?" +
             " and o.parent.approved = true" +
