@@ -165,7 +165,7 @@ public class ProductResource {
 
       Tariff tariff = product.tariff();
       if (tariff != null) {
-        Element hmRevenue = param("hm_revenue", tariff.value())
+        Element hmRevenue = param("hm_revenue", tariff.affiliateValue())
             .setAttribute("unit", tariff.cpaPolicy().toString().toLowerCase());
         offer.addContent(hmRevenue);
       }

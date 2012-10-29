@@ -296,4 +296,12 @@ public class Tariff extends IdEntity {
       default: throw new IllegalStateException("Wrong policy " + cpaPolicy);
     }
   }
+
+  public BigDecimal affiliateValue() {
+    switch (cpaPolicy) {
+      case FIXED: return affiliateCost();
+      case PERCENT: return affiliatePercent();
+      default: return null;
+    }
+  }
 }
