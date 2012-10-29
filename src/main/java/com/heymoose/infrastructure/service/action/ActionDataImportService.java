@@ -20,7 +20,7 @@ public final class ActionDataImportService<T extends ActionData>
 
   public static ActionDataImportService<ItemListActionData> basic(Injector inj) {
     return new ActionDataImportService<ItemListActionData>(inj)
-        .withImporter(BasicItemListDataImporter.class)
+        .withImporter(ItemListProductImporter.class)
         .withParser(HeymooseItemListParser.class);
   }
 
