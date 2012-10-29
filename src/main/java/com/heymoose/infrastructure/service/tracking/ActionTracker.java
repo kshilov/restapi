@@ -72,7 +72,7 @@ public final class ActionTracker implements  Tracker {
     }
 
     if (!offerString.contains(":")) {
-      BaseOffer offer = offerLoader.findOffer(advertiserId, offerString);
+      BaseOffer offer = offerLoader.findActiveOffer(advertiserId, offerString);
       ProcessableData data = new ProcessableData()
           .setToken(token)
           .setTransactionId(transactionId)
@@ -82,7 +82,7 @@ public final class ActionTracker implements  Tracker {
       for (String keyVal : PERIOD_SPLITTER.split(offerString)) {
         Iterator<String> keyValIterator = COLON_SPLITTER.split(keyVal)
             .iterator();
-        BaseOffer offer = offerLoader.findOffer(
+        BaseOffer offer = offerLoader.findActiveOffer(
             advertiserId, keyValIterator.next());
         ProcessableData data = new ProcessableData()
             .setToken(token)
