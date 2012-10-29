@@ -125,6 +125,7 @@ public class ProductYmlImporter {
             new ProductCategoryBatch(repo.session());
         for (Element categoryIdElement : offer.getChildren("categoryId")) {
           ShopCategory category = categoryMap.get(categoryIdElement.getText());
+          if (category == null) continue; // malformed yml
           ProductCategoryMapping mapping = new ProductCategoryMapping()
               .setCategory(category)
               .setProduct(product);
