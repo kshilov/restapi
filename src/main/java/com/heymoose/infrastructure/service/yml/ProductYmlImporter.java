@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.yml;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -97,7 +98,9 @@ public class ProductYmlImporter {
             .setOriginalId(extractOriginalId(offer))
             .setUrl(offer.getChildText("url"));
         String priceString = offer.getChildText("price");
-        if (priceString != null) product.setPrice(new BigDecimal(priceString));
+        if (!Strings.isNullOrEmpty(priceString)) {
+          product.setPrice(new BigDecimal(priceString));
+        }
 
         for (Attribute offerAttribute : offer.getAttributes()) {
           product.addExtraInfo(
