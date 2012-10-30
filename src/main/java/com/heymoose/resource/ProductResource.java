@@ -72,7 +72,6 @@ public class ProductResource {
     if (user == null) throw new WebApplicationException(401);
     Iterable<Product> productList =
         products.list(user, offerList, categoryList, queryString, page);
-    user.id();
     return toYml(productList, user);
   }
 
