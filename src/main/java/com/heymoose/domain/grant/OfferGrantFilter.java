@@ -19,6 +19,7 @@ public final class OfferGrantFilter {
   private CpaPolicy cpaPolicy;
   private boolean onlyExclusiveOffers;
   private boolean productOffersOnly;
+  private boolean activeOffersOnly;
 
   public OfferGrantFilter() { }
 
@@ -47,6 +48,15 @@ public final class OfferGrantFilter {
   public OfferGrantFilter setActive(Boolean active) {
     this.active = active;
     return this;
+  }
+
+  public OfferGrantFilter setOnlyActiveOffers(boolean activeOffersOnly) {
+    this.activeOffersOnly = activeOffersOnly;
+    return this;
+  }
+
+  public boolean activeOffersOnly() {
+    return this.activeOffersOnly;
   }
 
   public Boolean moderation() {

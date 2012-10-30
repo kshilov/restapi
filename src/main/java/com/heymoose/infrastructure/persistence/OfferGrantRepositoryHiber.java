@@ -177,6 +177,10 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
       criteria.add(Restrictions.eq("offer.exclusive", true));
     if (filter.productOffersOnly())
       criteria.add(Restrictions.eq("offer.isProductOffer", true));
+    if (filter.activeOffersOnly()) {
+      criteria.add(Restrictions.eq("offer.active", true));
+      criteria.add(Restrictions.eq("offer.approved", true));
+    }
 
     if (filter.moderation() != null) {
       LogicalExpression or = Restrictions.or(
