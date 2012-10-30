@@ -66,12 +66,14 @@ public class ProductResource {
                      @QueryParam("s") List<Long> offerList,
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString,
-                     @QueryParam("p") @DefaultValue("0") int page) {
+                     @QueryParam("offset") @DefaultValue("0") int offset,
+                     @QueryParam("limit") Integer limit) {
     checkNotNull(key);
     User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
     Iterable<Product> productList =
-        products.list(user, offerList, categoryList, queryString, page);
+        products.list(user, offerList, categoryList, queryString,
+            offset, limit);
     return toYml(productList, user);
   }
 

@@ -41,7 +41,7 @@ public class Products {
   public Iterable<Product> list(User user, Collection<Long> offerList,
                                 List<Long> categoryList,
                                 String queryString,
-                                int page) {
+                                int offset, Integer limit) {
     Criteria criteria = repo.session().createCriteria(Product.class)
         .add(Restrictions.eq("active", true));
     criteria.createAlias("offer", "offer");
@@ -71,8 +71,8 @@ public class Products {
           "%" + queryString.toLowerCase() + "%",
           StandardBasicTypes.STRING));
     }
-    criteria.setFirstResult((page - 1) * ITEMS_PER_PAGE);
-    criteria.setMaxResults(ITEMS_PER_PAGE);
+    criteria.setFirstResult(offset);
+    if (limit != null) criteria.setMaxResults(limit);
     return (List<Product>) criteria.list();
   }
 
