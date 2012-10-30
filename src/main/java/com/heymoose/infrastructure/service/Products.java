@@ -7,6 +7,7 @@ import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.infrastructure.util.HibernateUtil;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
@@ -39,13 +40,18 @@ public class Products {
     Criteria criteria = repo.session().createCriteria(Product.class)
         .add(Restrictions.eq("active", true));
     criteria.createAlias("offer", "offer");
-    criteria.add(Restrictions.in("offer.id", offerList));
+
+    Criterion shopOrCategoryMatches = null;
+    Criterion shopMatches = Restrictions.in("offer.id", offerList);
 
     if (!categoryList.isEmpty()) {
-      criteria.add(HibernateUtil.sqlInRestriction(
+      Criterion categoryMatches = HibernateUtil.sqlInRestriction(
           "exists (select * from product_category " +
               "where product_id = {alias}.id and shop_category_id in (?))",
-          categoryList, StandardBasicTypes.LONG));
+          categoryList, StandardBasicTypes.LONG);
+      shopOrCategoryMatches = Restrictions.or(shopMatches, categoryMatches);
+    } else {
+      shopOrCategoryMatches = shopMatches;
     }
     if (!Strings.isNullOrEmpty(queryString)) {
       criteria.add(Restrictions.sqlRestriction(
@@ -53,6 +59,7 @@ public class Products {
           "%" + queryString.toLowerCase() + "%",
           StandardBasicTypes.STRING));
     }
+    criteria.add(shopOrCategoryMatches);
     criteria.setFirstResult((page - 1) * ITEMS_PER_PAGE);
     criteria.setMaxResults(ITEMS_PER_PAGE);
     return (List<Product>) criteria.list();
