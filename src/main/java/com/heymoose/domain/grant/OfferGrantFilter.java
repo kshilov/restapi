@@ -50,7 +50,7 @@ public final class OfferGrantFilter {
     return this;
   }
 
-  public OfferGrantFilter setOnlyActiveOffers(boolean activeOffersOnly) {
+  public OfferGrantFilter setActiveOffersOnly(boolean activeOffersOnly) {
     this.activeOffersOnly = activeOffersOnly;
     return this;
   }

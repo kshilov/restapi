@@ -118,6 +118,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
         .setBlocked(false)
         .setActive(true)
         .setProductOffersOnly(true)
+        .setActiveOffersOnly(true)
         .setState(OfferGrantState.APPROVED);
     ImmutableSet.Builder<Offer> result = ImmutableSet.builder();
     for (OfferGrant grant: this.list(
