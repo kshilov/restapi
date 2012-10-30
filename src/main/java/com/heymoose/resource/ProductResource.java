@@ -145,7 +145,6 @@ public class ProductResource {
         offer.addContent(name);
       }
       name.setText(product.name());
-      offer.getChild("categoryId").setText(product.category().id().toString());
 
       String originalUrl = offer.getChildText("url");
       offer.addContent(param("hm_offer_id", product.offer().id()));
