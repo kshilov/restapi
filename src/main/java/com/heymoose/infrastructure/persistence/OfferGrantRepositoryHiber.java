@@ -117,7 +117,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
         .setAffiliateId(affId)
         .setBlocked(false)
         .setActive(true)
-        .setExclusiveOnly(true)
+        .setProductOffersOnly(true)
         .setState(OfferGrantState.APPROVED);
     ImmutableSet.Builder<Offer> result = ImmutableSet.builder();
     for (OfferGrant grant: this.list(
@@ -173,7 +173,10 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     addEqRestrictionIfNotNull(criteria, "affiliate.id", filter.affiliateId());
     addEqRestrictionIfNotNull(criteria, "state", filter.state());
     addEqRestrictionIfNotNull(criteria, "blocked", filter.blocked());
-    addEqRestrictionIfNotNull(criteria, "offer.exclusive", filter.exclusiveOnly());
+    if (filter.exclusiveOnly())
+      criteria.add(Restrictions.eq("offer.exclusive", true));
+    if (filter.productOffersOnly())
+      criteria.add(Restrictions.eq("offer.isProductOffer", true));
 
     if (filter.moderation() != null) {
       LogicalExpression or = Restrictions.or(
