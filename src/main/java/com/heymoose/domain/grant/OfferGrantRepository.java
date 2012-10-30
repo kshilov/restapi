@@ -17,7 +17,7 @@ public interface OfferGrantRepository extends Repository<OfferGrant> {
                             OrderingDirection direction,
                             int offset, int limit,
                             OfferGrantFilter filter);
-  Iterable<Offer> exclusiveGrantedOffers(Long affId);
+  Iterable<Offer> grantedProductOffers(Long affId);
   long count(OfferGrantFilter filter);
 
   OfferGrant checkGrant(User user, BaseOffer offer);

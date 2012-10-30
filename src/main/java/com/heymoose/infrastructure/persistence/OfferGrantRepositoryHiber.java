@@ -111,7 +111,7 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
 
 
   @Override
-  public Iterable<Offer> exclusiveGrantedOffers(Long affId) {
+  public Iterable<Offer> grantedProductOffers(Long affId) {
     Preconditions.checkNotNull(affId, "Affiliate can not be null.");
     OfferGrantFilter filter = new OfferGrantFilter()
         .setAffiliateId(affId)

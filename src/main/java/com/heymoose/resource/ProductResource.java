@@ -72,7 +72,7 @@ public class ProductResource {
     checkNotNull(key);
     User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
-    Iterable<Offer> grantedOffers = grants.exclusiveGrantedOffers(user.id());
+    Iterable<Offer> grantedOffers = grants.grantedProductOffers(user.id());
     Map<Long, Offer> grantedOffersMap = toMap(grantedOffers);
 
     Collection<Long> offersToSearch = offerList;
@@ -101,7 +101,7 @@ public class ProductResource {
   public String categoryList(@QueryParam("aff_id") Long affId) {
     if (affId == null) throw new WebApplicationException(400);
     Iterable<Offer> exclusiveGrantedOffers =
-        grants.exclusiveGrantedOffers(affId);
+        grants.grantedProductOffers(affId);
 
     Element result = new Element("result");
     for (Offer offer : exclusiveGrantedOffers) {
