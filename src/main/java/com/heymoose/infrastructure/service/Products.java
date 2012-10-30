@@ -53,7 +53,7 @@ public class Products {
           "%" + queryString.toLowerCase() + "%",
           StandardBasicTypes.STRING));
     }
-    criteria.setFirstResult(page * ITEMS_PER_PAGE);
+    criteria.setFirstResult((page - 1) * ITEMS_PER_PAGE);
     criteria.setMaxResults(ITEMS_PER_PAGE);
     return (List<Product>) criteria.list();
   }
