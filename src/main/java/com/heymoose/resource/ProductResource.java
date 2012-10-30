@@ -28,9 +28,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -72,23 +70,9 @@ public class ProductResource {
     checkNotNull(key);
     User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
-    Iterable<Offer> grantedOffers = grants.grantedProductOffers(user.id());
-    Map<Long, Offer> grantedOffersMap = toMap(grantedOffers);
-
-    Collection<Long> offersToSearch = offerList;
-    if (offerList.isEmpty()) {
-      // search through all granted exclusive offers
-      offersToSearch = grantedOffersMap.keySet();
-    } else {
-      // search through all given offers, if they are granted
-      Iterator<Long> offerListIterator = offerList.iterator();
-      while (offerListIterator.hasNext()) {
-        final Long id = offerListIterator.next();
-        if (!grantedOffersMap.containsKey(id)) offerListIterator.remove();
-      }
-    }
     Iterable<Product> productList =
-        products.list(offersToSearch, categoryList, queryString, page);
+        products.list(user, offerList, categoryList, queryString, page);
+    user.id();
     return toYml(productList, user);
   }
 
@@ -100,11 +84,11 @@ public class ProductResource {
   @Cacheable(period = "PT1H") // cache for 1 hour
   public String categoryList(@QueryParam("aff_id") Long affId) {
     if (affId == null) throw new WebApplicationException(400);
-    Iterable<Offer> exclusiveGrantedOffers =
+    Iterable<Offer> grantedProductOffers =
         grants.grantedProductOffers(affId);
 
     Element result = new Element("result");
-    for (Offer offer : exclusiveGrantedOffers) {
+    for (Offer offer : grantedProductOffers) {
       Element offerElement = new Element("offer");
 
       List<ShopCategory> categoryList = products.categoryList(offer.id());

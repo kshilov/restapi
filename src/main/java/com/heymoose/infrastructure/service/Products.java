@@ -2,9 +2,13 @@ package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
@@ -16,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class Products {
 
@@ -23,20 +28,20 @@ public class Products {
   private static final Logger log = LoggerFactory.getLogger(Products.class);
 
   private final Repo repo;
+  private final OfferGrantRepository grants;
 
   @Inject
-  public Products(Repo repo) {
+  public Products(Repo repo, OfferGrantRepository grantRepo) {
     this.repo = repo;
+    this.grants = grantRepo;
   }
 
 
   @SuppressWarnings("unchecked")
-  public Iterable<Product> list(Collection<Long> offerList,
+  public Iterable<Product> list(User user, Collection<Long> offerList,
                                 List<Long> categoryList,
                                 String queryString,
                                 int page) {
-    if (offerList.isEmpty()) return ImmutableList.of();
-
     Criteria criteria = repo.session().createCriteria(Product.class)
         .add(Restrictions.eq("active", true));
     criteria.createAlias("offer", "offer");
@@ -49,11 +54,16 @@ public class Products {
           categoryList, StandardBasicTypes.LONG);
 
     if (offerList.isEmpty() || categoryList.isEmpty()) {
-      if (offerList.isEmpty()) criteria.add(categoryMatches);
-      if (categoryList.isEmpty()) criteria.add(shopMatches);
+      if (!offerList.isEmpty()) criteria.add(shopMatches);
+      if (!categoryList.isEmpty()) criteria.add(categoryMatches);
     } else {
       criteria.add(Restrictions.or(categoryMatches, shopMatches));
     }
+
+    Map<Long, Offer> grantedMap =
+        IdEntity.toMap(grants.grantedProductOffers(user.id()));
+    if (grantedMap.size() == 0) return ImmutableList.of();
+    criteria.add(Restrictions.in("offer.id", grantedMap.keySet()));
 
     if (!Strings.isNullOrEmpty(queryString)) {
       criteria.add(Restrictions.sqlRestriction(
