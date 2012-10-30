@@ -1,10 +1,8 @@
 package com.heymoose.infrastructure.service.carolines;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemListActionData;
@@ -13,11 +11,13 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
+import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +44,15 @@ public class CarolinesActionDataImporter
 
   private final Repo repo;
   private final OfferActions actionService;
-  private final Tracking tracking;
+  private final ActionProcessor processor;
 
   @Inject
   public CarolinesActionDataImporter(Repo repo,
                                      OfferActions actionService,
-                                     Tracking tracking) {
+                                     ActionProcessor processor) {
     this.repo = repo;
     this.actionService = actionService;
-    this.tracking = tracking;
+    this.processor = processor;
   }
 
   @Transactional
@@ -101,8 +101,9 @@ public class CarolinesActionDataImporter
       return;
     }
 
-    List<OfferAction> trackedActions = tracking.trackConversion(
-        token, payment.transactionId(), extractOffers(payment, parentOfferId));
+    Offer parentOffer = repo.get(Offer.class, parentOfferId);
+
+    List<OfferAction> trackedActions = process(payment, parentOffer, token);
 
     if (payment.status().equals(ActionStatus.CANCELED)) {
       for (OfferAction action : trackedActions) {
@@ -119,18 +120,16 @@ public class CarolinesActionDataImporter
     }
   }
 
-  private Multimap<BaseOffer, Optional<Double>> extractOffers(
-      ItemListActionData payment, Long parentOfferId) {
-
-    ImmutableMultimap.Builder<BaseOffer, Optional<Double>> offerMap =
-        ImmutableMultimap.builder();
-    for (ItemListActionData.Item item : payment.itemList()) {
+  private List<OfferAction> process(ItemListActionData actionData,
+                                    Offer parentOffer, Token token) {
+    ImmutableList.Builder<OfferAction> actionList = ImmutableList.builder();
+    for (ItemListActionData.Item item : actionData.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
-          parentOfferId, item.id());
+          parentOffer.id(), item.id());
       if (productOffer == null) {
         log.warn("Product with code '{}' does not present in our db! " +
-            "Parent offer: '{}'. Skipping..", item.id(), parentOfferId);
+            "Parent offer: '{}'. Skipping..", item.id(), parentOffer.id());
         continue;
       }
       BigDecimal price = item.price();
@@ -140,9 +139,14 @@ public class CarolinesActionDataImporter
                 productOffer.id() ,
                 productOffer.code(),
                 price });
-        offerMap.put(productOffer, Optional.of(price.doubleValue()));
+        ProcessableData data = new ProcessableData()
+            .setToken(token)
+            .setTransactionId(actionData.transactionId())
+            .setOffer(productOffer)
+            .setPrice(price);
+        actionList.add(processor.process(data));
       }
     }
-    return offerMap.build();
+    return actionList.build();
   }
 }

@@ -7,6 +7,7 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEntry;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.accounting.AccountingTransaction;
+import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import org.slf4j.Logger;
@@ -99,5 +100,13 @@ public final class AccountingStoredFunc implements Accounting {
   @Override
   public void addOfferFunds(Offer offer, BigDecimal amount) {
     accountingHiber.addOfferFunds(offer, amount);
+  }
+
+  @Override
+  public void notConfirmedActionPayments(OfferAction action,
+                                         BigDecimal affiliatePart,
+                                         BigDecimal heymoosePart) {
+    accountingHiber.notConfirmedActionPayments(action,
+        affiliatePart, heymoosePart);
   }
 }

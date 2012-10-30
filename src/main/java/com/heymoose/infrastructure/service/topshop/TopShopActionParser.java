@@ -39,7 +39,7 @@ public final class TopShopActionParser
     @XmlElement
     public String cart;
     @XmlElement
-    public Integer status;
+    public String status;
     @XmlElement(name = "items")
     public XmlTopShopItemList itemListElement;
   }
@@ -53,9 +53,9 @@ public final class TopShopActionParser
 
   private static final Logger log =
       LoggerFactory.getLogger(TopShopActionParser.class);
-  private static final int STATUS_CREATED = 1;
-  private static final int STATUS_COMPLETE = 20;
-  private static final int STATUS_CANCELED = 30;
+  private static final char STATUS_CREATED = '1';
+  private static final char STATUS_COMPLETE = '2';
+  private static final char STATUS_CANCELED = '3';
 
   /**
    * @param inputSupplier input supplier with top shop xml
@@ -85,7 +85,7 @@ public final class TopShopActionParser
         ItemListActionData paymentData = new ItemListActionData();
         paymentData.setToken(token);
         paymentData.setTransactionId(payment.orderId);
-        switch (payment.status) {
+        switch (payment.status.charAt(0)) {
           case STATUS_CREATED:
             paymentData.setStatus(ActionStatus.CREATED);
             break;

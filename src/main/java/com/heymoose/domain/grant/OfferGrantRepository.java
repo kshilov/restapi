@@ -2,6 +2,7 @@ package com.heymoose.domain.grant;
 
 import com.heymoose.domain.base.Repository;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.OrderingDirection;
@@ -16,5 +17,8 @@ public interface OfferGrantRepository extends Repository<OfferGrant> {
                             OrderingDirection direction,
                             int offset, int limit,
                             OfferGrantFilter filter);
+  Iterable<Offer> exclusiveGrantedOffers(Long affId);
   long count(OfferGrantFilter filter);
+
+  OfferGrant checkGrant(User user, BaseOffer offer);
 }

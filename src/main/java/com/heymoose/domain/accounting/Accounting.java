@@ -1,5 +1,6 @@
 package com.heymoose.domain.accounting;
 
+import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.offer.Offer;
 
 import java.math.BigDecimal;
@@ -81,5 +82,9 @@ public interface Accounting {
   void addOfferFunds(Offer offer, BigDecimal amount, Long sourceId);
 
   void addOfferFunds(Offer offer, BigDecimal amount);
+
+  void notConfirmedActionPayments(OfferAction action,
+                                  BigDecimal affiliatePart,
+                                  BigDecimal heymoosePart);
 
 }

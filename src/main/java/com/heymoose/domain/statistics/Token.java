@@ -1,11 +1,9 @@
 package com.heymoose.domain.statistics;
 
+import com.google.common.base.Objects;
 import com.heymoose.domain.base.BaseEntity;
-import java.io.IOException;
-import java.math.BigInteger;
-import static java.util.Collections.emptyMap;
-import java.util.Map;
-import java.util.Random;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,8 +15,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.Random;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import static java.util.Collections.emptyMap;
 
 @Entity
 @Table(name = "token")
@@ -87,5 +89,12 @@ public class Token extends BaseEntity {
     } catch (IOException e) {
       throw new RuntimeException(e.getMessage(), e);
     }
+  }
+
+  public String toString() {
+    return Objects.toStringHelper(Token.class)
+        .add("id", id)
+        .add("value", value)
+        .toString();
   }
 }

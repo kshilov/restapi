@@ -13,6 +13,11 @@ public abstract class ModifiableEntity extends BaseEntity {
   @Column(name = "last_change_time")
   private DateTime lastChangeTime = DateTime.now();
 
+  protected ModifiableEntity() {
+    super();
+    touch();
+  }
+
   public void setLastChangeTime(DateTime time) {
     this.lastChangeTime = time;
   }

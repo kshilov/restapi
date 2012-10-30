@@ -16,4 +16,5 @@ public class XmlActionInfo {
 
   @XmlElement(name = "price")
   public Double price;
+
 }

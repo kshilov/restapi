@@ -1,7 +1,9 @@
 package com.heymoose.domain.action;
 
+import com.google.common.base.Objects;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
@@ -57,13 +59,17 @@ public class OfferAction extends ModifiableEntity {
   @JoinColumn(name = "token_id")
   private Token token;
 
+  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @JoinColumn(name = "product_id")
+  private Product product;
+
   @Override
   public Long id() {
     return id;
   }
 
   protected OfferAction() {}
-  
+
   public OfferAction(Token token, User affiliate, OfferStat stat, OfferStat source, BaseOffer offer, String transactionId) {
     this.token = token;
     this.affiliate = affiliate;
@@ -109,5 +115,29 @@ public class OfferAction extends ModifiableEntity {
   public OfferAction setCreationTime(DateTime time) {
     this.creationTime = time;
     return this;
+  }
+
+  public Token token() {
+    return this.token;
+  }
+
+  public Product product() {
+    return this.product;
+  }
+
+  public OfferAction setProduct(Product product) {
+    this.product = product;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(OfferAction.class)
+        .add("id", id)
+        .add("state", state)
+        .add("offer", offer)
+        .add("token", token)
+        .add("transactionId", transactionId)
+        .add("product", product).toString();
   }
 }

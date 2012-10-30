@@ -43,4 +43,28 @@ public class OfferLoader {
     return findOffer(repo, advertiserId, code);
   }
 
+  @Transactional
+  public BaseOffer findActiveOffer(long advertiserId, String code) {
+    SubOffer existentSub = repo.byHQL(SubOffer.class,
+        "from SubOffer o" +
+            " where o.active = true" +
+            " and o.code = ?" +
+            " and o.parent.advertiser.id = ?" +
+            " and o.parent.approved = true" +
+            " and o.parent.active = true",
+        code, advertiserId);
+
+    if (existentSub != null) return existentSub;
+
+    Offer existentOffer = repo.byHQL(Offer.class,
+        "from Offer o" +
+            " where o.active = true" +
+            " and o.code = ?" +
+            " and o.approved = true" +
+            " and o.advertiser.id = ?",
+        code, advertiserId);
+
+    return existentOffer;
+  }
+
 }

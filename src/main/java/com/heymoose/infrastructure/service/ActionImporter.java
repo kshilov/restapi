@@ -1,13 +1,12 @@
 package com.heymoose.infrastructure.service;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMultimap;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.service.processing.ProcessableData;
+import com.heymoose.infrastructure.service.processing.Processor;
 import com.heymoose.resource.api.ApiRequestException;
 import com.heymoose.resource.xml.XmlActionInfo;
 import com.heymoose.resource.xml.XmlActionInfos;
@@ -21,6 +20,7 @@ import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,15 +35,19 @@ public class ActionImporter implements Runnable {
   private final static Logger log = LoggerFactory.getLogger(ActionImporter.class);
 
   private Map<Long, URL> advUrls;
-  private final Tracking tracking;
   private final Repo repo;
   private int period;
   private final OfferLoader offerLoader;
+  private Processor actionProcessor;
 
   @Inject
-  public ActionImporter(@Named("adv-map") Map<Long, URL> advUrls, Tracking tracking, Repo repo, @Named("action-import-period") int period, OfferLoader offerLoader) {
+  public ActionImporter(@Named("adv-map") Map<Long, URL> advUrls,
+                        Processor processor,
+                        Repo repo,
+                        @Named("action-import-period") int period,
+                        OfferLoader offerLoader) {
     this.advUrls = advUrls;
-    this.tracking = tracking;
+    this.actionProcessor = processor;
     this.repo = repo;
     this.period = period;
     this.offerLoader = offerLoader;
@@ -80,12 +84,19 @@ public class ActionImporter implements Runnable {
         continue;
       }
 
-      BaseOffer offer = offerLoader.findOffer(advertiserId, action.offerCode);
-      Optional<Double> price = action.price != null
-          ? Optional.of(action.price)
-          : Optional.<Double>absent();
-      tracking.trackConversion(token, action.transactionId,
-          ImmutableMultimap.of(offer, price));
+      BaseOffer offer = offerLoader.findActiveOffer(advertiserId,
+          action.offerCode);
+      if (offer == null) {
+        log.warn("No active offer found for advertiser {} with code {}",
+            advertiserId, action.offerCode);
+        continue;
+      }
+      ProcessableData data = new ProcessableData()
+          .setToken(token)
+          .setOffer(offer)
+          .setPrice(new BigDecimal(action.price))
+          .setTransactionId(action.transactionId);
+      actionProcessor.process(data);
     }
   }
 

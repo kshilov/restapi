@@ -25,11 +25,15 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
+import com.heymoose.domain.product.Product;
+import com.heymoose.domain.product.ProductAttribute;
+import com.heymoose.domain.product.ProductCategoryMapping;
+import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.AdminAccount;
 import com.heymoose.domain.user.AdminAccountNotConfirmed;
 import com.heymoose.domain.user.Site;
@@ -48,10 +52,10 @@ import com.heymoose.infrastructure.persistence.OfferRepositoryHiber;
 import com.heymoose.infrastructure.persistence.SubOfferRepositoryHiber;
 import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.AccountingHiber;
-import com.heymoose.infrastructure.service.Mlm;
 import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
-import com.heymoose.infrastructure.service.TrackingImpl;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
+import com.heymoose.infrastructure.service.processing.Processor;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -64,7 +68,6 @@ public class CommonModule extends AbstractModule {
   protected void configure() {
     install(new HibernateModule());
 
-    bind(Mlm.class);
     bind(Settings.class);
     bind(OfferLoader.class);
     bind(BufferedShows.class);
@@ -73,7 +76,7 @@ public class CommonModule extends AbstractModule {
     bind(Accounting.class).to(AccountingHiber.class);
     bind(OfferActions.class).to(OfferActionsStoredFunc.class);
 
-    bind(Tracking.class).to(TrackingImpl.class);
+    bind(Processor.class).to(ActionProcessor.class);
     bind(Repo.class).to(HibernateRepo.class);
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(OfferRepository.class).to(OfferRepositoryHiber.class);
@@ -90,7 +93,9 @@ public class CommonModule extends AbstractModule {
         OfferStat.class, OfferAction.class,
         AdminAccountNotConfirmed.class, Token.class, MlmExecution.class,
         KeywordPattern.class, ErrorInfo.class,
-        Withdrawal.class, WithdrawalPayment.class);
+        Withdrawal.class, WithdrawalPayment.class,
+        Product.class, ShopCategory.class, ProductAttribute.class, Tariff.class,
+        ProductCategoryMapping.class);
   }
 
   protected void bindEntities(Class... classes) {
@@ -118,5 +123,10 @@ public class CommonModule extends AbstractModule {
   @Provides @Named("mlm-ratio") @Singleton
   protected double mlmRatio(@Named("settings") Properties settings) {
     return Double.parseDouble(settings.get("mlm-ratio").toString());
+  }
+
+  @Provides @Named("tracker.host") @Singleton
+  protected String trackerHostName(@Named("settings") Properties settings) {
+    return settings.get("tracker.host").toString();
   }
 }

@@ -1,13 +1,11 @@
 package com.heymoose.domain.offer;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.BaseEntity;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
-import java.util.Set;
+import com.heymoose.domain.tariff.Tariff;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -22,6 +20,11 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.math.BigDecimal;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(name = "offer")
@@ -197,57 +200,6 @@ public abstract class BaseOffer extends BaseEntity {
     return this;
   }
 
-  /**
-   * Returns affiliate revenue, if it is fixed or can be
-   * calculated, using data in offer. Returns null otherwise.
-   *
-   * @return fixed affiliate revenue or null
-   */
-  public BigDecimal affiliateCost() {
-    if (cpaPolicy != null && cpaPolicy == CpaPolicy.PERCENT)
-      return null; // affiliatePercent() should not return null in this case
-    switch (feeType) {
-      case FIX:
-        return cost.subtract(fee);
-      case PERCENT:
-        BigDecimal divider = fee
-            .divide(new BigDecimal(100))
-            .add(BigDecimal.ONE);
-        return cost.divide(divider, 2, BigDecimal.ROUND_UP);
-    }
-    throw new RuntimeException("Unknown fee type for offer " + id);
-  }
-
-  /**
-   * Returns affiliate revenue for repeated action in case of
-   * {@link CpaPolicy.DOUBLE_FIXED} policy or null otherwise.
-   *
-   * @return affiliate revenue for repeated action or null
-   */
-  public BigDecimal affiliateCost2() {
-    if (cpaPolicy == null || cpaPolicy != CpaPolicy.DOUBLE_FIXED)
-      return null;
-    BigDecimal divider = fee
-        .divide(new BigDecimal(100))
-        .add(BigDecimal.ONE);
-    return cost2.divide(divider, 2, BigDecimal.ROUND_UP);
-  }
-
-  /**
-   * Returns affiliate revenue, in case of {@link CpaPolicy.PERCENT},
-   * null otherwise.
-   *
-   * @return affiliate revenue for {@link CpaPolicy.PERCENT} offers
-   */
-  public BigDecimal affiliatePercent() {
-    if (cpaPolicy == null || cpaPolicy != CpaPolicy.PERCENT)
-      return null; // affiliateCost() should not return null in this case
-    BigDecimal divider = fee
-        .divide(new BigDecimal(100))
-        .add(BigDecimal.ONE);
-    return percent.divide(divider, 2, BigDecimal.ROUND_UP);
-  }
-
   public BigDecimal itemPrice() {
     return this.itemPrice;
   }
@@ -323,6 +275,25 @@ public abstract class BaseOffer extends BaseEntity {
     checkArgument(holdDays >= 0 && holdDays <= 180);
     this.holdDays = holdDays;
     return this;
+  }
+
+  public Tariff tariff() {
+    Tariff tariff = Tariff.forOffer(this)
+        .setCpaPolicy(cpaPolicy)
+        .setFee(fee).setFeeType(feeType)
+        .setCost(cost).setPercent(percent);
+    if (cpaPolicy == CpaPolicy.DOUBLE_FIXED) {
+      tariff.setFirstActionCost(cost).setOtherActionCost(cost2).setCost(null);
+    }
+    return tariff;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(BaseOffer.class)
+        .add("id", id)
+        .add("title", title)
+        .toString();
   }
 
   public abstract Account account();

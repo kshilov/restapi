@@ -2,8 +2,9 @@ package com.heymoose.infrastructure.util;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.joda.time.Period;
@@ -25,14 +26,13 @@ public final class CacheInterceptor implements MethodInterceptor {
 
 
   private static String buildCacheName(MethodInvocation invocation) {
-    StringBuilder cacheNameBuilder = new StringBuilder();
-    cacheNameBuilder.append(invocation.getThis().getClass().getName());
-    cacheNameBuilder.append('.');
-    cacheNameBuilder.append(invocation.getMethod().getName());
-    cacheNameBuilder.append('(');
+    StringBuilder cacheNameBuilder = new StringBuilder()
+        .append(invocation.getThis().getClass().getName())
+        .append('.')
+        .append(invocation.getMethod().getName())
+        .append('(');
     for (Class<?> parameterType : invocation.getMethod().getParameterTypes()) {
-      cacheNameBuilder.append(parameterType);
-      cacheNameBuilder.append(' ');
+      cacheNameBuilder.append(parameterType).append(' ');
     }
     cacheNameBuilder.setLength(cacheNameBuilder.length() - 1);
     cacheNameBuilder.append(')');
@@ -61,21 +61,24 @@ public final class CacheInterceptor implements MethodInterceptor {
     log.info("Searching value in cache.");
     cache = cacheMap.get(cacheName);
     final List<Object> argsList =
-        ImmutableList.copyOf(invocation.getArguments());
-    return cache.get(argsList, new Callable<Object>() {
-      @Override
-      public Object call() throws Exception {
-        try {
-          log.info("Value not found in cache {}, params: {}. Invoking method..",
-              cacheName, argsList);
-          return invocation.proceed();
-        } catch (Throwable throwable) {
-          throw new Exception(throwable);
+        Lists.newArrayList(invocation.getArguments());
+    try {
+      return cache.get(argsList, new Callable<Object>() {
+        @Override
+        public Object call() throws Exception {
+          try {
+            log.info(
+                "Value not found in cache {}, params: {}. Invoking method..",
+                cacheName, argsList);
+            return invocation.proceed();
+          } catch (Throwable throwable) {
+            if (throwable instanceof Exception) throw (Exception) throwable;
+            throw new Exception(throwable);
+          }
         }
-      }
-    });
+      });
+    } catch (UncheckedExecutionException e) {
+      throw e.getCause();
+    }
   }
-
-
-
 }

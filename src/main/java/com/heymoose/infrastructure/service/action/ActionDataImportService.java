@@ -6,6 +6,8 @@ import com.google.inject.util.Providers;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.action.FixPriceActionData;
 import com.heymoose.domain.action.ItemListActionData;
+import com.heymoose.infrastructure.service.ImportService;
+import com.heymoose.infrastructure.service.ImportServiceBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +20,7 @@ public final class ActionDataImportService<T extends ActionData>
 
   public static ActionDataImportService<ItemListActionData> basic(Injector inj) {
     return new ActionDataImportService<ItemListActionData>(inj)
-        .withImporter(BasicItemListDataImporter.class)
+        .withImporter(ItemListProductImporter.class)
         .withParser(HeymooseItemListParser.class);
   }
 

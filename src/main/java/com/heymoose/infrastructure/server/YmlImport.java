@@ -10,21 +10,21 @@ import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.product.ProductRater;
 import com.heymoose.infrastructure.context.CommonModule;
 import com.heymoose.infrastructure.context.ProductionModule;
 import com.heymoose.infrastructure.context.SettingsModule;
-import com.heymoose.infrastructure.service.action.PercentPerItemYmlWrapper;
-import com.heymoose.infrastructure.service.action.YmlImporter;
-import com.heymoose.infrastructure.service.action.YmlToExcel;
-import com.heymoose.infrastructure.service.carolines.CarolinesYmlWrapper;
-import com.heymoose.infrastructure.service.mebelrama.MebelramaYmlWrapper;
-import com.heymoose.infrastructure.service.shoesbags.ShoesBagsYmlWrapper;
-import com.heymoose.infrastructure.service.topshop.TopShopYmlWrapper;
-import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsYmlWrapper;
-import com.heymoose.infrastructure.service.yml.YmlCatalog;
-import com.heymoose.infrastructure.service.yml.YmlCatalogWrapper;
-import com.heymoose.infrastructure.service.yml.YmlUtil;
+import com.heymoose.infrastructure.service.carolines.CarolinesRater;
+import com.heymoose.infrastructure.service.mebelrama.MebelramaRater;
+import com.heymoose.infrastructure.service.shoesbags.ShoesBagsRater;
+import com.heymoose.infrastructure.service.topshop.TopShopRater;
+import com.heymoose.infrastructure.service.trendsbrands.TrendsBrandsRater;
+import com.heymoose.infrastructure.service.yml.MapRater;
+import com.heymoose.infrastructure.service.yml.ProductExcelExporter;
+import com.heymoose.infrastructure.service.yml.ProductYmlImporter;
+import com.heymoose.infrastructure.service.yml.YmlBasedRater;
+import org.jdom2.Document;
+import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +40,8 @@ import java.util.Map;
 public final class YmlImport {
   private final static class Args {
 
-    private enum Wrapper {
-      DEFAULT, TOPSHOP, TRENDSBRANDS, CAROLINES, SHOESBAGS,
+    private enum Rater {
+      DEFAULT, YML, TOPSHOP, TRENDSBRANDS, CAROLINES, SHOESBAGS,
       MEBELRAMA
     }
 
@@ -60,8 +60,8 @@ public final class YmlImport {
         description = "default percent for non-exclusive items.")
     private BigDecimal defaultPercent;
 
-    @Parameter(names = "-wrapper", description =  "custom wrapper.")
-    private Wrapper wrapper = Wrapper.DEFAULT;
+    @Parameter(names = "-rater", description =  "custom rater.")
+    private Rater rater = Rater.DEFAULT;
 
     @Parameter(names = "--help", help = true, hidden = true)
     private boolean help;
@@ -104,53 +104,57 @@ public final class YmlImport {
         new ProductionModule());
 
     String ymlPath = arguments.ymlPath.get(0);
+    InputSupplier<? extends InputStream> inputSupplier;
     if (!ymlPath.contains("://")) {
-      ymlPath = "file://" + ymlPath;
+      inputSupplier = Files.newInputStreamSupplier(new File(ymlPath));
+    } else {
+      inputSupplier = Resources.newInputStreamSupplier(new URL(ymlPath));
     }
-    InputSupplier<InputStream> inputSupplier =
-        Resources.newInputStreamSupplier(new URL(ymlPath));
-
-    Repo repo = injector.getInstance(Repo.class);
-    YmlCatalog catalog = YmlUtil.parse(inputSupplier);
-    YmlCatalogWrapper wrapper = null;
-    switch (arguments.wrapper) {
+    ProductRater rater = null;
+    switch (arguments.rater) {
       case DEFAULT:
-        wrapper = new PercentPerItemYmlWrapper(
-            arguments.defaultPercent,
-            parseCsv(arguments.csvPath));
+        rater = new MapRater(
+            parseCsv(arguments.csvPath),
+            arguments.defaultPercent);
+        break;
+      case YML:
+        rater = new YmlBasedRater();
         break;
       case TOPSHOP:
-        wrapper = new TopShopYmlWrapper();
+        rater = new TopShopRater();
         break;
       case TRENDSBRANDS:
-        wrapper = new TrendsBrandsYmlWrapper();
+        rater = new TrendsBrandsRater();
         break;
       case CAROLINES:
-        wrapper = new CarolinesYmlWrapper();
+        rater = new CarolinesRater();
         break;
       case SHOESBAGS:
-        wrapper = new ShoesBagsYmlWrapper();
+        rater = new ShoesBagsRater();
         break;
       case MEBELRAMA:
-        wrapper = new MebelramaYmlWrapper();
+        rater = new MebelramaRater();
+        break;
     }
-    if (wrapper == null) {
-      log.error("Wrapper not found. Arguments: {}", arguments);
-      return;
-    }
-    log.info("Wrapper chosen: {}", wrapper.getClass().getSimpleName());
-    wrapper.wrapCatalog(catalog);
+    log.info("Rater chosen: {}", rater.getClass().getSimpleName());
 
     if (arguments.doImport) {
       log.info("** Starting import with arguments: {} **", arguments);
-      YmlImporter importer = new YmlImporter(repo);
-      importer.doImport(wrapper, arguments.offerId);
+      ProductYmlImporter importer =
+          injector.getInstance(ProductYmlImporter.class);
+      SAXBuilder builder = new SAXBuilder();
+      builder.setFeature(
+          "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+          false);
+      Document document = builder.build(inputSupplier.getInput());
+      importer.doImport(document, arguments.offerId, rater);
     }
     if (arguments.doExport) {
       log.info("Starting export to XLS.");
-      YmlToExcel exporter = new YmlToExcel();
+      ProductExcelExporter exporter = injector.getInstance(
+          ProductExcelExporter.class);
       File xls = new File(arguments.offerId + ".xls");
-      exporter.doExport(wrapper, Files.newOutputStreamSupplier(xls));
+      exporter.doExport(arguments.offerId, Files.newOutputStreamSupplier(xls));
     }
   }
 

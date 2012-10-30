@@ -1,8 +1,6 @@
 package com.heymoose.infrastructure.service.action;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import com.heymoose.domain.action.ActionData;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.OfferAction;
@@ -10,9 +8,8 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +24,11 @@ public abstract class ActionDataImporterBase<T extends ActionData>
 
   protected final Repo repo;
   protected final OfferActions actions;
-  protected final Tracking tracking;
 
   public ActionDataImporterBase(Repo repo,
-                                Tracking tracking,
                                 OfferActions actions) {
     this.repo = repo;
     this.actions = actions;
-    this.tracking = tracking;
   }
 
   @Transactional
@@ -77,9 +71,14 @@ public abstract class ActionDataImporterBase<T extends ActionData>
           "Skipping..", payment.transactionId(), idList(offerActionList));
       return;
     }
+    Offer parentOffer = repo.get(Offer.class, parentOfferId);
+    if (parentOffer == null) {
+      log.warn("Unknown parent offer: {}", parentOfferId);
+      throw new IllegalArgumentException("Unknown parent offer id " +
+          parentOfferId);
+    }
 
-    List<OfferAction> trackedActions = tracking.trackConversion(
-        token, payment.transactionId(), extractOffers(payment, parentOfferId));
+    List<OfferAction> trackedActions = process(payment, parentOffer, token);
 
     if (payment.status().equals(ActionStatus.CANCELED)) {
       for (OfferAction action : trackedActions) {
@@ -89,11 +88,9 @@ public abstract class ActionDataImporterBase<T extends ActionData>
     }
   }
 
-  /**
-   * Process action data and return (offer - price) pairs for tracking.
-   */
-  protected abstract Multimap<BaseOffer, Optional<Double>> extractOffers(
-      T actionData, Long parentOfferId);
+
+  protected abstract List<OfferAction> process(T actionData, Offer parentOffer,
+                                               Token token);
 
   private List<Long> idList(Iterable<? extends IdEntity> entityList) {
     ImmutableList.Builder<Long> idList = ImmutableList.builder();

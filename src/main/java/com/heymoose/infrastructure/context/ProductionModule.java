@@ -2,13 +2,9 @@ package com.heymoose.infrastructure.context;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.heymoose.infrastructure.job.Job;
-import com.heymoose.infrastructure.job.Scheduler;
 import com.heymoose.infrastructure.service.ActionImporter;
-import com.heymoose.infrastructure.service.Mlm;
 import com.heymoose.infrastructure.util.PropertiesUtil;
 import org.hibernate.cfg.Configuration;
-import org.joda.time.DateTime;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -74,19 +70,6 @@ public class ProductionModule extends AbstractModule {
     ScheduledExecutorService sched = Executors.newSingleThreadScheduledExecutor();
     sched.scheduleAtFixedRate(actionImporter, 0, period, TimeUnit.HOURS);
     return sched;
-  }
-
-  @Provides @Singleton
-  protected Scheduler scheduler(final Mlm mlm) {
-    Scheduler scheduler = new Scheduler(3, 0, new Job() {
-      @Override
-      public void run(DateTime plannedStartTime) throws Exception {
-        // Disabled temporarily
-        //mlm.doExport();
-      }
-    });
-    scheduler.schedule();
-    return scheduler;
   }
 
 }

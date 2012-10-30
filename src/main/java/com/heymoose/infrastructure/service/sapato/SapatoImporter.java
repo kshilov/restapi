@@ -1,8 +1,7 @@
 package com.heymoose.infrastructure.service.sapato;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.FixPriceActionData;
@@ -14,9 +13,10 @@ import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.statistics.Tracking;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
+import com.heymoose.infrastructure.service.processing.ActionProcessor;
+import com.heymoose.infrastructure.service.processing.ProcessableData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +29,15 @@ public class SapatoImporter
       LoggerFactory.getLogger(SapatoImporter.class);
 
   private final Repo repo;
-  private final Tracking tracking;
   private final OfferActions actions;
+  private final ActionProcessor processor;
 
   @Inject
-  public SapatoImporter(Repo repo, Tracking tracking, OfferActions actions) {
+  public SapatoImporter(Repo repo, OfferActions actions,
+                        ActionProcessor processor) {
     this.repo = repo;
-    this.tracking = tracking;
     this.actions = actions;
+    this.processor = processor;
   }
 
   @Transactional
@@ -95,9 +96,7 @@ public class SapatoImporter
             offerAction.id(), prev.id(), prev.title(), cur.id(), cur.title()});
         actions.cancel(offerAction);
 
-        List<OfferAction> actionList =
-            tracking.trackConversion(token, actionData.transactionId(),
-            ImmutableMultimap.of(cur, Optional.<Double>absent()));
+        List<OfferAction> actionList = process(actionData, cur, token);
 
         for (OfferAction resultAction : actionList) {
           resultAction.setCreationTime(offerAction.creationTime());
@@ -129,9 +128,7 @@ public class SapatoImporter
       return;
     }
 
-    List<OfferAction> resultActions =
-        tracking.trackConversion(token, actionData.transactionId(),
-        ImmutableMultimap.of(subOffer, Optional.<Double>absent()));
+    List<OfferAction> resultActions = process(actionData, subOffer, token);
 
     if (actionData.status() == ActionStatus.CANCELED) {
       log.info("Cancelling just imported actions.");
@@ -147,6 +144,15 @@ public class SapatoImporter
       }
     }
 
+  }
+
+  private List<OfferAction> process(FixPriceActionData actionData,
+                                    BaseOffer offer, Token token) {
+    ProcessableData data = new ProcessableData()
+        .setToken(token)
+        .setTransactionId(actionData.transactionId())
+        .setOffer(offer);
+    return ImmutableList.of(this.processor.process(data));
   }
 
   private BaseOffer findSubOffer(Long parentId, String code) {
