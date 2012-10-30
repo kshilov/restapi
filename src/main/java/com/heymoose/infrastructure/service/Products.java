@@ -41,23 +41,19 @@ public class Products {
         .add(Restrictions.eq("active", true));
     criteria.createAlias("offer", "offer");
 
-    Criterion shopMatches;
-    if (!offerList.isEmpty()) {
-      shopMatches = Restrictions.in("offer.id", offerList);
-    } else {
-      shopMatches = Restrictions.sqlRestriction("1=1");
-    }
+    Criterion shopMatches = Restrictions.in("offer.id", offerList);
 
-    Criterion categoryMatches;
-    if (!categoryList.isEmpty()) {
-      categoryMatches = HibernateUtil.sqlInRestriction(
+    Criterion categoryMatches = HibernateUtil.sqlInRestriction(
           "exists (select * from product_category " +
               "where product_id = {alias}.id and shop_category_id in (?))",
           categoryList, StandardBasicTypes.LONG);
+
+    if (offerList.isEmpty() || categoryList.isEmpty()) {
+      if (offerList.isEmpty()) criteria.add(categoryMatches);
+      if (categoryList.isEmpty()) criteria.add(shopMatches);
     } else {
-      categoryMatches = Restrictions.sqlRestriction("1=1");
+      criteria.add(Restrictions.or(categoryMatches, shopMatches));
     }
-    criteria.add(Restrictions.or(shopMatches, categoryMatches));
 
     if (!Strings.isNullOrEmpty(queryString)) {
       criteria.add(Restrictions.sqlRestriction(
