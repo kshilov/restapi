@@ -1,6 +1,7 @@
 select 
   product.id                product_id,
   product.name              product_name,
+  product.url               product_url,
   product.tariff_id         product_tariff_id,
   product.original_id       product_original_id,
   product.price             product_price,
