@@ -78,8 +78,10 @@ public final class SqlLoader {
       session.doWork(new Work() {
         @Override
         public void execute(Connection connection) throws SQLException {
-          SqlLoader.NamedParameterStatement statement = SqlLoader
-              .NamedParameterStatement.create(sql, connection);
+          connection.setAutoCommit(false);
+          NamedParameterStatement statement =
+              NamedParameterStatement.create(sql, connection);
+          statement.statement.setFetchSize(200);
           for (Map.Entry<String, Object> entry :
               CursorQuery.this.queryParamMap.build().entrySet()) {
             statement.setObject(entry.getKey(), entry.getValue());

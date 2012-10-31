@@ -24,6 +24,10 @@ public class ProductAttribute extends IdEntity {
 
   private static final char FIELD_SEPARATOR = '&';
   private static final char KEY_VAL_SEPARATOR = '=';
+  private static final Splitter.MapSplitter EXTRA_INFO_SPLITTER =
+      Splitter.on(FIELD_SEPARATOR)
+        .omitEmptyStrings()
+        .withKeyValueSeparator(Splitter.on(KEY_VAL_SEPARATOR));
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_attribute-seq")
@@ -94,10 +98,7 @@ public class ProductAttribute extends IdEntity {
   }
 
   public Map<String, String> extraInfo() {
-    return Splitter.on(FIELD_SEPARATOR)
-        .omitEmptyStrings()
-        .withKeyValueSeparator(Splitter.on(KEY_VAL_SEPARATOR))
-        .split(Strings.nullToEmpty(this.extraInfo));
+    return EXTRA_INFO_SPLITTER.split(Strings.nullToEmpty(this.extraInfo));
   }
 
   public String extraInfoString() {
