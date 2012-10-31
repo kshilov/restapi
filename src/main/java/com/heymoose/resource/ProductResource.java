@@ -75,7 +75,7 @@ public class ProductResource {
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString,
                      @QueryParam("offset") @DefaultValue("0") int offset,
-                     @QueryParam("limit") Integer limit) {
+                     @QueryParam("limit") @DefaultValue("100") int limit) {
     checkNotNull(key);
     // only manual transaction works here because of lazyness
     final Transaction transaction = repo.session().getTransaction();
