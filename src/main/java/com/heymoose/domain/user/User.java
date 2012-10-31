@@ -1,16 +1,11 @@
 package com.heymoose.domain.user;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.IdEntity;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
-import java.util.Random;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,8 +22,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
+import java.util.Random;
+import java.util.Set;
+
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
+import static java.util.Collections.*;
 
 @Entity
 @Table(name = "user_profile", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
@@ -123,7 +121,7 @@ public class User extends IdEntity {
   @Column(name = "register_time", nullable = false)
   private DateTime registerTime;
 
-  @Column(name = "secret_key")
+  @Column(name = "secret_key", insertable = false)
   private String secretKey;
 
   protected User() {}
