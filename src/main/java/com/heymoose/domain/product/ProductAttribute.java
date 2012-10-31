@@ -104,4 +104,8 @@ public class ProductAttribute extends IdEntity {
     return this.extraInfo;
   }
 
+  public ProductAttribute setExtraInfo(String extraInfo) {
+    this.extraInfo = extraInfo;
+    return this;
+  }
 }

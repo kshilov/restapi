@@ -64,4 +64,9 @@ public final class ProductCategoryMapping extends IdEntity {
   public Long id() {
     return id;
   }
+
+  public ProductCategoryMapping setIsDirect(Boolean direct) {
+    isDirect = direct != null && direct;
+    return this;
+  }
 }

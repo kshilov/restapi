@@ -13,6 +13,7 @@ import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
+import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.infrastructure.util.SqlLoader;
 import com.heymoose.resource.TypedMap;
 import org.slf4j.Logger;
@@ -71,10 +72,19 @@ public class Products {
     @Override
     public Product apply(@Nullable Product product) {
       if (product == null) return null;
-      List<ProductAttribute> attributeList = repo.allByHQL(ProductAttribute.class,
-          "from ProductAttribute where product_id = ?", product.id());
-      product.addAttributesFrom(attributeList);
-      repo.session().clear();
+      QueryResult queryResult = SqlLoader
+          .sqlQuery("product-attribute-list", repo.session())
+          .addQueryParam("product_id", product.id())
+          .execute();
+      for (Map<String, Object> raw : queryResult) {
+        TypedMap map = TypedMap.wrap(raw);
+        ProductAttribute attribute = new ProductAttribute()
+            .setProduct(product)
+            .setKey(map.getString("key"))
+            .setValue(map.getString("value"))
+            .setExtraInfo(map.getString("extra_info"));
+        product.addAttribute(attribute);
+      }
       return product;
     }
   }
@@ -91,11 +101,24 @@ public class Products {
     @Override
     public Product apply(@Nullable Product product) {
       if (product == null) return null;
-      List<ProductCategoryMapping> categoryMappingList =
-          repo.allByHQL(ProductCategoryMapping.class,
-          "from ProductCategoryMapping where product_id = ?", product.id());
-      product.addCategoriesFrom(categoryMappingList);
-      repo.session().clear();
+      QueryResult queryResult = SqlLoader
+          .sqlQuery("product-category-list", repo.session())
+          .addQueryParam("product_id", product.id())
+          .execute();
+      for (Map<String, Object> raw : queryResult) {
+        TypedMap map = TypedMap.wrap(raw);
+        ShopCategory category = new ShopCategory()
+            .setId(map.getLong("id"))
+            .setOfferId(map.getLong("offer_id"))
+            .setName(map.getString("name"))
+            .setOriginalId(map.getString("original_id"))
+            .setParentId(map.getLong("parent_id"));
+        ProductCategoryMapping categoryMapping = new ProductCategoryMapping()
+            .setProduct(product)
+            .setCategory(category)
+            .setIsDirect(map.getBoolean("is_direct"));
+        product.addCategoryMapping(categoryMapping);
+      }
       return product;
     }
   }

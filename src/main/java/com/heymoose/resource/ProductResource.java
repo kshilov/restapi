@@ -197,7 +197,7 @@ public class ProductResource {
       categoryElement.setAttribute("id", category.id().toString());
       if (category.parent() != null) {
         categoryElement.setAttribute(
-            "parentId", category.parent().id().toString());
+            "parentId", category.parentId().toString());
       }
       categoryElement.setText(category.name());
       categories.addContent(categoryElement);
