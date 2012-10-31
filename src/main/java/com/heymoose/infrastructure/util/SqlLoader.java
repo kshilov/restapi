@@ -10,6 +10,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,66 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class SqlLoader {
+
+  public static class CursorQuery {
+
+    private final Session session;
+    private final String name;
+    private final ImmutableMap.Builder<String, Object> queryParamMap =
+        ImmutableMap.builder();
+    private final ImmutableMap.Builder<String, Object> templateParamMap =
+        ImmutableMap.builder();
+
+    private CursorQuery(String name, Session session) {
+      this.session = session;
+      this.name = name;
+    }
+
+    public CursorQuery addQueryParam(String name, Object value) {
+      queryParamMap.put(name, value);
+      return this;
+    }
+
+    public CursorQuery addTemplateParam(String name, Object value) {
+      templateParamMap.put(name, value);
+      return this;
+    }
+
+    public CursorQuery addQueryParamIfNotNull(Object nullable,
+                                              String name, Object value) {
+      if (nullable == null)
+        return this;
+      return addQueryParam(name, value);
+    }
+
+    public CursorQuery addTemplateParamIfNotNull(Object nullable,
+                                                 String name, Object value) {
+      if (nullable == null)
+        return this;
+      return addTemplateParam(name, value);
+    }
+
+    public Iterable<Map<String, Object>> execute() {
+      final String sql = SqlLoader.getTemplate(name, templateParamMap.build());
+
+      final ProviderWithSetter<Iterable<Map<String, Object>>> provider =
+          ProviderWithSetter.newInstance();
+      session.doWork(new Work() {
+        @Override
+        public void execute(Connection connection) throws SQLException {
+          SqlLoader.NamedParameterStatement statement = SqlLoader
+              .NamedParameterStatement.create(sql, connection);
+          for (Map.Entry<String, Object> entry :
+              CursorQuery.this.queryParamMap.build().entrySet()) {
+            statement.setObject(entry.getKey(), entry.getValue());
+          }
+          ResultSet resultSet = statement.executeQuery();
+          provider.set(SqlLoader.toIterable(resultSet));
+        }
+      });
+      return provider.get();
+    }
+  }
 
   public static class NamedParameterStatement {
 
@@ -87,6 +148,26 @@ public final class SqlLoader {
       return statement.executeQuery();
     }
 
+    public NamedParameterStatement setObject(String key, Object value)
+        throws SQLException {
+      if (value instanceof Iterable<?>) {
+        return setInObject(key, (Iterable<?>) value);
+      }
+      for (Integer index : paramNameMap.get(key)) {
+        statement.setObject(index, value);
+      }
+      return this;
+    }
+
+    private NamedParameterStatement setInObject(String key,
+                                                Iterable<?> valueList)
+        throws SQLException {
+      Iterator<?> iterator = valueList.iterator();
+      for (Integer index : paramNameMap.get(key)) {
+        statement.setObject(index, iterator.next());
+      }
+      return this;
+    }
   }
 
   public static class TemplateQuery {
@@ -292,6 +373,10 @@ public final class SqlLoader {
       }
     };
     return IteratorWrapper.wrap(iterator);
+  }
+
+  public static CursorQuery cursorQuery(String name, Session session) {
+    return new CursorQuery(name, session);
   }
 
   public static Long extractLong(Object val) {

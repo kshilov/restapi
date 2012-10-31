@@ -2,7 +2,6 @@ package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrantRepository;
@@ -12,18 +11,13 @@ import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.util.ProviderWithSetter;
 import com.heymoose.infrastructure.util.SqlLoader;
 import com.heymoose.resource.TypedMap;
-import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -178,38 +172,22 @@ public class Products {
                                                     final Iterable<Long> offerList,
                                                     final Iterable<Long> categoryList,
                                                     final String queryString) {
-    ImmutableMap.Builder<String, Object> templateParams =
-        ImmutableMap.builder();
+    SqlLoader.CursorQuery query = SqlLoader.cursorQuery("product-list",
+        repo.session());
+
     if (!Strings.isNullOrEmpty(queryString)) {
-      templateParams.put("filterByName", true);
+      query.addTemplateParam("filterByName", true);
     }
     if (offerList.iterator().hasNext()) {
-      templateParams.put("offerList", offerList);
+      query.addTemplateParam("offerList", offerList);
     }
     if (categoryList.iterator().hasNext()) {
-      templateParams.put("categoryList", categoryList);
+      query.addTemplateParam("categoryList", categoryList);
     }
-    final String sql = SqlLoader.getTemplate("product-list",
-        templateParams.build());
-
-    final ProviderWithSetter<Iterable<Map<String, Object>>> provider =
-        ProviderWithSetter.newInstance();
-    repo.session().doWork(new Work() {
-      @Override
-      public void execute(Connection connection) throws SQLException {
-        SqlLoader.NamedParameterStatement statement = SqlLoader
-            .NamedParameterStatement.create(sql, connection);
-        statement.setLong("user_id", user.id());
-        if (!Strings.isNullOrEmpty(queryString)) {
-          statement.setString("query_string", queryString.toLowerCase());
-        }
-        statement.setInLong("offer_id", offerList);
-        statement.setInLong("category_id", categoryList);
-        ResultSet resultSet = statement.executeQuery();
-        provider.set(SqlLoader.toIterable(resultSet));
-      }
-    });
-    return provider.get();
+    query.addQueryParam("user_id", user.id());
+    query.addQueryParam("offer_id", offerList);
+    query.addQueryParam("category_id", categoryList);
+    return query.execute();
   }
 
 }
