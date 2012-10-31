@@ -26,6 +26,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -256,5 +257,16 @@ public class Product extends ModifiableEntity {
       result.add(mapping.category());
     }
     return result.build();
+  }
+
+  public Product addAttributesFrom(Collection<ProductAttribute> attributeList) {
+    this.attributeList.addAll(attributeList);
+    return this;
+  }
+
+  public Product addCategoriesFrom(
+      Collection<ProductCategoryMapping> categoryMappingList) {
+    this.categoryMappingList.addAll(categoryMappingList);
+    return this;
   }
 }

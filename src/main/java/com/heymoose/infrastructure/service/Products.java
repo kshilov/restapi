@@ -8,6 +8,8 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
+import com.heymoose.domain.product.ProductAttribute;
+import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
@@ -58,6 +60,46 @@ public class Products {
     }
   }
 
+  private static class AddAttributesFunction
+      implements Function<Product, Product> {
+    private Repo repo;
+
+    public AddAttributesFunction(Repo repo) {
+      this.repo = repo;
+    }
+
+    @Override
+    public Product apply(@Nullable Product product) {
+      if (product == null) return null;
+      List<ProductAttribute> attributeList = repo.allByHQL(ProductAttribute.class,
+          "from ProductAttribute where product_id = ?", product.id());
+      product.addAttributesFrom(attributeList);
+      repo.session().clear();
+      return product;
+    }
+  }
+
+  private static class AddCategoriesFunction
+      implements Function<Product, Product> {
+    private Repo repo;
+
+    public AddCategoriesFunction(Repo repo) {
+      this.repo = repo;
+    }
+
+
+    @Override
+    public Product apply(@Nullable Product product) {
+      if (product == null) return null;
+      List<ProductCategoryMapping> categoryMappingList =
+          repo.allByHQL(ProductCategoryMapping.class,
+          "from ProductCategoryMapping where product_id = ?", product.id());
+      product.addCategoriesFrom(categoryMappingList);
+      repo.session().clear();
+      return product;
+    }
+  }
+
   private static final MapToProductFunction MAP_TO_PRODUCT =
       new MapToProductFunction();
 
@@ -65,11 +107,15 @@ public class Products {
 
   private final Repo repo;
   private final OfferGrantRepository grants;
+  private final AddAttributesFunction addAttributesFunction;
+  private final AddCategoriesFunction addCategoriesFunction;
 
   @Inject
   public Products(Repo repo, OfferGrantRepository grantRepo) {
     this.repo = repo;
     this.grants = grantRepo;
+    this.addAttributesFunction = new AddAttributesFunction(repo);
+    this.addCategoriesFunction = new AddCategoriesFunction(repo);
   }
 
 
@@ -82,44 +128,9 @@ public class Products {
         listProducts(user, offerList, categoryList, queryString);
     Iterable<Product> productIterator =
         Iterables.transform(mapIterator, MAP_TO_PRODUCT);
-//    Iterable<Product> filledCategoriesIterator =
-//        Iterables.transform(productIterator, FILL_CATEGORIES);
-//    Iterable<Product> filledAttributesIterator =
-//        Iterables.transform(filledCategoriesIterator, FILL_ATTRIBUTES);
-    return productIterator;
-
-//    Criteria criteria = repo.session().createCriteria(Product.class)
-//        .add(Restrictions.eq("active", true));
-//    criteria.createAlias("offer", "offer");
-//
-//    Criterion shopMatches = Restrictions.in("offer.id", offerList);
-//
-//    Criterion categoryMatches = HibernateUtil.sqlInRestriction(
-//          "exists (select * from product_category " +
-//              "where product_id = {alias}.id and shop_category_id in (?))",
-//          categoryList, StandardBasicTypes.LONG);
-//
-//    if (offerList.isEmpty() || categoryList.isEmpty()) {
-//      if (!offerList.isEmpty()) criteria.add(shopMatches);
-//      if (!categoryList.isEmpty()) criteria.add(categoryMatches);
-//    } else {
-//      criteria.add(Restrictions.or(categoryMatches, shopMatches));
-//    }
-//
-//    Map<Long, Offer> grantedMap =
-//        IdEntity.toMap(grants.grantedProductOffers(user.id()));
-//    if (grantedMap.size() == 0) return ImmutableList.of();
-//    criteria.add(Restrictions.in("offer.id", grantedMap.keySet()));
-//
-//    if (!Strings.isNullOrEmpty(queryString)) {
-//      criteria.add(Restrictions.sqlRestriction(
-//          "lower({alias}.name) like ?",
-//          "%" + queryString.toLowerCase() + "%",
-//          StandardBasicTypes.STRING));
-//    }
-//    criteria.setFirstResult(offset);
-//    if (limit != null) criteria.setMaxResults(limit);
-//    return (List<Product>) criteria.list();
+    Iterable<Product> attributesAdded =
+        Iterables.transform(productIterator, addAttributesFunction);
+    return Iterables.transform(attributesAdded, addCategoriesFunction);
   }
 
   public List<ShopCategory> categoryList(Long offerId) {
