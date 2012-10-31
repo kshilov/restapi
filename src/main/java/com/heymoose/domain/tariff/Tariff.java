@@ -304,4 +304,9 @@ public class Tariff extends IdEntity {
       default: return null;
     }
   }
+
+  public Tariff setId(Long id) {
+    this.id = id;
+    return this;
+  }
 }

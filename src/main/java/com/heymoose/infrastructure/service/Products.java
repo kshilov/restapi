@@ -6,12 +6,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrantRepository;
+import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.ProviderWithSetter;
 import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.resource.TypedMap;
 import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,27 +28,37 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.heymoose.infrastructure.util.SqlLoader.*;
-
 public class Products {
 
   private static class MapToProductFunction
       implements Function<Map<String, Object>, Product> {
 
     @Override
-    public Product apply(@Nullable Map<String, Object> map) {
-      if (map == null) return null;
+    public Product apply(@Nullable Map<String, Object> record) {
+      if (record == null) return null;
+      TypedMap map = TypedMap.wrap(record);
       Product product = new Product()
-          .setName(map.get("product_name").toString())
-          .setPrice(scaledDecimal(map.get("product_price")))
-          .setActive(extractBoolean(map.get("product_active")))
-          .setOriginalId(map.get("product_name").toString())
-          .setUrl(map.get("product_url").toString());
-      product.setId(extractLong(map.get("product_id")));
-      if (map.containsKey("offer_id")) {
-        Offer offer = new Offer();
-        offer.setId(extractLong(map.get("offer_id")));
-        offer.setName(map.get("offer_name").toString());
+          .setName(map.getString("product_name"))
+          .setPrice(map.getBigDecimal("product_price"))
+          .setActive(map.getBoolean("product_active"))
+          .setOriginalId(map.getString("product_name"))
+          .setUrl(map.getString("product_url"));
+      product.setId(map.getLong("product_id"));
+      if (map.get("offer_id") != null) {
+        Offer offer = new Offer()
+            .setId(map.getLong("offer_id"))
+            .setName(map.getString("offer_name"));
+        product.setOffer(offer);
+      }
+      if (map.get("tariff_id") != null) {
+        Tariff tariff = new Tariff()
+            .setPercent(map.getBigDecimal("tariff_percent"))
+            .setCost(map.getBigDecimal("tariff_cost"))
+            .setFirstActionCost(map.getBigDecimal("tariff_first_action_cost"))
+            .setOtherActionCost(map.getBigDecimal("tariff_other_action_cost"))
+            .setCpaPolicy(map.getEnumValue("tariff_cpa_policy", CpaPolicy.class))
+            .setId(map.getLong("tariff_id"));
+        product.setTariff(tariff);
       }
       return product;
     }
@@ -54,7 +67,6 @@ public class Products {
   private static final MapToProductFunction MAP_TO_PRODUCT =
       new MapToProductFunction();
 
-  private static final int ITEMS_PER_PAGE = 100;
   private static final Logger log = LoggerFactory.getLogger(Products.class);
 
   private final Repo repo;

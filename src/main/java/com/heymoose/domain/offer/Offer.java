@@ -222,9 +222,10 @@ public class Offer extends BaseOffer {
     return name;
   }
 
-  public void setName(String name) {
+  public Offer setName(String name) {
     checkNotNull(name);
     this.name = name;
+    return this;
   }
 
   public String description() {
@@ -358,6 +359,11 @@ public class Offer extends BaseOffer {
 
   public Offer setIsProductOffer(boolean productOffer) {
     this.isProductOffer = productOffer;
+    return this;
+  }
+
+  public Offer setId(Long id) {
+    this.id = id;
     return this;
   }
 }

@@ -142,7 +142,7 @@ public class Product extends ModifiableEntity {
     return Objects.toStringHelper(Product.class)
         .add("id", id)
         .add("originalId", originalId)
-        .add("offerId", offer.id())
+        .add("offerId", offer == null ? null : offer.id())
         .add("name", name).toString();
   }
 

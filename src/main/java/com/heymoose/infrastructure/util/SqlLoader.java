@@ -50,6 +50,7 @@ public final class SqlLoader {
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
+      log.debug("Query parsed: {}", sql);
       return result;
     }
 
