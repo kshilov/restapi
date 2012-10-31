@@ -118,7 +118,7 @@ public class Offer extends BaseOffer {
   @Column(name = "required_get_parameters", nullable = true)
   private String requiredGetParameters;
 
-  protected Offer() {
+  public Offer() {
   }
 
   public Offer(User advertiser, boolean allowNegativeBalance, String name, String description, String shortDescription,

@@ -2,22 +2,91 @@ package com.heymoose.infrastructure.util;
 
 
 import com.floreysoft.jmte.Engine;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class SqlLoader {
+
+  public static class NamedParameterStatement {
+
+    public static NamedParameterStatement create(String sql, Connection con) {
+      ImmutableMultimap.Builder<String, Integer> paramMap =
+          ImmutableMultimap.builder();
+      Pattern pattern = Pattern.compile(":\\w*");
+      Matcher matcher = pattern.matcher(sql);
+      int i = 1;
+      while (matcher.find()) {
+        paramMap.put(matcher.group().substring(1), i++);
+      }
+      String newSql = matcher.replaceAll("?");
+      NamedParameterStatement result = new NamedParameterStatement();
+      result.paramNameMap = paramMap.build();
+      try {
+        result.statement =  con.prepareStatement(newSql);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+      return result;
+    }
+
+
+    private Multimap<String, Integer> paramNameMap;
+    private PreparedStatement statement;
+
+    public NamedParameterStatement setLong(String name, long value)
+        throws SQLException {
+      for (Integer index : paramNameMap.get(name))
+        statement.setLong(index, value);
+      return this;
+    }
+
+    public NamedParameterStatement setString(String name, String value)
+        throws SQLException {
+      Preconditions.checkNotNull(value, "Use setNull for null values!");
+      for (Integer index : paramNameMap.get(name))
+        statement.setString(index, value);
+      return this;
+    }
+
+    public NamedParameterStatement setInLong(String name,
+                                             Iterable<Long> valueList)
+        throws SQLException {
+      Iterator<Long> iterator = valueList.iterator();
+      for (Integer index : paramNameMap.get(name)) {
+        statement.setLong(index, iterator.next());
+      }
+      return this;
+    }
+
+    public ResultSet executeQuery() throws SQLException {
+      return statement.executeQuery();
+    }
+
+  }
 
   public static class TemplateQuery {
     private final Session session;
@@ -170,6 +239,58 @@ public final class SqlLoader {
 
   public static SqlQuery sqlQuery(String name, Session session) {
     return new SqlQuery(name, session);
+  }
+
+  public static Iterable<Map<String, Object>> toIterable(final ResultSet set) {
+    final Map<Integer, String> columnMap;
+    final int colCount;
+    try {
+      ResultSetMetaData meta = set.getMetaData();
+      colCount = meta.getColumnCount();
+      columnMap = Maps.newHashMapWithExpectedSize(colCount);
+      for (int i = 1; i <= colCount; i++) {
+        columnMap.put(i, meta.getColumnLabel(i));
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    final Iterator<Map<String, Object>> iterator =
+        new Iterator<Map<String, Object>>() {
+      private boolean shifted;
+      @Override
+      public boolean hasNext() {
+        if (shifted) return true;
+        try {
+          return shifted = set.next();
+        } catch(SQLException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public Map<String, Object> next() {
+        try {
+          if (shifted) {
+            shifted = false;
+          } else {
+            set.next();
+          }
+          Map<String, Object> map = Maps.newHashMap();
+          for (int i = 1; i <= colCount; i++) {
+            map.put(columnMap.get(i), set.getObject(i));
+          }
+          return map;
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public void remove() {
+        throw new NotImplementedException();
+      }
+    };
+    return IteratorWrapper.wrap(iterator);
   }
 
   public static Long extractLong(Object val) {
