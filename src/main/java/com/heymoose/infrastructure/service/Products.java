@@ -147,8 +147,25 @@ public class Products {
                                 List<Long> categoryList,
                                 String queryString,
                                 int offset, Integer limit) {
-    Iterable<Map<String, Object>> mapIterator =
-        listProducts(user, offerList, categoryList, queryString);
+    SqlLoader.CursorQuery query = SqlLoader
+        .cursorQuery("product-list", repo.session());
+
+    if (!Strings.isNullOrEmpty(queryString)) {
+      query.addTemplateParam("filterByName", true);
+    }
+    if (offerList.iterator().hasNext()) {
+      query.addTemplateParam("offerList", offerList);
+    }
+    if (categoryList.iterator().hasNext()) {
+      query.addTemplateParam("categoryList", categoryList);
+    }
+    query.addQueryParam("user_id", user.id());
+    query.addQueryParam("offer_id", offerList);
+    query.addQueryParam("category_id", categoryList);
+    query.addQueryParam("limit", limit);
+    query.addQueryParam("offset", offset);
+    Iterable<Map<String, Object>> mapIterator = query.execute();
+
     Iterable<Product> productIterator =
         Iterables.transform(mapIterator, MAP_TO_PRODUCT);
     Iterable<Product> attributesAdded =
@@ -200,28 +217,6 @@ public class Products {
         .setParameter(0, product.id())
         .executeUpdate();
     log.debug("Deleted {} product - category mappings of {}", deleted, product);
-  }
-
-  public Iterable<Map<String, Object>> listProducts(final User user,
-                                                    final Iterable<Long> offerList,
-                                                    final Iterable<Long> categoryList,
-                                                    final String queryString) {
-    SqlLoader.CursorQuery query = SqlLoader.cursorQuery("product-list",
-        repo.session());
-
-    if (!Strings.isNullOrEmpty(queryString)) {
-      query.addTemplateParam("filterByName", true);
-    }
-    if (offerList.iterator().hasNext()) {
-      query.addTemplateParam("offerList", offerList);
-    }
-    if (categoryList.iterator().hasNext()) {
-      query.addTemplateParam("categoryList", categoryList);
-    }
-    query.addQueryParam("user_id", user.id());
-    query.addQueryParam("offer_id", offerList);
-    query.addQueryParam("category_id", categoryList);
-    return query.execute();
   }
 
 }

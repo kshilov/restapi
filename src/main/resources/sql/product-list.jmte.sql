@@ -54,3 +54,4 @@ and product.offer_id in (
     :offer_id ${if !last_offer}, ${end}
   ${end})
 ${end}
+offset :offset limit :limit

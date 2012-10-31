@@ -195,7 +195,7 @@ public class ProductResource {
     for (ShopCategory category : categoryMap.values()) {
       Element categoryElement = new Element("category");
       categoryElement.setAttribute("id", category.id().toString());
-      if (category.parent() != null) {
+      if (category.parentId() != null) {
         categoryElement.setAttribute(
             "parentId", category.parentId().toString());
       }
