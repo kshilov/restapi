@@ -106,8 +106,8 @@ public class ProductResource {
 
     } catch (Throwable e) {
       transaction.rollback();
+      throw new WebApplicationException(e, 500);
     }
-    throw new WebApplicationException(500);
   }
 
 
