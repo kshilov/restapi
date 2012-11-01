@@ -35,7 +35,7 @@ left join tariff
 on tariff.id = product.tariff_id
 
 where 
-1=1
+product.active = true
 ${if filterByName}
 and lower(product.name) like '%:query_string%'
 ${end}

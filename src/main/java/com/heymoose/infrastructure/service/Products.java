@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrantRepository;
@@ -172,6 +173,42 @@ public class Products {
         Iterables.transform(productIterator, addAttributesFunction);
     return Iterables.transform(attributesAdded, addCategoriesFunction);
   }
+
+
+  public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
+                                             List<Long> categoryList,
+                                             String queryString) {
+    SqlLoader.TemplateQuery query = SqlLoader
+        .templateQuery("shop-category-list", repo.session())
+        .addQueryParam("user_id", user.id());
+    if (!Strings.isNullOrEmpty(queryString)) {
+      query.addTemplateParam("filterByProductName", true);
+      query.addQueryParam("query_string", queryString);
+    }
+    if (!offerList.isEmpty()) {
+      query.addTemplateParam("filterByOfferList", true);
+      query.addQueryParam("offer_list", offerList);
+    }
+    if (!categoryList.isEmpty()) {
+      query.addTemplateParam("filterByCategoryList", true);
+      query.addQueryParam("category_list", categoryList);
+    }
+    QueryResult result = query.execute();
+    ImmutableList.Builder<ShopCategory> categoryResultList =
+        ImmutableList.builder();
+    for (Map<String, Object> raw : result) {
+      TypedMap map = TypedMap.wrap(raw);
+      ShopCategory shopCategory = new ShopCategory()
+          .setId(map.getLong("id"))
+          .setName(map.getString("name"))
+          .setOriginalId(map.getString("original_id"))
+          .setParentId(map.getLong("parent_id"))
+          .setOfferId(map.getLong("offer_id"));
+      categoryResultList.add(shopCategory);
+    }
+    return categoryResultList.build();
+  }
+
 
   public List<ShopCategory> categoryList(Long offerId) {
     return repo.allByHQL(ShopCategory.class,

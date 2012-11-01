@@ -27,10 +27,14 @@ public final class TypedMap extends AbstractMap<String, Object> {
   }
 
   public BigDecimal getBigDecimal(String key) {
-    return SqlLoader.scaledDecimal(wrappedMap.get(key));
+    Object value = wrappedMap.get(key);
+    if (value == null) return null;
+    return SqlLoader.scaledDecimal(value);
   }
 
   public Long getLong(String key) {
+    Object value = wrappedMap.get(key);
+    if (value == null) return null;
     return SqlLoader.extractLong(wrappedMap.get(key));
   }
 

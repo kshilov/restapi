@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -214,7 +215,13 @@ public final class SqlLoader {
       Query query = session.createSQLQuery(sql)
           .setResultTransformer(QueryResultTransformer.INSTANCE);
       for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
-        query.setParameter(param.getKey(), param.getValue());
+        if (param.getValue() instanceof Collection<?>) {
+          query.setParameterList(
+              param.getKey(),
+              (Collection<?>) param.getValue());
+        } else {
+          query.setParameter(param.getKey(), param.getValue());
+        }
       }
       return (QueryResult) query.list();
     }
