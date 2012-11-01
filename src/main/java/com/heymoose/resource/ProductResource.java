@@ -145,18 +145,16 @@ public class ProductResource {
                      OutputStream stream) throws XMLStreamException {
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
     XMLStreamWriter streamWriter = outputFactory.createXMLStreamWriter(stream);
-    streamWriter.writeStartDocument();
+    streamWriter.writeStartDocument("utf-8", "1.0");
     streamWriter.writeStartElement("yml_catalog");
     streamWriter.writeAttribute("date", DateTime.now().toString());
 
     streamWriter.writeStartElement("shop");
 
-    streamWriter.writeStartElement("name");
-    streamWriter.writeCharacters("HeyMoose!");
-    streamWriter.writeEndElement(); //name
-    streamWriter.writeStartElement("url");
-    streamWriter.writeCharacters("http://www.heymoose.com");
-    streamWriter.writeEndElement(); //url
+    writeElement("name", "HeyMoose!", streamWriter);
+    writeElement("company", "HeyMoose!", streamWriter);
+    writeElement("email", "info@heymoose.com", streamWriter);
+    writeElement("url", "http://www.heymoose.com", streamWriter);
 
     HashMap<Long, ShopCategory> categoryMap = Maps.newHashMap();
     streamWriter.writeStartElement("offers");
@@ -187,6 +185,7 @@ public class ProductResource {
                             XMLStreamWriter streamWriter)
       throws XMLStreamException {
     streamWriter.writeStartElement("offer");
+    streamWriter.writeAttribute("type", "vendor.model");
 
     // attributes
     streamWriter.writeAttribute("id", product.id().toString());
@@ -195,18 +194,35 @@ public class ProductResource {
       streamWriter.writeAttribute(extra.getKey(), extra.getValue());
     }
 
+    // url
+    String originalUrlEncoded = "";
+    try {
+      originalUrlEncoded = URLEncoder.encode(product.url(), "utf-8");
+    } catch (UnsupportedEncodingException e) {
+    }
+    String newUrl = String.format(urlMask,
+        product.offer().id(), user.id(), originalUrlEncoded);
+    writeElement("url", newUrl, streamWriter);
+
+    writeElement("price", product.price().toString(), streamWriter);
+    writeProductAttribute(product, "currencyId", streamWriter);
+
     // categories
     for (ShopCategory category : product.directCategoryList()) {
-      streamWriter.writeStartElement("categoryId");
-      streamWriter.writeCharacters(category.id().toString());
-      streamWriter.writeEndElement(); //categoryId
+      writeElement("categoryId", category.id().toString(), streamWriter);
     }
+    writeProductAttribute(product, "picture", streamWriter);
+    writeProductAttribute(product, "store", streamWriter);
+    writeProductAttribute(product, "pickup", streamWriter);
+    writeProductAttribute(product, "delivery", streamWriter);
+    writeProductAttribute(product, "typePrefix", streamWriter);
+    writeProductAttribute(product, "name", streamWriter);
+    writeProductAttribute(product, "vendor", streamWriter);
+    writeProductAttribute(product, "vendorCode", streamWriter);
+    writeProductAttribute(product, "model", streamWriter);
 
-    // children
-    writeElement("name", product.name(), streamWriter);
-    for (ProductAttribute attribute : product.attributes()) {
-      if (attribute.key().equals("name")) continue;
-      if (attribute.key().equals("url")) continue;
+    // params
+    for (ProductAttribute attribute : product.attributeList("param")) {
       streamWriter.writeStartElement(attribute.key());
       for (Map.Entry<String, String> extraAttr :
           attribute.extraInfo().entrySet()) {
@@ -215,9 +231,6 @@ public class ProductResource {
       streamWriter.writeCharacters(attribute.value());
       streamWriter.writeEndElement(); //end product attribute
     }
-
-    streamWriter.writeEndElement(); //offer
-
 
     writeParam("hm_offer_id", product.offer().id(), streamWriter);
     writeParam("hm_offer_name", product.offer().name(), streamWriter);
@@ -233,17 +246,17 @@ public class ProductResource {
       streamWriter.writeEndElement(); //param
     }
 
-    String originalUrlEncoded = "";
-    try {
-      originalUrlEncoded = URLEncoder.encode(product.url(), "utf-8");
-    } catch (UnsupportedEncodingException e) {
-    }
-    String newUrl = String.format(urlMask,
-        product.offer().id(), user.id(), originalUrlEncoded);
-    streamWriter.writeStartElement("url");
-    streamWriter.writeCharacters(newUrl);
-    streamWriter.writeEndElement(); //url
 
+    streamWriter.writeEndElement(); //offer
+  }
+
+  private void writeProductAttribute(Product product, String name,
+                                     XMLStreamWriter streamWriter)
+      throws XMLStreamException {
+    Iterable<ProductAttribute> attributeList = product.attributeList(name);
+    for (ProductAttribute attribute : attributeList) {
+      writeElement(name, attribute.value(), streamWriter);
+    }
   }
 
   private String wrapRoot(Element root) {
@@ -272,7 +285,7 @@ public class ProductResource {
   private void writeParam(String key, Object value,
                           XMLStreamWriter streamWriter)
       throws XMLStreamException {
-    streamWriter.writeStartElement(key);
+    streamWriter.writeStartElement("param");
     streamWriter.writeAttribute("name", key);
     streamWriter.writeCharacters(value.toString());
     streamWriter.writeEndElement();
