@@ -42,7 +42,7 @@ ${end}
 ${if categoryList}
 and exists (select * from product_category 
             where product_id = product.id
-            and category_id in (
+            and shop_category_id in (
               ${foreach categoryList cat}
                 :category_id ${if !last_cat}, ${end}
               ${end}
