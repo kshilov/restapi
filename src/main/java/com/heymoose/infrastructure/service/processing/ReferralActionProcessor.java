@@ -35,7 +35,7 @@ public class ReferralActionProcessor implements Processor {
     OfferAction action = data.offerAction();
     Preconditions.checkNotNull(action.transactionId(),
         "Transaction id should contain id of referral.");
-    User referral = users.byId(Long.valueOf(action.transactionId()));
+    User referral = users.byEmail(action.transactionId().trim());
     Preconditions.checkState(referral != null,
         "Referral with id " + action.transactionId() + " not found!");
 
