@@ -40,7 +40,7 @@ public class ReferralActionProcessor implements Processor {
         "Referral with id " + action.transactionId() + " not found!");
 
     log.info("Setting referrer for user: {}, referrer: {}",
-        referral, action.affiliate().id());
+        referral, action.affiliate());
     users.put(referral.setReferrerId(action.affiliate().id()));
 
   }
