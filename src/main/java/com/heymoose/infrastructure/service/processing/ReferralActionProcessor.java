@@ -41,7 +41,8 @@ public class ReferralActionProcessor implements Processor {
 
     log.info("Setting referrer for user: {}, referrer: {}",
         referral, action.affiliate());
-    users.put(referral.setReferrerId(action.affiliate().id()));
-
+    referral.setReferrerId(action.affiliate().id())
+        .setSource(action.stat().sourceId());
+    users.put(referral);
   }
 }
