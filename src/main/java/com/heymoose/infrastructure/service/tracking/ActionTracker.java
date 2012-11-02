@@ -108,10 +108,13 @@ public final class ActionTracker implements  Tracker {
     try{
       processor.process(data);
     } catch (IllegalStateException e) {
+      log.error("State exception during processing", e);
       throw new ApiRequestException(409, e.getMessage());
     } catch (IllegalArgumentException e) {
+      log.error("Argument exception during processing", e);
       throw new ApiRequestException(400, e.getMessage());
     } catch (NullPointerException e) {
+      log.error("NullPointer exception during processing", e);
       throw new ApiRequestException(400, e.getMessage());
     } catch (RuntimeException e) {
       log.warn("Exception during processing data: {}. {}", data, e);
