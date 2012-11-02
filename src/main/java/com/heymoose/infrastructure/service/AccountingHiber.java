@@ -182,6 +182,7 @@ public class AccountingHiber implements Accounting {
         .amount(affiliatePart)
         .event(AccountingEvent.ACTION_CREATED)
         .sourceId(action.id()).execute();
+    if (heymoosePart.equals(BigDecimal.ZERO)) return;
     this.newTransfer()
         .from(action.offer().account())
         .to(adminAccounts.getAdminAccountNotConfirmed())

@@ -291,10 +291,8 @@ public class OfferStat extends BaseEntity {
   }
 
   public OfferStat addToNotConfirmedFee(BigDecimal fee) {
-    checkArgument(fee.signum() == 1);
-    if (notConfirmedFee == null)
-      notConfirmedFee = ZERO;
-    notConfirmedFee = notConfirmedFee.add(fee);
+    checkArgument(fee.signum() >= 0);
+    notConfirmedFee = nullToZero(notConfirmedFee).add(fee);
     return this;
   }
 
