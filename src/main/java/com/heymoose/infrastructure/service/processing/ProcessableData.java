@@ -10,22 +10,12 @@ import java.math.BigDecimal;
 
 public final class ProcessableData {
 
-  private boolean processed;
   private BigDecimal price;
   private BaseOffer offer;
   private Token token;
   private String transactionId;
   private Product product;
   private OfferAction offerAction;
-
-  public ProcessableData setProcessed(boolean processed) {
-    this.processed = processed;
-    return this;
-  }
-
-  public boolean isProcessed() {
-    return this.processed;
-  }
 
   public BaseOffer offer() {
     return offer;

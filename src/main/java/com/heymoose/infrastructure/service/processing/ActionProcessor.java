@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service.processing;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.domain.accounting.Accounting;
@@ -87,8 +86,11 @@ public final class ActionProcessor implements Processor {
             tariff.cpaPolicy());
     }
 
-    Preconditions.checkArgument(advertiserCharge.signum() > 0,
-        "Advertiser charge should be positive.");
+    if (advertiserCharge.signum() <= 0) {
+      log.warn("Advertiser charge could not be calculated. " +
+          "Skipping {}", data);
+      return;
+    }
     BigDecimal affiliatePart = tariff.affiliatePart(advertiserCharge);
     BigDecimal heymoosePart = tariff.heymoosePart(advertiserCharge);
     OfferStat stat = copyStat(source, offer)
@@ -116,7 +118,6 @@ public final class ActionProcessor implements Processor {
 
     doPostBack(grant, action);
     data.setOfferAction(action);
-    data.setProcessed(true);
   }
 }
 
