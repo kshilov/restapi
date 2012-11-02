@@ -25,8 +25,11 @@ public class ReferralActionProcessor implements Processor {
   }
 
   public void process(ProcessableData data) {
-    Long referralOfferId = settings.getLong(Settings.REFERRAL_OFFER);
+    Long referralOfferId = settings.getLongOrNull(Settings.REFERRAL_OFFER);
+    if (referralOfferId == null) return;
     if (!data.offer().id().equals(referralOfferId)) return;
+
+    log.info("Entering referral processing. {}", data);
     Preconditions.checkNotNull(data.offerAction(),
         "Action not filled. " + data);
     OfferAction action = data.offerAction();

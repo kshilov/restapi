@@ -79,6 +79,15 @@ public class Settings {
   }
 
   @Transactional
+  public Long getLongOrNull(String name) {
+    checkNotNull(name);
+    Setting setting = (Setting) sessionProvider.get().get(Setting.class, name);
+    if (setting == null || setting.value == null) return null;
+    return Long.valueOf(setting.value);
+  }
+
+  @Transactional
+  @SuppressWarnings("unchecked")
   public Iterable<Setting> list() {
     return sessionProvider.get().createQuery("from Setting").list();
   }
