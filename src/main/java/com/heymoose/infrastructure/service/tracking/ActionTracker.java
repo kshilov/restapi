@@ -84,8 +84,7 @@ public final class ActionTracker implements  Tracker {
           .setToken(token)
           .setTransactionId(transactionId)
           .setOffer(offer);
-      processSafe(actionProcessor, data);
-      processSafe(referralProcessor, data);
+      processSafe(data, actionProcessor, referralProcessor);
     } else {
       for (String keyVal : PERIOD_SPLITTER.split(offerString)) {
         Iterator<String> keyValIterator = COLON_SPLITTER.split(keyVal)
@@ -97,16 +96,16 @@ public final class ActionTracker implements  Tracker {
             .setTransactionId(transactionId)
             .setOffer(offer)
             .setPrice(new BigDecimal(keyValIterator.next()));
-        processSafe(actionProcessor, data);
+        processSafe(data, actionProcessor);
       }
     }
     return noCache(Response.ok()).build();
   }
 
-  private void processSafe(Processor processor, ProcessableData data)
+  private void processSafe(ProcessableData data, Processor... processorList)
       throws ApiRequestException {
     try{
-      processor.process(data);
+      for (Processor processor : processorList)  processor.process(data);
     } catch (IllegalStateException e) {
       log.error("State exception during processing", e);
       throw new ApiRequestException(409, e.getMessage());
