@@ -59,7 +59,8 @@ public class FixPriceActionDataImporter
         .setToken(token)
         .setTransactionId(actionData.transactionId())
         .setOffer(offer);
-    return ImmutableList.of(processor.process(data));
+    processor.process(data);
+    return ImmutableList.of(data.offerAction());
   }
 
 }

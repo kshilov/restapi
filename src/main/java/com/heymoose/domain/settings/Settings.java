@@ -1,24 +1,28 @@
 package com.heymoose.domain.settings;
 
-import static com.google.common.collect.Maps.newHashMap;
 import com.heymoose.infrastructure.persistence.Transactional;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
-import java.util.Map;
+import org.hibernate.Session;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import org.hibernate.Session;
+import java.math.BigDecimal;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Singleton
 public class Settings {
 
+  public static final String M = "M";
+  public static final String Q = "Q";
+  public static final String C_MIN = "Cmin";
+
+  public static final String REFERRAL_OFFER = "referral-offer";
+
   private final Provider<Session> sessionProvider;
   
-  public static String M = "M";
-  public static String Q = "Q";
-  public static String C_MIN = "Cmin";
-
   @Inject
   public Settings(Provider<Session> sessionProvider) {
     this.sessionProvider = sessionProvider;
@@ -66,6 +70,12 @@ public class Settings {
     checkNotNull(name);
     Setting setting = existingSetting(name);
     return Double.valueOf(setting.value);
+  }
+
+  @Transactional
+  public long getLong(String name) {
+    checkNotNull(name);
+    return Long.valueOf(existingSetting(name).value);
   }
 
   @Transactional

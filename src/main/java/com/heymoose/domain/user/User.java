@@ -312,5 +312,10 @@ public class User extends IdEntity {
     this.secretKey = User.genKey();
     return this;
   }
-  
+
+  public User setReferrerId(Long referrerId) {
+    this.referrerId = referrerId;
+    return this;
+  }
+
 }

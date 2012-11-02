@@ -40,7 +40,7 @@ public final class ActionProcessor implements Processor {
   }
 
 
-  public OfferAction process(ProcessableData data) {
+  public void process(ProcessableData data) {
     log.info("Entering processing: {}", data);
     Token token = data.token();
     BaseOffer offer = data.offer();
@@ -115,8 +115,8 @@ public final class ActionProcessor implements Processor {
             advertiserCharge, affiliatePart, heymoosePart, action.id() } );
 
     doPostBack(grant, action);
+    data.setOfferAction(action);
     data.setProcessed(true);
-    return action;
   }
 }
 

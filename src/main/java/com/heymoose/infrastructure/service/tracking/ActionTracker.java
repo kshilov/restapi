@@ -11,6 +11,8 @@ import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
+import com.heymoose.infrastructure.service.processing.Processor;
+import com.heymoose.infrastructure.service.processing.ReferralActionProcessor;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
 import org.slf4j.Logger;
@@ -43,13 +45,16 @@ public final class ActionTracker implements  Tracker {
 
   private ActionProcessor actionProcessor;
   private OfferLoader offerLoader;
+  private ReferralActionProcessor referralProcessor;
   private Repo repo;
 
   @Inject
   public ActionTracker(Repo repo, ActionProcessor processor,
+                       ReferralActionProcessor referralProcessor,
                        OfferLoader offerLoader) {
     this.actionProcessor = processor;
     this.offerLoader = offerLoader;
+    this.referralProcessor = referralProcessor;
     this.repo = repo;
   }
 
@@ -79,7 +84,8 @@ public final class ActionTracker implements  Tracker {
           .setToken(token)
           .setTransactionId(transactionId)
           .setOffer(offer);
-      processSafe(data);
+      processSafe(actionProcessor, data);
+      processSafe(referralProcessor, data);
     } else {
       for (String keyVal : PERIOD_SPLITTER.split(offerString)) {
         Iterator<String> keyValIterator = COLON_SPLITTER.split(keyVal)
@@ -91,15 +97,16 @@ public final class ActionTracker implements  Tracker {
             .setTransactionId(transactionId)
             .setOffer(offer)
             .setPrice(new BigDecimal(keyValIterator.next()));
-        processSafe(data);
+        processSafe(actionProcessor, data);
       }
     }
     return noCache(Response.ok()).build();
   }
 
-  private void processSafe(ProcessableData data) throws ApiRequestException {
+  private void processSafe(Processor processor, ProcessableData data)
+      throws ApiRequestException {
     try{
-      actionProcessor.process(data);
+      processor.process(data);
     } catch (IllegalStateException e) {
       throw new ApiRequestException(409, e.getMessage());
     } catch (IllegalArgumentException e) {

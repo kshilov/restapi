@@ -144,7 +144,8 @@ public class CarolinesActionDataImporter
             .setTransactionId(actionData.transactionId())
             .setOffer(productOffer)
             .setPrice(price);
-        actionList.add(processor.process(data));
+        processor.process(data);
+        actionList.add(data.offerAction());
       }
     }
     return actionList.build();
