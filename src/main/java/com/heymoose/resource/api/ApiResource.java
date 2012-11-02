@@ -10,6 +10,7 @@ import com.sun.jersey.api.core.HttpRequestContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -93,7 +94,14 @@ public class ApiResource {
 
   @Transactional
   public Response reportAction() throws ApiRequestException {
-    return actionTracker.track(requestContextProvider.get());
+    DateTime start = DateTime.now();
+    try {
+      return actionTracker.track(requestContextProvider.get());
+    } finally {
+      log.debug("Report Action url: {} time: {}",
+          requestContextProvider.get().getRequestUri(),
+          new Duration(start, DateTime.now()));
+    }
   }
 
   @Transactional
