@@ -16,6 +16,7 @@ import com.heymoose.domain.offer.OfferRepository.Ordering;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
+import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -65,10 +66,12 @@ public class OfferResource {
   private final Accounting accounting;
   private final Repo repo;
   private final BannerStore bannerStore;
+  private final Settings settings;
 
   @Inject
   public OfferResource(OfferRepository offers, SubOfferRepository subOffers, OfferGrantRepository offerGrants,
-                       UserRepository users, Accounting accounting, Repo repo, BannerStore bannerStore) {
+                       UserRepository users, Accounting accounting, Repo repo, BannerStore bannerStore,
+                       Settings settings) {
     this.offers = offers;
     this.subOffers = subOffers;
     this.offerGrants = offerGrants;
@@ -76,6 +79,7 @@ public class OfferResource {
     this.accounting = accounting;
     this.repo = repo;
     this.bannerStore = bannerStore;
+    this.settings = settings;
   }
 
   @GET
@@ -163,6 +167,14 @@ public class OfferResource {
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
     return Mappers.toXmlOffer(offer);
+  }
+
+  @GET
+  @Path("referral")
+  @Transactional
+  public XmlOffer referralOffer() {
+    Long referralOfferId = settings.getLongOrNull(Settings.REFERRAL_OFFER);
+    return get(referralOfferId, true, true);
   }
 
   @GET

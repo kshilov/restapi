@@ -35,13 +35,14 @@ public class ReferralActionProcessor implements Processor {
     OfferAction action = data.offerAction();
     Preconditions.checkNotNull(action.transactionId(),
         "Transaction id should contain id of referral.");
-    User referral = users.byEmail(action.transactionId().trim());
+    User referral = users.byId(Long.valueOf(action.transactionId()));
     Preconditions.checkState(referral != null,
         "Referral with id " + action.transactionId() + " not found!");
 
     log.info("Setting referrer for user: {}, referrer: {}",
         referral, action.affiliate());
-    users.put(referral.setReferrerId(action.affiliate().id()));
-
+    referral.setReferrerId(action.affiliate().id())
+        .setSource(action.stat().sourceId());
+    users.put(referral);
   }
 }
