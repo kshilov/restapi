@@ -152,7 +152,8 @@ public class SapatoImporter
         .setToken(token)
         .setTransactionId(actionData.transactionId())
         .setOffer(offer);
-    return ImmutableList.of(this.processor.process(data));
+    this.processor.process(data);
+    return ImmutableList.of(data.offerAction());
   }
 
   private BaseOffer findSubOffer(Long parentId, String code) {

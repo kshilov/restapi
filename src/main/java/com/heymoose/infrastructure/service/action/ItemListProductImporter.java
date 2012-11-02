@@ -56,8 +56,8 @@ public class ItemListProductImporter
             .setOffer(parentOffer)
             .setProduct(product);
         try {
-          OfferAction action = processor.process(data);
-          actionList.add(action);
+          processor.process(data);
+          actionList.add(data.offerAction());
         } catch (Exception ex) {
           log.warn("Exception during processing. data: {}", data);
           log.error("Processing exception", ex);

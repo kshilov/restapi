@@ -1,5 +1,6 @@
 package com.heymoose.domain.user;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.base.IdEntity;
@@ -312,5 +313,17 @@ public class User extends IdEntity {
     this.secretKey = User.genKey();
     return this;
   }
-  
+
+  public User setReferrerId(Long referrerId) {
+    this.referrerId = referrerId;
+    return this;
+  }
+
+  public String toString() {
+    return Objects.toStringHelper(User.class)
+        .add("id", id)
+        .add("email", email)
+        .toString();
+  }
+
 }

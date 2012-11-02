@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service.processing;
 
 import com.google.common.base.Objects;
+import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.Token;
@@ -15,6 +16,7 @@ public final class ProcessableData {
   private Token token;
   private String transactionId;
   private Product product;
+  private OfferAction offerAction;
 
   public ProcessableData setProcessed(boolean processed) {
     this.processed = processed;
@@ -68,6 +70,15 @@ public final class ProcessableData {
 
   public String transactionId() {
     return this.transactionId;
+  }
+
+  public ProcessableData setOfferAction(OfferAction action) {
+    this.offerAction = action;
+    return this;
+  }
+
+  public OfferAction offerAction() {
+    return this.offerAction;
   }
 
 
