@@ -81,8 +81,8 @@ public class HibernateRepo implements Repo {
   
   @Override
   public long countByCriteria(DetachedCriteria criteria) {
-    return (Long) criteria.setProjection(Projections.rowCount())
-        .getExecutableCriteria(hiber()).uniqueResult();
+    return (Long) criteria.getExecutableCriteria(hiber())
+        .setProjection(Projections.rowCount()).uniqueResult();
   }
 
   @Override

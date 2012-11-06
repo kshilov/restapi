@@ -323,6 +323,14 @@ public class Mappers {
     xmlBanner.url = banner.url();
     return xmlBanner;
   }
+  
+  public static XmlBanners toXmlBanners(Iterable<Banner> banners, Long count) {
+    XmlBanners xmlBanners = new XmlBanners();
+    xmlBanners.count = count;
+    for (Banner banner : banners)
+      xmlBanners.banners.add(toXmlBanner(banner));
+    return xmlBanners;
+  }
 
   public static XmlErrorInfo toXmlErrorInfo(ErrorInfo error) {
     return new XmlErrorInfo(error);
