@@ -17,7 +17,9 @@ public final class OfferGrantFilter {
   private List<Long> categoryIdList = ImmutableList.of();
   private PayMethod payMethod;
   private CpaPolicy cpaPolicy;
-  private Boolean onlyExclusiveOffers;
+  private boolean onlyExclusiveOffers;
+  private boolean productOffersOnly;
+  private boolean activeOffersOnly;
 
   public OfferGrantFilter() { }
 
@@ -46,6 +48,15 @@ public final class OfferGrantFilter {
   public OfferGrantFilter setActive(Boolean active) {
     this.active = active;
     return this;
+  }
+
+  public OfferGrantFilter setActiveOffersOnly(boolean activeOffersOnly) {
+    this.activeOffersOnly = activeOffersOnly;
+    return this;
+  }
+
+  public boolean activeOffersOnly() {
+    return this.activeOffersOnly;
   }
 
   public Boolean moderation() {
@@ -111,12 +122,21 @@ public final class OfferGrantFilter {
     return this.cpaPolicy;
   }
 
-  public Boolean exclusiveOnly() {
+  public boolean exclusiveOnly() {
     return onlyExclusiveOffers;
   }
 
   public OfferGrantFilter setExclusiveOnly(boolean only) {
     this.onlyExclusiveOffers = only;
     return this;
+  }
+
+  public OfferGrantFilter setProductOffersOnly(boolean onlyProductOffers) {
+    this.productOffersOnly = onlyProductOffers;
+    return this;
+  }
+
+  public boolean productOffersOnly() {
+    return this.productOffersOnly;
   }
 }

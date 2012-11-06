@@ -187,7 +187,7 @@ public class Mappers {
     xmlOffer.exclusive = offer.exclusive();
     xmlOffer.isProductOffer = offer.isProductOffer();
 
-    if (!offer.exclusive()) {
+    if (!offer.isProductOffer()) {
       for (SubOffer suboffer : offer.suboffers())
         xmlOffer.suboffers.add(toXmlSubOffer(suboffer));
     }

@@ -11,6 +11,10 @@ import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.output.XMLOutputter;
 import org.joda.time.DateTime;
 
 import javax.ws.rs.DefaultValue;
@@ -24,11 +28,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static com.heymoose.infrastructure.util.WebAppUtil.*;
 
 @Path("withdrawals")
 public class WithdrawalResource {
+
+  private static final XMLOutputter OUTPUTTER = new XMLOutputter();
 
   private final Repo repo;
   private final Debts debts;
@@ -60,9 +67,7 @@ public class WithdrawalResource {
   @Produces("application/xml")
   @Transactional
   public String sumOrdered(@QueryParam("aff_id") Long affId) {
-    return new XmlQueryResult(debts.sumOrderedByUser(affId))
-      .setElement("debt")
-      .toString();
+    return toXmlSum(debts.sumOrderedByUser(affId));
   }
 
   @GET
@@ -163,10 +168,8 @@ public class WithdrawalResource {
                         Debts.DateKind dateKind,
                         @QueryParam("from") @DefaultValue("0") Long from,
                         @QueryParam("to") Long to) {
-    return new XmlQueryResult(
-        debts.sumDebt(affId, offerId, dateKind, new DateTime(from), new DateTime(to)))
-        .setElement("debt")
-        .toString();
+    return toXmlSum(debts.sumDebt(affId, offerId,
+            dateKind, new DateTime(from), new DateTime(to)));
   }
   
   private Offer existingOffer(long id) {
@@ -174,5 +177,120 @@ public class WithdrawalResource {
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;
+  }
+
+  @GET
+  @Path("masspayment")
+  @Transactional
+  @Produces("application/xml")
+  public String massPayment(@QueryParam("from") @DefaultValue("0") Long from,
+                            @QueryParam("to") Long to) {
+    DataFilter<Debts.PaymentOrdering> filter = DataFilter.newInstance();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOrdering(Debts.PaymentOrdering.AMOUNT)
+        .setDirection(OrderingDirection.DESC);
+    return massPaymentXml(debts.payments(Debts.PayMethod.AUTO, filter));
+  }
+
+  @GET
+  @Path("payments")
+  @Transactional
+  @Produces("application/xml")
+  public String payments(@QueryParam("pay_method") Debts.PayMethod payMethod,
+                         @QueryParam("from") @DefaultValue("0") Long from,
+                         @QueryParam("to") Long to,
+                         @QueryParam("offset") int offset,
+                         @QueryParam("limit") @DefaultValue("20") int limit,
+                         @QueryParam("ordering") @DefaultValue("AMOUNT")
+                         Debts.PaymentOrdering ordering,
+                         @QueryParam("direction") @DefaultValue("DESC")
+                         OrderingDirection direction) {
+    DataFilter<Debts.PaymentOrdering> filter = DataFilter.newInstance();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    return paymentsXml(debts.payments(payMethod, filter));
+  }
+
+
+
+  private String paymentsXml(Pair<QueryResult, Long> queryResult) {
+    Element rootElement = new Element("payments");
+    rootElement.setAttribute("count", queryResult.snd.toString());
+    for (Map<String, Object> record : queryResult.fst) {
+      Element affiliateElement = new Element("affiliate")
+          .setAttribute("id", record.get("affiliate_id").toString())
+          .addContent(element("email", record.get("affiliate_email")))
+          .addContent(element("wmr", record.get("affiliate_wmr")));
+
+
+      Element paymentElement = new Element("payment")
+          .addContent(affiliateElement)
+          .addContent(element("basis", record.get("basis")))
+          .addContent(element("amount", record.get("amount")))
+          .addContent(element("pay-method", record.get("pay_method")));
+
+      if (record.get("offer_id") != null) {
+        Element offerElement = new Element("offer")
+            .setAttribute("id", record.get("offer_id").toString())
+            .addContent(element("name", record.get("offer_name")));
+        paymentElement.addContent(offerElement);
+      }
+
+      rootElement.addContent(paymentElement);
+    }
+    return OUTPUTTER.outputString(rootElement);
+  }
+
+  private String massPaymentXml(Pair<QueryResult, Long> result) {
+    Element rootElement = new Element("payments")
+        .setNamespace(Namespace.getNamespace("http://tempuri.org/ds.xsd"));
+    for (Map<String, Object> payment : result.fst) {
+      Withdrawal.Basis basis = Withdrawal.Basis.valueOf(
+          payment.get("basis").toString());
+      String description = null;
+      switch (basis) {
+        case AFFILIATE_REVENUE:
+          description = String.format(
+              "Выплата вознаграждения партнёру %s. Оффер \"%s\".",
+              payment.get("affiliate_email"), payment.get("offer_name"));
+          break;
+        case MLM:
+          description = String.format(
+              "Выплата вознаграждения партнёру %s. Реферальная программа.",
+              payment.get("affiliate_email"));
+          break;
+      }
+      String id = payment.get("affiliate_id").toString();
+      Element paymentElement = new Element("payment")
+          .addContent(element("Destination", payment.get("affiliate_wmr")))
+          .addContent(element("Amount", payment.get("amount")))
+          .addContent(element("Description", description))
+          .addContent(element("Id", id));
+
+      rootElement.addContent(paymentElement);
+    }
+    return OUTPUTTER.outputString(rootElement);
+  }
+
+
+  private String toXmlSum(QueryResult result) {
+    Element root = new Element("debt");
+    for (Map.Entry<String, Object> entry: result.get(0).entrySet()) {
+      Element attribute = new Element(entry.getKey())
+          .setText(entry.getValue().toString());
+      root.addContent(attribute);
+    }
+    return OUTPUTTER.outputString(new Document(root));
+  }
+
+  private Element element(String name, Object content) {
+    if (content == null)
+      return new Element(name);
+    return new Element(name).setText(content.toString());
   }
 }

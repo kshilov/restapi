@@ -2,22 +2,176 @@ package com.heymoose.infrastructure.util;
 
 
 import com.floreysoft.jmte.Engine;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class SqlLoader {
+
+  public static class CursorQuery {
+
+    private final Session session;
+    private final String name;
+    private final ImmutableMap.Builder<String, Object> queryParamMap =
+        ImmutableMap.builder();
+    private final ImmutableMap.Builder<String, Object> templateParamMap =
+        ImmutableMap.builder();
+
+    private CursorQuery(String name, Session session) {
+      this.session = session;
+      this.name = name;
+    }
+
+    public CursorQuery addQueryParam(String name, Object value) {
+      queryParamMap.put(name, value);
+      return this;
+    }
+
+    public CursorQuery addTemplateParam(String name, Object value) {
+      templateParamMap.put(name, value);
+      return this;
+    }
+
+    public CursorQuery addQueryParamIfNotNull(Object nullable,
+                                              String name, Object value) {
+      if (nullable == null)
+        return this;
+      return addQueryParam(name, value);
+    }
+
+    public CursorQuery addTemplateParamIfNotNull(Object nullable,
+                                                 String name, Object value) {
+      if (nullable == null)
+        return this;
+      return addTemplateParam(name, value);
+    }
+
+    public Iterable<Map<String, Object>> execute() {
+      final String sql = SqlLoader.getTemplate(name, templateParamMap.build());
+
+      final ProviderWithSetter<Iterable<Map<String, Object>>> provider =
+          ProviderWithSetter.newInstance();
+      session.doWork(new Work() {
+        @Override
+        public void execute(Connection connection) throws SQLException {
+          connection.setAutoCommit(false);
+          NamedParameterStatement statement =
+              NamedParameterStatement.create(sql, connection);
+          statement.statement.setFetchSize(200);
+          for (Map.Entry<String, Object> entry :
+              CursorQuery.this.queryParamMap.build().entrySet()) {
+            statement.setObject(entry.getKey(), entry.getValue());
+          }
+          ResultSet resultSet = statement.executeQuery();
+          provider.set(SqlLoader.toIterable(resultSet));
+        }
+      });
+      return provider.get();
+    }
+  }
+
+  public static class NamedParameterStatement {
+
+    public static NamedParameterStatement create(String sql, Connection con) {
+      ImmutableMultimap.Builder<String, Integer> paramMap =
+          ImmutableMultimap.builder();
+      Pattern pattern = Pattern.compile(":\\w*");
+      Matcher matcher = pattern.matcher(sql);
+      int i = 1;
+      while (matcher.find()) {
+        paramMap.put(matcher.group().substring(1), i++);
+      }
+      String newSql = matcher.replaceAll("?");
+      NamedParameterStatement result = new NamedParameterStatement();
+      result.paramNameMap = paramMap.build();
+      try {
+        result.statement =  con.prepareStatement(newSql);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+      log.debug("Query parsed: {}", sql);
+      return result;
+    }
+
+
+    private Multimap<String, Integer> paramNameMap;
+    private PreparedStatement statement;
+
+    public NamedParameterStatement setLong(String name, long value)
+        throws SQLException {
+      for (Integer index : paramNameMap.get(name))
+        statement.setLong(index, value);
+      return this;
+    }
+
+    public NamedParameterStatement setString(String name, String value)
+        throws SQLException {
+      Preconditions.checkNotNull(value, "Use setNull for null values!");
+      for (Integer index : paramNameMap.get(name))
+        statement.setString(index, value);
+      return this;
+    }
+
+    public NamedParameterStatement setInLong(String name,
+                                             Iterable<Long> valueList)
+        throws SQLException {
+      Iterator<Long> iterator = valueList.iterator();
+      for (Integer index : paramNameMap.get(name)) {
+        statement.setLong(index, iterator.next());
+      }
+      return this;
+    }
+
+    public ResultSet executeQuery() throws SQLException {
+      return statement.executeQuery();
+    }
+
+    public NamedParameterStatement setObject(String key, Object value)
+        throws SQLException {
+      if (value instanceof Iterable<?>) {
+        return setInObject(key, (Iterable<?>) value);
+      }
+      for (Integer index : paramNameMap.get(key)) {
+        statement.setObject(index, value);
+      }
+      return this;
+    }
+
+    private NamedParameterStatement setInObject(String key,
+                                                Iterable<?> valueList)
+        throws SQLException {
+      Iterator<?> iterator = valueList.iterator();
+      for (Integer index : paramNameMap.get(key)) {
+        statement.setObject(index, iterator.next());
+      }
+      return this;
+    }
+  }
 
   public static class TemplateQuery {
     private final Session session;
@@ -61,7 +215,13 @@ public final class SqlLoader {
       Query query = session.createSQLQuery(sql)
           .setResultTransformer(QueryResultTransformer.INSTANCE);
       for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
-        query.setParameter(param.getKey(), param.getValue());
+        if (param.getValue() instanceof Collection<?>) {
+          query.setParameterList(
+              param.getKey(),
+              (Collection<?>) param.getValue());
+        } else {
+          query.setParameter(param.getKey(), param.getValue());
+        }
       }
       return (QueryResult) query.list();
     }
@@ -84,6 +244,39 @@ public final class SqlLoader {
       return Pair.of(resultList, resultCount);
     }
 
+  }
+
+  public static class SqlQuery {
+    private final Session session;
+    private final String name;
+    private final ImmutableMap.Builder<String, Object> queryParamMap =
+        ImmutableMap.builder();
+
+    private SqlQuery(String name, Session session) {
+      this.session = session;
+      this.name = name;
+    }
+
+    public SqlQuery addQueryParam(String name, Object value) {
+      queryParamMap.put(name, value);
+      return this;
+    }
+
+    public SqlQuery addQueryParamIfNotNull(String name, Object value) {
+      if (value != null)
+        queryParamMap.put(name, value);
+      return this;
+    }
+
+    public QueryResult execute() {
+      String sql = getSql(name);
+      Query query = session.createSQLQuery(sql)
+          .setResultTransformer(QueryResultTransformer.INSTANCE);
+      for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
+        query.setParameter(param.getKey(), param.getValue());
+      }
+      return (QueryResult) query.list();
+    }
   }
 
   private static final Logger log = LoggerFactory.getLogger(SqlLoader.class);
@@ -127,14 +320,72 @@ public final class SqlLoader {
   }
 
   public static String countSql(String sql) {
-    sql = sql.replaceFirst("select .* from ", "select count(*) from ");
     sql = sql.substring(0, sql.lastIndexOf("order by"));
     return "select count(*) from (" + sql + ") c";
   }
 
-  public static TemplateQuery templateQuery(String name,
-                                                      Session session) {
+  public static TemplateQuery templateQuery(String name, Session session) {
     return new TemplateQuery(name, session);
+  }
+
+  public static SqlQuery sqlQuery(String name, Session session) {
+    return new SqlQuery(name, session);
+  }
+
+  public static Iterable<Map<String, Object>> toIterable(final ResultSet set) {
+    final Map<Integer, String> columnMap;
+    final int colCount;
+    try {
+      ResultSetMetaData meta = set.getMetaData();
+      colCount = meta.getColumnCount();
+      columnMap = Maps.newHashMapWithExpectedSize(colCount);
+      for (int i = 1; i <= colCount; i++) {
+        columnMap.put(i, meta.getColumnLabel(i));
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    final Iterator<Map<String, Object>> iterator =
+        new Iterator<Map<String, Object>>() {
+      private boolean shifted;
+      @Override
+      public boolean hasNext() {
+        if (shifted) return true;
+        try {
+          return shifted = set.next();
+        } catch(SQLException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public Map<String, Object> next() {
+        try {
+          if (shifted) {
+            shifted = false;
+          } else {
+            set.next();
+          }
+          Map<String, Object> map = Maps.newHashMap();
+          for (int i = 1; i <= colCount; i++) {
+            map.put(columnMap.get(i), set.getObject(i));
+          }
+          return map;
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public void remove() {
+        throw new NotImplementedException();
+      }
+    };
+    return IteratorWrapper.wrap(iterator);
+  }
+
+  public static CursorQuery cursorQuery(String name, Session session) {
+    return new CursorQuery(name, session);
   }
 
   public static Long extractLong(Object val) {

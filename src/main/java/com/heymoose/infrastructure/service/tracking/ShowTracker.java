@@ -64,6 +64,7 @@ public final class ShowTracker implements Tracker {
 
     // tracking
     OfferStat stat = new OfferStat()
+        .setMaster(offer.master())
         .setBannerId(bannerId)
         .setOfferId(offerId)
         .setAffiliateId(affId)

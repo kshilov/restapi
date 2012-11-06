@@ -1,23 +1,21 @@
 package com.heymoose.resource.xml;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.infrastructure.util.QueryResult;
+import org.jdom2.Namespace;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
+import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-
 public final class XmlQueryResult {
-
-  private static final String HEAD =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
 
   private final QueryResult queryResult;
   private String root;
   private String element;
-  private StringBuilder builder = new StringBuilder();
   private ImmutableMap.Builder<String, Object> rootAttributeMap =
       new ImmutableMap.Builder<String, Object>();
 
@@ -53,54 +51,33 @@ public final class XmlQueryResult {
 
   @Override
   public String toString() {
-    builder.append(HEAD);
-
-    if (!Strings.isNullOrEmpty(root))
-      open(root, rootAttributeMap.build());
+    Element rootElement = new Element(root);
+    for (Map.Entry<String, Object> entry : rootAttributeMap.build().entrySet()) {
+      if (entry.getKey().equals("xmlns")) {
+        String namespaceString = entry.getValue().toString();
+        Namespace namespace = Namespace.getNamespace(namespaceString);
+        rootElement.setNamespace(namespace);
+        continue;
+      }
+      rootElement.setAttribute(entry.getKey(), entry.getValue().toString());
+    }
 
     for (Map<String, Object> record : queryResult) {
-      open(element);
-          for (Map.Entry<String, Object> entry : record.entrySet()) {
-            open(entry.getKey());
-            Object val = entry.getValue();
-            if (val instanceof Timestamp)
-              builder.append(new DateTime(((Timestamp) val).getTime()));
-            else
-              builder.append(entry.getValue());
-            close(entry.getKey());
+      Element childElement = new Element(element);
+        for (Map.Entry<String, Object> entry : record.entrySet()) {
+          Element attributeElement = new Element(entry.getKey());
+          Object val = entry.getValue();
+          if (val instanceof Timestamp) {
+            attributeElement.setText(
+                new DateTime(((Timestamp) val).getTime()).toString());
+          } else {
+            attributeElement.setText(val.toString());
           }
-      close(element);
+          childElement.addContent(attributeElement);
+        }
+      rootElement.addContent(childElement);
     }
-
-    if (!Strings.isNullOrEmpty(root))
-      close(root);
-
-    return builder.toString();
-  }
-
-  private void open(String tag) {
-    builder.append("<");
-    builder.append(tag);
-    builder.append(">");
-  }
-
-  private void open(String tag, Map<String, Object> attributes) {
-    builder.append("<");
-    builder.append(tag);
-    for (Map.Entry<String, Object> attr : attributes.entrySet()) {
-      builder.append(' ');
-      builder.append(attr.getKey());
-      builder.append("=\"");
-      builder.append(attr.getValue());
-      builder.append("\"");
-    }
-    builder.append(">");
-  }
-
-  private void close(String tag) {
-    builder.append("</");
-    builder.append(tag);
-    builder.append(">");
+    return new XMLOutputter().outputString(new Document(rootElement));
   }
 
 }

@@ -111,13 +111,14 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
 
 
   @Override
-  public Iterable<Offer> exclusiveGrantedOffers(Long affId) {
+  public Iterable<Offer> grantedProductOffers(Long affId) {
     Preconditions.checkNotNull(affId, "Affiliate can not be null.");
     OfferGrantFilter filter = new OfferGrantFilter()
         .setAffiliateId(affId)
         .setBlocked(false)
         .setActive(true)
-        .setExclusiveOnly(true)
+        .setProductOffersOnly(true)
+        .setActiveOffersOnly(true)
         .setState(OfferGrantState.APPROVED);
     ImmutableSet.Builder<Offer> result = ImmutableSet.builder();
     for (OfferGrant grant: this.list(
@@ -173,7 +174,14 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
     addEqRestrictionIfNotNull(criteria, "affiliate.id", filter.affiliateId());
     addEqRestrictionIfNotNull(criteria, "state", filter.state());
     addEqRestrictionIfNotNull(criteria, "blocked", filter.blocked());
-    addEqRestrictionIfNotNull(criteria, "offer.exclusive", filter.exclusiveOnly());
+    if (filter.exclusiveOnly())
+      criteria.add(Restrictions.eq("offer.exclusive", true));
+    if (filter.productOffersOnly())
+      criteria.add(Restrictions.eq("offer.isProductOffer", true));
+    if (filter.activeOffersOnly()) {
+      criteria.add(Restrictions.eq("offer.active", true));
+      criteria.add(Restrictions.eq("offer.approved", true));
+    }
 
     if (filter.moderation() != null) {
       LogicalExpression or = Restrictions.or(

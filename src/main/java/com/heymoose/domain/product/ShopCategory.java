@@ -32,8 +32,11 @@ public class ShopCategory extends IdEntity {
   @Column(nullable = false)
   protected String name;
 
+  @Column(name = "parent_id")
+  private Long parentId;
+
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "parent_id")
+  @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private ShopCategory parentCategory;
 
   @Override
@@ -85,6 +88,21 @@ public class ShopCategory extends IdEntity {
 
   public ShopCategory setParent(ShopCategory category) {
     this.parentCategory = category;
+    this.parentId = category.id();
+    return this;
+  }
+
+  public ShopCategory setParentId(Long id) {
+    this.parentId = id;
+    return this;
+  }
+
+  public Long parentId() {
+    return this.parentId;
+  }
+
+  public ShopCategory setId(Long id) {
+    this.id = id;
     return this;
   }
 }
