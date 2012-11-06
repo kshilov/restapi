@@ -14,7 +14,6 @@ import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.Products;
 import com.heymoose.infrastructure.service.yml.YmlWriter;
 import com.heymoose.infrastructure.util.Cacheable;
-import org.hibernate.Transaction;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
@@ -25,10 +24,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -61,53 +57,35 @@ public class ProductResource {
   @GET
   @Path("feed")
   @Produces("application/xml")
-  public StreamingOutput feed(@QueryParam("key") String key,
+  @Cacheable
+  @Transactional
+  public String feed(@QueryParam("key") String key,
                      @QueryParam("s") List<Long> offerList,
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString,
                      @QueryParam("offset") @DefaultValue("0") int offset,
-                     @QueryParam("limit") @DefaultValue("100") int limit) {
+                     @QueryParam("limit") @DefaultValue("1000") int limit)
+      throws Exception {
     checkNotNull(key);
-    // only manual transaction works here because of lazyness
-    final Transaction transaction = repo.session().getTransaction();
-    try {
-      if (!transaction.isActive())  transaction.begin();
+    if (limit > 1000) throw new WebApplicationException(400);
 
-      final User user = users.bySecretKey(key);
-      if (user == null) throw new WebApplicationException(401);
+    final User user = users.bySecretKey(key);
+    if (user == null) throw new WebApplicationException(401);
 
-      final Iterable<Product> productList =
-          products.list(user, offerList, categoryList, queryString,
-              offset, limit);
-      final Iterable<ShopCategory> shopCategoryList =
-          products.categoryList(user, offerList, categoryList, queryString);
+    final Iterable<Product> productList =
+        products.list(user, offerList, categoryList, queryString,
+            offset, limit);
+    final Iterable<ShopCategory> shopCategoryList =
+        products.categoryList(user, offerList, categoryList, queryString);
+    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    new YmlWriter(byteStream)
+        .setCategoryList(shopCategoryList)
+        .setProductList(productList)
+        .setTrackerHost(this.trackerHost)
+        .setUser(user)
+        .write();
 
-      return new StreamingOutput() {
-        @Override
-        public void write(OutputStream output)
-            throws IOException, WebApplicationException {
-          try {
-            new YmlWriter(output)
-                .setProductList(productList)
-                .setCategoryList(shopCategoryList)
-                .setTrackerHost(ProductResource.this.trackerHost)
-                .setUser(user)
-                .write();
-            transaction.commit();
-          } catch (XMLStreamException e) {
-            transaction.rollback();
-            throw new IOException(e);
-          } catch (RuntimeException e) {
-            transaction.rollback();
-            throw e;
-          }
-        }
-      };
-
-    } catch (Throwable e) {
-      transaction.rollback();
-    }
-    throw new WebApplicationException(500);
+      return new String(byteStream.toByteArray());
   }
 
 
