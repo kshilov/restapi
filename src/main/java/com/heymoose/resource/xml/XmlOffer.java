@@ -135,4 +135,7 @@ public class XmlOffer {
   @XmlElementWrapper(name = "regions")
   @XmlElement(name = "region")
   public Set<String> regions = Sets.newHashSet();
+
+  @XmlElement(name = "yml-url")
+  public String ymlUrl;
 }

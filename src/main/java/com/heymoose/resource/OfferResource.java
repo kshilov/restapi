@@ -199,8 +199,8 @@ public class OfferResource {
                        @FormParam("hold_days") Integer holdDays,
                        @FormParam("cookie_ttl") Integer cookieTtl,
                        @FormParam("launch_time") Long unixLaunchTime,
-                       @FormParam("allow_deeplink") @DefaultValue("false") boolean allowDeeplink
-  ) {
+                       @FormParam("allow_deeplink") @DefaultValue("false") boolean allowDeeplink,
+                       @FormParam("yml_url") String ymlUrl) {
     checkNotNull(advertiserId, payMethod, name, description, shortDescription, url, siteUrl,
         title, code, holdDays, cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
@@ -242,6 +242,7 @@ public class OfferResource {
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description, shortDescription,
         payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
         regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime, allowDeeplink);
+    offer.setYmlUrl(ymlUrl);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -329,6 +330,9 @@ public class OfferResource {
       offer.setLogoFileName(form.getFirst("logo_filename"));
     if (form.containsKey("token_param_name"))
       offer.setTokenParamName(form.getFirst("token_param_name"));
+    if (form.containsKey("yml_url"))
+      offer.setYmlUrl(form.getFirst("yml_url"));
+
   }
 
   @PUT

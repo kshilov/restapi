@@ -186,6 +186,7 @@ public class Mappers {
     xmlOffer.tokenParamName = offer.tokenParamName();
     xmlOffer.exclusive = offer.exclusive();
     xmlOffer.isProductOffer = offer.isProductOffer();
+    xmlOffer.ymlUrl = offer.ymlUrl();
 
     if (!offer.isProductOffer()) {
       for (SubOffer suboffer : offer.suboffers())
