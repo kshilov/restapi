@@ -60,7 +60,8 @@ public final class SqlLoader {
   }
 
   public static String countSql(String sql) {
-    sql = sql.substring(0, sql.lastIndexOf("order by"));
+    int orderByIndex = sql.lastIndexOf("order by");
+    if (orderByIndex > 0) sql = sql.substring(0, orderByIndex);
     return "select count(*) from (" + sql + ") c";
   }
 

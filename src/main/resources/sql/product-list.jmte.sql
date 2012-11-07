@@ -39,20 +39,12 @@ product.active = true
 ${if filterByName}
 and lower(product.name) like '%:query_string%'
 ${end}
-${if categoryList}
+${if filterByCategoryList}
 and exists (select * from product_category 
             where product_id = product.id
-            and category_id in (
-              ${foreach categoryList cat}
-                :category_id ${if !last_cat}, ${end}
-              ${end}
-              )
+            and category_id in (:category_list)
             )
 ${end}
-${if offerList}
-and product.offer_id in (
-  ${foreach offerList offer}
-    :offer_id ${if !last_offer}, ${end}
-  ${end})
+${if filterByOfferList}
+and product.offer_id in (:offer_list)
 ${end}
-offset :offset limit :limit

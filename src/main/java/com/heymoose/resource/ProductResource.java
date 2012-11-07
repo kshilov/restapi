@@ -88,6 +88,21 @@ public class ProductResource {
       return new String(byteStream.toByteArray());
   }
 
+  @GET
+  @Path("feed/size")
+  @Transactional
+  public String feedSize(@QueryParam("key") String key,
+                         @QueryParam("s") List<Long> offerList,
+                         @QueryParam("c") List<Long> categoryList,
+                         @QueryParam("q") String queryString) {
+    checkNotNull(key);
+
+    final User user = users.bySecretKey(key);
+    if (user == null) throw new WebApplicationException(401);
+
+    return products.count(user, offerList, categoryList, queryString).toString();
+  }
+
 
   @GET
   @Path("categories")

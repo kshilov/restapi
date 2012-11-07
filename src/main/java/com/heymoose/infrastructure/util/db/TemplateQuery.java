@@ -55,15 +55,17 @@ public class TemplateQuery {
     String sql = SqlLoader.getTemplate(name, templateParamMap.build());
     Query query = session.createSQLQuery(sql)
         .setResultTransformer(QueryResultTransformer.INSTANCE);
-    for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
-      if (param.getValue() instanceof Collection<?>) {
-        query.setParameterList(
-            param.getKey(),
-            (Collection<?>) param.getValue());
-      } else {
-        query.setParameter(param.getKey(), param.getValue());
-      }
-    }
+    fillQuery(query);
+    return (QueryResult) query.list();
+  }
+
+  public QueryResult execute(int offset, int limit) {
+    String sql = SqlLoader.getTemplate(name, templateParamMap.build());
+    Query query = session.createSQLQuery(sql)
+        .setFirstResult(offset)
+        .setMaxResults(limit)
+        .setResultTransformer(QueryResultTransformer.INSTANCE);
+    fillQuery(query);
     return (QueryResult) query.list();
   }
 
@@ -74,10 +76,8 @@ public class TemplateQuery {
         .setMaxResults(limit)
         .setResultTransformer(QueryResultTransformer.INSTANCE);
     Query countQuery = session.createSQLQuery(SqlLoader.countSql(sql));
-    for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
-      query.setParameter(param.getKey(), param.getValue());
-      countQuery.setParameter(param.getKey(), param.getValue());
-    }
+    fillQuery(query);
+    fillQuery(countQuery);
     QueryResult resultList = (QueryResult) query.list();
     Long resultCount = ((BigInteger) countQuery.uniqueResult()).longValue();
     log.debug("Query executed successfully. List size: {}, total count: {}",
@@ -85,4 +85,22 @@ public class TemplateQuery {
     return Pair.of(resultList, resultCount);
   }
 
+  public Long count() {
+    String sql = SqlLoader.getTemplate(name, templateParamMap.build());
+    Query countQuery = session.createSQLQuery(SqlLoader.countSql(sql));
+    fillQuery(countQuery);
+    return ((BigInteger) countQuery.uniqueResult()).longValue();
+  }
+
+  private void fillQuery(Query query) {
+    for (Map.Entry<String, ?> param : queryParamMap.build().entrySet()) {
+      if (param.getValue() instanceof Collection<?>) {
+        query.setParameterList(
+            param.getKey(),
+            (Collection<?>) param.getValue());
+      } else {
+        query.setParameter(param.getKey(), param.getValue());
+      }
+    }
+  }
 }

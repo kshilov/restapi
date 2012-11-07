@@ -14,11 +14,10 @@ import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
+import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
-import com.heymoose.infrastructure.util.db.CursorQuery;
 import com.heymoose.infrastructure.util.db.SqlLoader;
 import com.heymoose.infrastructure.util.db.TemplateQuery;
-import com.heymoose.infrastructure.util.TypedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,24 +149,9 @@ public class Products {
                                 List<Long> categoryList,
                                 String queryString,
                                 int offset, Integer limit) {
-    CursorQuery query = SqlLoader
-        .cursorQuery("product-list", repo.session());
-
-    if (!Strings.isNullOrEmpty(queryString)) {
-      query.addTemplateParam("filterByName", true);
-    }
-    if (offerList.iterator().hasNext()) {
-      query.addTemplateParam("offerList", offerList);
-    }
-    if (categoryList.iterator().hasNext()) {
-      query.addTemplateParam("categoryList", categoryList);
-    }
-    query.addQueryParam("user_id", user.id());
-    query.addQueryParam("offer_id", offerList);
-    query.addQueryParam("category_id", categoryList);
-    query.addQueryParam("limit", limit);
-    query.addQueryParam("offset", offset);
-    Iterable<Map<String, Object>> mapIterator = query.execute();
+    TemplateQuery query = productTemplateQuery(
+        user, offerList, categoryList, queryString);
+    Iterable<Map<String, Object>> mapIterator = query.execute(offset, limit);
 
     Iterable<Product> productIterator =
         Iterables.transform(mapIterator, MAP_TO_PRODUCT);
@@ -175,6 +159,16 @@ public class Products {
         Iterables.transform(productIterator, addAttributesFunction);
     return Iterables.transform(attributesAdded, addCategoriesFunction);
   }
+
+  public Long count(User user,
+                    List<Long> offerList,
+                    List<Long> categoryList,
+                    String queryString) {
+    TemplateQuery query = productTemplateQuery(
+        user, offerList, categoryList, queryString);
+    return query.count();
+  }
+
 
 
   public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
@@ -256,6 +250,27 @@ public class Products {
         .setParameter(0, product.id())
         .executeUpdate();
     log.debug("Deleted {} product - category mappings of {}", deleted, product);
+  }
+
+  private TemplateQuery productTemplateQuery(User user,
+                                             Collection<Long> offerList,
+                                             Collection<Long> categoryList,
+                                             String queryString) {
+    TemplateQuery query = SqlLoader
+        .templateQuery("product-list", repo.session());
+
+    if (!Strings.isNullOrEmpty(queryString)) {
+      query.addTemplateParam("filterByName", true);
+    }
+    if (offerList.iterator().hasNext()) {
+      query.addTemplateParam("filterByOfferList", true);
+      query.addQueryParam("offer_list", offerList);
+    }
+    if (categoryList.iterator().hasNext()) {
+      query.addTemplateParam("filterByCategoryList", true);
+      query.addQueryParam("category_list", categoryList);
+    }
+    return query.addQueryParam("user_id", user.id());
   }
 
 }
