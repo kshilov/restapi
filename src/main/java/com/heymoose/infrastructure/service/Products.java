@@ -167,6 +167,7 @@ public class Products {
                     String queryString) {
     TemplateQuery query = productTemplateQuery(
         user, offerList, categoryList, queryString);
+    query.addTemplateParam("productInfo", true);
     return query.count();
   }
 
