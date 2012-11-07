@@ -13,8 +13,9 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.SqlLoader;
+import com.heymoose.infrastructure.util.db.TemplateQuery;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -89,7 +90,7 @@ public final class Debts {
                                           Long affId,
                                           DateKind dateKind,
                                           DataFilter<Ordering> filter) {
-    SqlLoader.TemplateQuery query =
+    TemplateQuery query =
         SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())
@@ -119,7 +120,7 @@ public final class Debts {
   public QueryResult sumDebt(Long affId, Long offerId,
                              DateKind dateKind, DateTime from,
                              DateTime to) {
-    SqlLoader.TemplateQuery query =
+    TemplateQuery query =
         SqlLoader.templateQuery("debt", repo.session())
         .addQueryParam("from", from.toDate())
         .addQueryParam("to", to.toDate())
@@ -271,7 +272,7 @@ public final class Debts {
 
   public Pair<QueryResult, Long> payments(PayMethod payMethod,
                                           DataFilter<PaymentOrdering> filter) {
-    SqlLoader.TemplateQuery query = SqlLoader
+    TemplateQuery query = SqlLoader
         .templateQuery("withdrawal-payments", repo.session())
         .addQueryParam("from", filter.from())
         .addQueryParam("to", filter.to())

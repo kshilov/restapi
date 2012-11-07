@@ -2,7 +2,7 @@ package com.heymoose.resource.xml;
 
 import com.google.common.collect.Lists;
 import com.heymoose.domain.action.OfferActionState;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.heymoose.infrastructure.util.SqlLoader.*;
+import static com.heymoose.infrastructure.util.db.SqlLoader.*;
 
 @XmlRootElement(name = "actions")
 public final class XmlOfferActions {

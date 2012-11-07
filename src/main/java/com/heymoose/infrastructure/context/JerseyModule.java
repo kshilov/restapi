@@ -7,6 +7,9 @@ public class JerseyModule extends JerseyServletModule {
 
   @Override
   protected void configureServlets() {
+//    ImmutableMap<String, String> initParams = ImmutableMap.of(
+//        "com.sun.jersey.spi.container.ContainerRequestFilters",
+//        "com.sun.jersey.api.container.filter.LoggingFilter");
     serve("*").with(GuiceContainer.class);
   }
 }

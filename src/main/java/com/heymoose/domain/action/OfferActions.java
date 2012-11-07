@@ -4,7 +4,7 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 
 import java.util.Collection;
 import java.util.List;

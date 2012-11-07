@@ -1,5 +1,6 @@
-package com.heymoose.infrastructure.util;
+package com.heymoose.infrastructure.util.db;
 
+import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import org.hibernate.transform.BasicTransformerAdapter;
 
 import java.util.List;

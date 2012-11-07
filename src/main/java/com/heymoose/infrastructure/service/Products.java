@@ -14,9 +14,10 @@ import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.SqlLoader;
-import com.heymoose.resource.TypedMap;
+import com.heymoose.infrastructure.util.TypedMap;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.SqlLoader;
+import com.heymoose.infrastructure.util.db.TemplateQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,24 +149,10 @@ public class Products {
                                 List<Long> categoryList,
                                 String queryString,
                                 int offset, Integer limit) {
-    SqlLoader.CursorQuery query = SqlLoader
-        .cursorQuery("product-list", repo.session());
-
-    if (!Strings.isNullOrEmpty(queryString)) {
-      query.addTemplateParam("filterByName", true);
-    }
-    if (offerList.iterator().hasNext()) {
-      query.addTemplateParam("offerList", offerList);
-    }
-    if (categoryList.iterator().hasNext()) {
-      query.addTemplateParam("categoryList", categoryList);
-    }
-    query.addQueryParam("user_id", user.id());
-    query.addQueryParam("offer_id", offerList);
-    query.addQueryParam("category_id", categoryList);
-    query.addQueryParam("limit", limit);
-    query.addQueryParam("offset", offset);
-    Iterable<Map<String, Object>> mapIterator = query.execute();
+    TemplateQuery query = productTemplateQuery(
+        user, offerList, categoryList, queryString);
+    query.addTemplateParam("productInfo", true);
+    Iterable<Map<String, Object>> mapIterator = query.execute(offset, limit);
 
     Iterable<Product> productIterator =
         Iterables.transform(mapIterator, MAP_TO_PRODUCT);
@@ -174,25 +161,24 @@ public class Products {
     return Iterables.transform(attributesAdded, addCategoriesFunction);
   }
 
+  public Long count(User user,
+                    List<Long> offerList,
+                    List<Long> categoryList,
+                    String queryString) {
+    TemplateQuery query = productTemplateQuery(
+        user, offerList, categoryList, queryString);
+    query.addTemplateParam("productInfo", true);
+    return query.count();
+  }
+
+
 
   public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
                                              List<Long> categoryList,
                                              String queryString) {
-    SqlLoader.TemplateQuery query = SqlLoader
-        .templateQuery("shop-category-list", repo.session())
-        .addQueryParam("user_id", user.id());
-    if (!Strings.isNullOrEmpty(queryString)) {
-      query.addTemplateParam("filterByProductName", true);
-      query.addQueryParam("query_string", queryString);
-    }
-    if (!offerList.isEmpty()) {
-      query.addTemplateParam("filterByOfferList", true);
-      query.addQueryParam("offer_list", offerList);
-    }
-    if (!categoryList.isEmpty()) {
-      query.addTemplateParam("filterByCategoryList", true);
-      query.addQueryParam("category_list", categoryList);
-    }
+    TemplateQuery query = productTemplateQuery(
+        user, offerList, categoryList, queryString);
+    query.addTemplateParam("categoryInfo", true);
     QueryResult result = query.execute();
     ImmutableList.Builder<ShopCategory> categoryResultList =
         ImmutableList.builder();
@@ -254,6 +240,27 @@ public class Products {
         .setParameter(0, product.id())
         .executeUpdate();
     log.debug("Deleted {} product - category mappings of {}", deleted, product);
+  }
+
+  private TemplateQuery productTemplateQuery(User user,
+                                             Collection<Long> offerList,
+                                             Collection<Long> categoryList,
+                                             String queryString) {
+    TemplateQuery query = SqlLoader
+        .templateQuery("product-list", repo.session());
+
+    if (!Strings.isNullOrEmpty(queryString)) {
+      query.addTemplateParam("filterByName", true);
+    }
+    if (!offerList.isEmpty()) {
+      query.addTemplateParam("filterByOfferList", true);
+      query.addQueryParam("offer_list", offerList);
+    }
+    if (!categoryList.isEmpty()) {
+      query.addTemplateParam("filterByCategoryList", true);
+      query.addQueryParam("category_list", categoryList);
+    }
+    return query.addQueryParam("user_id", user.id());
   }
 
 }

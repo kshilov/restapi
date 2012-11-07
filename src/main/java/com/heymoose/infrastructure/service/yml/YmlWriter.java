@@ -148,6 +148,7 @@ public class YmlWriter {
     writeParam("hm_offer_id", product.offer().id());
     writeParam("hm_offer_name", product.offer().name());
     writeParam("hm_original_url", product.url());
+    writeParam("hm_name", product.name());
 
     Tariff tariff = product.tariff();
     if (tariff != null) {

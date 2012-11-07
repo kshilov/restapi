@@ -118,6 +118,9 @@ public class Offer extends BaseOffer {
   @Column(name = "required_get_parameters", nullable = true)
   private String requiredGetParameters;
 
+  @Column(name = "yml_url")
+  private String ymlUrl;
+
   public Offer() {
   }
 
@@ -152,16 +155,38 @@ public class Offer extends BaseOffer {
     return url;
   }
 
-  public void setUrl(URI url) {
+  public Offer setUrl(URI url) {
     this.url = url.toString();
+    return this;
+  }
+
+  public Offer setUrl(String url) {
+    this.url = url;
+    return this;
+  }
+
+  public Offer setAdvertiser(User advertiser) {
+    this.advertiser = advertiser;
+    return this;
+  }
+
+  public Offer addNewAccount(boolean allowNegativeBalance) {
+    this.account = new Account(allowNegativeBalance);
+    return this;
   }
 
   public String siteUrl() {
     return siteUrl;
   }
 
-  public void setSiteUrl(URI siteUrl) {
+  public Offer setSiteUrl(URI siteUrl) {
     this.siteUrl = siteUrl.toString();
+    return this;
+  }
+
+  public Offer setSiteUrl(String siteUrl) {
+    this.siteUrl = siteUrl;
+    return this;
   }
 
   public User advertiser() {
@@ -232,17 +257,19 @@ public class Offer extends BaseOffer {
     return description;
   }
 
-  public void setDescription(String description) {
+  public Offer setDescription(String description) {
     checkNotNull(description);
     this.description = description;
+    return this;
   }
 
   public String shortDescription() {
     return shortDescription;
   }
 
-  public void setShortDescription(String shortDescription) {
+  public Offer setShortDescription(String shortDescription) {
     this.shortDescription = shortDescription;
+    return this;
   }
 
   public BigDecimal cr() {
@@ -364,6 +391,15 @@ public class Offer extends BaseOffer {
 
   public Offer setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String ymlUrl() {
+    return this.ymlUrl;
+  }
+
+  public Offer setYmlUrl(String ymlUrl) {
+    this.ymlUrl = ymlUrl;
     return this;
   }
 }
