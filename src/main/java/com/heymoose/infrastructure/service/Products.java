@@ -151,6 +151,7 @@ public class Products {
                                 int offset, Integer limit) {
     TemplateQuery query = productTemplateQuery(
         user, offerList, categoryList, queryString);
+    query.addTemplateParam("productInfo", true);
     Iterable<Map<String, Object>> mapIterator = query.execute(offset, limit);
 
     Iterable<Product> productIterator =
@@ -174,21 +175,9 @@ public class Products {
   public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
                                              List<Long> categoryList,
                                              String queryString) {
-    TemplateQuery query = SqlLoader
-        .templateQuery("shop-category-list", repo.session())
-        .addQueryParam("user_id", user.id());
-    if (!Strings.isNullOrEmpty(queryString)) {
-      query.addTemplateParam("filterByProductName", true);
-      query.addQueryParam("query_string", queryString);
-    }
-    if (!offerList.isEmpty()) {
-      query.addTemplateParam("filterByOfferList", true);
-      query.addQueryParam("offer_list", offerList);
-    }
-    if (!categoryList.isEmpty()) {
-      query.addTemplateParam("filterByCategoryList", true);
-      query.addQueryParam("category_list", categoryList);
-    }
+    TemplateQuery query = productTemplateQuery(
+        user, offerList, categoryList, queryString);
+    query.addTemplateParam("categoryInfo", true);
     QueryResult result = query.execute();
     ImmutableList.Builder<ShopCategory> categoryResultList =
         ImmutableList.builder();
@@ -266,7 +255,7 @@ public class Products {
       query.addTemplateParam("filterByOfferList", true);
       query.addQueryParam("offer_list", offerList);
     }
-    if (!offerList.isEmpty()) {
+    if (!categoryList.isEmpty()) {
       query.addTemplateParam("filterByCategoryList", true);
       query.addQueryParam("category_list", categoryList);
     }

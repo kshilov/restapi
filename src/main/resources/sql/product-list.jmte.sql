@@ -1,4 +1,5 @@
-select 
+select
+${if productInfo}
   product.id                product_id,
   product.name              product_name,
   product.url               product_url,
@@ -11,12 +12,18 @@ select
   product.last_change_time  product_last_change_time,
   offer.id                  offer_id,
   offer.name                offer_name,
+  offer.yml_url             offer_yml_url,
   tariff.id                 tariff_id,
   tariff.cpa_policy         tariff_cpa_policy,
   tariff.cost               tariff_cost,
   tariff.first_action_cost  tariff_first_action_cost,
   tariff.other_action_cost  tariff_other_action_cost,
   tariff.percent            tariff_percent
+${end}
+
+${if categoryInfo}
+  distinct shop_category.*
+${end}
 
 from product
 
@@ -34,7 +41,15 @@ and offer_grant.aff_id = :user_id
 left join tariff
 on tariff.id = product.tariff_id
 
-where 
+${if categoryInfo}
+join product_category
+on product_category.product_id = product.id
+
+join shop_category
+on shop_category.id = product_category.shop_category_id
+${end}
+
+where
 product.active = true
 ${if filterByName}
 and lower(product.name) like '%:query_string%'
