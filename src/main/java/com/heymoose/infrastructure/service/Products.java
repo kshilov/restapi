@@ -252,13 +252,19 @@ public class Products {
     if (!Strings.isNullOrEmpty(queryString)) {
       query.addTemplateParam("filterByName", true);
     }
-    if (!offerList.isEmpty()) {
-      query.addTemplateParam("filterByOfferList", true);
+    if (!offerList.isEmpty() && !categoryList.isEmpty()) {
+      query.addTemplateParam("filterByOfferListAndCategoryList", true);
       query.addQueryParam("offer_list", offerList);
-    }
-    if (!categoryList.isEmpty()) {
-      query.addTemplateParam("filterByCategoryList", true);
       query.addQueryParam("category_list", categoryList);
+    } else {
+      if (!offerList.isEmpty()) {
+        query.addTemplateParam("filterByOfferList", true);
+        query.addQueryParam("offer_list", offerList);
+      }
+      if (!categoryList.isEmpty()) {
+        query.addTemplateParam("filterByCategoryList", true);
+        query.addQueryParam("category_list", categoryList);
+      }
     }
     return query.addQueryParam("user_id", user.id());
   }

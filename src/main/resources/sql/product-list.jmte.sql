@@ -54,6 +54,14 @@ product.active = true
 ${if filterByName}
 and lower(product.name) like '%:query_string%'
 ${end}
+${if filterByOfferListAndCategoryList}
+and (
+exists (select * from product_category
+            where product_id = product.id
+            and shop_category_id in (:category_list))
+or
+product.offer_id in (:offer_list))
+${end}
 ${if filterByCategoryList}
 and exists (select * from product_category 
             where product_id = product.id
