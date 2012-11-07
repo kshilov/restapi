@@ -3,7 +3,6 @@ package com.heymoose.infrastructure.service.tracking;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
@@ -13,7 +12,6 @@ import com.sun.jersey.api.core.HttpRequestContext;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -88,13 +86,6 @@ public final class TrackingUtils {
       throw nullParam(paramName);
   }
 
-
-  public static Response forbidden(OfferGrant grant) {
-    if (grant.backUrl() == null)
-      return Response.status(403).build();
-    else
-      return Response.status(302).location(URI.create(grant.backUrl())).build();
-  }
 
 
   public static boolean visible(BaseOffer offer) {

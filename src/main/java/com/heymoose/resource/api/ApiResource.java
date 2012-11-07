@@ -7,6 +7,7 @@ import com.heymoose.infrastructure.service.tracking.ActionTracker;
 import com.heymoose.infrastructure.service.tracking.ClickTracker;
 import com.heymoose.infrastructure.service.tracking.ShowTracker;
 import com.sun.jersey.api.core.HttpRequestContext;
+import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.joda.time.DateTime;
@@ -95,8 +96,10 @@ public class ApiResource {
   @Transactional
   public Response reportAction() throws ApiRequestException {
     DateTime start = DateTime.now();
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
     try {
-      return actionTracker.track(requestContextProvider.get());
+      actionTracker.track(requestContextProvider.get(), response);
+      return response.build();
     } finally {
       log.debug("Report Action url: {} time: {}",
           requestContextProvider.get().getRequestUri(),
@@ -106,12 +109,16 @@ public class ApiResource {
 
   @Transactional
   public Response click() throws ApiRequestException {
-    return clickTracker.track(requestContextProvider.get());
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    clickTracker.track(requestContextProvider.get(), response);
+    return response.build();
   }
 
   @Transactional
   public Response track() throws ApiRequestException {
-    return showTracker.track(requestContextProvider.get());
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    showTracker.track(requestContextProvider.get(), response);
+    return response.build();
   }
 
   private Response errorResponse(String message, Throwable cause, int status,
