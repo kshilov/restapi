@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -24,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
@@ -59,18 +61,29 @@ public class ProductResource {
   @Produces("application/xml")
   @Cacheable
   @Transactional
-  public String feed(@QueryParam("key") String key,
+  public Response feed(@QueryParam("key") String key,
                      @QueryParam("s") List<Long> offerList,
                      @QueryParam("c") List<Long> categoryList,
                      @QueryParam("q") String queryString,
                      @QueryParam("offset") @DefaultValue("0") int offset,
                      @QueryParam("limit") @DefaultValue("1000") int limit)
       throws Exception {
-    checkNotNull(key);
-    if (limit > 1000) throw new WebApplicationException(400);
+    if (Strings.isNullOrEmpty(key)) {
+      return status(400, "Request should contain 'key' parameter.");
+    }
+
+    if (key.length() != User.SECRET_KEY_LENGTH) {
+      return status(400, "'key' parameter length is incorrect.");
+    }
+
+    if (limit > 1000 || limit < 0) {
+      return status(400, "'limit' should be between 0 and 1000.");
+    }
 
     final User user = users.bySecretKey(key);
-    if (user == null) throw new WebApplicationException(401);
+    if (user == null) {
+      return status(401, "No user found for given 'key'.");
+    }
 
     final Iterable<Product> productList =
         products.list(user, offerList, categoryList, queryString,
@@ -85,7 +98,7 @@ public class ProductResource {
         .setUser(user)
         .write();
 
-      return new String(byteStream.toByteArray());
+      return Response.ok().entity(new String(byteStream.toByteArray())).build();
   }
 
   @GET
@@ -156,4 +169,9 @@ public class ProductResource {
     return categories;
   }
 
+  private Response status(int status, String body) {
+    return Response.status(status)
+        .entity(body)
+        .build();
+  }
 }
