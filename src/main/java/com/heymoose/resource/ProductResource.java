@@ -124,6 +124,7 @@ public class ProductResource {
           toMap(products.categoryList(offer.id()));
 
       offerElement.addContent(new Element("name").setText(offer.name()));
+      offerElement.addContent(new Element("yml-url").setText(offer.ymlUrl()));
       offerElement.addContent(toXmlCategories(categoryMap));
       offerElement.setAttribute("id", offer.id().toString());
 
