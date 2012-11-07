@@ -1,6 +1,6 @@
-package com.heymoose.resource;
+package com.heymoose.infrastructure.util;
 
-import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.infrastructure.util.db.SqlLoader;
 
 import java.math.BigDecimal;
 import java.util.AbstractMap;

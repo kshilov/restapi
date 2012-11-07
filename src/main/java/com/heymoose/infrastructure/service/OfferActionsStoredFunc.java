@@ -9,7 +9,7 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;

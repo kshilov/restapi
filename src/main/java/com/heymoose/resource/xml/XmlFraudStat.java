@@ -2,8 +2,8 @@ package com.heymoose.resource.xml;
 
 import com.google.common.collect.Lists;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.SqlLoader;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

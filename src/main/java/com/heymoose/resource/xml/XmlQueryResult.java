@@ -1,7 +1,7 @@
 package com.heymoose.resource.xml;
 
 import com.google.common.collect.ImmutableMap;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 import org.jdom2.Namespace;
 import org.jdom2.Document;
 import org.jdom2.Element;

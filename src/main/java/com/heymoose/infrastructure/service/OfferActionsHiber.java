@@ -16,8 +16,9 @@ import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.SqlLoader;
+import com.heymoose.infrastructure.util.db.TemplateQuery;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
@@ -288,7 +289,7 @@ public class OfferActionsHiber implements OfferActions {
   public Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
                                       DateKind dateKind,
                                       DataFilter<Ordering> filter) {
-    SqlLoader.TemplateQuery query =
+    TemplateQuery query =
         SqlLoader.templateQuery("offer_actions", repo.session())
             .addQueryParam("offer_id", offerId)
             .addQueryParam("from", filter.from())

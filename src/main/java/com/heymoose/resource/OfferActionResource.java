@@ -8,7 +8,7 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.XmlOfferActions;
 import org.joda.time.DateTime;
 

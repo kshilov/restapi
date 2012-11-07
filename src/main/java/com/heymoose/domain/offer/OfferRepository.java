@@ -1,8 +1,6 @@
 package com.heymoose.domain.offer;
 
 import com.heymoose.domain.base.Repository;
-import com.heymoose.infrastructure.util.QueryResult;
-import org.joda.time.DateTime;
 
 public interface OfferRepository extends Repository<Offer> {
 

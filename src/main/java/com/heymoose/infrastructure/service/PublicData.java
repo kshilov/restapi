@@ -3,9 +3,9 @@ package com.heymoose.infrastructure.service;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.QueryResultTransformer;
-import com.heymoose.infrastructure.util.SqlLoader;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResultTransformer;
+import com.heymoose.infrastructure.util.db.SqlLoader;
 
 import java.math.BigInteger;
 

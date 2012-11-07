@@ -9,7 +9,7 @@ import com.heymoose.infrastructure.service.Debts;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
 import org.jdom2.Document;
 import org.jdom2.Element;

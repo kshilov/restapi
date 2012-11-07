@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.infrastructure.service.PublicData;
 import com.heymoose.infrastructure.util.Cacheable;
-import com.heymoose.infrastructure.util.QueryResult;
+import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
 import org.joda.time.DateTime;
 

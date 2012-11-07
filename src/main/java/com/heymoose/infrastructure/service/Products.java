@@ -14,9 +14,11 @@ import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
-import com.heymoose.infrastructure.util.QueryResult;
-import com.heymoose.infrastructure.util.SqlLoader;
-import com.heymoose.resource.TypedMap;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.CursorQuery;
+import com.heymoose.infrastructure.util.db.SqlLoader;
+import com.heymoose.infrastructure.util.db.TemplateQuery;
+import com.heymoose.infrastructure.util.TypedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +150,7 @@ public class Products {
                                 List<Long> categoryList,
                                 String queryString,
                                 int offset, Integer limit) {
-    SqlLoader.CursorQuery query = SqlLoader
+    CursorQuery query = SqlLoader
         .cursorQuery("product-list", repo.session());
 
     if (!Strings.isNullOrEmpty(queryString)) {
@@ -178,7 +180,7 @@ public class Products {
   public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
                                              List<Long> categoryList,
                                              String queryString) {
-    SqlLoader.TemplateQuery query = SqlLoader
+    TemplateQuery query = SqlLoader
         .templateQuery("shop-category-list", repo.session())
         .addQueryParam("user_id", user.id());
     if (!Strings.isNullOrEmpty(queryString)) {
