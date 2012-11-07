@@ -42,7 +42,7 @@ ${end}
 ${if filterByCategoryList}
 and exists (select * from product_category 
             where product_id = product.id
-            and category_id in (:category_list)
+            and shop_category_id in (:category_list)
             )
 ${end}
 ${if filterByOfferList}
