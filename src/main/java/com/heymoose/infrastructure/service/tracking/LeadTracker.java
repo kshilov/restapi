@@ -55,6 +55,10 @@ public final class LeadTracker implements Tracker {
       String cookieName = "hm_token_" + offer.advertiser().id();
       String tokenValueRequestCookie = cookies.getFirst(cookieName);
       String tokenValueResponseCookie = extractCookie(response, cookieName);
+      if (tokenValueRequestCookie == null && tokenValueResponseCookie == null) {
+        log.info("Can't get token cookie. Skipping lead tracking. {}", offer);
+        return;
+      }
       String tokenValue = firstNonNull(
           tokenValueRequestCookie,
           tokenValueResponseCookie);
