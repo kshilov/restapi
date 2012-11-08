@@ -3,11 +3,17 @@ package com.heymoose.infrastructure.service.tracking;
 import com.beust.jcommander.Strings;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.statistics.LeadStat;
+import com.heymoose.domain.statistics.Token;
+import com.heymoose.domain.user.User;
 import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +67,67 @@ public final class LeadTrackerTest {
     assertFalse("Cookie should not be reset", map.containsKey("Set-Cookie"));
   }
 
-  private MultivaluedMap<String, String> emptyMap() {
+
+  @Test
+  public void savesCorrectLeadStatOnClick() throws Exception {
+    String idValue = "idValue";
+    String referrer = "http://referrer.com";
+    String ip = "127.0.0.1";
+    Offer offer = offerWithIdAndAdvertiser();
+    Token token = new Token(null).setId(1L);
+
+    ArgumentCaptor<LeadStat> leadStatCaptor =
+        ArgumentCaptor.forClass(LeadStat.class);
+    Repo repo = mock(Repo.class);
+    when(repo.get(Offer.class, offer.id())).thenReturn(offer);
+    when(repo.byHQL(eq(Token.class), anyString(), eq(token.value()))).thenReturn(token);
+
+    HttpRequestContext context = mock(HttpRequestContext.class);
+    MultivaluedMap<String, String> cookieMap =
+        mapCopy(ImmutableMap.of(
+            LeadTracker.HM_ID_KEY, idValue,
+            "hm_token_" + offer.advertiser().id(), token.value()));
+    MultivaluedMap<String, String> queryParamMap = mapCopy(
+        ImmutableMap.of(
+            "method", "click",
+            "offer_id", offer.id().toString(),
+            offer.tokenParamName(), token.value()));
+    when(context.getCookieNameValueMap()).thenReturn(cookieMap);
+    when(context.getQueryParameters()).thenReturn(queryParamMap);
+    when(context.getHeaderValue("Referer")).thenReturn(referrer);
+    when(context.getHeaderValue("X-Real-IP")).thenReturn(ip);
+
+    LeadTracker tracker = new LeadTracker(repo);
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    tracker.track(context, response);
+
+    verify(repo).put(leadStatCaptor.capture());
+    LeadStat savedStat = leadStatCaptor.getValue();
+
+    assertEquals(token, savedStat.token());
+    assertEquals(ip, savedStat.ip());
+    assertEquals(referrer, savedStat.referrer());
+    assertEquals(idValue, savedStat.key());
+  }
+
+  private MultivaluedMapImpl emptyMap() {
     return new MultivaluedMapImpl();
+  }
+
+  private MultivaluedMapImpl mapCopy(Map<String, String> map) {
+    MultivaluedMapImpl result = new MultivaluedMapImpl();
+    for (Map.Entry<String, String> entry: map.entrySet()) {
+      result.putSingle(entry.getKey(), entry.getValue());
+    }
+    return result;
+  }
+
+  private Offer offerWithIdAndAdvertiser() {
+    long advId = 1;
+    long offerId = 1;
+    User adv = new User().setId(advId);
+    return new Offer().setAdvertiser(adv)
+        .setTokenParamName("hm_token")
+        .setId(offerId);
   }
 }

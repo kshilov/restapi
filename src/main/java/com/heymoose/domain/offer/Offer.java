@@ -352,8 +352,9 @@ public class Offer extends BaseOffer {
     return tokenParamName;
   }
 
-  public void setTokenParamName(String tokenParamName) {
+  public Offer setTokenParamName(String tokenParamName) {
     this.tokenParamName = tokenParamName;
+    return this;
   }
 
   public Set<Long> subofferIds() {
