@@ -6,22 +6,22 @@ select
   end ctr,
   case clicks_count
     when 0 then 0.00
-    else (leads_count + sales_count) * 100.0 / clicks_count
+    else leads_count * 100.0 / clicks_count
   end cr,
   case clicks_count
     when 0 then 0.00
-    else (confirmed_revenue + not_confirmed_revenue) / clicks_count
+    else confirmed_revenue / clicks_count
   end ecpc,
   case shows_count
     when 0 then 0.00
-    else (confirmed_revenue + not_confirmed_revenue) * 1000.0 / shows_count
+    else confirmed_revenue * 1000.0 / shows_count
   end ecpm
 from
   (
   select
     coalesce(sum(show_count),   0) shows_count,
     coalesce(sum(click_count),  0) clicks_count,
-    coalesce(sum(leads_count),  0) leads_count,
+    sum(action_count - canceled_action_count) leads_count,
     coalesce(sum(sales_count),  0) sales_count,
     ${if addFee}
       coalesce(sum(confirmed_revenue      + confirmed_fee),     0.00) confirmed_revenue,
