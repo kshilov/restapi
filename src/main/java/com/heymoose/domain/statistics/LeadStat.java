@@ -35,6 +35,9 @@ public final class LeadStat extends BaseEntity {
   @Column(name = "lead_key", nullable = false)
   private String leadKey;
 
+  @Basic
+  private String method;
+
   @Override
   public Long id() {
     return id;
@@ -73,6 +76,15 @@ public final class LeadStat extends BaseEntity {
 
   public LeadStat setReferrer(String referrer) {
     this.referrer = referrer;
+    return this;
+  }
+
+  public String method() {
+    return this.method;
+  }
+
+  public LeadStat setMethod(String method) {
+    this.method = method;
     return this;
   }
 }

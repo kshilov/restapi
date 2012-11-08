@@ -162,6 +162,7 @@ public final class LeadTrackerTest {
     assertEquals(ip, savedStat.ip());
     assertEquals(referrer, savedStat.referrer());
     assertEquals(idValue, savedStat.key());
+    assertEquals("click", savedStat.method());
   }
 
   @Test
@@ -198,6 +199,7 @@ public final class LeadTrackerTest {
     assertEquals(ip, savedStat.ip());
     assertEquals(referrer, savedStat.referrer());
     assertEquals(idValue, savedStat.key());
+    assertEquals("reportAction", savedStat.method());
   }
 
 
