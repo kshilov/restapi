@@ -31,6 +31,7 @@ import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
+import com.heymoose.domain.statistics.LeadStat;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.tariff.Tariff;
@@ -95,7 +96,8 @@ public class CommonModule extends AbstractModule {
         KeywordPattern.class, ErrorInfo.class,
         Withdrawal.class, WithdrawalPayment.class,
         Product.class, ShopCategory.class, ProductAttribute.class, Tariff.class,
-        ProductCategoryMapping.class);
+        ProductCategoryMapping.class,
+        LeadStat.class);
   }
 
   protected void bindEntities(Class... classes) {

@@ -8,9 +8,13 @@ import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
@@ -18,6 +22,8 @@ import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
 public final class LeadTracker implements Tracker {
 
   public static final String HM_ID_KEY = "hm_id";
+
+  private static final Logger log = LoggerFactory.getLogger(LeadTracker.class);
 
   private final Repo repo;
   private final OfferLoader offerLoader;
@@ -43,10 +49,12 @@ public final class LeadTracker implements Tracker {
     try {
       MultivaluedMap<String, String> queryParams = context.getQueryParameters();
       Offer offer = getOffer(queryParams);
-      String tokenValueQuery = queryParams.getFirst(offer.tokenParamName());
-      String tokenValueCookie = cookies.getFirst(
-          "hm_token_" + offer.advertiser().id());
-      String tokenValue = firstNonNull(tokenValueQuery, tokenValueCookie);
+      String cookieName = "hm_token_" + offer.advertiser().id();
+      String tokenValueRequestCookie = cookies.getFirst(cookieName);
+      String tokenValueResponseCookie = extractCookie(response, cookieName);
+      String tokenValue = firstNonNull(
+          tokenValueRequestCookie,
+          tokenValueResponseCookie);
       Token token = repo.byHQL(Token.class,
           "from Token where value = ?", tokenValue);
 
@@ -57,7 +65,7 @@ public final class LeadTracker implements Tracker {
           .setReferrer(extractReferer(context));
       repo.put(leadStat);
     } catch (Exception e) {
-      // ignore for now
+      log.error("Exception during tracking lead: {}", e);
     }
   }
 
@@ -74,5 +82,19 @@ public final class LeadTracker implements Tracker {
     }
     throw new IllegalArgumentException(
         "Missing parameters, required for finding offer.");
+  }
+
+  private String extractCookie(Response.ResponseBuilder response, String key) {
+    List<Object> cookies = response
+        .clone()
+        .build()
+        .getMetadata()
+        .get("Set-Cookie");
+    if (cookies == null) return null;
+    for (Object cookieString : cookies) {
+      Cookie cookie = Cookie.valueOf(cookieString.toString());
+      if (cookie.getName().equals(key)) return cookie.getValue();
+    }
+    return null;
   }
 }

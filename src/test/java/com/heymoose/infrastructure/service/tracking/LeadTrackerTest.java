@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
@@ -141,15 +142,17 @@ public final class LeadTrackerTest {
 
     MockRequestContext mockContext = new MockRequestContext()
         .addCookie(LeadTracker.HM_ID_KEY, idValue)
-        .addCookie("hm_token_" + offer.advertiser().id(), token.value())
         .addQueryParam("method", "click")
         .addQueryParam("offer_id", offer.id().toString())
-        .addQueryParam(offer.tokenParamName(), token.value())
         .addHeader("Referer", referrer)
         .addHeader("X-Real-IP", ip);
 
     LeadTracker tracker = new LeadTracker(repo, loaderWithOffer(offer));
     Response.ResponseBuilder response = new ResponseBuilderImpl();
+    // this cookie will be set in ClickTracker
+    NewCookie hmTokenCookie =
+        new NewCookie("hm_token_" + offer.advertiser().id(), token.value());
+    response.cookie(hmTokenCookie);
     tracker.track(mockContext.context(), response);
 
     verify(repo).put(leadStatCaptor.capture());
