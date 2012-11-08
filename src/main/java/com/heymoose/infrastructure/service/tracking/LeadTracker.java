@@ -73,6 +73,7 @@ public final class LeadTracker implements Tracker {
           .setMethod(queryParams.getFirst("method"))
           .setUserAgent(context.getHeaderValue("User-Agent"));
       repo.put(leadStat);
+      log.info("Lead tracked: {}", leadStat);
     } catch (Exception e) {
       log.error("Exception during tracking lead: {}", e);
     }

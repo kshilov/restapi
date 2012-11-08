@@ -1,5 +1,6 @@
 package com.heymoose.domain.statistics;
 
+import com.google.common.base.Objects;
 import com.heymoose.domain.base.BaseEntity;
 
 import javax.persistence.Basic;
@@ -98,5 +99,17 @@ public final class LeadStat extends BaseEntity {
 
   public String userAgent() {
     return this.userAgent;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(LeadStat.class)
+        .add("key", leadKey)
+        .add("token", token)
+        .add("method", method)
+        .add("ip", ip)
+        .add("referrer", referrer)
+        .add("userAgent", userAgent)
+        .toString();
   }
 }
