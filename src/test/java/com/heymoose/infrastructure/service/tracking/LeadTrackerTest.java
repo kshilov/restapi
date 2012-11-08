@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.LeadStat;
@@ -20,10 +21,12 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.Map;
+import java.util.Set;
 
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
@@ -122,9 +125,28 @@ public final class LeadTrackerTest {
     log.info("Response: {}", response);
 
     MultivaluedMap<String, Object> map = response.build().getMetadata();
-    assertFalse("Cookie should not be reset", map.containsKey("Set-Cookie"));
+    assertFalse("Cookie should not be reset", map.containsKey(COOKIE_META));
   }
 
+  @Test
+  public void idCookieIsDifferentEveryTime() throws Exception {
+    LeadTracker tracker = new LeadTracker(
+        mock(Repo.class),
+        mock(OfferLoader.class));
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+
+    tracker.track(MockRequestContext.empty(), response);
+    tracker.track(MockRequestContext.empty(), response);
+    Set<String> uniqueCookies = Sets.newHashSet();
+    for (Object setCookie: response.build().getMetadata().get(COOKIE_META)) {
+      Cookie cookie = Cookie.valueOf(setCookie.toString());
+      String cookieValue = cookie.getValue();
+      assertEquals("Cookie value length should be 32", 32, cookieValue.length());
+      uniqueCookies.add(cookieValue);
+    }
+
+    assertEquals("Less then 2 unique cookies set", 2, uniqueCookies.size());
+  }
 
   @Test
   public void savesCorrectLeadStatOnClick() throws Exception {

@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Random;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
@@ -24,6 +26,7 @@ public final class LeadTracker implements Tracker {
   public static final String HM_ID_KEY = "hm_id";
 
   private static final Logger log = LoggerFactory.getLogger(LeadTracker.class);
+  private static final Random RANDOM = new Random();
 
   private final Repo repo;
   private final OfferLoader offerLoader;
@@ -42,7 +45,7 @@ public final class LeadTracker implements Tracker {
     MultivaluedMap<String, String> cookies = context.getCookieNameValueMap();
     String leadKey = cookies.getFirst(HM_ID_KEY);
     if (leadKey == null) {
-      leadKey = "leadKey";
+      leadKey = new BigInteger(160, RANDOM).toString(32);
       addCookie(response, HM_ID_KEY, leadKey, Integer.MAX_VALUE);
     }
 
