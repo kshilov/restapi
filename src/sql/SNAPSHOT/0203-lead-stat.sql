@@ -15,7 +15,7 @@ create table lead_stat(
   token_id bigint not null,
   referrer varchar(255),
   ip varchar(15),
-  method varchar(10),
+  method varchar(15),
   creation_time timestamp without time zone default now() not null);
 
 alter table lead_stat
