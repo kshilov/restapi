@@ -56,7 +56,9 @@ public class ClickTracker implements Tracker {
   }
 
   @Override
-  public Response track(HttpRequestContext context) throws ApiRequestException {
+  public void track(HttpRequestContext context,
+                    Response.ResponseBuilder response)
+      throws ApiRequestException {
     Map<String, String> params = queryParams(context);
     String sBannerId = params.get("banner_id");
     Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
@@ -69,10 +71,14 @@ public class ClickTracker implements Tracker {
     if (affiliate == null)
       throw notFound(Offer.class, offerId);
     OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
-    if (grant == null)
-      return Response.status(409).build();
-    if (!visible(offer))
-      return forbidden(grant);
+    if (grant == null) {
+      response.status(409);
+      return;
+    }
+    if (!visible(offer)) {
+      forbidden(grant, response);
+      return;
+    }
 
     // sourceId and subIds extracting
     Subs subs = new Subs(
@@ -88,8 +94,10 @@ public class ClickTracker implements Tracker {
     Long ipNum = getRealIp(context);
     if (ipNum == null)
       throw new ApiRequestException(409, "Can't get IP address");
-    if (!geoTargeting.isAllowed(offer, ipNum))
-      return forbidden(grant);
+    if (!geoTargeting.isAllowed(offer, ipNum)) {
+      forbidden(grant, response);
+      return;
+    }
 
     // keywords
     String referer = extractReferer(context);
@@ -162,13 +170,17 @@ public class ClickTracker implements Tracker {
       }
     }
 
-    Response.ResponseBuilder response = Response.status(302).location(location);
+    response.status(302).location(location);
     int maxAge = Seconds.secondsBetween(DateTime.now(),
         DateTime.now().plusDays(offer.cookieTtl())).getSeconds();
     addCookie(response, "hm_token_" + offer.advertiser().id(), token.value(),
         maxAge);
     noCache(response);
-    return response.build();
+  }
+
+  private void forbidden(OfferGrant grant, Response.ResponseBuilder response) {
+    if (grant.backUrl() == null) response.status(403);
+    else response.status(302).location(URI.create(grant.backUrl()));
   }
 
 }

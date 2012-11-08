@@ -125,7 +125,7 @@ public class User extends IdEntity {
   @Column(name = "secret_key", insertable = false)
   private String secretKey;
 
-  protected User() {}
+  public User() {}
 
   public User(String email, String passwordHash, String organization, String phone, Long referrerId) {
     checkNotNull(email, passwordHash);
@@ -316,6 +316,11 @@ public class User extends IdEntity {
 
   public User setReferrerId(Long referrerId) {
     this.referrerId = referrerId;
+    return this;
+  }
+
+  public User setId(Long id) {
+    this.id = id;
     return this;
   }
 

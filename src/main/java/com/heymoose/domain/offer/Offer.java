@@ -330,6 +330,11 @@ public class Offer extends BaseOffer {
     return id;
   }
 
+  @Override
+  public Offer masterOffer() {
+    return this;
+  }
+
   public void setCookieTtl(int cookieTtl) {
     this.cookieTtl = cookieTtl;
   }
@@ -352,8 +357,9 @@ public class Offer extends BaseOffer {
     return tokenParamName;
   }
 
-  public void setTokenParamName(String tokenParamName) {
+  public Offer setTokenParamName(String tokenParamName) {
     this.tokenParamName = tokenParamName;
+    return this;
   }
 
   public Set<Long> subofferIds() {
@@ -400,6 +406,13 @@ public class Offer extends BaseOffer {
 
   public Offer setYmlUrl(String ymlUrl) {
     this.ymlUrl = ymlUrl;
+    return this;
+  }
+
+
+  @Override
+  public Offer setCode(String code) {
+    this.code = code;
     return this;
   }
 }

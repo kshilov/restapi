@@ -59,7 +59,9 @@ public final class ActionTracker implements  Tracker {
   }
 
   @Override
-  public Response track(HttpRequestContext context) throws ApiRequestException {
+  public void track(HttpRequestContext context,
+                    Response.ResponseBuilder response)
+      throws ApiRequestException {
     Map<String, String> params = queryParams(context);
     long advertiserId = safeGetLongParam(params, "advertiser_id");
     String offerString = safeGetParam(params, "offer");
@@ -75,7 +77,8 @@ public final class ActionTracker implements  Tracker {
     String requestKey = context.getRequestUri() + ";token=" + sToken;
     if (RECENT_REQUEST_MAP.asMap().putIfAbsent(requestKey, DUMMY) != null) {
       log.warn("Ignoring repeated request: {}", requestKey);
-      return Response.status(304).build();
+      response.status(304);
+      return;
     }
 
     if (!offerString.contains(":")) {
@@ -99,7 +102,7 @@ public final class ActionTracker implements  Tracker {
         processSafe(data, actionProcessor);
       }
     }
-    return noCache(Response.ok()).build();
+    noCache(response.status(200));
   }
 
   private void processSafe(ProcessableData data, Processor... processorList)

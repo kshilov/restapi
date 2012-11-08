@@ -7,5 +7,6 @@ import javax.ws.rs.core.Response;
 
 public interface Tracker {
 
-  Response track(HttpRequestContext context) throws ApiRequestException;
+  void track(HttpRequestContext context, Response.ResponseBuilder response)
+      throws ApiRequestException;
 }

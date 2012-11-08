@@ -5,8 +5,10 @@ import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.tracking.ActionTracker;
 import com.heymoose.infrastructure.service.tracking.ClickTracker;
+import com.heymoose.infrastructure.service.tracking.LeadTracker;
 import com.heymoose.infrastructure.service.tracking.ShowTracker;
 import com.sun.jersey.api.core.HttpRequestContext;
+import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.joda.time.DateTime;
@@ -44,6 +46,7 @@ public class ApiResource {
   private final ClickTracker clickTracker;
   private final ShowTracker showTracker;
   private final ActionTracker actionTracker;
+  private final LeadTracker leadTracker;
   private final ErrorInfoRepository errorInfoRepo;
 
   private final static String REQUEST_ID_KEY = "request-id";
@@ -53,11 +56,13 @@ public class ApiResource {
                      ShowTracker showTracker,
                      ClickTracker clickTracker,
                      ActionTracker actionTracker,
+                     LeadTracker leadTracker,
                      ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
     this.clickTracker = clickTracker;
     this.showTracker = showTracker;
     this.actionTracker = actionTracker;
+    this.leadTracker = leadTracker;
     this.errorInfoRepo = errorInfoRepo;
   }
 
@@ -95,8 +100,12 @@ public class ApiResource {
   @Transactional
   public Response reportAction() throws ApiRequestException {
     DateTime start = DateTime.now();
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    HttpRequestContext context = requestContextProvider.get();
     try {
-      return actionTracker.track(requestContextProvider.get());
+      actionTracker.track(requestContextProvider.get(), response);
+      leadTracker.track(context, response);
+      return response.build();
     } finally {
       log.debug("Report Action url: {} time: {}",
           requestContextProvider.get().getRequestUri(),
@@ -106,12 +115,18 @@ public class ApiResource {
 
   @Transactional
   public Response click() throws ApiRequestException {
-    return clickTracker.track(requestContextProvider.get());
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    HttpRequestContext context = requestContextProvider.get();
+    clickTracker.track(context, response);
+    leadTracker.track(context, response);
+    return response.build();
   }
 
   @Transactional
   public Response track() throws ApiRequestException {
-    return showTracker.track(requestContextProvider.get());
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    showTracker.track(requestContextProvider.get(), response);
+    return response.build();
   }
 
   private Response errorResponse(String message, Throwable cause, int status,

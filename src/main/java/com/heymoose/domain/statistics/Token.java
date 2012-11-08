@@ -73,6 +73,11 @@ public class Token extends BaseEntity {
     affParamsJson = toJson(affParams);
   }
 
+  public Token setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
   private static String toJson(Map<String, String> map) {
     ObjectMapper mapper = new ObjectMapper();
     try {

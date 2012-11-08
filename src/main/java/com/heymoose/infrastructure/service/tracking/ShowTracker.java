@@ -38,7 +38,9 @@ public final class ShowTracker implements Tracker {
   }
 
   @Override
-  public Response track(HttpRequestContext context) throws ApiRequestException {
+  public void track(HttpRequestContext context,
+                    Response.ResponseBuilder response)
+      throws ApiRequestException {
     Map<String, String> params = queryParams(context);
     String sBannerId = params.get("banner_id");
     Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
@@ -77,6 +79,6 @@ public final class ShowTracker implements Tracker {
       stat.incShows();
       repo.put(stat);
     }
-    return noCache(Response.ok()).build();
+    noCache(response.status(200));
   }
 }
