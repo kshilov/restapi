@@ -25,6 +25,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
@@ -156,8 +157,6 @@ public final class LeadTrackerTest {
     Offer offer = offerWithIdAndAdvertiser();
     Token token = new Token(null).setId(1L);
 
-    ArgumentCaptor<LeadStat> leadStatCaptor =
-        ArgumentCaptor.forClass(LeadStat.class);
     Repo repo = mock(Repo.class);
     when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
         .thenReturn(token);
@@ -177,6 +176,8 @@ public final class LeadTrackerTest {
     response.cookie(hmTokenCookie);
     tracker.track(mockContext.context(), response);
 
+    ArgumentCaptor<LeadStat> leadStatCaptor =
+        ArgumentCaptor.forClass(LeadStat.class);
     verify(repo).put(leadStatCaptor.capture());
     LeadStat savedStat = leadStatCaptor.getValue();
 
@@ -195,8 +196,6 @@ public final class LeadTrackerTest {
     Offer offer = offerWithCodeAndAdvertiser();
     Token token = new Token(null).setId(1L);
 
-    ArgumentCaptor<LeadStat> leadStatCaptor =
-        ArgumentCaptor.forClass(LeadStat.class);
     Repo repo = mock(Repo.class);
     when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
         .thenReturn(token);
@@ -214,6 +213,8 @@ public final class LeadTrackerTest {
     Response.ResponseBuilder response = new ResponseBuilderImpl();
     tracker.track(mockContext.context(), response);
 
+    ArgumentCaptor<LeadStat> leadStatCaptor =
+        ArgumentCaptor.forClass(LeadStat.class);
     verify(repo).put(leadStatCaptor.capture());
     LeadStat savedStat = leadStatCaptor.getValue();
 
@@ -224,6 +225,24 @@ public final class LeadTrackerTest {
     assertEquals("reportAction", savedStat.method());
   }
 
+  @Test
+  public void trackOfferWithPrice() throws Exception {
+    Offer offer = offerWithCodeAndAdvertiser();
+    Token token = new Token(null).setId(1L);
+    String offerString =
+        offer.code() + ":" + BigDecimal.ONE + ","  +
+        offer.code() + ":" + BigDecimal.ONE;
+    MockRequestContext mockContext = new MockRequestContext()
+        .addQueryParam("offer", offerString)
+        .addQueryParam("advertiser_id", offer.advertiser().id().toString())
+        .addCookie("hm_token_" + offer.advertiser().id(), token.value());
+    Repo repo = repoWithToken(token);
+    LeadTracker tracker = new LeadTracker(repo, loaderWithOffer(offer));
+
+    ResponseBuilderImpl response = new ResponseBuilderImpl();
+    tracker.track(mockContext.context(), response);
+    verify(repo).put(any(LeadStat.class));
+  }
 
   private Offer offerWithIdAndAdvertiser() {
     long advId = 1;
@@ -246,5 +265,12 @@ public final class LeadTrackerTest {
         .thenReturn(offer);
     when(loader.offerById(offer.id())).thenReturn(offer);
     return loader;
+  }
+
+  private Repo repoWithToken(Token token) {
+    Repo repo = mock(Repo.class);
+    when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
+        .thenReturn(token);
+    return repo;
   }
 }

@@ -82,6 +82,7 @@ public final class LeadTracker implements Tracker {
         queryParams.containsKey("advertiser_id")) {
       String code = queryParams.getFirst("offer");
       Long advId = Long.valueOf(queryParams.getFirst("advertiser_id"));
+      code = code.split(":")[0];
       return offerLoader.findOffer(advId, code).masterOffer();
     }
     throw new IllegalArgumentException(

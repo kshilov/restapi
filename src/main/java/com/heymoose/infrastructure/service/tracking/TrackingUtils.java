@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service.tracking;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
@@ -114,10 +113,12 @@ public final class TrackingUtils {
 
 
   public static String extractReferer(HttpRequestContext context) {
-    return Objects.firstNonNull(
-        context.getHeaderValue("Referer"),
-        context.getHeaderValue("X-Real-IP"));
-  }
+    String referrer = context.getHeaderValue("Referer");
+    if (referrer != null) return referrer;
+    String ip = context.getHeaderValue("X-Real-IP");
+    if (ip != null) return ip;
+    return null;
+ }
 
 
   public static void addCookie(Response.ResponseBuilder resp, String name,
