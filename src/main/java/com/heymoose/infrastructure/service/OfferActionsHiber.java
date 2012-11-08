@@ -181,6 +181,7 @@ public class OfferActionsHiber implements OfferActions {
           .execute();
       debts.oweMlm(action, mlmValue);
     }
+    action.stat().incConfirmedActions();
     action.approve();
   }
 
@@ -215,6 +216,7 @@ public class OfferActionsHiber implements OfferActions {
         action.stat().cancelFee(entry.amount().negate());
       }
     }
+    action.stat().incCanceledActions();
     action.cancel();
   }
 

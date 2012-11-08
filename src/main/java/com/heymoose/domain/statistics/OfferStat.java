@@ -121,6 +121,15 @@ public class OfferStat extends BaseEntity {
   @Nullable
   private String keywords;
 
+  @Column(name = "action_count")
+  private int actionCount;
+
+  @Column(name = "confirmed_action_count")
+  private int confirmedActionCount;
+
+  @Column(name = "canceled_action_count")
+  private int canceledActionCount;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
   private Product product;
@@ -265,6 +274,21 @@ public class OfferStat extends BaseEntity {
 
   public OfferStat incSales() {
     salesCount++;
+    return this;
+  }
+
+  public OfferStat incActions() {
+    actionCount++;
+    return this;
+  }
+
+  public OfferStat incConfirmedActions() {
+    confirmedActionCount++;
+    return this;
+  }
+
+  public OfferStat incCanceledActions() {
+    canceledActionCount++;
     return this;
   }
 

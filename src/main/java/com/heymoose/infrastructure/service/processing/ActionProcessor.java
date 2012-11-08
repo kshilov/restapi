@@ -102,6 +102,7 @@ public final class ActionProcessor implements Processor {
     } else {
       stat.incLeads();
     }
+    stat.incActions();
     repo.put(stat);
     OfferAction action = new OfferAction(token, source.affiliate(), stat,
         source, offer, transactionId);
