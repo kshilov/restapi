@@ -226,6 +226,30 @@ public final class LeadTrackerTest {
   }
 
   @Test
+  public void userAgentIsTracked() throws Exception {
+    String userAgent = "user-agent one two three";
+    Offer offer = offerWithIdAndAdvertiser();
+    Token token = new Token(null).setId(1L);
+    MockRequestContext mockContext = new MockRequestContext()
+        .addQueryParam("offer_id", offer.id().toString())
+        .addCookie("hm_token_" + offer.advertiser().id(), token.value())
+        .addHeader("User-Agent", userAgent);
+    Repo repo = repoWithToken(token);
+    LeadTracker tracker = new LeadTracker(repo, loaderWithOffer(offer));
+
+    ResponseBuilderImpl response = new ResponseBuilderImpl();
+    tracker.track(mockContext.context(), response);
+
+    ArgumentCaptor<LeadStat> leadStatCaptor =
+        ArgumentCaptor.forClass(LeadStat.class);
+    verify(repo).put(leadStatCaptor.capture());
+    LeadStat savedStat = leadStatCaptor.getValue();
+
+    assertEquals(userAgent, savedStat.userAgent());
+  }
+
+
+  @Test
   public void trackOfferWithPrice() throws Exception {
     Offer offer = offerWithCodeAndAdvertiser();
     Token token = new Token(null).setId(1L);

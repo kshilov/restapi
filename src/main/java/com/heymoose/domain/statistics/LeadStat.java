@@ -38,6 +38,9 @@ public final class LeadStat extends BaseEntity {
   @Basic
   private String method;
 
+  @Column(name = "user_agent")
+  private String userAgent;
+
   @Override
   public Long id() {
     return id;
@@ -86,5 +89,14 @@ public final class LeadStat extends BaseEntity {
   public LeadStat setMethod(String method) {
     this.method = method;
     return this;
+  }
+
+  public LeadStat setUserAgent(String userAgent) {
+    this.userAgent = userAgent;
+    return this;
+  }
+
+  public String userAgent() {
+    return this.userAgent;
   }
 }

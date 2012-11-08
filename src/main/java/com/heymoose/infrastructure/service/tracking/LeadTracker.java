@@ -70,7 +70,8 @@ public final class LeadTracker implements Tracker {
           .setToken(token)
           .setIp(context.getHeaderValue("X-Real-IP"))
           .setReferrer(extractReferer(context))
-          .setMethod(queryParams.getFirst("method"));
+          .setMethod(queryParams.getFirst("method"))
+          .setUserAgent(context.getHeaderValue("User-Agent"));
       repo.put(leadStat);
     } catch (Exception e) {
       log.error("Exception during tracking lead: {}", e);
