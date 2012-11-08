@@ -4,6 +4,8 @@ import com.beust.jcommander.Strings;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.LeadStat;
@@ -30,15 +32,67 @@ public final class LeadTrackerTest {
       LoggerFactory.getLogger(LeadTrackerTest.class);
   private static final String COOKIE_META = "Set-Cookie";
 
+  private static class MockRequestContext {
+
+    public static HttpRequestContext empty() {
+      return new MockRequestContext().context();
+    }
+
+    private ImmutableMultimap.Builder<String, String> cookieMap;
+    private ImmutableMultimap.Builder<String, String> queryParamMap;
+    private ImmutableMap.Builder<String, String> headerMap;
+
+    public MockRequestContext() {
+      this.cookieMap = ImmutableMultimap.builder();
+      this.queryParamMap = ImmutableMultimap.builder();
+      this.headerMap = ImmutableMap.builder();
+    }
+
+    public MockRequestContext addCookie(String key, String value) {
+      this.cookieMap.put(key, value);
+      return this;
+    }
+
+    public MockRequestContext addQueryParam(String key, String value) {
+      this.queryParamMap.put(key, value);
+      return this;
+    }
+
+    public MockRequestContext addHeader(String key, String value) {
+      this.headerMap.put(key, value);
+      return this;
+    }
+
+    public HttpRequestContext context() {
+      HttpRequestContext context = mock(HttpRequestContext.class);
+      when(context.getCookieNameValueMap())
+          .thenReturn(toMultivaluedMap(cookieMap.build()));
+      when(context.getQueryParameters())
+          .thenReturn(toMultivaluedMap(queryParamMap.build()));
+      Map<String, String> headers = headerMap.build();
+      for (String header : headers.keySet()) {
+        when(context.getHeaderValue(header)).thenReturn(headers.get(header));
+      }
+      return context;
+    }
+
+    private MultivaluedMapImpl toMultivaluedMap(
+        Multimap<String, String> multiMap) {
+      MultivaluedMapImpl nameValue = new MultivaluedMapImpl();
+      for (String key : multiMap.keySet()) {
+        nameValue.put(key, ImmutableList.copyOf(multiMap.get(key)));
+      }
+      return nameValue;
+    }
+
+  }
+
   @Test
   public void createsLeadIfNoCookie() throws Exception {
     LeadTracker tracker = new LeadTracker(mock(Repo.class));
     Response.ResponseBuilder response = new ResponseBuilderImpl();
-    HttpRequestContext context = mock(HttpRequestContext.class);
 
-    when(context.getCookieNameValueMap()).thenReturn(emptyMap());
-
-    tracker.track(context, response);
+    tracker.track(MockRequestContext.empty(), response);
     log.info("Response: {}", response);
 
     MultivaluedMap<String, Object> map = response.build().getMetadata();
@@ -54,13 +108,11 @@ public final class LeadTrackerTest {
   public void doesNotResetCookieIfAlreadySet() throws Exception {
     LeadTracker tracker = new LeadTracker(mock(Repo.class));
     Response.ResponseBuilder response = new ResponseBuilderImpl();
-    HttpRequestContext context = mock(HttpRequestContext.class);
 
-    MultivaluedMap<String, String> cookieMap = emptyMap();
-    cookieMap.put(LeadTracker.HM_ID_KEY, ImmutableList.of("someValue"));
-    when(context.getCookieNameValueMap()).thenReturn(cookieMap);
+    MockRequestContext contextMock = new MockRequestContext()
+        .addCookie(LeadTracker.HM_ID_KEY, "someValue");
 
-    tracker.track(context, response);
+    tracker.track(contextMock.context(), response);
     log.info("Response: {}", response);
 
     MultivaluedMap<String, Object> map = response.build().getMetadata();
@@ -80,26 +132,21 @@ public final class LeadTrackerTest {
         ArgumentCaptor.forClass(LeadStat.class);
     Repo repo = mock(Repo.class);
     when(repo.get(Offer.class, offer.id())).thenReturn(offer);
-    when(repo.byHQL(eq(Token.class), anyString(), eq(token.value()))).thenReturn(token);
+    when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
+        .thenReturn(token);
 
-    HttpRequestContext context = mock(HttpRequestContext.class);
-    MultivaluedMap<String, String> cookieMap =
-        mapCopy(ImmutableMap.of(
-            LeadTracker.HM_ID_KEY, idValue,
-            "hm_token_" + offer.advertiser().id(), token.value()));
-    MultivaluedMap<String, String> queryParamMap = mapCopy(
-        ImmutableMap.of(
-            "method", "click",
-            "offer_id", offer.id().toString(),
-            offer.tokenParamName(), token.value()));
-    when(context.getCookieNameValueMap()).thenReturn(cookieMap);
-    when(context.getQueryParameters()).thenReturn(queryParamMap);
-    when(context.getHeaderValue("Referer")).thenReturn(referrer);
-    when(context.getHeaderValue("X-Real-IP")).thenReturn(ip);
+    MockRequestContext mockContext = new MockRequestContext()
+        .addCookie(LeadTracker.HM_ID_KEY, idValue)
+        .addCookie("hm_token_" + offer.advertiser().id(), token.value())
+        .addQueryParam("method", "click")
+        .addQueryParam("offer_id", offer.id().toString())
+        .addQueryParam(offer.tokenParamName(), token.value())
+        .addHeader("Referer", referrer)
+        .addHeader("X-Real-IP", ip);
 
     LeadTracker tracker = new LeadTracker(repo);
     Response.ResponseBuilder response = new ResponseBuilderImpl();
-    tracker.track(context, response);
+    tracker.track(mockContext.context(), response);
 
     verify(repo).put(leadStatCaptor.capture());
     LeadStat savedStat = leadStatCaptor.getValue();
