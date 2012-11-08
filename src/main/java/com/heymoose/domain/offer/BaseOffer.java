@@ -77,7 +77,7 @@ public abstract class BaseOffer extends BaseEntity {
   protected boolean reentrant;
 
   @Basic(optional = false)
-  private String code;
+  protected String code;
 
   @Column(name = "hold_days")
   private int holdDays;
@@ -299,6 +299,8 @@ public abstract class BaseOffer extends BaseEntity {
   public abstract Account account();
 
   public abstract long master();
+
+  public abstract Offer masterOffer();
 
   public abstract Set<String> regions();
 }

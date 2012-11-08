@@ -4,23 +4,30 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.LeadStat;
 import com.heymoose.domain.statistics.Token;
+import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import static com.heymoose.infrastructure.service.tracking.TrackingUtils.addCookie;
-import static com.heymoose.infrastructure.service.tracking.TrackingUtils.extractReferer;
+import static com.google.common.base.Objects.firstNonNull;
+import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
 
 public final class LeadTracker implements Tracker {
 
   public static final String HM_ID_KEY = "hm_id";
 
   private final Repo repo;
+  private OfferLoader offerLoader;
 
   public LeadTracker(Repo repo) {
     this.repo = repo;
+  }
+
+  public LeadTracker(Repo repo, OfferLoader loader) {
+    this.repo = repo;
+    this.offerLoader = loader;
   }
 
   @Override
@@ -37,9 +44,11 @@ public final class LeadTracker implements Tracker {
 
     try {
       MultivaluedMap<String, String> queryParams = context.getQueryParameters();
-      Long offerId = Long.valueOf(queryParams.getFirst("offer_id"));
-      Offer offer = repo.get(Offer.class, offerId);
-      String tokenValue = queryParams.getFirst(offer.tokenParamName());
+      Offer offer = getOffer(queryParams);
+      String tokenValueQuery = queryParams.getFirst(offer.tokenParamName());
+      String tokenValueCookie = cookies.getFirst(
+          "hm_token_" + offer.advertiser().id());
+      String tokenValue = firstNonNull(tokenValueQuery, tokenValueCookie);
       Token token = repo.byHQL(Token.class,
           "from Token where value = ?", tokenValue);
 
@@ -52,5 +61,20 @@ public final class LeadTracker implements Tracker {
     } catch (Exception e) {
       // ignore for now
     }
+  }
+
+  private Offer getOffer(MultivaluedMap<String, String> queryParams) {
+    if (queryParams.containsKey("offer_id")) {
+      Long offerId = Long.valueOf(queryParams.getFirst("offer_id"));
+      return offerLoader.offerById(offerId);
+    }
+    if (queryParams.containsKey("offer") &&
+        queryParams.containsKey("advertiser_id")) {
+      String code = queryParams.getFirst("offer");
+      Long advId = Long.valueOf(queryParams.getFirst("advertiser_id"));
+      return offerLoader.findOffer(advId, code).masterOffer();
+    }
+    throw new IllegalArgumentException(
+        "Missing parameters, required for finding offer.");
   }
 }

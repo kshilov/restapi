@@ -2,15 +2,16 @@ package com.heymoose.domain.offer;
 
 import com.heymoose.domain.accounting.Account;
 
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import java.math.BigDecimal;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.math.BigDecimal;
+import java.util.Set;
+
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Entity
 @DiscriminatorValue("2")
@@ -31,6 +32,11 @@ public class SubOffer extends BaseOffer {
   @Override
   public long master() {
     return parentId;
+  }
+
+  @Override
+  public Offer masterOffer() {
+    return this.parent();
   }
 
   @Override

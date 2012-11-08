@@ -11,6 +11,7 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.LeadStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
+import com.heymoose.infrastructure.service.OfferLoader;
 import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -131,7 +132,6 @@ public final class LeadTrackerTest {
     ArgumentCaptor<LeadStat> leadStatCaptor =
         ArgumentCaptor.forClass(LeadStat.class);
     Repo repo = mock(Repo.class);
-    when(repo.get(Offer.class, offer.id())).thenReturn(offer);
     when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
         .thenReturn(token);
 
@@ -144,7 +144,7 @@ public final class LeadTrackerTest {
         .addHeader("Referer", referrer)
         .addHeader("X-Real-IP", ip);
 
-    LeadTracker tracker = new LeadTracker(repo);
+    LeadTracker tracker = new LeadTracker(repo, loaderWithOffer(offer));
     Response.ResponseBuilder response = new ResponseBuilderImpl();
     tracker.track(mockContext.context(), response);
 
@@ -157,17 +157,42 @@ public final class LeadTrackerTest {
     assertEquals(idValue, savedStat.key());
   }
 
-  private MultivaluedMapImpl emptyMap() {
-    return new MultivaluedMapImpl();
+  @Test
+  public void savesCorrectLeadStatOnAction() throws Exception {
+    String idValue = "idValue";
+    String referrer = "http://referrer.com";
+    String ip = "127.0.0.1";
+    Offer offer = offerWithCodeAndAdvertiser();
+    Token token = new Token(null).setId(1L);
+
+    ArgumentCaptor<LeadStat> leadStatCaptor =
+        ArgumentCaptor.forClass(LeadStat.class);
+    Repo repo = mock(Repo.class);
+    when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
+        .thenReturn(token);
+
+    MockRequestContext mockContext = new MockRequestContext()
+        .addCookie(LeadTracker.HM_ID_KEY, idValue)
+        .addCookie("hm_token_" + offer.advertiser().id(), token.value())
+        .addQueryParam("method", "reportAction")
+        .addQueryParam("offer", offer.code())
+        .addQueryParam("advertiser_id", offer.advertiser().id().toString())
+        .addHeader("Referer", referrer)
+        .addHeader("X-Real-IP", ip);
+
+    LeadTracker tracker = new LeadTracker(repo, loaderWithOffer(offer));
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    tracker.track(mockContext.context(), response);
+
+    verify(repo).put(leadStatCaptor.capture());
+    LeadStat savedStat = leadStatCaptor.getValue();
+
+    assertEquals(token, savedStat.token());
+    assertEquals(ip, savedStat.ip());
+    assertEquals(referrer, savedStat.referrer());
+    assertEquals(idValue, savedStat.key());
   }
 
-  private MultivaluedMapImpl mapCopy(Map<String, String> map) {
-    MultivaluedMapImpl result = new MultivaluedMapImpl();
-    for (Map.Entry<String, String> entry: map.entrySet()) {
-      result.putSingle(entry.getKey(), entry.getValue());
-    }
-    return result;
-  }
 
   private Offer offerWithIdAndAdvertiser() {
     long advId = 1;
@@ -176,5 +201,19 @@ public final class LeadTrackerTest {
     return new Offer().setAdvertiser(adv)
         .setTokenParamName("hm_token")
         .setId(offerId);
+  }
+
+  private Offer offerWithCodeAndAdvertiser() {
+    return new Offer()
+        .setAdvertiser(new User().setId(1L))
+        .setCode("offer-code");
+  }
+
+  private OfferLoader loaderWithOffer(Offer offer) {
+    OfferLoader loader = mock(OfferLoader.class);
+    when(loader.findOffer(offer.advertiser().id(), offer.code()))
+        .thenReturn(offer);
+    when(loader.offerById(offer.id())).thenReturn(offer);
+    return loader;
   }
 }
