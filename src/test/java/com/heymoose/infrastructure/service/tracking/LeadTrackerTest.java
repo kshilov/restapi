@@ -90,7 +90,9 @@ public final class LeadTrackerTest {
 
   @Test
   public void createsLeadIfNoCookie() throws Exception {
-    LeadTracker tracker = new LeadTracker(mock(Repo.class));
+    LeadTracker tracker = new LeadTracker(
+        mock(Repo.class),
+        mock(OfferLoader.class));
     Response.ResponseBuilder response = new ResponseBuilderImpl();
 
     tracker.track(MockRequestContext.empty(), response);
@@ -107,7 +109,9 @@ public final class LeadTrackerTest {
 
   @Test
   public void doesNotResetCookieIfAlreadySet() throws Exception {
-    LeadTracker tracker = new LeadTracker(mock(Repo.class));
+    LeadTracker tracker = new LeadTracker(
+        mock(Repo.class),
+        mock(OfferLoader.class));
     Response.ResponseBuilder response = new ResponseBuilderImpl();
 
     MockRequestContext contextMock = new MockRequestContext()

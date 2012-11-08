@@ -5,6 +5,7 @@ import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.tracking.ActionTracker;
 import com.heymoose.infrastructure.service.tracking.ClickTracker;
+import com.heymoose.infrastructure.service.tracking.LeadTracker;
 import com.heymoose.infrastructure.service.tracking.ShowTracker;
 import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
@@ -45,6 +46,7 @@ public class ApiResource {
   private final ClickTracker clickTracker;
   private final ShowTracker showTracker;
   private final ActionTracker actionTracker;
+  private final LeadTracker leadTracker;
   private final ErrorInfoRepository errorInfoRepo;
 
   private final static String REQUEST_ID_KEY = "request-id";
@@ -54,11 +56,13 @@ public class ApiResource {
                      ShowTracker showTracker,
                      ClickTracker clickTracker,
                      ActionTracker actionTracker,
+                     LeadTracker leadTracker,
                      ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
     this.clickTracker = clickTracker;
     this.showTracker = showTracker;
     this.actionTracker = actionTracker;
+    this.leadTracker = leadTracker;
     this.errorInfoRepo = errorInfoRepo;
   }
 
@@ -97,8 +101,10 @@ public class ApiResource {
   public Response reportAction() throws ApiRequestException {
     DateTime start = DateTime.now();
     Response.ResponseBuilder response = new ResponseBuilderImpl();
+    HttpRequestContext context = requestContextProvider.get();
     try {
       actionTracker.track(requestContextProvider.get(), response);
+      leadTracker.track(context, response);
       return response.build();
     } finally {
       log.debug("Report Action url: {} time: {}",
@@ -110,7 +116,9 @@ public class ApiResource {
   @Transactional
   public Response click() throws ApiRequestException {
     Response.ResponseBuilder response = new ResponseBuilderImpl();
-    clickTracker.track(requestContextProvider.get(), response);
+    HttpRequestContext context = requestContextProvider.get();
+    clickTracker.track(context, response);
+    leadTracker.track(context, response);
     return response.build();
   }
 

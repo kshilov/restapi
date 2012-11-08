@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service.tracking;
 
+import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.LeadStat;
@@ -19,12 +20,9 @@ public final class LeadTracker implements Tracker {
   public static final String HM_ID_KEY = "hm_id";
 
   private final Repo repo;
-  private OfferLoader offerLoader;
+  private final OfferLoader offerLoader;
 
-  public LeadTracker(Repo repo) {
-    this.repo = repo;
-  }
-
+  @Inject
   public LeadTracker(Repo repo, OfferLoader loader) {
     this.repo = repo;
     this.offerLoader = loader;
