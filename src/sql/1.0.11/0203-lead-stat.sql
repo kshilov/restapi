@@ -13,7 +13,7 @@ create table lead_stat(
   id bigint default nextval('lead_stat_seq'),
   lead_key varchar(32) not null,
   token_id bigint not null,
-  referrer varchar(255),
+  referrer varchar(1000),
   ip varchar(15),
   method varchar(15),
   creation_time timestamp without time zone default now() not null);
