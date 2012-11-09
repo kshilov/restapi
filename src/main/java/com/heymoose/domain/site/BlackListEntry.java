@@ -6,9 +6,19 @@ import com.heymoose.domain.base.IdEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Entity
+@Table(name = "black_list")
 public final class BlackListEntry extends IdEntity {
 
   private static final Logger log =
@@ -16,7 +26,12 @@ public final class BlackListEntry extends IdEntity {
 
   private static final Pattern REG_EXP =
       Pattern.compile(
-          "(https?://)?(www\\.)?((\\w+\\.)*)(\\w+\\.\\w+)((/\\w+)*)/?");
+          "(https?://)?"
+          + "(www\\.)?"
+          + "(([^\\./]+\\.)*)"        // sub domains
+          + "([^\\./]+\\.[^\\./]+)"  // host
+          + "((/[^\\./]+)*)/?"       // path
+          + ".*");                  // query string and hash
 
 
   public static String extractHost(String url) {
@@ -26,9 +41,18 @@ public final class BlackListEntry extends IdEntity {
     return matcher.group(5);
   }
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "black_list-seq")
+  @SequenceGenerator(name = "black_list-seq", sequenceName = "black_list_seq", allocationSize = 1)
   private Long id;
+
+  @Basic(optional = false)
   private String host;
+
+  @Column(name = "sub_domain_mask")
   private String subDomainMask;
+
+  @Column(name = "path_mask")
   private String pathMask;
 
   @Override

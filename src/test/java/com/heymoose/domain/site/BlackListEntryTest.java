@@ -2,8 +2,9 @@ package com.heymoose.domain.site;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import java.net.URL;
+
+import static junit.framework.Assert.*;
 
 public final class BlackListEntryTest {
 
@@ -59,5 +60,19 @@ public final class BlackListEntryTest {
     assertFalse(entry.matches("heymoose.com/resource/resource"));
     assertFalse(entry.matches("heymoose.com/resource/resource"));
     assertFalse(entry.matches("heymoose.com/something/resource"));
+  }
+
+  @Test
+  public void queryParams() throws Exception {
+    String url = "http://black-host.com/bla-bla/bla-bla?xxx=yyy";
+
+    assertEquals("black-host.com", BlackListEntry.extractHost(url));
+  }
+
+  @Test
+  public void urlHostTest() throws Exception {
+    URL url = new URL("http://test.heymoose.com/blabla/haha/?xxx=yyy");
+    assertEquals("test.heymoose.com", url.getHost());
+    assertEquals("/blabla/haha/", url.getPath());
   }
 }

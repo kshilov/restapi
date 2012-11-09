@@ -31,13 +31,14 @@ import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
+import com.heymoose.domain.site.BlackListEntry;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.statistics.LeadStat;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.AdminAccount;
 import com.heymoose.domain.user.AdminAccountNotConfirmed;
-import com.heymoose.domain.site.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.counter.BufferedClicks;
@@ -97,7 +98,8 @@ public class CommonModule extends AbstractModule {
         Withdrawal.class, WithdrawalPayment.class,
         Product.class, ShopCategory.class, ProductAttribute.class, Tariff.class,
         ProductCategoryMapping.class,
-        LeadStat.class);
+        LeadStat.class,
+        BlackListEntry.class);
   }
 
   protected void bindEntities(Class... classes) {

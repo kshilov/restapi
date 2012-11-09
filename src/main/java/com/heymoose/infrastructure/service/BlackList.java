@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.site.BlackListEntry;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ public final class BlackList {
 
   private final Repo repo;
 
+  @Inject
   public BlackList(Repo repo) {
     this.repo = repo;
   }
