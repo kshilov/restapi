@@ -7,6 +7,7 @@ import com.heymoose.domain.user.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Sites;
+import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
@@ -68,6 +69,7 @@ public class SiteResource {
   @GET
   @Path("stats")
   @Produces("application/xml")
+  @Cacheable(period = "PT1H")
   @Transactional
   public String stats(@QueryParam("first_period_from") Long firstPeriodFrom,
                       @QueryParam("first_period_to") Long firstPeriodTo,
