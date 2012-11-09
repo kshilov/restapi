@@ -42,6 +42,12 @@ public final class LeadStat extends BaseEntity {
   @Column(name = "user_agent")
   private String userAgent;
 
+  @Column(name = "aff_id")
+  private Long affId;
+
+  @Column(name = "master")
+  private Long master;
+
   @Override
   public Long id() {
     return id;
@@ -101,11 +107,30 @@ public final class LeadStat extends BaseEntity {
     return this.userAgent;
   }
 
+  public LeadStat setAffId(Long affId) {
+    this.affId = affId;
+    return this;
+  }
+
+  public LeadStat setMaster(Long offerId) {
+    this.master = offerId;
+    return this;
+  }
+
+  public Long affId() {
+    return affId;
+  }
+
+  public Long master() {
+    return master;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(LeadStat.class)
         .add("key", leadKey)
-        .add("token", token)
+        .add("affId", affId)
+        .add("master", master)
         .add("method", method)
         .add("ip", ip)
         .add("referrer", referrer)

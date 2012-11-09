@@ -68,6 +68,8 @@ public final class LeadTracker implements Tracker {
       LeadStat leadStat = new LeadStat()
           .setKey(leadKey)
           .setToken(token)
+          .setAffId(token.stat().affiliateId())
+          .setMaster(token.stat().master())
           .setIp(context.getHeaderValue("X-Real-IP"))
           .setReferrer(extractReferer(context))
           .setMethod(queryParams.getFirst("method"))
