@@ -3,7 +3,7 @@ package com.heymoose.resource;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.user.Lang;
-import com.heymoose.domain.user.Site;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Sites;

@@ -37,7 +37,7 @@ import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.AdminAccount;
 import com.heymoose.domain.user.AdminAccountNotConfirmed;
-import com.heymoose.domain.user.Site;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.counter.BufferedClicks;
