@@ -2,13 +2,14 @@ package com.heymoose.domain.site;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.heymoose.domain.base.IdEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class BlackListEntry {
+public final class BlackListEntry extends IdEntity {
 
   private static final Logger log =
       LoggerFactory.getLogger(BlackListEntry.class);
@@ -16,12 +17,24 @@ public final class BlackListEntry {
   private static final Pattern REG_EXP =
       Pattern.compile(
           "(https?://)?(www\\.)?((\\w+\\.)*)(\\w+\\.\\w+)((/\\w+)*)/?");
-  private static final String EXPRESSION_MASK =
-      "https?://(www\\.)?%s(\\w+\\.\\w+)%s*/?";
 
+
+  public static String extractHost(String url) {
+    Matcher matcher = REG_EXP.matcher(url);
+    if (!matcher.matches())
+      throw new IllegalArgumentException("Url " + url + " can not be matched.");
+    return matcher.group(5);
+  }
+
+  private Long id;
   private String host;
   private String subDomainMask;
   private String pathMask;
+
+  @Override
+  public Long id() {
+    return id;
+  }
 
   public BlackListEntry setHost(String host) {
     this.host = host;
@@ -83,4 +96,5 @@ public final class BlackListEntry {
     }
     return false;
   }
+
 }
