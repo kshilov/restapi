@@ -14,6 +14,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +25,9 @@ public final class BlackListEntry extends IdEntity {
 
   private static final Logger log =
       LoggerFactory.getLogger(BlackListEntry.class);
+
+  private static final Pattern HOST_PATTERN =
+      Pattern.compile("(www\\.)?(([^\\.]+\\.)*)([^\\.]+\\.[^\\.]+)");
 
   private static final Pattern REG_EXP =
       Pattern.compile(
@@ -34,11 +39,16 @@ public final class BlackListEntry extends IdEntity {
           + ".*");                  // query string and hash
 
 
-  public static String extractHost(String url) {
-    Matcher matcher = REG_EXP.matcher(url);
-    if (!matcher.matches())
-      throw new IllegalArgumentException("Url " + url + " can not be matched.");
-    return matcher.group(5);
+  public static String extractHost(String test) {
+    try {
+      URL url = new URL(test);
+      Matcher hostMatcher = HOST_PATTERN.matcher(url.getHost());
+      if (!hostMatcher.matches())
+        throw new IllegalArgumentException("Bad url " + test);
+      return hostMatcher.group(4);
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   @Id
@@ -89,16 +99,16 @@ public final class BlackListEntry extends IdEntity {
   }
 
   public boolean matches(String test) {
-    Matcher matcher = REG_EXP.matcher(test);
-    if (matcher.matches()) {
-//      for (int i = 0; i <= matcher.groupCount(); i++) {
-//        log.debug("Group #{}: {}", i, matcher.group(i));
-//      }
-      // host
-      if (!matcher.group(5).equals(host)) return false;
+    if (!test.contains("://")) {
+      test = "http://" + test;
+    }
+    try {
+      URL url = new URL(test);
+      Matcher hostMatcher = HOST_PATTERN.matcher(url.getHost());
+      if (!hostMatcher.matches()) return false;
+      if (!hostMatcher.group(4).equals(host)) return false;
 
-      // sub
-      String subDomainString = matcher.group(3);
+      String subDomainString = hostMatcher.group(2);
       if (!Strings.isNullOrEmpty(subDomainMask)) {
         if (Strings.isNullOrEmpty(subDomainString)) return false;
         // remove last dot
@@ -109,16 +119,27 @@ public final class BlackListEntry extends IdEntity {
       }
 
       // path
-      String path = matcher.group(6);
+      String path = url.getPath();
       if (!Strings.isNullOrEmpty(pathMask)) {
         // remove first slash
         if (!Strings.isNullOrEmpty(path)) path = path.substring(1);
         Pattern pathPattern = Pattern.compile(pathMask);
         if (!pathPattern.matcher(path).matches()) return false;
       }
+
       return true;
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException(e);
     }
-    return false;
   }
 
+  private void logMatcher(Matcher matcher) {
+    if (matcher.matches()) {
+      for (int i = 0; i <= matcher.groupCount(); i++) {
+        log.debug("Group #{}: {}", i, matcher.group(i));
+      }
+    } else {
+      log.debug("Not matched");
+    }
+  }
 }
