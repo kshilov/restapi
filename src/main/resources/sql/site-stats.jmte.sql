@@ -32,5 +32,5 @@ and second_period.referer = first_period.referer
 join user_profile affiliate
 on affiliate.id = coalesce(first_period.aff_id, second_period.aff_id)
 
-order by click_count_diff asc, show_count_diff asc, first_period_click_count desc
-offset :offset limit :limit
+order by ${ordering} ${direction},
+click_count_diff asc, show_count_diff asc, first_period_click_count desc
