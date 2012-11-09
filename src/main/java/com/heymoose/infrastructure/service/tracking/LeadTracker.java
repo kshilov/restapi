@@ -59,9 +59,10 @@ public final class LeadTracker implements Tracker {
         log.info("Can't get token cookie. Skipping lead tracking. {}", offer);
         return;
       }
+      // it's important to check response cookie first, it is set later
       String tokenValue = firstNonNull(
-          tokenValueRequestCookie,
-          tokenValueResponseCookie);
+          tokenValueResponseCookie,
+          tokenValueRequestCookie);
       Token token = repo.byHQL(Token.class,
           "from Token where value = ?", tokenValue);
 
