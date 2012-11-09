@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.LeadStat;
+import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.OfferLoader;
@@ -155,7 +156,7 @@ public final class LeadTrackerTest {
     String referrer = "http://referrer.com";
     String ip = "127.0.0.1";
     Offer offer = offerWithIdAndAdvertiser();
-    Token token = new Token(null).setId(1L);
+    Token token = createToken();
 
     Repo repo = mock(Repo.class);
     when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
@@ -182,6 +183,8 @@ public final class LeadTrackerTest {
     LeadStat savedStat = leadStatCaptor.getValue();
 
     assertEquals(token, savedStat.token());
+    assertEquals(token.stat().affiliateId(), savedStat.affId());
+    assertEquals(token.stat().master(), savedStat.master());
     assertEquals(ip, savedStat.ip());
     assertEquals(referrer, savedStat.referrer());
     assertEquals(idValue, savedStat.key());
@@ -194,7 +197,7 @@ public final class LeadTrackerTest {
     String referrer = "http://referrer.com";
     String ip = "127.0.0.1";
     Offer offer = offerWithCodeAndAdvertiser();
-    Token token = new Token(null).setId(1L);
+    Token token = createToken();
 
     Repo repo = mock(Repo.class);
     when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
@@ -219,6 +222,8 @@ public final class LeadTrackerTest {
     LeadStat savedStat = leadStatCaptor.getValue();
 
     assertEquals(token, savedStat.token());
+    assertEquals(token.stat().affiliateId(), savedStat.affId());
+    assertEquals(token.stat().master(), savedStat.master());
     assertEquals(ip, savedStat.ip());
     assertEquals(referrer, savedStat.referrer());
     assertEquals(idValue, savedStat.key());
@@ -229,7 +234,7 @@ public final class LeadTrackerTest {
   public void userAgentIsTracked() throws Exception {
     String userAgent = "user-agent one two three";
     Offer offer = offerWithIdAndAdvertiser();
-    Token token = new Token(null).setId(1L);
+    Token token = createToken();
     MockRequestContext mockContext = new MockRequestContext()
         .addQueryParam("offer_id", offer.id().toString())
         .addCookie("hm_token_" + offer.advertiser().id(), token.value())
@@ -252,7 +257,7 @@ public final class LeadTrackerTest {
   @Test
   public void trackOfferWithPrice() throws Exception {
     Offer offer = offerWithCodeAndAdvertiser();
-    Token token = new Token(null).setId(1L);
+    Token token = createToken();
     String offerString =
         offer.code() + ":" + BigDecimal.ONE + ","  +
         offer.code() + ":" + BigDecimal.ONE;
@@ -296,5 +301,12 @@ public final class LeadTrackerTest {
     when(repo.byHQL(eq(Token.class), anyString(), eq(token.value())))
         .thenReturn(token);
     return repo;
+  }
+
+  private Token createToken() {
+    OfferStat stat = new OfferStat()
+        .setAffiliateId(11L)
+        .setMaster(22L);
+    return new Token(stat).setId(33L);
   }
 }
