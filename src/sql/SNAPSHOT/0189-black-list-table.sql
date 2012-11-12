@@ -14,7 +14,8 @@ create table black_list(
   id bigint not null default nextval('black_list_seq'),
   host varchar(255) not null,
   sub_domain_mask varchar(255),
-  path_mask varchar(255));
+  path_mask varchar(255),
+  comment varchar(255));
 
 alter table black_list add constraint black_list_pk primary key (id);
 

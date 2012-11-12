@@ -65,6 +65,9 @@ public final class BlackListEntry extends IdEntity {
   @Column(name = "path_mask")
   private String pathMask;
 
+  @Basic
+  private String comment;
+
   @Override
   public Long id() {
     return id;
@@ -141,5 +144,27 @@ public final class BlackListEntry extends IdEntity {
     } else {
       log.debug("Not matched");
     }
+  }
+
+  public String pathMask() {
+    return this.pathMask;
+  }
+
+  public String subDomainMask() {
+    return this.subDomainMask;
+  }
+
+  public String comment() {
+    return comment;
+  }
+
+  public BlackListEntry setComment(String comment) {
+    this.comment = comment;
+    return this;
+  }
+
+  public BlackListEntry setId(Long id) {
+    this.id = id;
+    return this;
   }
 }
