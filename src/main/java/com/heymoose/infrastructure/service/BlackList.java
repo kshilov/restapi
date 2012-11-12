@@ -22,6 +22,7 @@ public final class BlackList {
   }
 
   public boolean ban(String url) {
+    if (Strings.isNullOrEmpty(url)) return false;
     Iterable<BlackListEntry> entryList = repo.allByHQL(BlackListEntry.class,
         "from BlackListEntry where host = ?", BlackListEntry.extractHost(url));
     for (BlackListEntry entry : entryList) {
