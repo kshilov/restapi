@@ -103,11 +103,11 @@ public class ClickTracker implements Tracker {
       return;
     }
 
-    String referer = extractReferer(context);
-    if (blackList.ban(referer)) {
+    if (blackList.ban(context.getHeaderValue("Referer"))) {
       forbidden(grant, response);
       return;
     }
+    String referer = extractReferer(context);
 
     // keywords
     String keywords;
