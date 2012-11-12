@@ -2,8 +2,8 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.infrastructure.util.OrderingDirection;
-import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.infrastructure.util.db.SqlLoader;
 import org.joda.time.DateTime;
@@ -24,7 +24,8 @@ public class Sites {
     this.repo = repo;
   }
 
-  public Pair<QueryResult, Long> stats(
+  @Cacheable(period = "PT1H")
+  public QueryResult stats(
       DateTime firstFromDate, DateTime firstToDate,
       DateTime secondFromDate, DateTime secondToDate,
       boolean removedOnly,
@@ -38,7 +39,21 @@ public class Sites {
         .addTemplateParam("removedOnly", removedOnly)
         .addTemplateParam("ordering", ordering.toString())
         .addTemplateParam("direction", direction.toString())
-        .executeAndCount(offset, limit);
+        .execute(offset, limit);
+  }
+
+  @Cacheable(period = "PT1H")
+  public Long statsCount(
+      DateTime firstFromDate, DateTime firstToDate,
+      DateTime secondFromDate, DateTime secondToDate,
+      boolean removedOnly) {
+    return SqlLoader.templateQuery("site-stats", repo.session())
+        .addQueryParam("first_period_from", firstFromDate.toDate())
+        .addQueryParam("first_period_to", firstToDate.toDate())
+        .addQueryParam("second_period_from", secondFromDate.toDate())
+        .addQueryParam("second_period_to", secondToDate.toDate())
+        .addTemplateParam("removedOnly", removedOnly)
+        .count();
   }
 
 }

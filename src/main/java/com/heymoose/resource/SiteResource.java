@@ -7,9 +7,7 @@ import com.heymoose.domain.user.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.Sites;
-import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.infrastructure.util.OrderingDirection;
-import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import org.jdom2.Element;
@@ -69,7 +67,6 @@ public class SiteResource {
   @GET
   @Path("stats")
   @Produces("application/xml")
-  @Cacheable(period = "PT1H")
   @Transactional
   public String stats(@QueryParam("first_period_from") Long firstPeriodFrom,
                       @QueryParam("first_period_to") Long firstPeriodTo,
@@ -87,16 +84,20 @@ public class SiteResource {
     DateTime firstToDate = new DateTime(firstPeriodTo);
     DateTime secondFromDate = new DateTime(secondPeriodFrom);
     DateTime secondToDate = new DateTime(secondPeriodTo);
-    Pair<QueryResult, Long> result = sites.stats(
+    QueryResult result = sites.stats(
         firstFromDate, firstToDate,
         secondFromDate, secondToDate,
         removedOnly,
         ordering, direction,
         offset, limit);
+    Long count = sites.statsCount(
+        firstFromDate, firstToDate,
+        secondFromDate, secondToDate,
+        removedOnly);
 
     Element root = new Element("stats")
-        .setAttribute("count", result. snd.toString());
-    for (Map<String, Object> entry : result.fst) {
+        .setAttribute("count", count.toString());
+    for (Map<String, Object> entry : result) {
       TypedMap map = TypedMap.wrap(entry);
       Element stat = new Element("stat");
       Element aff = new Element("affiliate")
