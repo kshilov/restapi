@@ -71,7 +71,8 @@ public final class ShowTracker implements Tracker {
         .setOfferId(offerId)
         .setAffiliateId(affId)
         .setSourceId(sourceId)
-        .setSubs(subs);
+        .setSubs(subs)
+        .setReferer(extractReferer(context));
     OfferStat existed = offerStats.findStat(stat);
     if (existed != null) {
       bufferedShows.inc(existed.id());

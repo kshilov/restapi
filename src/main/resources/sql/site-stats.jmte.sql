@@ -32,8 +32,9 @@ and second_period.referer = first_period.referer
 join user_profile affiliate
 on affiliate.id = coalesce(first_period.aff_id, second_period.aff_id)
 
+where coalesce(first_period.referer, second_period.referer) is not null
 ${if removedOnly}
-where second_period.click_count = 0
+and second_period.click_count = 0
 and second_period.show_count = 0
 ${end}
 
