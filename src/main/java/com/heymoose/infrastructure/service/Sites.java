@@ -27,6 +27,7 @@ public class Sites {
   public Pair<QueryResult, Long> stats(
       DateTime firstFromDate, DateTime firstToDate,
       DateTime secondFromDate, DateTime secondToDate,
+      boolean removedOnly,
       StatOrdering ordering, OrderingDirection direction,
       int offset, int limit) {
     return SqlLoader.templateQuery("site-stats", repo.session())
@@ -34,6 +35,7 @@ public class Sites {
         .addQueryParam("first_period_to", firstToDate.toDate())
         .addQueryParam("second_period_from", secondFromDate.toDate())
         .addQueryParam("second_period_to", secondToDate.toDate())
+        .addTemplateParam("removedOnly", removedOnly)
         .addTemplateParam("ordering", ordering.toString())
         .addTemplateParam("direction", direction.toString())
         .executeAndCount(offset, limit);

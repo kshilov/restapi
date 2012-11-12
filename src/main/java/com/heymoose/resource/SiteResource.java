@@ -75,6 +75,8 @@ public class SiteResource {
                       @QueryParam("first_period_to") Long firstPeriodTo,
                       @QueryParam("second_period_from") Long secondPeriodFrom,
                       @QueryParam("second_period_to") Long secondPeriodTo,
+                      @QueryParam("removed_only") @DefaultValue("false")
+                      boolean removedOnly,
                       @QueryParam("ordering") @DefaultValue("CLICK_COUNT_DIFF")
                       Sites.StatOrdering ordering,
                       @QueryParam("direction") @DefaultValue("ASC")
@@ -88,6 +90,7 @@ public class SiteResource {
     Pair<QueryResult, Long> result = sites.stats(
         firstFromDate, firstToDate,
         secondFromDate, secondToDate,
+        removedOnly,
         ordering, direction,
         offset, limit);
 
