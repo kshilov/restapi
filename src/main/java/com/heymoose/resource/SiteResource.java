@@ -10,6 +10,7 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
 import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import org.jdom2.Element;
@@ -83,23 +84,36 @@ public class SiteResource {
                       @QueryParam("first_period_to") Long firstPeriodTo,
                       @QueryParam("second_period_from") Long secondPeriodFrom,
                       @QueryParam("second_period_to") Long secondPeriodTo,
+                      @QueryParam("removed_only") @DefaultValue("false")
+                      boolean removedOnly,
+                      @QueryParam("ordering") @DefaultValue("CLICK_COUNT_DIFF")
+                      Sites.StatOrdering ordering,
+                      @QueryParam("direction") @DefaultValue("ASC")
+                      OrderingDirection direction,
                       @QueryParam("offset") int offset,
                       @QueryParam("limit") @DefaultValue("20") int limit) {
     DateTime firstFromDate = new DateTime(firstPeriodFrom);
     DateTime firstToDate = new DateTime(firstPeriodTo);
     DateTime secondFromDate = new DateTime(secondPeriodFrom);
     DateTime secondToDate = new DateTime(secondPeriodTo);
-    QueryResult queryResult = sites.stats(
+    QueryResult result = sites.stats(
         firstFromDate, firstToDate,
         secondFromDate, secondToDate,
+        removedOnly,
+        ordering, direction,
         offset, limit);
+    Long count = sites.statsCount(
+        firstFromDate, firstToDate,
+        secondFromDate, secondToDate,
+        removedOnly);
 
-    Element root = new Element("stats");
-    for (Map<String, Object> entry : queryResult) {
+    Element root = new Element("stats")
+        .setAttribute("count", count.toString());
+    for (Map<String, Object> entry : result) {
       TypedMap map = TypedMap.wrap(entry);
       Element stat = new Element("stat");
       Element aff = new Element("affiliate")
-          .addContent(element("id", map.getString("affiliate_id")))
+          .setAttribute("id", map.getString("affiliate_id"))
           .addContent(element("email", map.getString("affiliate_email")));
       stat.addContent(aff)
           .addContent(element("referer", map.getString("referer")))
