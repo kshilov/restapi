@@ -100,7 +100,7 @@ public class SiteResource {
       TypedMap map = TypedMap.wrap(entry);
       Element stat = new Element("stat");
       Element aff = new Element("affiliate")
-          .addContent(element("id", map.getString("affiliate_id")))
+          .setAttribute("id", map.getString("affiliate_id"))
           .addContent(element("email", map.getString("affiliate_email")));
       stat.addContent(aff)
           .addContent(element("referer", map.getString("referer")))
