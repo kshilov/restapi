@@ -51,7 +51,7 @@ public final class BlackListEntryTest {
   public void pathMatching() throws Exception {
     BlackListEntry entry = new BlackListEntry()
         .setHost("heymoose.com")
-        .setPathMask("resource/?");
+        .setPathMask("resource");
 
     assertTrue(entry.matches("heymoose.com/resource"));
     assertTrue(entry.matches("http://heymoose.com/resource/"));

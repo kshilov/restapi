@@ -119,6 +119,8 @@ public final class BlackListEntry extends IdEntity {
       if (!Strings.isNullOrEmpty(pathMask)) {
         // remove first slash
         if (!Strings.isNullOrEmpty(path)) path = path.substring(1);
+        // add optional last slash to mask
+        if (!pathMask.endsWith("/")) pathMask = pathMask + "/?";
         Pattern pathPattern = Pattern.compile(pathMask);
         if (!pathPattern.matcher(path).matches()) return false;
       }
