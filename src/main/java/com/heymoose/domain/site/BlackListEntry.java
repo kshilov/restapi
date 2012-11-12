@@ -29,17 +29,10 @@ public final class BlackListEntry extends IdEntity {
   private static final Pattern HOST_PATTERN =
       Pattern.compile("(www\\.)?(([^\\.]+\\.)*)([^\\.]+\\.[^\\.]+)");
 
-  private static final Pattern REG_EXP =
-      Pattern.compile(
-          "(https?://)?"
-          + "(www\\.)?"
-          + "(([^\\./]+\\.)*)"        // sub domains
-          + "([^\\./]+\\.[^\\./]+)"  // host
-          + "((/[^\\./]+)*)/?"       // path
-          + ".*");                  // query string and hash
-
-
   public static String extractHost(String test) {
+    if (!test.contains("://")) {
+      test = "http://" + test;
+    }
     try {
       URL url = new URL(test);
       Matcher hostMatcher = HOST_PATTERN.matcher(url.getHost().toLowerCase());
