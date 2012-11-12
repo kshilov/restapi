@@ -42,7 +42,7 @@ public final class BlackListEntry extends IdEntity {
   public static String extractHost(String test) {
     try {
       URL url = new URL(test);
-      Matcher hostMatcher = HOST_PATTERN.matcher(url.getHost());
+      Matcher hostMatcher = HOST_PATTERN.matcher(url.getHost().toLowerCase());
       if (!hostMatcher.matches())
         throw new IllegalArgumentException("Bad url " + test);
       return hostMatcher.group(4);
@@ -74,7 +74,7 @@ public final class BlackListEntry extends IdEntity {
   }
 
   public BlackListEntry setHost(String host) {
-    this.host = host;
+    this.host = host.toLowerCase();
     return this;
   }
 
@@ -109,7 +109,7 @@ public final class BlackListEntry extends IdEntity {
       URL url = new URL(test);
       Matcher hostMatcher = HOST_PATTERN.matcher(url.getHost());
       if (!hostMatcher.matches()) return false;
-      if (!hostMatcher.group(4).equals(host)) return false;
+      if (!hostMatcher.group(4).toLowerCase().equals(host)) return false;
 
       String subDomainString = hostMatcher.group(2);
       if (!Strings.isNullOrEmpty(subDomainMask)) {
