@@ -16,6 +16,7 @@ import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.persistence.KeywordPatternDao;
+import com.heymoose.infrastructure.service.BlackList;
 import com.heymoose.infrastructure.service.GeoTargeting;
 import com.heymoose.infrastructure.service.OfferStats;
 import com.heymoose.infrastructure.util.QueryUtil;
@@ -41,17 +42,20 @@ public class ClickTracker implements Tracker {
   private final OfferStats offerStats;
   private final KeywordPatternDao keywordPatternDao;
   private final BufferedClicks bufferedClicks;
+  private final BlackList blackList;
 
   @Inject
   public ClickTracker(BufferedClicks bufferedClicks, GeoTargeting geoTargeting,
                       KeywordPatternDao keywordPatternDao,
                       OfferGrantRepository offerGrants, OfferStats offerStats,
+                      BlackList blackList,
                       Repo repo) {
     this.bufferedClicks = bufferedClicks;
     this.geoTargeting = geoTargeting;
     this.keywordPatternDao = keywordPatternDao;
     this.offerGrants = offerGrants;
     this.offerStats = offerStats;
+    this.blackList = blackList;
     this.repo = repo;
   }
 
@@ -99,8 +103,13 @@ public class ClickTracker implements Tracker {
       return;
     }
 
-    // keywords
+    if (blackList.ban(context.getHeaderValue("Referer"))) {
+      forbidden(grant, response);
+      return;
+    }
     String referer = extractReferer(context);
+
+    // keywords
     String keywords;
     if (params.containsKey("keywords"))
       keywords = params.get("keywords");

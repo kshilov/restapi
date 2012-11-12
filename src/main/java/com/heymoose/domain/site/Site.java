@@ -1,13 +1,10 @@
-package com.heymoose.domain.user;
-
-import static com.google.common.collect.Sets.newHashSet;
+package com.heymoose.domain.site;
 
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.offer.Category;
+import com.heymoose.domain.user.Lang;
+import com.heymoose.domain.user.User;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableSet;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -25,6 +22,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.*;
 
 @Entity
 @Table(name = "site")

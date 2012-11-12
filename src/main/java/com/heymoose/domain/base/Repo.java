@@ -1,11 +1,12 @@
 package com.heymoose.domain.base;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface Repo {
   <T extends IdEntity> T get(Class<T> clazz, long id);

@@ -9,7 +9,7 @@
     <mapping class="com.heymoose.domain.offer.Banner"/>
     <mapping class="com.heymoose.domain.settings.Setting"/>
     <mapping class="com.heymoose.domain.statistics.OfferStat"/>
-    <mapping class="com.heymoose.domain.user.Site"/>
+    <mapping class="com.heymoose.domain.site.Site"/>
     <mapping class="com.heymoose.domain.offer.BaseOffer"/>
     <mapping class="com.heymoose.domain.offer.SubOffer"/>
     <mapping class="com.heymoose.domain.grant.OfferGrant"/>

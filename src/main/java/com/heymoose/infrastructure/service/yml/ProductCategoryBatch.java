@@ -1,7 +1,7 @@
 package com.heymoose.infrastructure.service.yml;
 
 import com.heymoose.domain.product.ProductCategoryMapping;
-import com.heymoose.infrastructure.util.BatchQuery;
+import com.heymoose.infrastructure.util.db.BatchQuery;
 import org.hibernate.Session;
 
 import java.sql.PreparedStatement;
