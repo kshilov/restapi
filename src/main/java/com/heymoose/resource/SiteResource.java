@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.site.BlackListEntry;
@@ -146,7 +145,7 @@ public class SiteResource {
     return Response.ok().build();
   }
 
-  @PUT
+  @POST
   @Path("blacklist")
   @Transactional
   public Response createBlackListEntry(@FormParam("host") String host,
@@ -162,7 +161,7 @@ public class SiteResource {
         .setComment(comment);
     Long newId = blackList.put(entry).id();
     try {
-      return Response.created(new URI("?id=" + newId)).build();
+      return Response.created(new URI("/" + newId)).build();
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
@@ -177,22 +176,26 @@ public class SiteResource {
     return Response.status(404).build();
   }
 
+
+  @GET
+  @Path("blacklist/{id}")
+  @Transactional
+  public Response blackListEntryById(@PathParam("id") Long id) {
+    BlackListEntry entry = blackList.getById(id);
+    if (entry == null) return Response.status(404).build();
+    return Response.ok()
+        .entity(XML_OUTPUTTER.outputString(blackListEntryXml(entry)))
+        .build();
+  }
+
   @GET
   @Path("blacklist")
   @Transactional
-  public String blackList(@QueryParam("id") Long id,
-      @QueryParam("host") String host,
-      @QueryParam("offset") int offset,
-      @QueryParam("limit") @DefaultValue("20") int limit) {
+  public String blackList(@QueryParam("host") String host,
+                          @QueryParam("offset") int offset,
+                          @QueryParam("limit") @DefaultValue("20") int limit) {
     Pair<? extends Iterable<BlackListEntry>, Long> result;
-    if (id != null) {
-      BlackListEntry entry = blackList.getById(id);
-      if (entry == null) {
-        result = Pair.of(ImmutableList.<BlackListEntry>of(), 0L);
-      } else {
-        result = Pair.of(ImmutableList.of(entry), 1L);
-      }
-    } else if (host != null) {
+    if (host != null) {
       result = blackList.getByHost(host, offset, limit);
     } else {
       result = blackList.all(offset, limit);
@@ -205,16 +208,19 @@ public class SiteResource {
     Element root = new Element("blacklist");
     root.setAttribute("count", count.toString());
     for (BlackListEntry entry : blackList.fst) {
-      Element xmlEntry = new Element("entry")
-          .setAttribute("id", entry.id().toString());
-      xmlEntry
-          .addContent(new Element("host").setText(entry.host()))
-          .addContent(new Element("path-mask").setText(entry.pathMask()))
-          .addContent(new Element("sub-domain-mask").setText(entry.subDomainMask()))
-          .addContent(new Element("comment").setText(entry.comment()));
-      root.addContent(xmlEntry);
+      root.addContent(blackListEntryXml(entry));
     }
     return XML_OUTPUTTER.outputString(root);
+  }
+
+  private Element blackListEntryXml(BlackListEntry entry) {
+    Element xmlEntry = new Element("entry")
+        .setAttribute("id", entry.id().toString());
+    return xmlEntry
+        .addContent(new Element("host").setText(entry.host()))
+        .addContent(new Element("path-mask").setText(entry.pathMask()))
+        .addContent(new Element("sub-domain-mask").setText(entry.subDomainMask()))
+        .addContent(new Element("comment").setText(entry.comment()));
   }
 
   private Element element(String name, String text) {
