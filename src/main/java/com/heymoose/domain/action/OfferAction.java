@@ -3,6 +3,7 @@ package com.heymoose.domain.action;
 import com.google.common.base.Objects;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
@@ -68,7 +69,12 @@ public class OfferAction extends ModifiableEntity {
     return id;
   }
 
-  protected OfferAction() {}
+  public OfferAction setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public OfferAction() {}
 
   public OfferAction(Token token, User affiliate, OfferStat stat, OfferStat source, BaseOffer offer, String transactionId) {
     this.token = token;
@@ -139,5 +145,20 @@ public class OfferAction extends ModifiableEntity {
         .add("token", token)
         .add("transactionId", transactionId)
         .add("product", product).toString();
+  }
+
+  public OfferAction setOffer(Offer offer) {
+    this.offer = offer;
+    return this;
+  }
+
+  public OfferAction setToken(Token token) {
+    this.token = token;
+    return this;
+  }
+
+  public OfferAction setTransactionId(String transactionId) {
+    this.transactionId = transactionId;
+    return this;
   }
 }

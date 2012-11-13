@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.name.Named;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
@@ -11,6 +12,8 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.product.Product;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -311,6 +314,13 @@ public class OfferActionsHiber implements OfferActions {
         break;
     }
     return query.executeAndCount(filter.offset(), filter.limit());
+  }
+
+  @Override
+  public List<OfferAction> listProductActions(Token token,
+                                              String transactionId,
+                                              Product product) {
+    return ImmutableList.of();
   }
 
   @SuppressWarnings("unchecked")

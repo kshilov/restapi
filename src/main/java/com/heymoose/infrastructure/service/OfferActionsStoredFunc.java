@@ -7,6 +7,8 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.product.Product;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.db.QueryResult;
@@ -95,5 +97,12 @@ public final class OfferActionsStoredFunc implements OfferActions {
                                       DateKind dateKind,
                                       DataFilter<Ordering> filter) {
     return offerActionsHiber.list(offerId, state, dateKind, filter);
+  }
+
+  @Override
+  public List<OfferAction> listProductActions(Token token,
+                                              String transactionId,
+                                              Product product) {
+    return offerActionsHiber.listProductActions(token, transactionId, product);
   }
 }
