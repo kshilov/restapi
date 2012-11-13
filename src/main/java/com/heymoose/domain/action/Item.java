@@ -45,6 +45,11 @@ public class Item {
     return this;
   }
 
+  public Item setPrice(BigDecimal price) {
+    this.price = price;
+    return this;
+  }
+
   public Item setQuantity(String quantity) {
     if (quantity == null) {
       this.quantity = 1;
