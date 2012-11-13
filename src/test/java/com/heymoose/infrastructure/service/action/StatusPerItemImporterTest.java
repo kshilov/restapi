@@ -80,24 +80,6 @@ public final class StatusPerItemImporterTest {
     }
   }
 
-  private static class MockRepo {
-    private final Repo mock;
-
-    public MockRepo() {
-      this.mock = mock(Repo.class);
-    }
-
-    public <T extends IdEntity> MockRepo with(Class<? extends T> clz, T entity) {
-      when(mock.get(eq(clz), eq(entity.id()))).thenReturn(entity);
-      when(mock.byHQL(eq(clz), anyString(), any())).thenReturn(entity);
-      return this;
-    }
-
-    public Repo repo() {
-      return mock;
-    }
-  }
-
   @Test
   public void createsActionForItem() throws Exception {
     StatusPerItemActionData data = oneItemData();
