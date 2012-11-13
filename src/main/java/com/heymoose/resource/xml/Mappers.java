@@ -195,9 +195,6 @@ public class Mappers {
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
 
-    for (Banner banner : offer.banners())
-      xmlOffer.banners.add(toXmlBanner(banner));
-
     for (String region : offer.regions())
       xmlOffer.regions.add(region);
 
