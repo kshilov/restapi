@@ -7,7 +7,6 @@ import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.Item;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
-import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repo;
@@ -70,13 +69,7 @@ public class ItemListProductImporter
     List<OfferAction> offerActionList = repo.allByHQL(OfferAction.class,
         "from OfferAction where token = ? and transaction_id = ?",
         token, payment.transactionId());
-    for (OfferAction offerAction : offerActionList) {
-      if (offerAction.state().equals(OfferActionState.NOT_APPROVED) &&
-          payment.status().equals(ActionStatus.CANCELED)) {
-        log.info("Canceling action {}.", offerAction.id());
-        actions.cancel(offerAction);
-      }
-    }
+
     if (offerActionList.size() == 0) {
       Offer parentOffer = repo.get(Offer.class, parentOfferId);
       if (parentOffer == null) {
