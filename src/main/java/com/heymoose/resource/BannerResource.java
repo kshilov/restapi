@@ -64,7 +64,7 @@ public class BannerResource {
     for (Banner banner : banners.values()) {
       if (!banner.offer().equals(offer))
         throw new WebApplicationException(409);
-      repo.remove(banner);
+      banner.delete();
     }
     return Response.ok().build();
   }
