@@ -53,6 +53,7 @@ public final class ItemListActionData extends ActionData {
     }
   }
   private List<Item> itemList = Lists.newArrayList();
+  private ActionStatus status;
 
   public ItemListActionData() { }
 
@@ -67,6 +68,15 @@ public final class ItemListActionData extends ActionData {
 
   public ItemListActionData addItem(String itemId, BigDecimal price, int quantity) {
     this.itemList.add(new Item(itemId, price, quantity));
+    return this;
+  }
+
+  public ActionStatus status() {
+    return status;
+  }
+
+  public ItemListActionData setStatus(ActionStatus status) {
+    this.status = status;
     return this;
   }
 }

@@ -9,7 +9,6 @@ public abstract class ActionData {
   private String transactionId;
   private DateTime creationTime;
   private DateTime lastChangeTime;
-  private ActionStatus status;
 
   public String token() {
     return token;
@@ -29,14 +28,6 @@ public abstract class ActionData {
     return this;
   }
 
-  public ActionStatus status() {
-    return status;
-  }
-
-  public ActionData setStatus(ActionStatus status) {
-    this.status = status;
-    return this;
-  }
 
   public DateTime creationTime() {
     return this.creationTime;
@@ -61,6 +52,6 @@ public abstract class ActionData {
     return Objects.toStringHelper(ActionData.class)
         .add("token", token)
         .add("transaction", transactionId)
-        .add("status", status).toString();
+        .toString();
   }
 }
