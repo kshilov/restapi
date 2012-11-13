@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.action;
 
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ActionStatus;
+import com.heymoose.domain.action.Item;
 import com.heymoose.domain.action.ItemListActionData;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public final class HeymooseActionParserTest {
     ItemListActionData result = resultList.get(0);
 
     assertEquals(1, result.itemList().size());
-    ItemListActionData.Item resultItem = result.itemList().get(0);
+    Item resultItem = result.itemList().get(0);
     assertEquals("123", resultItem.id());
     assertEquals(new BigDecimal("0.01"), resultItem.price());
     assertEquals(2, resultItem.quantity());

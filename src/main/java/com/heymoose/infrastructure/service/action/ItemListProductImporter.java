@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.domain.action.ActionStatus;
+import com.heymoose.domain.action.Item;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
@@ -99,7 +100,7 @@ public class ItemListProductImporter
   protected List<OfferAction> process(ItemListActionData payment,
                                       Offer parentOffer, Token token) {
     ImmutableList.Builder<OfferAction> actionList = ImmutableList.builder();
-    for (ItemListActionData.Item item : payment.itemList()) {
+    for (Item item : payment.itemList()) {
       Product product = repo.byHQL(Product.class,
           "from Product where offer = ? and originalId = ?",
           parentOffer, item.id());
