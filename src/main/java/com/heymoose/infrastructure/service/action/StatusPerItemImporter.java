@@ -111,7 +111,8 @@ public class StatusPerItemImporter
         } else {
           productMatches = action.product() == null;
         }
-        boolean priceMatches = action.purchasePrice().equals(item.price());
+        boolean priceMatches =
+            action.purchasePrice().compareTo(item.price()) == 0;
         if (productMatches && priceMatches) {
           if (item.status() == ActionStatus.COMPLETE) {
             log.info("Approving action {}. {}", action, item);
