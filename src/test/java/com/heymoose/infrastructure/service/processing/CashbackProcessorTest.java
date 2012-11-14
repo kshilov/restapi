@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
+import com.heymoose.domain.user.User;
 import org.junit.Test;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public final class CashbackProcessorTest {
 
     private String targetId;
     private OfferAction action;
+    private User affiliate;
 
     public String targetId() {
       return targetId;
@@ -34,6 +36,15 @@ public final class CashbackProcessorTest {
       this.action = action;
       return this;
     }
+
+    public Cashback setAffiliate(User affiliate) {
+      this.affiliate = affiliate;
+      return this;
+    }
+
+    public User affiliate() {
+      return this.affiliate;
+    }
   }
 
   private interface Cashbacks {
@@ -51,9 +62,12 @@ public final class CashbackProcessorTest {
 
     @Override
     public void process(ProcessableData data) {
+      String cashbackTargetId = data.token().stat().cashbackTargetId();
+      if (cashbackTargetId == null) return;
       cashbacks.add(new Cashback()
-          .setTargetId(data.token().stat().cashbackTargetId())
-          .setAction(data.offerAction()));
+          .setTargetId(cashbackTargetId)
+          .setAction(data.offerAction())
+          .setAffiliate(data.offerAction().affiliate()));
     }
   }
 
@@ -63,7 +77,10 @@ public final class CashbackProcessorTest {
     OfferStat stat = new OfferStat()
         .setCashbackTargetId(cashbackTargetId);
     Token token = new Token(stat);
-    OfferAction action = new OfferAction().setId(1L);
+    User user = new User();
+    OfferAction action = new OfferAction()
+        .setId(1L)
+        .setAffiliate(user);
     ProcessableData data = new ProcessableData()
         .setOfferAction(action)
         .setToken(token);
@@ -76,6 +93,20 @@ public final class CashbackProcessorTest {
     Cashback savedCashback = cashbackList.get(0);
     assertEquals(cashbackTargetId, savedCashback.targetId());
     assertEquals(action, savedCashback.action());
+    assertEquals(user, savedCashback.affiliate());
+  }
+
+  @Test
+  public void doesNothingIfNoCahbackTargetId() throws Exception {
+    OfferStat stat = new OfferStat();
+    Token token = new Token(stat);
+    ProcessableData data = new ProcessableData()
+        .setToken(token);
+
+    Cashbacks mockCashbacks = mockCashbacks();
+    new CashbackProcessor(mockCashbacks).process(data);
+
+    assertEquals(0, mockCashbacks.list().size());
   }
 
   private Cashbacks mockCashbacks() {

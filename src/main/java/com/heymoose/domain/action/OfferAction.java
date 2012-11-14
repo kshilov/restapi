@@ -145,4 +145,9 @@ public class OfferAction extends ModifiableEntity {
     this.id = id;
     return this;
   }
+
+  public OfferAction setAffiliate(User user) {
+    this.affiliate = user;
+    return this;
+  }
 }
