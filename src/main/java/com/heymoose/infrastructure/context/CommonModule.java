@@ -13,6 +13,7 @@ import com.heymoose.domain.accounting.WithdrawalPayment;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.cashback.Cashback;
 import com.heymoose.domain.errorinfo.ErrorInfo;
 import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.domain.grant.OfferGrant;
@@ -99,7 +100,8 @@ public class CommonModule extends AbstractModule {
         Product.class, ShopCategory.class, ProductAttribute.class, Tariff.class,
         ProductCategoryMapping.class,
         LeadStat.class,
-        BlackListEntry.class);
+        BlackListEntry.class,
+        Cashback.class);
   }
 
   protected void bindEntities(Class... classes) {

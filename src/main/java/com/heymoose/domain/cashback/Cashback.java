@@ -1,12 +1,39 @@
 package com.heymoose.domain.cashback;
 
 import com.heymoose.domain.action.OfferAction;
+import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.user.User;
 
-public class Cashback {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "cashback")
+public class Cashback extends IdEntity {
+
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cashback-seq")
+  @SequenceGenerator(name = "cashback-seq", sequenceName = "cashback_seq", allocationSize = 1)
+  protected Long id;
+
+  @Column(name ="target_id", nullable = false)
   private String targetId;
+
+  @OneToOne
+  @JoinColumn(name = "offer_action_id")
   private OfferAction action;
+
+  @ManyToOne
+  @JoinColumn(name = "aff_id")
   private User affiliate;
 
   public String targetId() {
@@ -34,5 +61,10 @@ public class Cashback {
 
   public User affiliate() {
     return this.affiliate;
+  }
+
+  @Override
+  public Long id() {
+    return id;
   }
 }
