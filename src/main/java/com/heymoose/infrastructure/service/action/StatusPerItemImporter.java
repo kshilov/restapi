@@ -104,16 +104,7 @@ public class StatusPerItemImporter
       Iterator<ItemWithStatus> itemIterator = notMatchedItems.iterator();
       while (itemIterator.hasNext()) {
         ItemWithStatus item = itemIterator.next();
-        Product product = products.byOriginalId(parentOfferId, item.id());
-        boolean productMatches;
-        if (product != null) {
-          productMatches = product.equals(action.product());
-        } else {
-          productMatches = action.product() == null;
-        }
-        boolean priceMatches =
-            action.purchasePrice().compareTo(item.price()) == 0;
-        if (productMatches && priceMatches) {
+        if (itemMatchesAction(item, action)) {
           if (item.status() == ActionStatus.COMPLETE) {
             log.info("Approving action {}. {}", action, item);
             actions.approve(action);
@@ -129,6 +120,19 @@ public class StatusPerItemImporter
     }
   }
 
+  private boolean itemMatchesAction(ItemWithStatus item, OfferAction action) {
+    Product product = products.byOriginalId(action.offer().master(), item.id());
+    boolean productMatches;
+    if (product != null) {
+      productMatches = product.equals(action.product());
+    } else {
+      productMatches = action.product() == null;
+    }
+    boolean priceMatches =
+        action.purchasePrice().compareTo(item.price()) == 0;
+    return productMatches && priceMatches;
+  }
+
   private void removeMatchedItems(List<ItemWithStatus> notMatchedItems,
                                   List<OfferAction> actionList,
                                   ActionStatus itemStatus,
@@ -137,7 +141,7 @@ public class StatusPerItemImporter
       Iterator<ItemWithStatus> itemIterator = notMatchedItems.iterator();
       while (itemIterator.hasNext()) {
         ItemWithStatus item = itemIterator.next();
-        if (action.product().originalId().equals(item.id()) &&
+        if (itemMatchesAction(item, action) &&
             item.status() == itemStatus) {
           itemIterator.remove();
         }
