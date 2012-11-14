@@ -14,6 +14,7 @@ import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.cashback.Cashback;
+import com.heymoose.domain.cashback.Cashbacks;
 import com.heymoose.domain.errorinfo.ErrorInfo;
 import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.domain.grant.OfferGrant;
@@ -55,6 +56,7 @@ import com.heymoose.infrastructure.persistence.OfferRepositoryHiber;
 import com.heymoose.infrastructure.persistence.SubOfferRepositoryHiber;
 import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.AccountingHiber;
+import com.heymoose.infrastructure.service.CashbacksHiber;
 import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
@@ -86,6 +88,7 @@ public class CommonModule extends AbstractModule {
     bind(SubOfferRepository.class).to(SubOfferRepositoryHiber.class);
     bind(OfferGrantRepository.class).to(OfferGrantRepositoryHiber.class);
     bind(ErrorInfoRepository.class).to(ErrorInfoRepositoryHiber.class);
+    bind(Cashbacks.class).to(CashbacksHiber.class);
 
     bindEntities(Offer.class, User.class, Banner.class,
         Setting.class, Site.class,

@@ -132,7 +132,8 @@ public class ClickTracker implements Tracker {
         .setSourceId(sourceId)
         .setSubs(subs)
         .setReferer(referer)
-        .setKeywords(keywords);
+        .setKeywords(keywords)
+        .setCashbackTargetId(params.get("cashback"));
     OfferStat existedStat = offerStats.findStat(stat);
     if (existedStat == null) {
       stat.incClicks();
