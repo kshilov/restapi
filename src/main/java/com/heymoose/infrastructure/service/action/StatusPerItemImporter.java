@@ -12,6 +12,7 @@ import com.heymoose.domain.action.StatusPerItemActionData;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.Token;
+import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.Products;
 import com.heymoose.infrastructure.service.Tokens;
@@ -48,6 +49,7 @@ public class StatusPerItemImporter
     this.actions = actions;
   }
 
+  @Transactional
   @Override
   public void doImport(List<StatusPerItemActionData> actionList,
                        Long parentOfferId) {
@@ -56,6 +58,7 @@ public class StatusPerItemImporter
     }
   }
 
+  @Transactional
   @Override
   public void doImport(StatusPerItemActionData actionData, Long parentOfferId) {
 
