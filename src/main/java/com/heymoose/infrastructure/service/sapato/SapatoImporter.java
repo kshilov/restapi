@@ -151,7 +151,8 @@ public class SapatoImporter
     ProcessableData data = new ProcessableData()
         .setToken(token)
         .setTransactionId(actionData.transactionId())
-        .setOffer(offer);
+        .setOffer(offer)
+        .setPrice(actionData.price());
     this.processor.process(data);
     return ImmutableList.of(data.offerAction());
   }

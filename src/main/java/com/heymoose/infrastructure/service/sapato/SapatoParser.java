@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.List;
 
 public final class SapatoParser
@@ -50,6 +51,9 @@ public final class SapatoParser
     @XmlElement(name = "date")
     public String date;
 
+    @XmlElement(name = "price")
+    public BigDecimal price;
+
   }
 
   public List<SapatoActionData> parse(InputSupplier<InputStream> inputSupplier) {
@@ -67,6 +71,7 @@ public final class SapatoParser
         SapatoActionData data = new SapatoActionData()
             .setOfferCode(xmlAction.offerCode);
         data.setStatus(ActionStatus.values()[xmlAction.status])
+            .setPrice(xmlAction.price)
             .setToken(xmlAction.token)
             .setTransactionId(xmlAction.transaction);
         if (xmlAction.date != null) {
