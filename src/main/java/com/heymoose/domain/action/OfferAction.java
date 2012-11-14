@@ -23,6 +23,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import java.math.BigDecimal;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Entity
@@ -63,6 +65,9 @@ public class OfferAction extends ModifiableEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = true)
   @JoinColumn(name = "product_id")
   private Product product;
+
+  @Column(name = "purchase_price", nullable = true)
+  private BigDecimal purchasePrice;
 
   @Override
   public Long id() {
@@ -160,5 +165,14 @@ public class OfferAction extends ModifiableEntity {
   public OfferAction setTransactionId(String transactionId) {
     this.transactionId = transactionId;
     return this;
+  }
+
+  public OfferAction setPurchasePrice(BigDecimal price) {
+    this.purchasePrice = price;
+    return this;
+  }
+
+  public BigDecimal purchasePrice() {
+    return purchasePrice;
   }
 }

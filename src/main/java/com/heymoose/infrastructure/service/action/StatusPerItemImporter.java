@@ -104,7 +104,12 @@ public class StatusPerItemImporter
       Iterator<ItemWithStatus> itemIterator = notMatchedItems.iterator();
       while (itemIterator.hasNext()) {
         ItemWithStatus item = itemIterator.next();
-        if (action.product().originalId().equals(item.id())) {
+        Product product = products.byOriginalId(parentOfferId, item.id());
+        boolean productIsNull = product == null && action.product() == null;
+        boolean productMatches = productIsNull ||
+            action.product().equals(product);
+        boolean priceMatches = action.purchasePrice().equals(item.price());
+        if (productMatches && priceMatches) {
           if (item.status() == ActionStatus.COMPLETE) {
             log.info("Approving action {}. {}", action, item);
             actions.approve(action);
