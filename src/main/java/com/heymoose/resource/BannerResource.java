@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -48,17 +49,19 @@ public class BannerResource {
                          @QueryParam("limit") @DefaultValue("20") int limit) {
     Offer offer = existingOffer(offerId);
     long count = repo.countByCriteria(DetachedCriteria.forClass(Banner.class)
-        .add(Restrictions.eq("offer", offer)));
+        .add(Restrictions.eq("offer", offer))
+        .add(Restrictions.eq("deleted", false)));
     Iterable<Banner> banners = repo.pageByCriteria(DetachedCriteria.forClass(Banner.class)
         .add(Restrictions.eq("offer", offer))
+        .add(Restrictions.eq("deleted", false))
         .addOrder(Order.desc("id")), offset, limit);
     return Mappers.toXmlBanners(banners, count);
   }
   
   @DELETE
   @Transactional
-  public Response deleteByIds(@QueryParam("offer_id") long offerId,
-                              @QueryParam("banner_ids") Set<Long> bannerIds) {
+  public Response deleteByIds(@FormParam("offer_id") long offerId,
+                              @FormParam("banner_ids") Set<Long> bannerIds) {
     Offer offer = existingOffer(offerId);
     Map<Long, Banner> banners = repo.get(Banner.class, bannerIds);
     for (Banner banner : banners.values()) {
