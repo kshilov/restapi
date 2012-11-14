@@ -41,6 +41,9 @@ public class Banner extends IdEntity {
 
   @Basic
   private String url;
+  
+  @Basic
+  private Boolean deleted;
 
   protected Banner() {}
 
@@ -52,6 +55,7 @@ public class Banner extends IdEntity {
     this.height = height;
     this.mimeType = mimeType;
     this.url = url;
+    this.deleted = false;
   }
 
   @Override
@@ -85,5 +89,13 @@ public class Banner extends IdEntity {
   
   public void setUrl(String url) {
     this.url = url;
+  }
+  
+  public Boolean deleted() {
+    return this.deleted;
+  }
+  
+  public void delete() {
+    this.deleted = true;
   }
 }

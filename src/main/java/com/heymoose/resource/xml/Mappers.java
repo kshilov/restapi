@@ -196,9 +196,6 @@ public class Mappers {
     for (Category category : offer.categories())
       xmlOffer.categories.add(toXmlCategory(category));
 
-    for (Banner banner : offer.banners())
-      xmlOffer.banners.add(toXmlBanner(banner));
-
     for (String region : offer.regions())
       xmlOffer.regions.add(region);
 
@@ -323,6 +320,14 @@ public class Mappers {
     xmlBanner.mimeType = banner.mimeType();
     xmlBanner.url = banner.url();
     return xmlBanner;
+  }
+  
+  public static XmlBanners toXmlBanners(Iterable<Banner> banners, Long count) {
+    XmlBanners xmlBanners = new XmlBanners();
+    xmlBanners.count = count;
+    for (Banner banner : banners)
+      xmlBanners.banners.add(toXmlBanner(banner));
+    return xmlBanners;
   }
 
   public static XmlErrorInfo toXmlErrorInfo(ErrorInfo error) {
