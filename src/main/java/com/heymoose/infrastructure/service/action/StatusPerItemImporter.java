@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.action;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.ItemWithStatus;
 import com.heymoose.domain.action.OfferAction;
@@ -34,6 +35,7 @@ public class StatusPerItemImporter
   private final Processor processor;
   private final OfferLoader offers;
 
+  @Inject
   public StatusPerItemImporter(Tokens tokens,
                                OfferLoader offers,
                                Products products,
