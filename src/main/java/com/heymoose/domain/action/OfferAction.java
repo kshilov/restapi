@@ -68,7 +68,7 @@ public class OfferAction extends ModifiableEntity {
     return id;
   }
 
-  protected OfferAction() {}
+  public OfferAction() {}
 
   public OfferAction(Token token, User affiliate, OfferStat stat, OfferStat source, BaseOffer offer, String transactionId) {
     this.token = token;
@@ -139,5 +139,10 @@ public class OfferAction extends ModifiableEntity {
         .add("token", token)
         .add("transactionId", transactionId)
         .add("product", product).toString();
+  }
+
+  public OfferAction setId(Long id) {
+    this.id = id;
+    return this;
   }
 }

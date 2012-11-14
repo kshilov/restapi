@@ -134,6 +134,8 @@ public class OfferStat extends BaseEntity {
   @JoinColumn(name = "product_id")
   private Product product;
 
+  private String cashbackTargetId;
+
   @Override
   public Long id() {
     return id;
@@ -374,5 +376,14 @@ public class OfferStat extends BaseEntity {
   public OfferStat setProduct(Product product) {
     this.product = product;
     return this;
+  }
+
+  public OfferStat setCashbackTargetId(String cashbackTargetId) {
+    this.cashbackTargetId = cashbackTargetId;
+    return this;
+  }
+
+  public String cashbackTargetId() {
+    return cashbackTargetId;
   }
 }
