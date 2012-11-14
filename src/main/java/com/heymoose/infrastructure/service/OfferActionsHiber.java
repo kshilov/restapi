@@ -27,7 +27,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -320,12 +319,16 @@ public class OfferActionsHiber implements OfferActions {
   public List<OfferAction> listProductActions(Token token,
                                               String transactionId,
                                               Product product) {
-    throw new NotImplementedException();
+    return repo.allByHQL(OfferAction.class,
+        "from OfferAction where token = ? and transactionId = ? and product = ?",
+        token, transactionId, product);
   }
 
   @Override
   public List<OfferAction> list(Token token, String transactionId) {
-    throw new NotImplementedException();
+    return repo.allByHQL(OfferAction.class,
+        "from OfferAction where token = ? and transactionId = ?",
+        token, transactionId);
   }
 
   @SuppressWarnings("unchecked")
