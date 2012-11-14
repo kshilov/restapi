@@ -7,12 +7,15 @@ import com.google.inject.Key;
 import com.google.inject.Stage;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.heymoose.domain.action.StatusPerItemActionData;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.ImportService;
 import com.heymoose.infrastructure.service.action.ActionDataImportService;
 import com.heymoose.infrastructure.service.action.HeymooseFixPriceParser;
 import com.heymoose.infrastructure.service.action.ItemListProductImporter;
+import com.heymoose.infrastructure.service.action.StatusPerItemImporter;
+import com.heymoose.infrastructure.service.action.StatusPerItemParser;
 import com.heymoose.infrastructure.service.carolines.CarolinesActionDataImporter;
 import com.heymoose.infrastructure.service.sapato.SapatoImporter;
 import com.heymoose.infrastructure.service.sapato.SapatoUrlProvider;
@@ -96,6 +99,11 @@ public class AppContextListener extends GuiceServletContextListener {
 
     startImportService("juvalia", properties,
         ActionDataImportService.basic(injector));
+
+    startImportService("elitdress", properties,
+        new ActionDataImportService<StatusPerItemActionData>(injector)
+            .withImporter(StatusPerItemImporter.class)
+            .withParser(StatusPerItemParser.class));
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
