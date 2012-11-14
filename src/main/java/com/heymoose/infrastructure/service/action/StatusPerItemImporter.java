@@ -60,6 +60,16 @@ public class StatusPerItemImporter
     Token token = tokens.byValue(actionData.token());
     Offer offer = offers.offerById(parentOfferId);
 
+    if (token == null) {
+      log.info("Token not found. Skipping {}", actionData);
+      return;
+    }
+
+    if (offer == null) {
+      log.info("Offer not found. Skipping {}", actionData);
+      return;
+    }
+
     List<OfferAction> actionList = actions.list(
         token, actionData.transactionId());
     actionList = Lists.newArrayList(actionList);
