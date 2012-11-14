@@ -243,7 +243,8 @@ public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> imple
   public OfferGrant checkGrant(User user, BaseOffer offer) {
     OfferGrant grant = this.visibleByOfferAndAff(offer, user);
     if (grant == null) {
-      throw new IllegalStateException("Offer not granted: " + offer.id());
+      throw new IllegalStateException(
+          "Offer " + offer.id() + " not granted to " + user);
     }
     return grant;
   }
