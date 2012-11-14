@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service.action;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.InputSupplier;
+import com.heymoose.domain.action.ItemWithStatus;
 import com.heymoose.domain.action.StatusPerItemActionData;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -40,8 +41,8 @@ public class StatusPerItemParser
           .setToken(xmlAction.getChildText("token"));
       for (Element xmlItem : xmlAction.getChild("items").getChildren("item")) {
         String id = xmlItem.getChildText("id");
-        StatusPerItemActionData.ItemWithStatus item =
-            new StatusPerItemActionData.ItemWithStatus(id);
+        ItemWithStatus item =
+            new ItemWithStatus(id);
         item.setStatus(xmlItem.getChildText("status"))
             .setPrice(xmlItem.getChildText("price"))
             .setQuantity(xmlItem.getChildText("quantity"));

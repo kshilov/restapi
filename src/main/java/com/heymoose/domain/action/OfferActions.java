@@ -50,4 +50,6 @@ public interface OfferActions {
                                        String transactionId,
                                        Product product);
 
+  List<OfferAction> list(Token token, String transactionId);
+
 }

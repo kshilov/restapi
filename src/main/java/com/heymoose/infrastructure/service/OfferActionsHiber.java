@@ -1,7 +1,6 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.name.Named;
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.accounting.Accounting;
@@ -28,6 +27,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -320,7 +320,12 @@ public class OfferActionsHiber implements OfferActions {
   public List<OfferAction> listProductActions(Token token,
                                               String transactionId,
                                               Product product) {
-    return ImmutableList.of();
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public List<OfferAction> list(Token token, String transactionId) {
+    throw new NotImplementedException();
   }
 
   @SuppressWarnings("unchecked")

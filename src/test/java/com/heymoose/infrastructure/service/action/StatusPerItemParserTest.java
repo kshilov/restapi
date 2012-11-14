@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service.action;
 
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ActionStatus;
+import com.heymoose.domain.action.ItemWithStatus;
 import com.heymoose.domain.action.StatusPerItemActionData;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public final class StatusPerItemParserTest {
     assertEquals(transactionId, action.transactionId());
     assertEquals(token, action.token());
     assertEquals(1, action.itemList().size());
-    StatusPerItemActionData.ItemWithStatus item = action.itemList().get(0);
+    ItemWithStatus item = action.itemList().get(0);
     assertEquals(itemId, item.id());
     assertEquals(new BigDecimal(price), item.price());
     assertEquals(ActionStatus.COMPLETE, item.status());

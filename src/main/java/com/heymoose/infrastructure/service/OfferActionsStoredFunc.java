@@ -105,4 +105,9 @@ public final class OfferActionsStoredFunc implements OfferActions {
                                               Product product) {
     return offerActionsHiber.listProductActions(token, transactionId, product);
   }
+
+  @Override
+  public List<OfferAction> list(Token token, String transactionId) {
+    return offerActionsHiber.list(token, transactionId);
+  }
 }
