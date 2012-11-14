@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Injector;
 import com.google.inject.util.Providers;
 import com.heymoose.domain.action.ActionData;
-import com.heymoose.domain.action.FixPriceActionData;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.infrastructure.service.ImportService;
 import com.heymoose.infrastructure.service.ImportServiceBase;
@@ -27,10 +26,6 @@ public final class ActionDataImportService<T extends ActionData>
   public static ActionDataImportService<ItemListActionData> itemList(
       Injector inj) {
     return new ActionDataImportService<ItemListActionData>(inj);
-  }
-
-  public static ActionDataImportService<FixPriceActionData> fix(Injector inj) {
-    return new ActionDataImportService<FixPriceActionData>(inj);
   }
 
   private static final Logger log =

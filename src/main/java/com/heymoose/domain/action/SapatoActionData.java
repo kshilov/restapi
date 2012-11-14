@@ -2,7 +2,7 @@ package com.heymoose.domain.action;
 
 import com.google.common.base.Objects;
 
-public final class FixPriceActionData extends ActionData {
+public final class SapatoActionData extends ActionData {
 
   private String offerCode;
   private ActionStatus status;
@@ -11,7 +11,7 @@ public final class FixPriceActionData extends ActionData {
     return offerCode;
   }
 
-  public FixPriceActionData setOfferCode(String offerCode) {
+  public SapatoActionData setOfferCode(String offerCode) {
     this.offerCode = offerCode;
     return this;
   }
@@ -20,7 +20,7 @@ public final class FixPriceActionData extends ActionData {
     return status;
   }
 
-  public FixPriceActionData setStatus(ActionStatus status) {
+  public SapatoActionData setStatus(ActionStatus status) {
     this.status = status;
     return this;
   }

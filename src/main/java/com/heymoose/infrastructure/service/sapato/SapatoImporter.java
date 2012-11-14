@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionStatus;
-import com.heymoose.domain.action.FixPriceActionData;
+import com.heymoose.domain.action.SapatoActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class SapatoImporter
-    implements ActionDataImporter<FixPriceActionData> {
+    implements ActionDataImporter<SapatoActionData> {
 
   private static final Logger log =
       LoggerFactory.getLogger(SapatoImporter.class);
@@ -42,16 +42,16 @@ public class SapatoImporter
 
   @Transactional
   @Override
-  public void doImport(List<FixPriceActionData> actionList,
+  public void doImport(List<SapatoActionData> actionList,
                        Long parentOfferId) {
     log.info("Starting import for {} action(s).", actionList.size());
-    for (FixPriceActionData actionData : actionList) {
+    for (SapatoActionData actionData : actionList) {
       doImport(actionData, parentOfferId);
     }
   }
 
   @Override
-  public void doImport(FixPriceActionData actionData, Long parentOfferId) {
+  public void doImport(SapatoActionData actionData, Long parentOfferId) {
     log.info("Entering doImport for {}, parentOfferId: {}.",
         actionData, parentOfferId);
     Token token = repo.byHQL(Token.class,
@@ -146,7 +146,7 @@ public class SapatoImporter
 
   }
 
-  private List<OfferAction> process(FixPriceActionData actionData,
+  private List<OfferAction> process(SapatoActionData actionData,
                                     BaseOffer offer, Token token) {
     ProcessableData data = new ProcessableData()
         .setToken(token)
