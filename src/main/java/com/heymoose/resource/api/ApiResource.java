@@ -93,9 +93,19 @@ public class ApiResource {
       return click();
     else if (method.equals("reportAction"))
       return reportAction();
+    else if (method.equals("invite"))
+      return invite();
     else
       throw badValue("method", method);
   }
+
+  @Transactional
+  public Response invite() throws ApiRequestException {
+    // Response.ResponseBuilder response = new ResponseBuilderImpl();
+    // return inviteTracker.track(requestContextProvider.get(), response);
+    return null;
+  }
+
 
   @Transactional
   public Response reportAction() throws ApiRequestException {
