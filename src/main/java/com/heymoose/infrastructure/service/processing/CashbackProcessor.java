@@ -19,10 +19,18 @@ public class CashbackProcessor implements Processor {
     OfferStat source = data.token().stat();
     String cashbackTargetId = source.cashbackTargetId();
     if (cashbackTargetId == null) return;
+
+    String cashbackReferer = source.cashbackReferer();
+    if (cashbackReferer != null) {
+      if (cashbacks.containTarget(cashbackTargetId)) {
+        cashbackReferer = null; // do not save referer
+      }
+    }
+
     cashbacks.add(new Cashback()
         .setTargetId(cashbackTargetId)
         .setAction(data.offerAction())
         .setAffiliate(data.offerAction().affiliate())
-        .setReferer(source.cashbackReferer()));
+        .setReferer(cashbackReferer));
   }
 }

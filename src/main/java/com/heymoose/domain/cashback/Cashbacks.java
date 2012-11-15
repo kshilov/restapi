@@ -9,4 +9,5 @@ public interface Cashbacks {
   List<Cashback> list();
   Cashback add(Cashback cashback);
   Pair<QueryResult,Long> list(Long affId, int offset, int limit);
+  boolean containTarget(String targetId);
 }

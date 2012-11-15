@@ -12,10 +12,13 @@ import com.heymoose.infrastructure.util.db.QueryResult;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static junit.framework.Assert.assertEquals;
 
 public final class CashbackProcessorTest {
+
+  private static AtomicLong IDS = new AtomicLong();
 
   @Test
   public void savesCashbackData() throws Exception {
@@ -60,6 +63,32 @@ public final class CashbackProcessorTest {
     assertEquals(cashbackReferer, cashback.referer());
   }
 
+  @Test
+  public void doesNotSetRefererIfTargetIsNotUnique() throws Exception {
+    String referal = "referal@cashback.com";
+
+    Cashbacks cashbacks = mockCashbacks();
+    Processor cashbackProcessor = new CashbackProcessor(cashbacks);
+
+    ProcessableData firstAction = processableWithCashback(referal, "ref1");
+    cashbackProcessor.process(firstAction);
+    ProcessableData secondAction = processableWithCashback(referal, "ref2");
+    cashbackProcessor.process(secondAction);
+
+    List<Cashback> cashbackList = cashbacks.list();
+
+    for (Cashback cashback : cashbackList) {
+      if (cashback.action().equals(firstAction.offerAction())) {
+        assertEquals("ref1", cashback.referer());
+      }
+
+      if (cashback.action().equals(secondAction.offerAction())) {
+        assertEquals(null, cashback.referer());
+      }
+    }
+
+
+  }
 
   private ProcessableData processableWithCashback(String cashbackTarget,
                                                   String cashbackReferer) {
@@ -69,7 +98,7 @@ public final class CashbackProcessorTest {
     Token token = new Token(stat);
     User user = new User();
     OfferAction action = new OfferAction()
-        .setId(1L)
+        .setId(IDS.incrementAndGet())
         .setAffiliate(user);
     return new ProcessableData()
         .setOfferAction(action)
@@ -94,6 +123,14 @@ public final class CashbackProcessorTest {
       @Override
       public Pair<QueryResult, Long> list(Long affId, int offset, int limit) {
         return null;
+      }
+
+      @Override
+      public boolean containTarget(String cashbackTarget) {
+        for (Cashback cb : list.build()) {
+          if (cb.targetId().equals(cashbackTarget)) return true;
+        }
+        return false;
       }
     };
 

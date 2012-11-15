@@ -39,4 +39,9 @@ public class CashbacksHiber implements Cashbacks {
         .addQueryParam("aff_id", affId)
         .executeAndCount(offset, limit);
   }
+
+  @Override
+  public boolean containTarget(String targetId) {
+    return false;
+  }
 }
