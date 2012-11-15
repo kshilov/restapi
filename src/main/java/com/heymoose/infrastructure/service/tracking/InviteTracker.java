@@ -30,6 +30,7 @@ public class InviteTracker implements Tracker {
       throw ApiExceptions.nullParam(LOCATION_PARAM);
 
     addCookie(response, COOKIE_NAME, referer, Integer.MAX_VALUE);
+    if (!ulp.contains("://")) ulp = "http://" + ulp;
     response.status(302).header("Location", ulp);
   }
 }
