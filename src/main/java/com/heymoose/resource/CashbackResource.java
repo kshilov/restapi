@@ -6,6 +6,7 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.resource.xml.XmlQueryResult;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 
@@ -35,6 +36,22 @@ public class CashbackResource {
                      @QueryParam("limit") @DefaultValue("20") int limit) {
     if (affId == null) throw new WebApplicationException(400);
     return toXml(cashbacks.list(affId, offset, limit));
+  }
+
+  @GET
+  @Path("/invites")
+  @Transactional
+  public String listInvites(@QueryParam("aff_id") Long affId,
+                            @QueryParam("offset") int offset,
+                            @QueryParam("limit") @DefaultValue("20") int limit) {
+    if (affId == null) throw new WebApplicationException(400);
+    Pair<QueryResult, Long> result =
+        cashbacks.listInvites(affId, offset, limit);
+    return new XmlQueryResult(result.fst)
+        .addRootAttribute("count", result.snd)
+        .setRoot("invites")
+        .setElement("invite")
+        .toString();
   }
 
   private String toXml(Pair<QueryResult, Long> result) {

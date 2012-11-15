@@ -45,4 +45,11 @@ public class CashbacksHiber implements Cashbacks {
     return repo.byHQL(Cashback.class,
         "from Cashback where targetId = ?", targetId) != null;
   }
+
+  @Override
+  public Pair<QueryResult, Long> listInvites(Long affId, int offset, int limit) {
+    return SqlLoader.sqlQuery("cashback-invite-list", repo.session())
+        .addQueryParam("aff_id", affId)
+        .executeAndCount(offset, limit);
+  }
 }

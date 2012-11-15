@@ -132,6 +132,11 @@ public final class CashbackProcessorTest {
         }
         return false;
       }
+
+      @Override
+      public Pair<QueryResult, Long> listInvites(Long affId, int offset, int limit) {
+        return null;
+      }
     };
 
   }
