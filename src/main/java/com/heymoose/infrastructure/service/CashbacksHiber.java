@@ -42,6 +42,7 @@ public class CashbacksHiber implements Cashbacks {
 
   @Override
   public boolean containTarget(String targetId) {
-    return false;
+    return repo.byHQL(Cashback.class,
+        "from Cashback where targetId = ?", targetId) != null;
   }
 }
