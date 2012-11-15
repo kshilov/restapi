@@ -7,6 +7,8 @@ import com.heymoose.domain.cashback.Cashbacks;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.db.QueryResult;
 import org.junit.Test;
 
 import java.util.List;
@@ -66,6 +68,11 @@ public final class CashbackProcessorTest {
       public Cashback add(Cashback cashback) {
         list.add(cashback);
         return cashback;
+      }
+
+      @Override
+      public Pair<QueryResult, Long> list(Long affId, int offset, int limit) {
+        return null;
       }
     };
 
