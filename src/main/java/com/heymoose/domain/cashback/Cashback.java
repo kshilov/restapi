@@ -4,6 +4,7 @@ import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.user.User;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,6 +37,9 @@ public class Cashback extends IdEntity {
   @JoinColumn(name = "aff_id")
   private User affiliate;
 
+  @Basic
+  private String referer;
+
   public String targetId() {
     return targetId;
   }
@@ -66,5 +70,14 @@ public class Cashback extends IdEntity {
   @Override
   public Long id() {
     return id;
+  }
+
+  public String referer() {
+    return this.referer;
+  }
+
+  public Cashback setReferer(String referer) {
+    this.referer = referer;
+    return this;
   }
 }

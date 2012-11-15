@@ -3,6 +3,7 @@ package com.heymoose.infrastructure.service.processing;
 import com.google.inject.Inject;
 import com.heymoose.domain.cashback.Cashback;
 import com.heymoose.domain.cashback.Cashbacks;
+import com.heymoose.domain.statistics.OfferStat;
 
 public class CashbackProcessor implements Processor {
 
@@ -15,11 +16,13 @@ public class CashbackProcessor implements Processor {
 
   @Override
   public void process(ProcessableData data) {
-    String cashbackTargetId = data.token().stat().cashbackTargetId();
+    OfferStat source = data.token().stat();
+    String cashbackTargetId = source.cashbackTargetId();
     if (cashbackTargetId == null) return;
     cashbacks.add(new Cashback()
         .setTargetId(cashbackTargetId)
         .setAction(data.offerAction())
-        .setAffiliate(data.offerAction().affiliate()));
+        .setAffiliate(data.offerAction().affiliate())
+        .setReferer(source.cashbackReferer()));
   }
 }

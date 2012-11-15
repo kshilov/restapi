@@ -137,6 +137,9 @@ public class OfferStat extends BaseEntity {
   @Column(name = "cashback_target_id")
   private String cashbackTargetId;
 
+  @Column(name = "cashback_referer")
+  private String cashbackReferer;
+
   @Override
   public Long id() {
     return id;
@@ -386,5 +389,14 @@ public class OfferStat extends BaseEntity {
 
   public String cashbackTargetId() {
     return cashbackTargetId;
+  }
+
+  public OfferStat setCashbackReferer(String cashbackReferer) {
+    this.cashbackReferer = cashbackReferer;
+    return this;
+  }
+
+  public String cashbackReferer() {
+    return this.cashbackReferer;
   }
 }

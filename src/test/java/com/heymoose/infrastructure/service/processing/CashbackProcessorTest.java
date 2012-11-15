@@ -20,16 +20,7 @@ public final class CashbackProcessorTest {
   @Test
   public void savesCashbackData() throws Exception {
     String cashbackTargetId = "client@domain.com";
-    OfferStat stat = new OfferStat()
-        .setCashbackTargetId(cashbackTargetId);
-    Token token = new Token(stat);
-    User user = new User();
-    OfferAction action = new OfferAction()
-        .setId(1L)
-        .setAffiliate(user);
-    ProcessableData data = new ProcessableData()
-        .setOfferAction(action)
-        .setToken(token);
+    ProcessableData data = processableWithCashback(cashbackTargetId, null);
 
     Cashbacks cashbacks = mockCashbacks();
     new CashbackProcessor(cashbacks).process(data);
@@ -38,8 +29,8 @@ public final class CashbackProcessorTest {
     assertEquals(1, cashbackList.size());
     Cashback savedCashback = cashbackList.get(0);
     assertEquals(cashbackTargetId, savedCashback.targetId());
-    assertEquals(action, savedCashback.action());
-    assertEquals(user, savedCashback.affiliate());
+    assertEquals(data.offerAction(), savedCashback.action());
+    assertEquals(data.offerAction().affiliate(), savedCashback.affiliate());
   }
 
   @Test
@@ -53,6 +44,36 @@ public final class CashbackProcessorTest {
     new CashbackProcessor(mockCashbacks).process(data);
 
     assertEquals(0, mockCashbacks.list().size());
+  }
+
+  @Test
+  public void addsCashbackInvitationIfInvitationCookieIsSet() throws Exception {
+    String cashbackTargetId = "cashback-referal@heymoose.com";
+    String cashbackReferer = "cashback-referer@heymoose.com";
+    ProcessableData data = processableWithCashback(
+        cashbackTargetId, cashbackReferer);
+    Cashbacks mockCashbacks = mockCashbacks();
+
+    new CashbackProcessor(mockCashbacks).process(data);
+    Cashback cashback = mockCashbacks.list().get(0);
+
+    assertEquals(cashbackReferer, cashback.referer());
+  }
+
+
+  private ProcessableData processableWithCashback(String cashbackTarget,
+                                                  String cashbackReferer) {
+    OfferStat stat = new OfferStat()
+        .setCashbackTargetId(cashbackTarget)
+        .setCashbackReferer(cashbackReferer);
+    Token token = new Token(stat);
+    User user = new User();
+    OfferAction action = new OfferAction()
+        .setId(1L)
+        .setAffiliate(user);
+    return new ProcessableData()
+        .setOfferAction(action)
+        .setToken(token);
   }
 
   private Cashbacks mockCashbacks() {
