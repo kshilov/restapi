@@ -438,13 +438,13 @@ public class OfferStats {
   public OfferStat findStat(OfferStat stat) {
     return findStat(stat.bannerId(), stat.offerId(),
         stat.affiliateId(), stat.sourceId(), stat.subs(), stat.referer(),
-        stat.keywords(), stat.cashbackTargetId());
+        stat.keywords(), stat.cashbackTargetId(), stat.cashbackReferer());
   }
 
   public OfferStat findStat(
       @Nullable Long bannerId, long offerId, long affId, String sourceId, Subs subs,
       @Nullable String referer, @Nullable String keywords,
-      String cashbackTargetId) {
+      String cashbackTargetId, String cashbackReferer) {
 
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
         .add(Restrictions.eq("offer.id", offerId))
@@ -459,6 +459,7 @@ public class OfferStats {
     addEqOrIsNull(criteria, "referer", referer);
     addEqOrIsNull(criteria, "keywords", keywords);
     addEqOrIsNull(criteria, "cashbackTargetId", cashbackTargetId);
+    addEqOrIsNull(criteria, "cashbackReferer", cashbackReferer);
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
