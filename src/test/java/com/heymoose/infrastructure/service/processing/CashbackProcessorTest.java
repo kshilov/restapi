@@ -63,33 +63,6 @@ public final class CashbackProcessorTest {
     assertEquals(cashbackReferer, cashback.referer());
   }
 
-  @Test
-  public void doesNotSetRefererIfTargetIsNotUnique() throws Exception {
-    String referal = "referal@cashback.com";
-
-    Cashbacks cashbacks = mockCashbacks();
-    Processor cashbackProcessor = new CashbackProcessor(cashbacks);
-
-    ProcessableData firstAction = processableWithCashback(referal, "ref1");
-    cashbackProcessor.process(firstAction);
-    ProcessableData secondAction = processableWithCashback(referal, "ref2");
-    cashbackProcessor.process(secondAction);
-
-    List<Cashback> cashbackList = cashbacks.list();
-
-    for (Cashback cashback : cashbackList) {
-      if (cashback.action().equals(firstAction.offerAction())) {
-        assertEquals("ref1", cashback.referer());
-      }
-
-      if (cashback.action().equals(secondAction.offerAction())) {
-        assertEquals(null, cashback.referer());
-      }
-    }
-
-
-  }
-
   private ProcessableData processableWithCashback(String cashbackTarget,
                                                   String cashbackReferer) {
     OfferStat stat = new OfferStat()
