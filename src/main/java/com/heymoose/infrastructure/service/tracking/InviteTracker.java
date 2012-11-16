@@ -18,6 +18,7 @@ public class InviteTracker implements Tracker {
       LoggerFactory.getLogger(InviteTracker.class);
 
   public static final String COOKIE_NAME = "hm_cashback_invite";
+  public static final String AFF_ID_PARAM = "aff_id";
   public static final String REFERRER_PARAM = "referrer";
   public static final String LOCATION_PARAM = "ulp";
 
@@ -27,15 +28,26 @@ public class InviteTracker implements Tracker {
     Map<String, String> queryParams = queryParams(context);
     String referrer = queryParams.get(REFERRER_PARAM);
     String ulp = queryParams.get(LOCATION_PARAM);
+    String affId = queryParams.get("aff_id");
 
     if (Strings.isNullOrEmpty(referrer))
       throw ApiExceptions.nullParam(REFERRER_PARAM);
     if (Strings.isNullOrEmpty(ulp))
       throw ApiExceptions.nullParam(LOCATION_PARAM);
+    if (Strings.isNullOrEmpty(affId)) {
+      throw ApiExceptions.nullParam(AFF_ID_PARAM);
+    }
 
-    addCookie(response, COOKIE_NAME, referrer, Integer.MAX_VALUE);
+    try {
+      Long.parseLong(affId);
+    } catch (NumberFormatException e) {
+      throw ApiExceptions.badValue(AFF_ID_PARAM, affId);
+    }
+
+    addCookie(response, COOKIE_NAME + "_" + affId, referrer, Integer.MAX_VALUE);
     if (!ulp.contains("://")) ulp = "http://" + ulp;
-    log.info("Tracking cashback invite. referrer: {}, ulp: {}", referrer, ulp);
+    log.info("Tracking cashback invite. aff_id:{}, referrer: {}, ulp: {}",
+        new Object[] { affId, referrer, ulp });
     response.status(302).header("Location", ulp);
   }
 }

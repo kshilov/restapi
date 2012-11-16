@@ -15,11 +15,13 @@ public class InviteTrackerTest {
 
   @Test
   public void setsInviteCookie() throws Exception {
+    Long affId = 1L;
     String refererId = "client@cashback.com";
     InviteTracker tracker = new InviteTracker();
     MockRequestContext mockRequest = new MockRequestContext()
       .addQueryParam(InviteTracker.REFERRER_PARAM, refererId)
-      .addQueryParam(InviteTracker.LOCATION_PARAM, "http://anything.com");
+      .addQueryParam(InviteTracker.LOCATION_PARAM, "http://anything.com")
+      .addQueryParam(InviteTracker.AFF_ID_PARAM, affId.toString());
     Response.ResponseBuilder response = new ResponseBuilderImpl();
 
     tracker.track(mockRequest.context(), response);
@@ -29,7 +31,7 @@ public class InviteTrackerTest {
         .getMetadata()
         .get("Set-Cookie").get(0).toString());
 
-    assertEquals(InviteTracker.COOKIE_NAME, cookie.getName());
+    assertEquals(InviteTracker.COOKIE_NAME + "_" + affId, cookie.getName());
     assertEquals(refererId, cookie.getValue());
   }
 
@@ -39,7 +41,8 @@ public class InviteTrackerTest {
     InviteTracker tracker = new InviteTracker();
     MockRequestContext mockRequestContext = new MockRequestContext()
         .addQueryParam(InviteTracker.LOCATION_PARAM, ulp)
-        .addQueryParam(InviteTracker.REFERRER_PARAM, "anything");
+        .addQueryParam(InviteTracker.REFERRER_PARAM, "anything")
+        .addQueryParam(InviteTracker.AFF_ID_PARAM, "1");
     Response.ResponseBuilder responseBuilder = new ResponseBuilderImpl();
 
     tracker.track(mockRequestContext.context(), responseBuilder);
@@ -54,6 +57,7 @@ public class InviteTrackerTest {
     try {
       new InviteTracker().track(
           new MockRequestContext()
+              .addQueryParam(InviteTracker.AFF_ID_PARAM, "1")
               .addQueryParam(InviteTracker.REFERRER_PARAM, "referer-id")
               .context(),
           new ResponseBuilderImpl());
@@ -64,6 +68,7 @@ public class InviteTrackerTest {
     try {
       new InviteTracker().track(
           new MockRequestContext()
+              .addQueryParam(InviteTracker.AFF_ID_PARAM, "1")
               .addQueryParam(InviteTracker.LOCATION_PARAM, "http://x.com")
               .context(),
           new ResponseBuilderImpl());

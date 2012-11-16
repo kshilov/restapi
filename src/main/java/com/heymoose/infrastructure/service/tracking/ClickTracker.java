@@ -123,6 +123,10 @@ public class ClickTracker implements Tracker {
         "source_id"))
       affParams.remove(param);
 
+    String cashbackReferrer = context
+            .getCookieNameValueMap()
+            .getFirst(InviteTracker.COOKIE_NAME + "_" + affId);
+
     // track
     OfferStat stat = new OfferStat()
         .setBannerId(bannerId)
@@ -134,9 +138,7 @@ public class ClickTracker implements Tracker {
         .setReferer(referer)
         .setKeywords(keywords)
         .setCashbackTargetId(params.get("cashback"))
-        .setCashbackReferrer(context
-            .getCookieNameValueMap()
-            .getFirst(InviteTracker.COOKIE_NAME));
+        .setCashbackReferrer(cashbackReferrer);
     OfferStat existedStat = offerStats.findStat(stat);
     if (existedStat == null) {
       stat.incClicks();
