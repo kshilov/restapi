@@ -7,12 +7,14 @@ import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.XmlQueryResult;
+import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import java.util.Map;
@@ -30,6 +32,7 @@ public class CashbackResource {
   }
 
   @GET
+  @Produces("application/xml")
   @Transactional
   public String list(@QueryParam("aff_id") Long affId,
                      @QueryParam("offset") int offset,
@@ -40,6 +43,7 @@ public class CashbackResource {
 
   @GET
   @Path("/invites")
+  @Produces("application/xml")
   @Transactional
   public String listInvites(@QueryParam("aff_id") Long affId,
                             @QueryParam("offset") int offset,
@@ -68,7 +72,7 @@ public class CashbackResource {
       cashbackXml.addContent(offerXml);
       root.addContent(cashbackXml);
     }
-    return XML_OUTPUTTER.outputString(root);
+    return XML_OUTPUTTER.outputString(new Document(root));
   }
 
   private Element element(String name, Object text) {
