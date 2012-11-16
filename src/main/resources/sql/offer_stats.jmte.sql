@@ -166,6 +166,8 @@ from
 
   ) as sums
 
+where descr is not null
+
 order by
   ${ordering} ${direction}, id, descr
 
