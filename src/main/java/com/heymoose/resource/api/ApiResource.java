@@ -97,7 +97,7 @@ public class ApiResource {
       return click();
     else if (method.equals("reportAction"))
       return reportAction();
-    else if (method.equals("invite"))
+    else if (method.equals("cashbackInvite"))
       return invite();
     else
       throw badValue("method", method);
