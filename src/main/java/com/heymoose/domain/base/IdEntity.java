@@ -24,6 +24,7 @@ public abstract class IdEntity implements Comparable<IdEntity>, Serializable {
 
   @Override
   public boolean equals(Object o) {
+    if (o == null) return false;
     if (this == o) return true;
     if (!(o instanceof IdEntity)) return false;
 

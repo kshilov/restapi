@@ -11,6 +11,8 @@ import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.product.Product;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.AdminAccountAccessor;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -311,6 +313,22 @@ public class OfferActionsHiber implements OfferActions {
         break;
     }
     return query.executeAndCount(filter.offset(), filter.limit());
+  }
+
+  @Override
+  public List<OfferAction> listProductActions(Token token,
+                                              String transactionId,
+                                              Product product) {
+    return repo.allByHQL(OfferAction.class,
+        "from OfferAction where token = ? and transactionId = ? and product = ?",
+        token, transactionId, product);
+  }
+
+  @Override
+  public List<OfferAction> list(Token token, String transactionId) {
+    return repo.allByHQL(OfferAction.class,
+        "from OfferAction where token = ? and transactionId = ?",
+        token, transactionId);
   }
 
   @SuppressWarnings("unchecked")

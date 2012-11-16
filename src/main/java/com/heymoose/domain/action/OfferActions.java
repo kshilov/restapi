@@ -1,6 +1,8 @@
 package com.heymoose.domain.action;
 
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.product.Product;
+import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface OfferActions {
+
   enum Ordering {
     TRANSACTION_ID, AFFILIATE_ID, AFFILIATE_EMAIL, CREATION_TIME,
     LAST_CHANGE_TIME,  STATE,
@@ -42,5 +45,11 @@ public interface OfferActions {
   Pair<QueryResult, Long> list(Long offerId, OfferActionState state,
                                DateKind dateKind,
                                DataFilter<Ordering> filter);
+
+  List<OfferAction> listProductActions(Token token,
+                                       String transactionId,
+                                       Product product);
+
+  List<OfferAction> list(Token token, String transactionId);
 
 }

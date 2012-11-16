@@ -76,9 +76,9 @@ public final class HeymooseItemListParser
           context.createUnmarshaller().unmarshal(bufferedInput);
       for (XmlAction xmlAction : xmlActionList.actionList) {
         ItemListActionData data = new ItemListActionData();
-        data.setToken(xmlAction.token)
-            .setTransactionId(xmlAction.transaction)
-            .setStatus(ActionStatus.values()[xmlAction.status]);
+        data.setStatus(ActionStatus.values()[xmlAction.status])
+            .setToken(xmlAction.token)
+            .setTransactionId(xmlAction.transaction);
         for (XmlItem xmlItem : xmlAction.itemList) {
           data.addItem(xmlItem.id, xmlItem.price, xmlItem.quantity.intValue());
         }
