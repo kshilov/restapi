@@ -109,11 +109,13 @@ public class StatusPerItemImporter
             log.info("Approving action {}. {}", action, item);
             actions.approve(action);
             itemIterator.remove();
+            break; // action matched
           }
           if (item.status() == ActionStatus.CANCELED) {
             log.info("Cancelling action {}. {}", action, item);
             actions.cancel(action);
             itemIterator.remove();
+            break; // action matched
           }
         }
       }
