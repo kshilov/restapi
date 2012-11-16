@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.cashback.Cashback;
 import com.heymoose.domain.cashback.Cashbacks;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
@@ -14,7 +15,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 
 public final class CashbackProcessorTest {
 
@@ -41,7 +42,8 @@ public final class CashbackProcessorTest {
     OfferStat stat = new OfferStat();
     Token token = new Token(stat);
     ProcessableData data = new ProcessableData()
-        .setToken(token);
+        .setToken(token)
+        .setOffer(new Offer().setAllowCashback(true));
 
     Cashbacks mockCashbacks = mockCashbacks();
     new CashbackProcessor(mockCashbacks).process(data);
@@ -63,6 +65,18 @@ public final class CashbackProcessorTest {
     assertEquals(cashbackReferer, cashback.referer());
   }
 
+  @Test
+  public void ignoresCashbackIfOfferDoesNotAllowIt() throws Exception {
+    ProcessableData data = processableWithCashback("x@y.com", null);
+    data.offer().masterOffer().setAllowCashback(false);
+
+    Cashbacks cashbacks = mockCashbacks();
+
+    new CashbackProcessor(cashbacks).process(data);
+
+    assertTrue("Cashback should not be created", cashbacks.list().isEmpty());
+  }
+
   private ProcessableData processableWithCashback(String cashbackTarget,
                                                   String cashbackReferer) {
     OfferStat stat = new OfferStat()
@@ -73,9 +87,13 @@ public final class CashbackProcessorTest {
     OfferAction action = new OfferAction()
         .setId(IDS.incrementAndGet())
         .setAffiliate(user);
+    Offer offer = new Offer()
+        .setId(IDS.incrementAndGet())
+        .setAllowCashback(true);
     return new ProcessableData()
         .setOfferAction(action)
-        .setToken(token);
+        .setToken(token)
+        .setOffer(offer);
   }
 
   private Cashbacks mockCashbacks() {

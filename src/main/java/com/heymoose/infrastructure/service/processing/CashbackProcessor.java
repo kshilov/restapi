@@ -16,6 +16,8 @@ public class CashbackProcessor implements Processor {
 
   @Override
   public void process(ProcessableData data) {
+    if (!data.offer().masterOffer().allowCashback()) return;
+
     OfferStat source = data.token().stat();
     String cashbackTargetId = source.cashbackTargetId();
     if (cashbackTargetId == null) return;
