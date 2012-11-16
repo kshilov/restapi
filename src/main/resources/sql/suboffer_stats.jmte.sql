@@ -60,6 +60,9 @@ ${end}
 ${if filterByKeywords}
   and coalesce(offer_stat.keywords, '') = coalesce(:keywords, '')
 ${end}
+${if filterByCashback}
+  and coalesce(offer_stat.cashback_target_id, '') = coalesce(:cashback, '')
+${end}
 
 group by o.id, o.title, parent.name, o.name, o.exclusive, product.name, tariff.exclusive
 

@@ -437,6 +437,23 @@ public class OfferStats {
   }
 
 
+  public Pair<QueryResult, Long> subofferStatForCashback(Long affId,
+                                                         String cashback,
+                                                         CommonParams common) {
+    ImmutableMap<String, ?> templateParams = templateParamsBuilder(common)
+        .put("filterByAffId", true)
+        .put("filterByCashback", true)
+        .build();
+    ImmutableMap<String, ?> queryParams = ImmutableMap.<String, Object>builder()
+        .put("aff_id", affId)
+        .put("cashback", cashback)
+        .build();
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams);
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
+
+
+
   public OfferStat getOrCreate(OfferStat stat) {
     OfferStat exists = findStat(stat);
     if (exists != null) return exists;
