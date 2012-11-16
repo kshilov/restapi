@@ -4,8 +4,13 @@ import com.google.inject.Inject;
 import com.heymoose.domain.cashback.Cashback;
 import com.heymoose.domain.cashback.Cashbacks;
 import com.heymoose.domain.statistics.OfferStat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CashbackProcessor implements Processor {
+
+  private static final Logger log =
+      LoggerFactory.getLogger(CashbackProcessor.class);
 
   private final Cashbacks cashbacks;
 
@@ -23,10 +28,12 @@ public class CashbackProcessor implements Processor {
     if (cashbackTargetId == null) return;
     String cashbackReferer = source.cashbackReferrer();
 
-    cashbacks.add(new Cashback()
+    Cashback cashback = new Cashback()
         .setTargetId(cashbackTargetId)
         .setAction(data.offerAction())
         .setAffiliate(data.offerAction().affiliate())
-        .setReferrer(cashbackReferer));
+        .setReferrer(cashbackReferer);
+    cashbacks.add(cashback);
+    log.info("Cashback added {}. For {}", cashback, data);
   }
 }
