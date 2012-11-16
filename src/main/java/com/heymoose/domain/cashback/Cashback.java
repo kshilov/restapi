@@ -38,7 +38,7 @@ public class Cashback extends IdEntity {
   private User affiliate;
 
   @Basic
-  private String referer;
+  private String referrer;
 
   public String targetId() {
     return targetId;
@@ -72,12 +72,12 @@ public class Cashback extends IdEntity {
     return id;
   }
 
-  public String referer() {
-    return this.referer;
+  public String referrer() {
+    return this.referrer;
   }
 
-  public Cashback setReferer(String referer) {
-    this.referer = referer;
+  public Cashback setReferrer(String referrer) {
+    this.referrer = referrer;
     return this;
   }
 }

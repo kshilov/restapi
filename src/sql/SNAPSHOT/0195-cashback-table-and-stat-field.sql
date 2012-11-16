@@ -7,7 +7,7 @@ alter table offer_stat
 add column cashback_target_id varchar(255);
 
 alter table offer_stat
-add column cashback_referer varchar(255);
+add column cashback_referrer varchar(255);
 
 create sequence cashback_seq
   start with 1
@@ -19,7 +19,7 @@ create sequence cashback_seq
 create table cashback(
   id bigint not null default nextval('cashback_seq'),
   target_id varchar(255) not null,
-  referer varchar(255),
+  referrer varchar(255),
   aff_id bigint not null,
   offer_action_id bigint not null);
 

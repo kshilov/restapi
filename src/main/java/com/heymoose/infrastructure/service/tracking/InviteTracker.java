@@ -14,7 +14,7 @@ import static com.heymoose.infrastructure.service.tracking.TrackingUtils.queryPa
 public class InviteTracker implements Tracker {
 
   public static final String COOKIE_NAME = "hm_invite";
-  public static final String REFERRER_PARAM = "referer";
+  public static final String REFERRER_PARAM = "referrer";
   public static final String LOCATION_PARAM = "ulp";
 
   public void track(HttpRequestContext context,

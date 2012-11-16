@@ -1,6 +1,6 @@
 select
-  cashback.target_id  as "client",
-  cashback.referer    as "referer",
+  cashback.target_id    as "referral",
+  cashback.referrer     as "referrer",
   action.last_change_time as "date"
 from cashback
 
@@ -18,4 +18,4 @@ where cashback.id in (
   where fst.aff_id = :aff_id
   group by fst.target_id)
 
-and cashback.referer is not null
+and cashback.referrer is not null

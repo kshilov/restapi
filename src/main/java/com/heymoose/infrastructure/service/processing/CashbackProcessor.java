@@ -21,12 +21,12 @@ public class CashbackProcessor implements Processor {
     OfferStat source = data.token().stat();
     String cashbackTargetId = source.cashbackTargetId();
     if (cashbackTargetId == null) return;
-    String cashbackReferer = source.cashbackReferer();
+    String cashbackReferer = source.cashbackReferrer();
 
     cashbacks.add(new Cashback()
         .setTargetId(cashbackTargetId)
         .setAction(data.offerAction())
         .setAffiliate(data.offerAction().affiliate())
-        .setReferer(cashbackReferer));
+        .setReferrer(cashbackReferer));
   }
 }

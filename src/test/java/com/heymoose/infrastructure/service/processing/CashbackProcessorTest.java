@@ -62,7 +62,7 @@ public final class CashbackProcessorTest {
     new CashbackProcessor(mockCashbacks).process(data);
     Cashback cashback = mockCashbacks.list().get(0);
 
-    assertEquals(cashbackReferer, cashback.referer());
+    assertEquals(cashbackReferer, cashback.referrer());
   }
 
   @Test
@@ -81,7 +81,7 @@ public final class CashbackProcessorTest {
                                                   String cashbackReferer) {
     OfferStat stat = new OfferStat()
         .setCashbackTargetId(cashbackTarget)
-        .setCashbackReferer(cashbackReferer);
+        .setCashbackReferrer(cashbackReferer);
     Token token = new Token(stat);
     User user = new User();
     OfferAction action = new OfferAction()

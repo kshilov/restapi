@@ -134,7 +134,7 @@ public class ClickTracker implements Tracker {
         .setReferer(referer)
         .setKeywords(keywords)
         .setCashbackTargetId(params.get("cashback"))
-        .setCashbackReferer(context
+        .setCashbackReferrer(context
             .getCookieNameValueMap()
             .getFirst(InviteTracker.COOKIE_NAME));
     OfferStat existedStat = offerStats.findStat(stat);

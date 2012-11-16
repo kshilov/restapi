@@ -438,7 +438,7 @@ public class OfferStats {
   public OfferStat findStat(OfferStat stat) {
     return findStat(stat.bannerId(), stat.offerId(),
         stat.affiliateId(), stat.sourceId(), stat.subs(), stat.referer(),
-        stat.keywords(), stat.cashbackTargetId(), stat.cashbackReferer());
+        stat.keywords(), stat.cashbackTargetId(), stat.cashbackReferrer());
   }
 
   public OfferStat findStat(
@@ -459,7 +459,7 @@ public class OfferStats {
     addEqOrIsNull(criteria, "referer", referer);
     addEqOrIsNull(criteria, "keywords", keywords);
     addEqOrIsNull(criteria, "cashbackTargetId", cashbackTargetId);
-    addEqOrIsNull(criteria, "cashbackReferer", cashbackReferer);
+    addEqOrIsNull(criteria, "cashbackReferrer", cashbackReferer);
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
