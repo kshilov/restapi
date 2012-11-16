@@ -9,6 +9,9 @@ add column cashback_target_id varchar(255);
 alter table offer_stat
 add column cashback_referrer varchar(255);
 
+alter table offer
+add column allow_cashback boolean not null default false;
+
 create sequence cashback_seq
   start with 1
   increment by 1
