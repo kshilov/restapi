@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * @param <T> ordering enum
  */
-public final class DataFilter<T extends Enum<?>> {
+public class DataFilter<T extends Enum<?>> {
 
   public static <T extends Enum<?>> DataFilter<T> newInstance() {
     return new DataFilter<T>();

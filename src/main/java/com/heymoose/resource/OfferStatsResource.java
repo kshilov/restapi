@@ -280,6 +280,36 @@ public class OfferStatsResource {
     return list;
   }
 
+
+  @GET
+  @Path("cashbacks")
+  @Transactional
+  public OverallOfferStatsList cashbackStats(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("20") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    checkNotNull(affId);
+    OverallOfferStatsList result = new OverallOfferStatsList();
+    OfferStats.CommonParams filter = new OfferStats.CommonParams();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+
+    Pair<List<XmlOverallOfferStats>, Long> p =
+        stats.cashbackStats(affId, filter);
+    result.stats.addAll(p.fst);
+    result.count = p.snd;
+    return result;
+  }
+
   @GET
   @Path("suboffers")
   @Transactional

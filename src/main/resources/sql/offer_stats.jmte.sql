@@ -72,6 +72,10 @@ from
       0 id, offer_stat.keywords descr
     ${end}
 
+    ${if groupByCashback}
+      0 id, offer_stat.cashback_target_id descr
+    ${end}
+
   from
     offer o
 
@@ -154,6 +158,10 @@ from
 
     ${if groupByKeywords}
      offer_stat.keywords
+    ${end}
+
+    ${if groupByCashback}
+      offer_stat.cashback_target_id
     ${end}
 
   ) as sums
