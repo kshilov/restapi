@@ -124,6 +124,7 @@ public final class TopShopActionParser
     for (String item : payment.itemListElement.itemList) {
       paymentData.addItem(item);
     }
+    return paymentData;
   }
 
   private Map<String, String> parseParamMap(URL url) {
