@@ -15,8 +15,8 @@ import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
+import com.heymoose.infrastructure.service.processing.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +30,13 @@ public class ItemListProductImporter
   private static final Logger log =
       LoggerFactory.getLogger(ItemListProductImporter.class);
 
-  protected final ActionProcessor processor;
+  protected final Processor processor;
   private final Repo repo;
   private final OfferActions actions;
 
   @Inject
   public ItemListProductImporter(Repo repo, OfferActions actions,
-                                 ActionProcessor processor) {
+                                 Processor processor) {
     this.processor = processor;
     this.repo = repo;
     this.actions = actions;
