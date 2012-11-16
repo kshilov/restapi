@@ -187,6 +187,7 @@ public class Mappers {
     xmlOffer.exclusive = offer.exclusive();
     xmlOffer.isProductOffer = offer.isProductOffer();
     xmlOffer.ymlUrl = offer.ymlUrl();
+    xmlOffer.allowCashback = offer.allowCashback();
 
     if (!offer.isProductOffer()) {
       for (SubOffer suboffer : offer.suboffers())

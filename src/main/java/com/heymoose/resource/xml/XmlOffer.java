@@ -134,4 +134,7 @@ public class XmlOffer {
 
   @XmlElement(name = "yml-url")
   public String ymlUrl;
+
+  @XmlElement(name = "allow-cashback")
+  public boolean allowCashback;
 }
