@@ -159,16 +159,19 @@ public class OfferActionsHiber implements OfferActions {
     if (affiliate.referrerId() != null) {
       mlmValue = mlmRate.multiply(affEntry.amount());
     }
-    BigDecimal adminValue = adminEntry.amount().subtract(mlmValue);
-    accounting.newTransfer()
-        .from(adminAccountAccessor.getAdminAccountNotConfirmed())
-        .to(adminAccountAccessor.getAdminAccount())
-        .amount(adminValue)
-        .event(AccountingEvent.ACTION_APPROVED)
-        .sourceId(action.id())
-        .execute();
-    action.stat().approveFee(adminValue);
-    debts.oweFee(action, adminValue);
+    // admin entry can be null, e.g. for referral offer actions
+    if (adminEntry != null) {
+      BigDecimal adminValue = adminEntry.amount().subtract(mlmValue);
+      accounting.newTransfer()
+          .from(adminAccountAccessor.getAdminAccountNotConfirmed())
+          .to(adminAccountAccessor.getAdminAccount())
+          .amount(adminValue)
+          .event(AccountingEvent.ACTION_APPROVED)
+          .sourceId(action.id())
+          .execute();
+      action.stat().approveFee(adminValue);
+      debts.oweFee(action, adminValue);
+    }
 
     // approve mlm
     if (mlmValue.signum() == 1) {
