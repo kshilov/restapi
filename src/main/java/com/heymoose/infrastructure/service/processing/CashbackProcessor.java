@@ -28,6 +28,11 @@ public class CashbackProcessor implements Processor {
     if (cashbackTargetId == null) return;
     String cashbackReferer = source.cashbackReferrer();
 
+    if (data.offerAction() == null) {
+      log.warn("Skipping cashback processing. No action in {}", data);
+      return;
+    }
+
     Cashback cashback = new Cashback()
         .setTargetId(cashbackTargetId)
         .setAction(data.offerAction())
