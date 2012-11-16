@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -60,7 +61,9 @@ import com.heymoose.infrastructure.service.CashbacksHiber;
 import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
+import com.heymoose.infrastructure.service.processing.CashbackProcessor;
 import com.heymoose.infrastructure.service.processing.Processor;
+import com.heymoose.infrastructure.service.processing.Processors;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -81,7 +84,6 @@ public class CommonModule extends AbstractModule {
     bind(Accounting.class).to(AccountingHiber.class);
     bind(OfferActions.class).to(OfferActionsStoredFunc.class);
 
-    bind(Processor.class).to(ActionProcessor.class);
     bind(Repo.class).to(HibernateRepo.class);
     bind(UserRepository.class).to(UserRepositoryHiber.class);
     bind(OfferRepository.class).to(OfferRepositoryHiber.class);
@@ -137,5 +139,11 @@ public class CommonModule extends AbstractModule {
   @Provides @Named("tracker.host") @Singleton
   protected String trackerHostName(@Named("settings") Properties settings) {
     return settings.get("tracker.host").toString();
+  }
+
+  @Provides @Inject
+  protected Processor defaultProcessor(ActionProcessor actionProcessor,
+                                       CashbackProcessor cashbackProcessor) {
+    return Processors.chain(actionProcessor, cashbackProcessor);
   }
 }
