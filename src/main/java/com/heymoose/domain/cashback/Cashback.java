@@ -1,5 +1,6 @@
 package com.heymoose.domain.cashback;
 
+import com.google.common.base.Objects;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.user.User;
@@ -79,5 +80,15 @@ public class Cashback extends IdEntity {
   public Cashback setReferrer(String referrer) {
     this.referrer = referrer;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(Cashback.class)
+        .add("id", id)
+        .add("target", targetId)
+        .add("referrer", referrer)
+        .add("action", action)
+        .toString();
   }
 }
