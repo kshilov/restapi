@@ -7,6 +7,7 @@ import com.heymoose.domain.action.ActionStatus;
 import com.heymoose.domain.action.Item;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
+import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.base.Repo;
@@ -84,8 +85,10 @@ public class ItemListProductImporter
     }
     if (payment.status().equals(ActionStatus.CANCELED)) {
       for (OfferAction action : offerActionList) {
-        log.info("Cancelling action '{}'.", action.id());
-        actions.cancel(action);
+        if (action.state() == OfferActionState.NOT_APPROVED) {
+          log.info("Cancelling action '{}'.", action.id());
+          actions.cancel(action);
+        }
       }
     }
   }
