@@ -200,8 +200,9 @@ public class Product extends ModifiableEntity {
     return this.tariff != null && this.tariff().exclusive();
   }
 
-  public void setId(Long id) {
+  public Product setId(Long id) {
     this.id = id;
+    return this;
   }
 
 

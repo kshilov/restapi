@@ -3,6 +3,7 @@ package com.heymoose.domain.action;
 import com.google.common.base.Objects;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
@@ -21,6 +22,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import java.math.BigDecimal;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -62,6 +65,9 @@ public class OfferAction extends ModifiableEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = true)
   @JoinColumn(name = "product_id")
   private Product product;
+
+  @Column(name = "purchase_price", nullable = true)
+  private BigDecimal purchasePrice;
 
   @Override
   public Long id() {
@@ -149,5 +155,29 @@ public class OfferAction extends ModifiableEntity {
   public OfferAction setAffiliate(User user) {
     this.affiliate = user;
     return this;
+  }
+
+  public OfferAction setOffer(Offer offer) {
+    this.offer = offer;
+    return this;
+  }
+
+  public OfferAction setToken(Token token) {
+    this.token = token;
+    return this;
+  }
+
+  public OfferAction setTransactionId(String transactionId) {
+    this.transactionId = transactionId;
+    return this;
+  }
+
+  public OfferAction setPurchasePrice(BigDecimal price) {
+    this.purchasePrice = price;
+    return this;
+  }
+
+  public BigDecimal purchasePrice() {
+    return purchasePrice;
   }
 }

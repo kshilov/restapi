@@ -209,8 +209,8 @@ public class Products {
         parentOfferId, originalId);
   }
 
-  public Product productByOriginalId(Long parentOfferId,
-                                     String originalId) {
+  public Product byOriginalId(Long parentOfferId,
+                              String originalId) {
     return repo.byHQL(Product.class,
           "from Product where offer.id = ? and originalId = ?",
           parentOfferId, originalId);

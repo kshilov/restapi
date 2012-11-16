@@ -107,6 +107,7 @@ public final class ActionProcessor implements Processor {
     OfferAction action = new OfferAction(token, source.affiliate(), stat,
         source, offer, transactionId);
     action.setProduct(data.product());
+    action.setPurchasePrice(data.price());
     repo.put(action);
     accounting.notConfirmedActionPayments(action, affiliatePart, heymoosePart);
     log.info("Tracked conversion of data: {}:\n" +

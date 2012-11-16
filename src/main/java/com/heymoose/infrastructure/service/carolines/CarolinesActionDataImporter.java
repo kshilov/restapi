@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.heymoose.domain.action.ActionStatus;
+import com.heymoose.domain.action.Item;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.action.OfferActionState;
@@ -123,7 +124,7 @@ public class CarolinesActionDataImporter
   private List<OfferAction> process(ItemListActionData actionData,
                                     Offer parentOffer, Token token) {
     ImmutableList.Builder<OfferAction> actionList = ImmutableList.builder();
-    for (ItemListActionData.Item item : actionData.itemList()) {
+    for (Item item : actionData.itemList()) {
       BaseOffer productOffer = repo.byHQL(SubOffer.class,
           "from SubOffer where parent_id = ? and code = ?",
           parentOffer.id(), item.id());

@@ -102,4 +102,9 @@ public class Token extends BaseEntity {
         .add("value", value)
         .toString();
   }
+
+  public Token setValue(String value) {
+    this.value = value;
+    return this;
+  }
 }

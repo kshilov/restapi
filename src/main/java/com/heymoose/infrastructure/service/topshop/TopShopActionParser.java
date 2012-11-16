@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service.topshop;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -42,6 +43,14 @@ public final class TopShopActionParser
     public String status;
     @XmlElement(name = "items")
     public XmlTopShopItemList itemListElement;
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(XmlTopShopPayment.class)
+          .add("orderId", orderId)
+          .add("key", key)
+          .toString();
+    }
   }
 
   @XmlRootElement(name = "items")
@@ -74,31 +83,12 @@ public final class TopShopActionParser
       XmlTopShopPayments paymentList = (XmlTopShopPayments)
           context.createUnmarshaller().unmarshal(bufferedInput);
       for (XmlTopShopPayment payment : paymentList.paymentList) {
-        Map<String, String> requestParamMap = parseParamMap(
-            new URL(payment.key));
-        String token = requestParamMap.get("_hm_token");
-        if (token == null) {
-          log.warn("Token param not found in url for order: {}. Skipping",
-              payment.orderId);
-          continue;
+        try {
+          dataBuilder.add(parsePayment(payment));
+        } catch (Exception e) {
+          log.warn("Exception during parsing: {}", payment);
+          log.error("Skipping payment with exception", e);
         }
-        ItemListActionData paymentData = new ItemListActionData();
-        paymentData.setToken(token);
-        paymentData.setTransactionId(payment.orderId);
-        switch (payment.status.charAt(0)) {
-          case STATUS_CREATED:
-            paymentData.setStatus(ActionStatus.CREATED);
-            break;
-          case STATUS_COMPLETE:
-            paymentData.setStatus(ActionStatus.COMPLETE);
-            break;
-          case STATUS_CANCELED:
-            paymentData.setStatus(ActionStatus.CANCELED);
-        }
-        for (String item : payment.itemListElement.itemList) {
-          paymentData.addItem(item);
-        }
-        dataBuilder.add(paymentData);
       }
       return dataBuilder.build();
     } catch (Exception e) {
@@ -106,6 +96,35 @@ public final class TopShopActionParser
     } finally {
       Closeables.closeQuietly(input);
     }
+  }
+
+  private ItemListActionData parsePayment(XmlTopShopPayment payment)
+      throws Exception {
+    Map<String, String> requestParamMap = parseParamMap(
+        new URL(payment.key));
+    String token = requestParamMap.get("_hm_token");
+    if (token == null) {
+      log.warn("Token param not found in url {} for order: {}. Skipping",
+          payment.key, payment.orderId);
+      throw new IllegalArgumentException("No token in url: " + payment.key);
+    }
+    ItemListActionData paymentData = new ItemListActionData();
+    paymentData.setToken(token);
+    paymentData.setTransactionId(payment.orderId);
+    switch (payment.status.charAt(0)) {
+      case STATUS_CREATED:
+        paymentData.setStatus(ActionStatus.CREATED);
+        break;
+      case STATUS_COMPLETE:
+        paymentData.setStatus(ActionStatus.COMPLETE);
+        break;
+      case STATUS_CANCELED:
+        paymentData.setStatus(ActionStatus.CANCELED);
+    }
+    for (String item : payment.itemListElement.itemList) {
+      paymentData.addItem(item);
+    }
+    return paymentData;
   }
 
   private Map<String, String> parseParamMap(URL url) {
