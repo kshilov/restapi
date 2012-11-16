@@ -70,6 +70,8 @@ public class CashbackResource {
           .setAttribute("id", entry.getString("offer_id"))
           .addContent(element("name", entry.getString("offer_name")));
       cashbackXml.addContent(offerXml);
+      cashbackXml.addContent(
+          element("affiliate-revenue", entry.getString("affiliate_revenue")));
       root.addContent(cashbackXml);
     }
     return XML_OUTPUTTER.outputString(new Document(root));
