@@ -71,6 +71,11 @@ public final class ActionProcessor implements Processor {
         advertiserCharge = tariff.cost();
         break;
       case PERCENT:
+        if (data.price() == null) {
+          log.warn("No price given. Can't add action for percent offer. {}",
+              data);
+          return;
+        }
         advertiserCharge = tariff.percentOf(data.price());
         break;
       case DOUBLE_FIXED:
