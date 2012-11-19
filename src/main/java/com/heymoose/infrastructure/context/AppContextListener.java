@@ -105,6 +105,11 @@ public class AppContextListener extends GuiceServletContextListener {
             .withImporter(StatusPerItemImporter.class)
             .withParser(StatusPerItemParser.class));
 
+    startImportService("duhisale", properties,
+        new ActionDataImportService<StatusPerItemActionData>(injector)
+            .withImporter(StatusPerItemImporter.class)
+            .withParser(StatusPerItemParser.class));
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
           @Override
           public void run() {
