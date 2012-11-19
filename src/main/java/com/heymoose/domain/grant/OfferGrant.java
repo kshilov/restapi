@@ -77,8 +77,8 @@ public class OfferGrant extends BaseEntity {
     this.offerId = offerId;
     this.affiliateId = affiliateId;
     this.message = message;
-    this.state = OfferGrantState.MODERATION;
-    this.blocked = false;
+    this.state = OfferGrantState.APPROVED;
+    this.blocked = true;
   }
   
   public Long offerId() {
