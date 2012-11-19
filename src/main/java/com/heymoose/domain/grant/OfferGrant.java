@@ -1,12 +1,9 @@
 package com.heymoose.domain.grant;
 
-import java.net.URI;
-
-import com.heymoose.domain.user.User;
 import com.heymoose.domain.base.BaseEntity;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.user.User;
 
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +17,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.net.URI;
+
+import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 
 @Entity
 @Table(name = "offer_grant")
@@ -77,7 +77,7 @@ public class OfferGrant extends BaseEntity {
     this.offerId = offerId;
     this.affiliateId = affiliateId;
     this.message = message;
-    this.state = OfferGrantState.APPROVED;
+    this.state = OfferGrantState.MODERATION;
     this.blocked = false;
   }
   
