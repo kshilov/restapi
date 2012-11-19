@@ -266,6 +266,7 @@ public class OfferStats {
                                                        CommonParams common) {
     TemplateQuery query = subOfferStats(common)
         .addTemplateParam("filterBySubId", subIdFilter.keySet())
+        .addQueryParamsFromMap(subIdFilter)
         .addTemplateParam("filterByAffId", true)
         .addQueryParam("aff_id", affId)
         .addTemplateParamIfNotNull(offerId, "filterByParentId", true)
