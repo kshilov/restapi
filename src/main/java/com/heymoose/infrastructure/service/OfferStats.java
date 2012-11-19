@@ -221,7 +221,7 @@ public class OfferStats {
       Long affId, Long offerId, CommonParams common) {
     return offerStats(common)
         .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
-        .addQueryParamIfNotNull(affId, "aff_id", true)
+        .addQueryParamIfNotNull(affId, "aff_id",affId)
         .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
         .addQueryParamIfNotNull(offerId, "offer_id", offerId)
         .addTemplateParam("groupByKeywords", true)
