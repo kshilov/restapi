@@ -121,6 +121,9 @@ public class Offer extends BaseOffer {
   @Column(name = "yml_url")
   private String ymlUrl;
 
+  @Column(name = "allow_cashback")
+  private boolean allowCashback;
+
   public Offer() {
   }
 
@@ -414,5 +417,14 @@ public class Offer extends BaseOffer {
   public Offer setCode(String code) {
     this.code = code;
     return this;
+  }
+
+  public Offer setAllowCashback(boolean allowCashback) {
+    this.allowCashback = allowCashback;
+    return this;
+  }
+
+  public boolean allowCashback() {
+    return this.allowCashback;
   }
 }

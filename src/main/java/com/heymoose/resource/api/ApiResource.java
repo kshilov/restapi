@@ -5,6 +5,7 @@ import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.tracking.ActionTracker;
 import com.heymoose.infrastructure.service.tracking.ClickTracker;
+import com.heymoose.infrastructure.service.tracking.InviteTracker;
 import com.heymoose.infrastructure.service.tracking.LeadTracker;
 import com.heymoose.infrastructure.service.tracking.ShowTracker;
 import com.sun.jersey.api.core.HttpRequestContext;
@@ -47,6 +48,7 @@ public class ApiResource {
   private final ShowTracker showTracker;
   private final ActionTracker actionTracker;
   private final LeadTracker leadTracker;
+  private final InviteTracker inviteTracker;
   private final ErrorInfoRepository errorInfoRepo;
 
   private final static String REQUEST_ID_KEY = "request-id";
@@ -57,12 +59,14 @@ public class ApiResource {
                      ClickTracker clickTracker,
                      ActionTracker actionTracker,
                      LeadTracker leadTracker,
+                     InviteTracker inviteTracker,
                      ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
     this.clickTracker = clickTracker;
     this.showTracker = showTracker;
     this.actionTracker = actionTracker;
     this.leadTracker = leadTracker;
+    this.inviteTracker = inviteTracker;
     this.errorInfoRepo = errorInfoRepo;
   }
 
@@ -93,9 +97,19 @@ public class ApiResource {
       return click();
     else if (method.equals("reportAction"))
       return reportAction();
+    else if (method.equals("cashbackInvite"))
+      return invite();
     else
       throw badValue("method", method);
   }
+
+  @Transactional
+  public Response invite() throws ApiRequestException {
+    Response.ResponseBuilder response = new ResponseBuilderImpl();
+    inviteTracker.track(requestContextProvider.get(), response);
+    return response.build();
+  }
+
 
   @Transactional
   public Response reportAction() throws ApiRequestException {

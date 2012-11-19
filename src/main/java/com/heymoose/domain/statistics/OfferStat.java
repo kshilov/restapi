@@ -134,6 +134,12 @@ public class OfferStat extends BaseEntity {
   @JoinColumn(name = "product_id")
   private Product product;
 
+  @Column(name = "cashback_target_id")
+  private String cashbackTargetId;
+
+  @Column(name = "cashback_referrer")
+  private String cashbackReferrer;
+
   @Override
   public Long id() {
     return id;
@@ -374,5 +380,23 @@ public class OfferStat extends BaseEntity {
   public OfferStat setProduct(Product product) {
     this.product = product;
     return this;
+  }
+
+  public OfferStat setCashbackTargetId(String cashbackTargetId) {
+    this.cashbackTargetId = cashbackTargetId;
+    return this;
+  }
+
+  public String cashbackTargetId() {
+    return cashbackTargetId;
+  }
+
+  public OfferStat setCashbackReferrer(String cashbackReferrer) {
+    this.cashbackReferrer = cashbackReferrer;
+    return this;
+  }
+
+  public String cashbackReferrer() {
+    return this.cashbackReferrer;
   }
 }

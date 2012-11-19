@@ -9,6 +9,7 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.ImmutableMapTransformer;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
@@ -40,23 +41,19 @@ public class OfferStats {
     CTR, CR, ECPC, ECPM
   }
 
-  public static final class CommonParams {
-    private final DateTime from;
-    private final DateTime to;
-    private final int offset;
-    private final int limit;
-    private final Ordering ordering;
-    private final OrderingDirection direction;
+  public static final class CommonParams extends DataFilter<Ordering> {
+
+    public CommonParams() { }
 
     public CommonParams(DateTime from, DateTime to,
                         int offset, int limit,
                         Ordering ordering, OrderingDirection direction) {
-      this.from = from;
-      this.to = to;
-      this.offset = offset;
-      this.limit = limit;
-      this.ordering = ordering;
-      this.direction = direction;
+      this.setFrom(from);
+      this.setTo(to);
+      this.setOffset(offset);
+      this.setLimit(limit);
+      this.setOrdering(ordering);
+      this.setDirection(direction);
     }
 
   }
@@ -258,6 +255,18 @@ public class OfferStats {
   }
 
   @Transactional
+  public Pair<List<XmlOverallOfferStats>, Long> cashbackStats(
+      Long affId, CommonParams common) {
+    ImmutableMap<String, ?> templateParams = templateParamsBuilder(common)
+        .put("filterByAffiliate", true)
+        .put("groupByCashback", true)
+        .build();
+    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
+    return executeStatsQuery(sql, common, ImmutableMap.of("aff_id", affId));
+  }
+
+
+  @Transactional
   public Pair<List<XmlOverallOfferStats>, Long> refererStats(
       Long affId, Long offerId, CommonParams common) {
     ImmutableMap.Builder<String, Object> templateParams =
@@ -428,6 +437,23 @@ public class OfferStats {
   }
 
 
+  public Pair<QueryResult, Long> subofferStatForCashback(Long affId,
+                                                         String cashback,
+                                                         CommonParams common) {
+    ImmutableMap<String, ?> templateParams = templateParamsBuilder(common)
+        .put("filterByAffId", true)
+        .put("filterByCashback", true)
+        .build();
+    ImmutableMap<String, ?> queryParams = ImmutableMap.<String, Object>builder()
+        .put("aff_id", affId)
+        .put("cashback", cashback)
+        .build();
+    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams);
+    return executeSubOfferStatsQuery(sql, common, queryParams);
+  }
+
+
+
   public OfferStat getOrCreate(OfferStat stat) {
     OfferStat exists = findStat(stat);
     if (exists != null) return exists;
@@ -438,12 +464,13 @@ public class OfferStats {
   public OfferStat findStat(OfferStat stat) {
     return findStat(stat.bannerId(), stat.offerId(),
         stat.affiliateId(), stat.sourceId(), stat.subs(), stat.referer(),
-        stat.keywords());
+        stat.keywords(), stat.cashbackTargetId(), stat.cashbackReferrer());
   }
 
   public OfferStat findStat(
       @Nullable Long bannerId, long offerId, long affId, String sourceId, Subs subs,
-      @Nullable String referer, @Nullable String keywords) {
+      @Nullable String referer, @Nullable String keywords,
+      String cashbackTargetId, String cashbackReferer) {
 
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
         .add(Restrictions.eq("offer.id", offerId))
@@ -457,6 +484,8 @@ public class OfferStats {
     addEqOrIsNull(criteria, "subId4", subs.subId4());
     addEqOrIsNull(criteria, "referer", referer);
     addEqOrIsNull(criteria, "keywords", keywords);
+    addEqOrIsNull(criteria, "cashbackTargetId", cashbackTargetId);
+    addEqOrIsNull(criteria, "cashbackReferrer", cashbackReferer);
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
@@ -531,12 +560,12 @@ public class OfferStats {
     }
     @SuppressWarnings("unchecked")
     List<XmlOverallOfferStats> result = toStats(query
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
-        .setParameter("offset", common.offset)
-        .setParameter("limit", common.limit)
+        .setTimestamp("from", common.from())
+        .setTimestamp("to", common.to())
+        .setParameter("offset", common.offset())
+        .setParameter("limit", common.limit())
         .list());
-    return new Pair<List<XmlOverallOfferStats>, Long>(result, count);
+    return Pair.of(result, count);
   }
 
   private Pair<QueryResult, Long> executeSubOfferStatsQuery(String sql,
@@ -550,10 +579,10 @@ public class OfferStats {
     }
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> result = query
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
-        .setParameter("offset", common.offset)
-        .setParameter("limit", common.limit)
+        .setTimestamp("from", common.from())
+        .setTimestamp("to", common.to())
+        .setParameter("offset", common.offset())
+        .setParameter("limit", common.limit())
         .setResultTransformer(ImmutableMapTransformer.INSTANCE)
         .list();
     return new Pair<QueryResult, Long>(new QueryResult(result), count);
@@ -566,8 +595,8 @@ public class OfferStats {
       countQuery.setParameter(parameter.getKey(), parameter.getValue());
     }
     return SqlLoader.extractLong(countQuery
-        .setTimestamp("from", common.from.toDate())
-        .setTimestamp("to", common.to.toDate())
+        .setTimestamp("from", common.from())
+        .setTimestamp("to", common.to())
         .uniqueResult()
     );
   }
@@ -575,7 +604,7 @@ public class OfferStats {
   private static ImmutableMap.Builder<String, Object> templateParamsBuilder(
       CommonParams common) {
     return ImmutableMap.<String, Object>builder()
-        .put("ordering", common.ordering)
-        .put("direction", common.direction);
+        .put("ordering", common.ordering())
+        .put("direction", common.direction());
   }
 }

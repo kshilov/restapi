@@ -35,7 +35,9 @@ public final class ProcessorUtils {
             source.sourceId(),
             source.subs(),
             source.referer(),
-            source.keywords());
+            source.keywords())
+        .setCashbackTargetId(source.cashbackTargetId())
+        .setCashbackReferrer(source.cashbackReferrer());
   }
 
   public static void doPostBack(OfferGrant grant, OfferAction action) {

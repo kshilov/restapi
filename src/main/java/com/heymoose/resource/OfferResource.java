@@ -212,7 +212,9 @@ public class OfferResource {
                        @FormParam("cookie_ttl") Integer cookieTtl,
                        @FormParam("launch_time") Long unixLaunchTime,
                        @FormParam("allow_deeplink") @DefaultValue("false") boolean allowDeeplink,
-                       @FormParam("yml_url") String ymlUrl) {
+                       @FormParam("yml_url") String ymlUrl,
+                       @FormParam("allow_cashback") @DefaultValue("false")
+                       boolean allowCashback) {
     checkNotNull(advertiserId, payMethod, name, description, shortDescription, url, siteUrl,
         title, code, holdDays, cookieTtl, unixLaunchTime);
     checkNotNull(URI.create(url));
@@ -254,7 +256,8 @@ public class OfferResource {
     Offer offer = new Offer(advertiser, allowNegativeBalance, name, description, shortDescription,
         payMethod, cpaPolicy, cost, cost2, percent, title, url, siteUrl, autoApprove, reentrant,
         regions, categories, logoFileName, code, holdDays, cookieTtl, launchTime, allowDeeplink);
-    offer.setYmlUrl(ymlUrl);
+    offer.setYmlUrl(ymlUrl)
+        .setAllowCashback(allowCashback);
     offers.put(offer);
 
     if (balance.signum() > 0)
@@ -344,6 +347,8 @@ public class OfferResource {
       offer.setTokenParamName(form.getFirst("token_param_name"));
     if (form.containsKey("yml_url"))
       offer.setYmlUrl(form.getFirst("yml_url"));
+    if (form.containsKey("allow_cashback"))
+      offer.setAllowCashback(Boolean.valueOf(form.getFirst("allow_cashback")));
 
   }
 

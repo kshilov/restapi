@@ -1,5 +1,6 @@
 package com.heymoose.resource;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -280,6 +281,36 @@ public class OfferStatsResource {
     return list;
   }
 
+
+  @GET
+  @Path("cashbacks")
+  @Transactional
+  public OverallOfferStatsList cashbackStats(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("20") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    checkNotNull(affId);
+    OverallOfferStatsList result = new OverallOfferStatsList();
+    OfferStats.CommonParams filter = new OfferStats.CommonParams();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+
+    Pair<List<XmlOverallOfferStats>, Long> p =
+        stats.cashbackStats(affId, filter);
+    result.stats.addAll(p.fst);
+    result.count = p.snd;
+    return result;
+  }
+
   @GET
   @Path("suboffers")
   @Transactional
@@ -442,6 +473,33 @@ public class OfferStatsResource {
     Pair<QueryResult, Long> p = stats.subofferStatForKeywords(
         affId, offerId, keywords, common);
     return new XmlSubOfferStats(p);
+  }
+
+  @GET
+  @Path("suboffers/cashback")
+  @Transactional
+  public XmlSubOfferStats subofferStatByCashback(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("cashback") String cashback,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("20") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    checkNotNull(affId);
+    OfferStats.CommonParams common = new OfferStats.CommonParams();
+    common.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    Pair<QueryResult, Long> p = stats.subofferStatForCashback(
+        affId, Strings.nullToEmpty(cashback), common);
+    return new XmlSubOfferStats(p);
+
   }
 
   @GET

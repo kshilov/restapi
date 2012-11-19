@@ -2,10 +2,6 @@ package com.heymoose.infrastructure.service.tracking;
 
 import com.beust.jcommander.Strings;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
@@ -14,9 +10,7 @@ import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.OfferLoader;
-import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
@@ -38,61 +32,6 @@ public final class LeadTrackerTest {
   private static final Logger log =
       LoggerFactory.getLogger(LeadTrackerTest.class);
   private static final String COOKIE_META = "Set-Cookie";
-
-  private static class MockRequestContext {
-
-    public static HttpRequestContext empty() {
-      return new MockRequestContext().context();
-    }
-
-    private ImmutableMultimap.Builder<String, String> cookieMap;
-    private ImmutableMultimap.Builder<String, String> queryParamMap;
-    private ImmutableMap.Builder<String, String> headerMap;
-
-    public MockRequestContext() {
-      this.cookieMap = ImmutableMultimap.builder();
-      this.queryParamMap = ImmutableMultimap.builder();
-      this.headerMap = ImmutableMap.builder();
-    }
-
-    public MockRequestContext addCookie(String key, String value) {
-      this.cookieMap.put(key, value);
-      return this;
-    }
-
-    public MockRequestContext addQueryParam(String key, String value) {
-      this.queryParamMap.put(key, value);
-      return this;
-    }
-
-    public MockRequestContext addHeader(String key, String value) {
-      this.headerMap.put(key, value);
-      return this;
-    }
-
-    public HttpRequestContext context() {
-      HttpRequestContext context = mock(HttpRequestContext.class);
-      when(context.getCookieNameValueMap())
-          .thenReturn(toMultivaluedMap(cookieMap.build()));
-      when(context.getQueryParameters())
-          .thenReturn(toMultivaluedMap(queryParamMap.build()));
-      Map<String, String> headers = headerMap.build();
-      for (String header : headers.keySet()) {
-        when(context.getHeaderValue(header)).thenReturn(headers.get(header));
-      }
-      return context;
-    }
-
-    private MultivaluedMapImpl toMultivaluedMap(
-        Multimap<String, String> multiMap) {
-      MultivaluedMapImpl nameValue = new MultivaluedMapImpl();
-      for (String key : multiMap.keySet()) {
-        nameValue.put(key, ImmutableList.copyOf(multiMap.get(key)));
-      }
-      return nameValue;
-    }
-
-  }
 
   @Test
   public void createsLeadIfNoCookie() throws Exception {

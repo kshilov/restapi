@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.util;
 
 import com.heymoose.infrastructure.util.db.SqlLoader;
+import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
 import java.util.AbstractMap;
@@ -51,5 +52,10 @@ public final class TypedMap extends AbstractMap<String, Object> {
   public <T extends Enum<T>> T getEnumValue(String key, Class<T> cls) {
     if (wrappedMap.get(key) == null) return null;
     return Enum.valueOf(cls, wrappedMap.get(key).toString());
+  }
+
+  public DateTime getDateTime(String key) {
+    if (wrappedMap.get(key) == null) return null;
+    return new DateTime(wrappedMap.get(key));
   }
 }

@@ -15,8 +15,8 @@ import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.action.ActionDataImporter;
-import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
+import com.heymoose.infrastructure.service.processing.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +30,11 @@ public class SapatoImporter
 
   private final Repo repo;
   private final OfferActions actions;
-  private final ActionProcessor processor;
+  private final Processor processor;
 
   @Inject
   public SapatoImporter(Repo repo, OfferActions actions,
-                        ActionProcessor processor) {
+                        Processor processor) {
     this.repo = repo;
     this.actions = actions;
     this.processor = processor;

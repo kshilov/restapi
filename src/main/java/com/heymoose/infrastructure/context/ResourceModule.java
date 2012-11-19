@@ -6,6 +6,7 @@ import com.heymoose.infrastructure.util.CacheInterceptor;
 import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.resource.AccountResource;
 import com.heymoose.resource.BannerResource;
+import com.heymoose.resource.CashbackResource;
 import com.heymoose.resource.CategoryResource;
 import com.heymoose.resource.ErrorInfoResource;
 import com.heymoose.resource.OfferActionResource;
@@ -45,6 +46,7 @@ public class ResourceModule extends AbstractModule {
     bind(WithdrawalResource.class);
     bind(UserStatsResource.class);
     bind(ProductResource.class);
+    bind(CashbackResource.class);
     bindInterceptor(
         Matchers.any(),
         Matchers.annotatedWith(Cacheable.class),
