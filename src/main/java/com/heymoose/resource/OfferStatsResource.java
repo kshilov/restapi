@@ -11,6 +11,7 @@ import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.OverallOfferStatsList;
 import com.heymoose.resource.xml.XmlOverallOfferStats;
+import com.heymoose.resource.xml.XmlQueryResult;
 import com.heymoose.resource.xml.XmlSubOfferStats;
 import com.heymoose.resource.xml.XmlTotalStats;
 import org.joda.time.DateTime;
@@ -21,6 +22,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,25 +44,27 @@ public class OfferStatsResource {
 
   @GET
   @Path("offers/all")
+  @Produces("application/xml")
   @Transactional
-  public OverallOfferStatsList allOfferStats(
+  public String allOfferStats(
       @QueryParam("granted") @DefaultValue("false") boolean granted,
       @QueryParam("from") @DefaultValue("0") Long from,
       @QueryParam("to") Long to,
       @QueryParam("offset") @DefaultValue("0") int offset,
-      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("limit") @DefaultValue("20") int limit,
       @QueryParam("ordering") @DefaultValue("CLICKS_COUNT") OfferStats.Ordering ordering,
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     if (to == null) to = DateTimeUtils.currentTimeMillis();
-    OverallOfferStatsList list = new OverallOfferStatsList();
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<List<XmlOverallOfferStats>, Long> p = stats.allOfferStats(granted, common);
-    list.stats.addAll(p.fst);
-    list.count = p.snd;
-    return list;
+    OfferStats.CommonParams common = new OfferStats.CommonParams();
+    common.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    Pair<QueryResult, Long> result = stats.allOfferStats(granted, common);
+    return toXml(result);
   }
 
   @GET
@@ -577,6 +581,22 @@ public class OfferStatsResource {
     if (test) {
       builder.add(value);
     }
+  }
+
+  private String toXml(Pair<QueryResult, Long> result) {
+    return new XmlQueryResult(result.fst)
+        .setRoot("stats")
+        .setElement("stat")
+        .addRootAttribute("count", result.snd)
+        .addFieldMapping("description", "name")
+        .addFieldMapping("clicks_count", "clicks")
+        .addFieldMapping("shows_count", "shows")
+        .addFieldMapping("leads_count", "leads")
+        .addFieldMapping("sales_count", "sales")
+        .addFieldMapping("confirmed_revenue", "confirmed-revenue")
+        .addFieldMapping("not_confirmed_revenue", "not-confirmed-revenue")
+        .addFieldMapping("canceled_revenue", "canceled-revenue")
+        .toString();
   }
 
 }

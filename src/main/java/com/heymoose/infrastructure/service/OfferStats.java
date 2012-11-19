@@ -15,6 +15,7 @@ import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.infrastructure.util.db.SqlLoader;
+import com.heymoose.infrastructure.util.db.TemplateQuery;
 import com.heymoose.resource.xml.XmlOverallOfferStats;
 import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
@@ -103,13 +104,12 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> allOfferStats(boolean granted,
+  public Pair<QueryResult, Long> allOfferStats(boolean granted,
                                                            CommonParams commonParams) {
-    Map<String, ?> templateParams = templateParamsBuilder(commonParams)
-        .put("groupByOffer", true)
-        .put("granted", granted).build();
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, commonParams);
+    return offerStats(commonParams)
+        .addTemplateParam("groupByOffer", true)
+        .addTemplateParam("granted", granted)
+        .executeAndCount(commonParams.offset(), commonParams.limit());
   }
 
   @Transactional
@@ -542,6 +542,14 @@ public class OfferStats {
         .setParameter("from", from.toDate())
         .setParameter("to", to.toDate())
         .list().get(0);
+  }
+
+  private TemplateQuery offerStats(CommonParams params) {
+    return SqlLoader.templateQuery("offer_stats", repo.session())
+        .addTemplateParam("ordering", params.ordering())
+        .addTemplateParam("direction", params.direction())
+        .addQueryParam("from", params.from())
+        .addQueryParam("to", params.to());
   }
 
 

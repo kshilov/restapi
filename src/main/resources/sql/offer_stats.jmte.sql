@@ -171,4 +171,3 @@ where descr is not null
 order by
   ${ordering} ${direction}, id, descr
 
-offset :offset limit :limit

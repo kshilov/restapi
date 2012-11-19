@@ -17,7 +17,8 @@ public final class XmlQueryResult {
   private String root;
   private String element;
   private ImmutableMap.Builder<String, Object> rootAttributeMap =
-      new ImmutableMap.Builder<String, Object>();
+      ImmutableMap.builder();
+  private ImmutableMap.Builder<String, String> nameMap = ImmutableMap.builder();
 
   public XmlQueryResult(QueryResult result) {
     this.queryResult = result;
@@ -62,10 +63,14 @@ public final class XmlQueryResult {
       rootElement.setAttribute(entry.getKey(), entry.getValue().toString());
     }
 
+    Map<String, String> names = nameMap.build();
     for (Map<String, Object> record : queryResult) {
       Element childElement = new Element(element);
         for (Map.Entry<String, Object> entry : record.entrySet()) {
-          Element attributeElement = new Element(entry.getKey());
+          String queryName = entry.getKey();
+          String name = queryName;
+          if (names.containsKey(queryName)) name = names.get(queryName);
+          Element attributeElement = new Element(name);
           Object val = entry.getValue();
           if (val instanceof Timestamp) {
             attributeElement.setText(
@@ -80,4 +85,8 @@ public final class XmlQueryResult {
     return new XMLOutputter().outputString(new Document(rootElement));
   }
 
+  public XmlQueryResult addFieldMapping(String queryName, String xmlName) {
+    this.nameMap.put(queryName, xmlName);
+    return this;
+  }
 }
