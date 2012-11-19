@@ -103,4 +103,9 @@ public class TemplateQuery {
       }
     }
   }
+
+  public TemplateQuery addQueryParamsFromMap(Map<String, String> map) {
+    this.queryParamMap.putAll(map);
+    return this;
+  }
 }

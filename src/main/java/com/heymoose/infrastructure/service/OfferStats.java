@@ -1,7 +1,6 @@
 package com.heymoose.infrastructure.service;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferActionState;
@@ -113,81 +112,70 @@ public class OfferStats {
   }
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> affOfferStats(Long affiliateId,
+  public Pair<QueryResult, Long> affOfferStats(Long affiliateId,
                                                            CommonParams common) {
-    Map<String, ?> templateParams = templateParamsBuilder(common)
-        .put("groupByOffer", true)
-        .put("filterByAffiliate", true).build();
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, common, ImmutableMap.of("aff_id", affiliateId));
+    return offerStats(common)
+        .addTemplateParam("groupByOffer", true)
+        .addTemplateParam("filterByAffiliate", true)
+        .addQueryParam("aff_id", affiliateId)
+        .executeAndCount(common.offset(), common.limit());
   }
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> advOfferStats(Long advertiserId,
-                                                           CommonParams common) {
-    Map<String, ?> templateParams = templateParamsBuilder(common)
-        .put("groupByOffer", true)
-        .put("addFee", true)
-        .put("filterByAdvertiser", true).build();
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, common, ImmutableMap.of("adv_id", advertiserId));
+  public Pair<QueryResult, Long> advOfferStats(Long advertiserId,
+                                               CommonParams common) {
+    return offerStats(common)
+        .addTemplateParam("groupByOffer", true)
+        .addTemplateParam("addFee", true)
+        .addTemplateParam("filterByAdvertiser", true)
+        .addQueryParam("adv_id", advertiserId)
+        .executeAndCount(common.offset(), common.limit());
   }
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> affStats(CommonParams common) {
+  public Pair<QueryResult, Long> affStats(CommonParams common) {
 
-    Map<String, ?> templateParams = templateParamsBuilder(common)
-        .put("groupByAffiliate", true).build();
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, common);
+    return offerStats(common)
+        .addTemplateParam("groupByAffiliate", true)
+        .executeAndCount(common.offset(), common.limit());
   }
 
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> advStats(CommonParams common) {
-    Map<String, ?> templateParams = templateParamsBuilder(common)
-        .put("groupByAdvertiser", true)
-        .put("addFee", true)
-        .build();
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, common);
+  public Pair<QueryResult, Long> advStats(CommonParams common) {
+    return offerStats(common)
+        .addTemplateParam("groupByAdvertiser", true)
+        .addTemplateParam("addFee", true)
+        .executeAndCount(common.offset(), common.limit());
   }
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> affStatsByOffer(
+  public Pair<QueryResult, Long> affStatsByOffer(
       long offerId, boolean forAdvertiser, CommonParams common) {
-
-    ImmutableMap.Builder<String, Object> templateParams = templateParamsBuilder(common)
-        .put("filterByOffer", true);
+    TemplateQuery query = offerStats(common)
+        .addTemplateParam("filterByOffer", true)
+        .addQueryParam("offer_id", offerId);
     if (forAdvertiser) {
-      templateParams.put("groupByAffiliateId", true);
-      templateParams.put("addFee", true);
+      query.addTemplateParam("groupByAffiliateId", true);
+      query.addTemplateParam("addFee", true);
     } else {
-      templateParams.put("groupByAffiliate", true);
+      query.addTemplateParam("groupByAffiliate", true);
     }
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-    return executeStatsQuery(sql, common, ImmutableMap.of("offer_id", offerId));
+    return query.executeAndCount(common.offset(), common.limit());
   }
 
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> sourceIdStats(Long affId,
-                                                           Long offerId,
-                                                           CommonParams common) {
-    ImmutableMap.Builder<String, Object> templateParams = templateParamsBuilder(common);
-    ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
-    if (affId != null) {
-      templateParams.put("filterByAffiliate", true);
-      queryParams.put("aff_id", affId);
-    }
-    if (offerId != null) {
-      templateParams.put("filterByOffer", true);
-      queryParams.put("offer_id", offerId);
-    }
-    templateParams.put("groupBySourceId", true);
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-
-    return executeStatsQuery(sql, common, queryParams.build());
+  public Pair<QueryResult, Long> sourceIdStats(Long affId,
+                                               Long offerId,
+                                               CommonParams common) {
+    return offerStats(common)
+        .addTemplateParam("groupBySourceId", true)
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addTemplateParamIfNotNull(offerId, "offer_id", offerId)
+        .executeAndCount(common.offset(), common.limit());
   }
 
   @Transactional
@@ -227,42 +215,31 @@ public class OfferStats {
 
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> subIdStats(
+  public Pair<QueryResult, Long> subIdStats(
       Long affId, Long offerId, Map<String, String> filter,
       Set<String> grouping, CommonParams common) {
 
     // empty response if no grouping given
-    if (grouping.size() == 0)
-      return new Pair<List<XmlOverallOfferStats>, Long>(
-          ImmutableList.<XmlOverallOfferStats>of(), 0L);
+    if (grouping.size() == 0) return Pair.of(QueryResult.empty(), 0L);
 
-    ImmutableMap.Builder<String, Object> templateParams =
-        templateParamsBuilder(common);
-    ImmutableMap.Builder<String, Object> queryParams = ImmutableMap.builder();
-    if (affId != null) {
-      templateParams.put("filterByAffiliate", true);
-      queryParams.put("aff_id", affId);
-    }
-    if (offerId != null) {
-      templateParams.put("filterByOffer", true);
-      queryParams.put("offer_id", offerId);
-    }
-    templateParams.put("groupBySub", grouping);
-    templateParams.put("filterBySub", filter.keySet());
-    queryParams.putAll(filter);
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams.build());
-    return executeStatsQuery(sql, common, queryParams.build());
+    return offerStats(common)
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", affId)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId)
+        .addTemplateParam("groupBySub", grouping)
+        .addTemplateParam("filterBySub", filter.keySet())
+        .addQueryParamsFromMap(filter)
+        .executeAndCount(common.offset(), common.limit());
   }
 
   @Transactional
-  public Pair<List<XmlOverallOfferStats>, Long> cashbackStats(
-      Long affId, CommonParams common) {
-    ImmutableMap<String, ?> templateParams = templateParamsBuilder(common)
-        .put("filterByAffiliate", true)
-        .put("groupByCashback", true)
-        .build();
-    String sql = SqlLoader.getTemplate("offer_stats", templateParams);
-    return executeStatsQuery(sql, common, ImmutableMap.of("aff_id", affId));
+  public Pair<QueryResult, Long> cashbackStats(Long affId, CommonParams common) {
+    return offerStats(common)
+        .addTemplateParam("filterByAffiliate", true)
+        .addQueryParam("aff_id", affId)
+        .addTemplateParam("groupByCashback", true)
+        .executeAndCount(common.offset(), common.limit());
   }
 
 
