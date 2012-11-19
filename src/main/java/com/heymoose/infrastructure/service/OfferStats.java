@@ -288,19 +288,13 @@ public class OfferStats {
                                                       boolean forAdvertiser,
                                                       CommonParams common) {
     Preconditions.checkNotNull(offerId, "Offer id should not be null.");
-    ImmutableMap.Builder<String, Object> templateParams =
-        templateParamsBuilder(common)
-        .put("addFee", forAdvertiser)
-        .put("filterByParentId", true);
-    ImmutableMap.Builder<String, Object> queryParams =
-        ImmutableMap.<String, Object>builder()
-        .put("parent_id", offerId);
-    if (affId != null) {
-      templateParams.put("filterByAffId", true);
-      queryParams.put("aff_id", affId);
-    }
-    String sql = SqlLoader.getTemplate("suboffer_stats", templateParams.build());
-    return executeSubOfferStatsQuery(sql, common, queryParams.build());
+    return subOfferStats(common)
+        .addTemplateParam("addFee", forAdvertiser)
+        .addTemplateParam("filterByParentId", true)
+        .addQueryParam("parent_id", offerId)
+        .addTemplateParamIfNotNull(affId, "filterByAffId", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .executeAndCount(common.offset(), common.limit());
   }
 
   public Pair<QueryResult, Long> subofferStatForAffiliate(Long affId,
@@ -522,7 +516,15 @@ public class OfferStats {
   }
 
   private TemplateQuery offerStats(CommonParams params) {
-    return SqlLoader.templateQuery("offer_stats", repo.session())
+    return commonQuery("offer_stats", params);
+  }
+
+  private TemplateQuery subOfferStats(CommonParams params) {
+    return commonQuery("suboffer_stats", params);
+  }
+
+  private TemplateQuery commonQuery(String name, CommonParams params) {
+    return SqlLoader.templateQuery(name, repo.session())
         .addTemplateParam("ordering", params.ordering())
         .addTemplateParam("direction", params.direction())
         .addQueryParam("from", params.from())

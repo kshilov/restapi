@@ -63,7 +63,7 @@ public class OfferStatsResource {
         .setOrdering(ordering)
         .setDirection(direction);
     Pair<QueryResult, Long> result = stats.allOfferStats(granted, common);
-    return toXml(result);
+    return toOfferStatXml(result);
   }
 
   @GET
@@ -88,7 +88,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.affOfferStats(affId, common));
+    return toOfferStatXml(stats.affOfferStats(affId, common));
   }
 
   @GET
@@ -113,7 +113,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.advOfferStats(advId, common));
+    return toOfferStatXml(stats.advOfferStats(advId, common));
   }
 
   @GET
@@ -136,7 +136,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.affStats(common));
+    return toOfferStatXml(stats.affStats(common));
   }
 
   @GET
@@ -159,7 +159,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.advStats(common));
+    return toOfferStatXml(stats.advStats(common));
   }
 
   @GET
@@ -200,7 +200,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.affStatsByOffer(offerId, forAdvertiser, common));
+    return toOfferStatXml(stats.affStatsByOffer(offerId, forAdvertiser, common));
   }
 
   @GET
@@ -225,7 +225,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.sourceIdStats(affId, offerId, common));
+    return toOfferStatXml(stats.sourceIdStats(affId, offerId, common));
   }
 
   @GET
@@ -278,7 +278,7 @@ public class OfferStatsResource {
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toXml(stats.subIdStats(
+    return toOfferStatXml(stats.subIdStats(
         affId, offerId, filter, groupBy, common));
   }
 
@@ -305,13 +305,14 @@ public class OfferStatsResource {
         .setOrdering(ordering)
         .setDirection(direction);
 
-    return toXml(stats.cashbackStats(affId, filter));
+    return toOfferStatXml(stats.cashbackStats(affId, filter));
   }
 
   @GET
   @Path("suboffers")
+  @Produces("application/xml")
   @Transactional
-  public XmlSubOfferStats subofferStatByOffer(
+  public String subofferStatByOffer(
       @QueryParam("aff_id") Long affId,
       @QueryParam("offer_id") Long offerId,
       @QueryParam("for_advertiser") boolean forAdvertiser,
@@ -323,12 +324,15 @@ public class OfferStatsResource {
       @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
 
     checkNotNull(offerId);
-    OfferStats.CommonParams common = new OfferStats.CommonParams(
-        new DateTime(from), new DateTime(to),
-        offset, limit, ordering, direction);
-    Pair<QueryResult, Long> p = stats.subofferStatForOffer(
-        affId, offerId, forAdvertiser, common);
-    return new XmlSubOfferStats(p);
+    OfferStats.CommonParams filter = new OfferStats.CommonParams();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    return toOfferStatXml(stats.subofferStatForOffer(
+        affId, offerId, forAdvertiser, filter));
   }
 
   @GET
@@ -576,12 +580,12 @@ public class OfferStatsResource {
     }
   }
 
-  private String toXml(Pair<QueryResult, Long> result) {
+  private String toOfferStatXml(Pair<QueryResult, Long> result) {
     return new XmlQueryResult(result.fst)
         .setRoot("stats")
         .setElement("stat")
         .addRootAttribute("count", result.snd)
-        .addFieldMapping("description", "name")
+        .addFieldMapping("descr", "name")
         .addFieldMapping("clicks_count", "clicks")
         .addFieldMapping("shows_count", "shows")
         .addFieldMapping("leads_count", "leads")
