@@ -2,6 +2,8 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.site.Site;
+import com.heymoose.domain.site.SiteAttribute;
 import com.heymoose.infrastructure.util.Cacheable;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.db.QueryResult;
@@ -54,6 +56,12 @@ public class Sites {
         .addQueryParam("second_period_to", secondToDate.toDate())
         .addTemplateParam("removedOnly", removedOnly)
         .count();
+  }
+
+  public Site add(Site site) {
+    repo.put(site);
+    for (SiteAttribute attr : site.attributeList()) repo.put(attr);
+    return site;
   }
 
 }

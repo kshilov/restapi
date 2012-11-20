@@ -1,14 +1,12 @@
 package com.heymoose.domain.site;
 
-import com.heymoose.domain.base.IdEntity;
-import com.heymoose.domain.offer.Category;
-import com.heymoose.domain.user.Lang;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.user.User;
 
 import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -17,19 +15,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.*;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "site")
-public class Site extends IdEntity {
+public class Site extends ModifiableEntity {
+
+  public enum Type { WEB_SITE, SOCIAL_NETWORK }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "site-seq")
@@ -37,37 +34,21 @@ public class Site extends IdEntity {
   private Long id;
 
   @Basic(optional = false)
-  private String name;
-
-  @Basic(optional = false)
-  private String domain;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "lang", nullable = false)
-  private Lang lang;
-
-  @Basic(optional = false)
-  private String comment;
+  private String description;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "aff_id", insertable = false, updatable = false)
   private User affiliate;
 
-  @ManyToMany
-  @JoinTable(
-      name = "site_category",
-      joinColumns = @JoinColumn(name = "offer_id", referencedColumnName = "id"),
-      inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id")
-  )
-  private Set<Category> categories;
+  @Column(name = "aff_id")
+  private Long affId;
 
-  @ElementCollection
-  @CollectionTable(
-      name = "site_region",
-      joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id")
-  )
-  @Column(name = "region")
-  private Set<String> regions;
+  @Enumerated(EnumType.STRING)
+  private Type type;
+
+  @OneToMany(mappedBy = "site")
+  private List<SiteAttribute> attributeList = Lists.newArrayList();
+
 
   @Override
   public Long id() {
@@ -76,25 +57,44 @@ public class Site extends IdEntity {
 
   protected Site() {}
   
-  public Site(String name, String domain, Lang lang, String comment, User affiliate, Set<Category> categories, Set<String> regions) {
-    this.name = name;
-    this.domain = domain;
-    this.lang = lang;
-    this.comment = comment;
-    this.affiliate = affiliate;
-    this.categories = newHashSet(categories);
-    this.regions = newHashSet(regions);
+  public Site(Type type) {
+    this.type = type;
   }
-  
-  public Set<Category> categories() {
-    if (categories == null)
-      return emptySet();
-    return unmodifiableSet(categories);
+
+  public Site setType(Type type) {
+    this.type = type;
+    return this;
   }
-  
-  public Set<String> regions() {
-    if (regions == null)
-      return emptySet();
-    return unmodifiableSet(regions);
+
+  public Site setDescription(String description) {
+    this.description = description;
+    return this;
   }
+
+  public Site setAffId(Long affId) {
+    this.affId = affId;
+    return this;
+  }
+
+  public Site addAttribute(String key, String value) {
+    SiteAttribute attr = new SiteAttribute()
+        .setSite(this)
+        .setKey(key)
+        .setValue(value);
+    this.attributeList.add(attr);
+    return this;
+  }
+
+  public Site addAttributesFromMap(Map<String, String> siteAttributeMap) {
+    for (Map.Entry<String, String> entry : siteAttributeMap.entrySet()) {
+      addAttribute(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
+  public List<SiteAttribute> attributeList() {
+    return ImmutableList.copyOf(this.attributeList);
+  }
+
+
 }

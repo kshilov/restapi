@@ -1,18 +1,17 @@
 package com.heymoose.resource;
 
-import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.offer.Category;
+import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.site.BlackListEntry;
 import com.heymoose.domain.site.Site;
-import com.heymoose.domain.user.Lang;
-import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
 import com.heymoose.infrastructure.service.Sites;
-import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
+import com.sun.jersey.api.core.HttpContext;
+import com.sun.jersey.api.representation.Form;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 import org.joda.time.DateTime;
@@ -30,15 +29,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
-import static com.heymoose.resource.Exceptions.notFound;
 
 @Singleton
 @Path("sites")
@@ -46,34 +42,51 @@ public class SiteResource {
 
   private static final XMLOutputter XML_OUTPUTTER = new XMLOutputter();
 
-  private final Repo repo;
   private final Sites sites;
   private final BlackList blackList;
 
   @Inject
-  public SiteResource(Repo repo, Sites sites, BlackList blackList) {
-    this.repo = repo;
+  public SiteResource(Sites sites, BlackList blackList) {
     this.sites = sites;
     this.blackList = blackList;
   }
 
   @POST
   @Transactional
-  public void register(@FormParam("userId") Long userId,
-                       @FormParam("name") String name,
-                       @FormParam("domain") String domain,
-                       @FormParam("lang") Lang lang,
-                       @FormParam("comment") String comment,
-                       @FormParam("category") List<Long> categories,
-                       @FormParam("region") List<String> regions) {
-
-    checkNotNull(userId, name, domain, lang, comment);
-    User user = repo.get(User.class, userId);
-    if (user == null)
-      throw notFound();
-    Map<Long, Category> categoryMap = repo.get(Category.class, newHashSet(categories));
-    Site site = new Site(name, domain, lang, comment, user, newHashSet(categoryMap.values()), newHashSet(regions));
-    repo.put(site);
+  public Response register(@Context HttpContext context) {
+    Form form = context.getRequest().getEntity(Form.class);
+    String description = null;
+    String type = null;
+    Long affId = null;
+    ImmutableMap.Builder<String, String> siteAttributes =
+        ImmutableMap.builder();
+    for (Map.Entry<String, List<String>> entry : form.entrySet()) {
+      if (entry.getKey().equals("aff_id")) {
+        affId = Long.valueOf(entry.getValue().get(0));
+        continue;
+      }
+      if (entry.getKey().equals("type")) {
+        type = entry.getValue().get(0);
+        continue;
+      }
+      if (entry.getKey().equals("description")) {
+        description = entry.getValue().get(0);
+        continue;
+      }
+      siteAttributes.put(entry.getKey(), entry.getValue().get(0));
+    }
+    Site site = new Site(Site.Type.valueOf(type))
+        .setDescription(description)
+        .setAffId(affId)
+        .addAttributesFromMap(siteAttributes.build());
+    sites.add(site);
+    try {
+      return Response
+          .created(new URI(site.id().toString()))
+          .build();
+    } catch (URISyntaxException e) {
+      return Response.ok().build();
+    }
   }
 
   @GET
