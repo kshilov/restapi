@@ -131,6 +131,7 @@ public class SiteResource {
   }
 
   @GET
+  @Produces("application/xml")
   @Transactional
   public String listSites(@QueryParam("aff_id") Long affId,
                           @QueryParam("offset") int offset,
@@ -145,6 +146,16 @@ public class SiteResource {
         .setOrdering(ordering)
         .setDirection(direction);
     return toSiteXml(sites.list(affId, common));
+  }
+
+  @GET
+  @Path("{id}")
+  @Produces("application/xml")
+  @Transactional
+  public String getSite(@PathParam("id") Long siteId) {
+    Site site = sites.get(siteId);
+    if (site == null) throw new WebApplicationException(404);
+    return toSiteXml(site);
   }
 
 
@@ -317,21 +328,29 @@ public class SiteResource {
     Element root = new Element("sites")
         .setAttribute("count", result.snd.toString());
     for (Site site : result.fst) {
-      Element siteElement = new Element("site")
-          .setAttribute("id", site.id().toString());
-      Element aff = new Element("affiliate")
-          .setAttribute("id", site.affiliate().id().toString())
-          .addContent(element("email", site.affiliate().email()));
-      siteElement.addContent(aff);
-      siteElement.addContent(element("description", site.description()));
-      siteElement.addContent(element("type", site.type().toString()));
-      siteElement.addContent(element("approved",
-          String.valueOf(site.approvedByAdmin())));
-      for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
-        siteElement.addContent(element(entry.getKey(), entry.getValue()));
-      }
-      root.addContent(siteElement);
+      root.addContent(toSiteElement(site));
     }
     return XML_OUTPUTTER.outputString(root);
+  }
+
+  private String toSiteXml(Site site) {
+    return XML_OUTPUTTER.outputString(toSiteElement(site));
+  }
+
+  private Element toSiteElement(Site site) {
+    Element siteElement = new Element("site")
+        .setAttribute("id", site.id().toString());
+    Element aff = new Element("affiliate")
+        .setAttribute("id", site.affiliate().id().toString())
+        .addContent(element("email", site.affiliate().email()));
+    siteElement.addContent(aff);
+    siteElement.addContent(element("description", site.description()));
+    siteElement.addContent(element("type", site.type().toString()));
+    siteElement.addContent(element("approved",
+        String.valueOf(site.approvedByAdmin())));
+    for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
+      siteElement.addContent(element(entry.getKey(), entry.getValue()));
+    }
+    return siteElement;
   }
 }
