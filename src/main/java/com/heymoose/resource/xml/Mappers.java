@@ -284,7 +284,8 @@ public class Mappers {
       xmlOfferGrant.offer = new XmlOffer();
       xmlOfferGrant.offer.id = grant.offerId();
       xmlOfferGrant.affiliate = new XmlUser();
-      xmlOfferGrant.affiliate.id = grant.affiliateId();
+      xmlOfferGrant.affiliate.id = grant.affiliate().id();
+      xmlOfferGrant.affiliate.email = grant.affiliate().email();
     }
     return xmlOfferGrant;
   }
