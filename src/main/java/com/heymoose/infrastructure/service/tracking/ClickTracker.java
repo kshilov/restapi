@@ -11,6 +11,7 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
@@ -19,6 +20,7 @@ import com.heymoose.infrastructure.persistence.KeywordPatternDao;
 import com.heymoose.infrastructure.service.BlackList;
 import com.heymoose.infrastructure.service.GeoTargeting;
 import com.heymoose.infrastructure.service.OfferStats;
+import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.QueryUtil;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
@@ -43,12 +45,14 @@ public class ClickTracker implements Tracker {
   private final KeywordPatternDao keywordPatternDao;
   private final BufferedClicks bufferedClicks;
   private final BlackList blackList;
+  private final Sites sites;
 
   @Inject
   public ClickTracker(BufferedClicks bufferedClicks, GeoTargeting geoTargeting,
                       KeywordPatternDao keywordPatternDao,
                       OfferGrantRepository offerGrants, OfferStats offerStats,
                       BlackList blackList,
+                      Sites sites,
                       Repo repo) {
     this.bufferedClicks = bufferedClicks;
     this.geoTargeting = geoTargeting;
@@ -57,6 +61,7 @@ public class ClickTracker implements Tracker {
     this.offerStats = offerStats;
     this.blackList = blackList;
     this.repo = repo;
+    this.sites = sites;
   }
 
   @Override
@@ -74,14 +79,32 @@ public class ClickTracker implements Tracker {
     User affiliate = repo.get(User.class, affId);
     if (affiliate == null)
       throw notFound(Offer.class, offerId);
-    OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
-    if (grant == null) {
-      response.status(409);
-      return;
-    }
-    if (!visible(offer)) {
-      forbidden(grant, response);
-      return;
+
+    String backUrl = null;
+    Long siteId = null;
+    if (params.containsKey("placement_id")) {
+      OfferSite offerSite = sites.getOfferSite(
+          Long.valueOf(params.get("placement_id")));
+      if (offerSite == null) {
+        response.status(409);
+        return;
+      }
+      if (!offerSite.approvedByAdmin()) {
+        forbidden(offerSite.backUrl(), response);
+        return;
+      }
+      siteId = offerSite.site().id();
+    } else {
+      OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
+      backUrl = grant.backUrl();
+      if (grant == null) {
+        response.status(409);
+        return;
+      }
+      if (!visible(offer)) {
+        forbidden(backUrl, response);
+        return;
+      }
     }
 
     // sourceId and subIds extracting
@@ -99,12 +122,12 @@ public class ClickTracker implements Tracker {
     if (ipNum == null)
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum)) {
-      forbidden(grant, response);
+      forbidden(backUrl, response);
       return;
     }
 
     if (blackList.ban(context.getHeaderValue("Referer"))) {
-      forbidden(grant, response);
+      forbidden(backUrl, response);
       return;
     }
     String referer = extractReferer(context);
@@ -138,7 +161,8 @@ public class ClickTracker implements Tracker {
         .setReferer(referer)
         .setKeywords(keywords)
         .setCashbackTargetId(params.get("cashback"))
-        .setCashbackReferrer(cashbackReferrer);
+        .setCashbackReferrer(cashbackReferrer)
+        .setSiteId(siteId);
     OfferStat existedStat = offerStats.findStat(stat);
     if (existedStat == null) {
       stat.incClicks();
@@ -191,11 +215,6 @@ public class ClickTracker implements Tracker {
     addCookie(response, "hm_token_" + offer.advertiser().id(), token.value(),
         maxAge);
     noCache(response);
-  }
-
-  private void forbidden(OfferGrant grant, Response.ResponseBuilder response) {
-    if (grant.backUrl() == null) response.status(403);
-    else response.status(302).location(URI.create(grant.backUrl()));
   }
 
 }

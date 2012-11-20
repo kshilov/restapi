@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.action.OfferActionState;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.util.DataFilter;
@@ -19,7 +18,6 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
@@ -332,34 +330,24 @@ public class OfferStats {
 
 
   public OfferStat findStat(OfferStat stat) {
-    return findStat(stat.bannerId(), stat.offerId(),
-        stat.affiliateId(), stat.sourceId(), stat.subs(), stat.referer(),
-        stat.keywords(), stat.cashbackTargetId(), stat.cashbackReferrer());
-  }
-
-  public OfferStat findStat(
-      @Nullable Long bannerId, long offerId, long affId, String sourceId, Subs subs,
-      @Nullable String referer, @Nullable String keywords,
-      String cashbackTargetId, String cashbackReferer) {
-
     DetachedCriteria criteria = DetachedCriteria.forClass(OfferStat.class)
-        .add(Restrictions.eq("offer.id", offerId))
-        .add(Restrictions.eq("affiliate.id", affId));
-    addEqOrIsNull(criteria, "bannerId", bannerId);
-    addEqOrIsNull(criteria, "sourceId", sourceId);
-    addEqOrIsNull(criteria, "subId", subs.subId());
-    addEqOrIsNull(criteria, "subId1", subs.subId1());
-    addEqOrIsNull(criteria, "subId2", subs.subId2());
-    addEqOrIsNull(criteria, "subId3", subs.subId3());
-    addEqOrIsNull(criteria, "subId4", subs.subId4());
-    addEqOrIsNull(criteria, "referer", referer);
-    addEqOrIsNull(criteria, "keywords", keywords);
-    addEqOrIsNull(criteria, "cashbackTargetId", cashbackTargetId);
-    addEqOrIsNull(criteria, "cashbackReferrer", cashbackReferer);
+        .add(Restrictions.eq("offer.id", stat.offerId()))
+        .add(Restrictions.eq("affiliate.id", stat.affiliateId()));
+    addEqOrIsNull(criteria, "bannerId", stat.bannerId());
+    addEqOrIsNull(criteria, "sourceId", stat.sourceId());
+    addEqOrIsNull(criteria, "subId", stat.subs().subId());
+    addEqOrIsNull(criteria, "subId1", stat.subs().subId1());
+    addEqOrIsNull(criteria, "subId2", stat.subs().subId2());
+    addEqOrIsNull(criteria, "subId3", stat.subs().subId3());
+    addEqOrIsNull(criteria, "subId4", stat.subs().subId4());
+    addEqOrIsNull(criteria, "referer", stat.referer());
+    addEqOrIsNull(criteria, "keywords", stat.keywords());
+    addEqOrIsNull(criteria, "cashbackTargetId", stat.cashbackTargetId());
+    addEqOrIsNull(criteria, "cashbackReferrer", stat.cashbackReferrer());
+    addEqOrIsNull(criteria, "siteId", stat.siteId());
     criteria.add(Restrictions.ge("creationTime", DateTime.now().minusHours(1)));
     return repo.byCriteria(criteria);
   }
-
 
   @SuppressWarnings("unchecked")
   public Map<String, BigDecimal> totalStats(DateTime from, DateTime to) {

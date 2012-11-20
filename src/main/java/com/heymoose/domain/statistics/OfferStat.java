@@ -140,6 +140,9 @@ public class OfferStat extends BaseEntity {
   @Column(name = "cashback_referrer")
   private String cashbackReferrer;
 
+  @Column(name = "site_id")
+  private Long siteId;
+
   @Override
   public Long id() {
     return id;
@@ -398,5 +401,14 @@ public class OfferStat extends BaseEntity {
 
   public String cashbackReferrer() {
     return this.cashbackReferrer;
+  }
+
+  public Long siteId() {
+    return siteId;
+  }
+
+  public OfferStat setSiteId(Long siteId) {
+    this.siteId = siteId;
+    return this;
   }
 }

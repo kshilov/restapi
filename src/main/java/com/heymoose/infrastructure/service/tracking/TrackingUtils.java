@@ -11,6 +11,7 @@ import com.sun.jersey.api.core.HttpRequestContext;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -162,6 +163,11 @@ public final class TrackingUtils {
         tokenValue + " ] not found.");
 
     return token;
+  }
+
+  public static void forbidden(String backUrl, Response.ResponseBuilder response) {
+    if (backUrl == null) response.status(403);
+    else response.status(302).location(URI.create(backUrl));
   }
 
 

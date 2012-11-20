@@ -53,4 +53,17 @@ public final class OfferSite extends ModifiableEntity {
     this.approvedByAdmin = true;
     return this;
   }
+
+  public Site site() {
+    return this.site;
+  }
+
+  public boolean approvedByAdmin() {
+    return this.approvedByAdmin;
+  }
+
+  // todo: add impl
+  public String backUrl() {
+    return null;
+  }
 }
