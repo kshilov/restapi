@@ -175,7 +175,9 @@ public class SiteResource {
       TypedMap entry = TypedMap.wrap(map);
       Element entryXml = new Element("placement")
           .setAttribute("id", entry.getString("id"))
-          .addContent(element("approved", entry.getString("approved")));
+          .addContent(element("approved", entry.getString("approved")))
+          .addContent(element("back-url", entry.getString("back_url")))
+          .addContent(element("postback-url", entry.getString("postback_url")));
       Element offerXml = new Element("offer")
           .setAttribute("id", entry.getString("offer_id"))
           .addContent(element("title", entry.getString("offer_title")));

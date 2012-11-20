@@ -1,6 +1,5 @@
 package com.heymoose.infrastructure.service;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
@@ -82,14 +81,6 @@ public class Sites {
 
   public Site put(Site site) {
     repo.put(site);
-    List<SiteAttribute> newAttributes =
-        ImmutableList.copyOf(site.attributeList());
-    repo.session().createQuery("delete from SiteAttribute where site = :site")
-        .setParameter("site", site)
-        .executeUpdate();
-    repo.session().flush();
-    repo.session().clear();
-    for (SiteAttribute attr : newAttributes) repo.put(attr);
     return site;
   }
 

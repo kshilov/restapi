@@ -33,6 +33,12 @@ public final class OfferSite extends ModifiableEntity {
   @Column(name = "approved")
   private boolean approvedByAdmin = false;
 
+  @Column(name = "back_url")
+  private String backUrl;
+
+  @Column(name = "postback_url")
+  private String postbackUrl;
+
 
   @Override
   public Long id() {
@@ -62,8 +68,11 @@ public final class OfferSite extends ModifiableEntity {
     return this.approvedByAdmin;
   }
 
-  // todo: add impl
   public String backUrl() {
-    return null;
+    return this.backUrl;
+  }
+
+  public String postBackUrl() {
+    return this.postbackUrl;
   }
 }

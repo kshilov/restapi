@@ -59,6 +59,8 @@ create table offer_site(
   offer_id bigint not null,
   site_id bigint not null,
   approved boolean not null default false,
+  back_url text,
+  postback_url text,
   creation_time timestamp without time zone default now(),
   last_change_time timestamp without time zone default now(),
   foreign key (offer_id) references offer(id),

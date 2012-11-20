@@ -1,6 +1,8 @@
 select
   offer_site.id       id,
   offer_site.approved approved,
+  coalesce(offer_site.back_url, '')     back_url,
+  coalesce(offer_site.postback_url, '') postback_url,
   site.id             site_id,
   site.description    site_description,
   site.type           site_type,
