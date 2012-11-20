@@ -103,8 +103,18 @@ public class SiteResource {
     if (offerId == null) throw new WebApplicationException(400);
     Offer offer = offers.activeOfferById(offerId);
     Site site = sites.approvedSite(siteId);
-    if (offer == null || site == null) throw new WebApplicationException(400);
+    if (offer == null || site == null) throw new WebApplicationException(404);
     sites.placeOffer(offer, site);
+    return Response.ok().build();
+  }
+
+  @POST
+  @Path("{id}/approve")
+  @Transactional
+  public Response approveSite(@PathParam("id") Long siteId) {
+    Site site = sites.get(siteId);
+    if (site == null) throw new WebApplicationException(404);
+    sites.put(site.adminApprove());
     return Response.ok().build();
   }
 

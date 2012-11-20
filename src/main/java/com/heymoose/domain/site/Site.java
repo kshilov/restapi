@@ -100,5 +100,10 @@ public class Site extends ModifiableEntity {
     return ImmutableList.copyOf(this.attributeList);
   }
 
+  public Site adminApprove() {
+    this.approvedByAdmin = true;
+    return this;
+  }
+
 
 }

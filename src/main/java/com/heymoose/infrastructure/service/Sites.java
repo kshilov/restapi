@@ -66,6 +66,16 @@ public class Sites {
     return site;
   }
 
+  public Site put(Site site) {
+    repo.put(site);
+    repo.session()
+        .createQuery("delete from SiteAttribute where site = :site")
+        .setParameter("site", site)
+        .executeUpdate();
+    for (SiteAttribute attr : site.attributeList()) repo.put(attr);
+    return site;
+  }
+
   public OfferSite placeOffer(Offer offer, Site site) {
     OfferSite offerSite = new OfferSite()
         .setOffer(offer)
@@ -77,6 +87,10 @@ public class Sites {
   public Site approvedSite(Long siteId) {
     return repo.byHQL(Site.class,
         "from Site where id = ? and approvedByAdmin = true", siteId);
+  }
+
+  public Site get(Long siteId) {
+    return repo.get(Site.class, siteId);
   }
 
 
