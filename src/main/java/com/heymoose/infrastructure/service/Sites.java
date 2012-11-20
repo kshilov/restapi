@@ -163,5 +163,15 @@ public class Sites {
     }
   }
 
+  public Pair<QueryResult, Long> listOfferSites(Long affId, Long offerId,
+                                                int offset, int limit) {
+    return SqlLoader.templateQuery("offer-site-list", repo.session())
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
+        .addQueryParamIfNotNull(offerId, "offer_id", offerId)
+        .executeAndCount(offset, limit);
+  }
+
 
 }

@@ -158,6 +158,43 @@ public class SiteResource {
     return toSiteXml(site);
   }
 
+  @GET
+  @Path("placements")
+  @Transactional
+  public String listPlacements(@QueryParam("aff_id") Long affId,
+                               @QueryParam("offer_id") Long offerId,
+                               @QueryParam("offset") int offset,
+                               @QueryParam("limit") @DefaultValue("20") int limit) {
+    return toPlacementXml(sites.listOfferSites(affId, offerId, offset, limit));
+  }
+
+  private String toPlacementXml(Pair<QueryResult, Long> result) {
+    Element root = new Element("placements")
+        .setAttribute("count", result.snd.toString());
+    for (Map<String, Object> map : result.fst) {
+      TypedMap entry = TypedMap.wrap(map);
+      Element entryXml = new Element("placement")
+          .setAttribute("id", entry.getString("id"))
+          .addContent(element("approved", entry.getString("approved")));
+      Element offerXml = new Element("offer")
+          .setAttribute("id", entry.getString("offer_id"))
+          .addContent(element("title", entry.getString("offer_title")));
+      Element affiliateXml = new Element("affiliate")
+          .setAttribute("id", entry.getString("affiliate_id"))
+          .addContent(element("email", entry.getString("affiliate_email")));
+      Element siteXml = new Element("site")
+          .setAttribute("id", entry.getString("site_id"))
+          .addContent(element("type", entry.getString("site_type")))
+          .addContent(element("description",
+              entry.getString("site_description")));
+      entryXml.addContent(offerXml)
+          .addContent(affiliateXml)
+          .addContent(siteXml);
+      root.addContent(entryXml);
+    }
+    return XML_OUTPUTTER.outputString(root);
+  }
+
 
   @GET
   @Path("stats")
