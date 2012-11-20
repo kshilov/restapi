@@ -35,6 +35,7 @@ import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.site.BlackListEntry;
+import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.site.SiteAttribute;
 import com.heymoose.domain.statistics.LeadStat;
@@ -94,7 +95,7 @@ public class CommonModule extends AbstractModule {
     bind(Cashbacks.class).to(CashbacksHiber.class);
 
     bindEntities(Offer.class, User.class, Banner.class,
-        Setting.class, Site.class, SiteAttribute.class,
+        Setting.class, Site.class, SiteAttribute.class, OfferSite.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class,
         Category.class, CategoryGroup.class,
         IpSegment.class, Account.class,

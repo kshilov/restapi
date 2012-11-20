@@ -46,6 +46,10 @@ public class Site extends ModifiableEntity {
   @Enumerated(EnumType.STRING)
   private Type type;
 
+  @Column(name = "approved")
+  private boolean approvedByAdmin = false;
+
+
   @OneToMany(mappedBy = "site")
   private List<SiteAttribute> attributeList = Lists.newArrayList();
 

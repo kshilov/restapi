@@ -1,10 +1,12 @@
 package com.heymoose.resource;
 
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.BlackListEntry;
 import com.heymoose.domain.site.Site;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
+import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
@@ -44,11 +46,15 @@ public class SiteResource {
 
   private final Sites sites;
   private final BlackList blackList;
+  private final OfferLoader offers;
 
   @Inject
-  public SiteResource(Sites sites, BlackList blackList) {
+  public SiteResource(Sites sites,
+                      BlackList blackList,
+                      OfferLoader offers) {
     this.sites = sites;
     this.blackList = blackList;
+    this.offers = offers;
   }
 
   @POST
@@ -85,8 +91,21 @@ public class SiteResource {
           .created(new URI(site.id().toString()))
           .build();
     } catch (URISyntaxException e) {
-      return Response.ok().build();
+      throw new RuntimeException(e);
     }
+  }
+
+  @POST
+  @Path("{id}/place_offer")
+  @Transactional
+  public Response placeOffer(@PathParam("id") Long siteId,
+                             @FormParam("offer_id") Long offerId) {
+    if (offerId == null) throw new WebApplicationException(400);
+    Offer offer = offers.activeOfferById(offerId);
+    Site site = sites.approvedSite(siteId);
+    if (offer == null || site == null) throw new WebApplicationException(400);
+    sites.placeOffer(offer, site);
+    return Response.ok().build();
   }
 
   @GET

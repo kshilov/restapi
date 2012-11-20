@@ -2,6 +2,8 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.site.SiteAttribute;
 import com.heymoose.infrastructure.util.Cacheable;
@@ -63,5 +65,19 @@ public class Sites {
     for (SiteAttribute attr : site.attributeList()) repo.put(attr);
     return site;
   }
+
+  public OfferSite placeOffer(Offer offer, Site site) {
+    OfferSite offerSite = new OfferSite()
+        .setOffer(offer)
+        .setSite(site);
+    repo.put(offerSite);
+    return offerSite;
+  }
+
+  public Site approvedSite(Long siteId) {
+    return repo.byHQL(Site.class,
+        "from Site where id = ? and approvedByAdmin = true", siteId);
+  }
+
 
 }
