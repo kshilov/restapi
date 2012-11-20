@@ -3,6 +3,7 @@ package com.heymoose.resource;
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.BlackListEntry;
+import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
@@ -115,6 +116,16 @@ public class SiteResource {
     Site site = sites.get(siteId);
     if (site == null) throw new WebApplicationException(404);
     sites.put(site.adminApprove());
+    return Response.ok().build();
+  }
+
+  @POST
+  @Path("placement/{id}/approve")
+  @Transactional
+  public Response approveOfferSite(@PathParam("id") Long offerSiteId) {
+    OfferSite offerSite = sites.getOfferSite(offerSiteId);
+    if (offerSite == null) throw new WebApplicationException(404);
+    sites.put(offerSite.adminApprove());
     return Response.ok().build();
   }
 

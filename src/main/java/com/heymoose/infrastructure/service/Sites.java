@@ -93,5 +93,13 @@ public class Sites {
     return repo.get(Site.class, siteId);
   }
 
+  public void put(OfferSite offerSite) {
+    repo.put(offerSite);
+  }
+
+  public OfferSite getOfferSite(Long id) {
+    return repo.get(OfferSite.class, id);
+  }
+
 
 }
