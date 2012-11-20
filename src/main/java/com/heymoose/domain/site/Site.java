@@ -1,6 +1,7 @@
 package com.heymoose.domain.site;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.user.User;
@@ -103,6 +104,30 @@ public class Site extends ModifiableEntity {
   public Site adminApprove() {
     this.approvedByAdmin = true;
     return this;
+  }
+
+  public String description() {
+    return this.description;
+  }
+
+  public Type type() {
+    return type;
+  }
+
+  public User affiliate() {
+    return affiliate;
+  }
+
+  public Map<String, String> attributeMap() {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (SiteAttribute entry : attributeList) {
+      builder.put(entry.key(), entry.value());
+    }
+    return builder.build();
+  }
+
+  public boolean approvedByAdmin() {
+    return approvedByAdmin;
   }
 
 

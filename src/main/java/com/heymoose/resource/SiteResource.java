@@ -9,6 +9,7 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.Sites;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
@@ -128,6 +129,24 @@ public class SiteResource {
     sites.put(offerSite.adminApprove());
     return Response.ok().build();
   }
+
+  @GET
+  @Transactional
+  public String listSites(@QueryParam("aff_id") Long affId,
+                          @QueryParam("offset") int offset,
+                          @QueryParam("limit") @DefaultValue("20") int limit,
+                          @QueryParam("ordering") @DefaultValue("AFFILIATE_EMAIL")
+                          Sites.Ordering ordering,
+                          @QueryParam("direction") @DefaultValue("ASC")
+                          OrderingDirection direction) {
+    DataFilter<Sites.Ordering> common = DataFilter.newInstance();
+    common.setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    return toSiteXml(sites.list(affId, common));
+  }
+
 
   @GET
   @Path("stats")
@@ -292,5 +311,27 @@ public class SiteResource {
 
   private Element element(String name, String text) {
     return new Element(name).setText(text);
+  }
+
+  private String toSiteXml(Pair<List<Site>, Long> result) {
+    Element root = new Element("sites")
+        .setAttribute("count", result.snd.toString());
+    for (Site site : result.fst) {
+      Element siteElement = new Element("site")
+          .setAttribute("id", site.id().toString());
+      Element aff = new Element("affiliate")
+          .setAttribute("id", site.affiliate().id().toString())
+          .addContent(element("email", site.affiliate().email()));
+      siteElement.addContent(aff);
+      siteElement.addContent(element("description", site.description()));
+      siteElement.addContent(element("type", site.type().toString()));
+      siteElement.addContent(element("approved",
+          String.valueOf(site.approvedByAdmin())));
+      for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
+        siteElement.addContent(element(entry.getKey(), entry.getValue()));
+      }
+      root.addContent(siteElement);
+    }
+    return XML_OUTPUTTER.outputString(root);
   }
 }

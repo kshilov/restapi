@@ -52,4 +52,12 @@ public class SiteAttribute extends IdEntity {
     this.site = site;
     return this;
   }
+
+  public String key() {
+    return key;
+  }
+
+  public String value() {
+    return value;
+  }
 }

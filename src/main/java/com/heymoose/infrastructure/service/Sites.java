@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.Offer;
@@ -7,12 +8,25 @@ import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.site.SiteAttribute;
 import com.heymoose.infrastructure.util.Cacheable;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.infrastructure.util.db.SqlLoader;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Sites {
+
+  public enum Ordering {
+    ID, AFFILIATE_EMAIL, DESCRIPTION, TYPE, APPROVED
+  }
 
   public enum StatOrdering {
     AFFILIATE_EMAIL, REFERER,
@@ -68,11 +82,14 @@ public class Sites {
 
   public Site put(Site site) {
     repo.put(site);
-    repo.session()
-        .createQuery("delete from SiteAttribute where site = :site")
+    List<SiteAttribute> newAttributes =
+        ImmutableList.copyOf(site.attributeList());
+    repo.session().createQuery("delete from SiteAttribute where site = :site")
         .setParameter("site", site)
         .executeUpdate();
-    for (SiteAttribute attr : site.attributeList()) repo.put(attr);
+    repo.session().flush();
+    repo.session().clear();
+    for (SiteAttribute attr : newAttributes) repo.put(attr);
     return site;
   }
 
@@ -99,6 +116,51 @@ public class Sites {
 
   public OfferSite getOfferSite(Long id) {
     return repo.get(OfferSite.class, id);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Pair<List<Site>, Long> list(Long affId, DataFilter<Ordering> common) {
+    if (common.limit() == 0) return Pair.of(Collections.<Site>emptyList(), 0L);
+    Criteria c = repo.session().createCriteria(Site.class);
+    if (affId != null) c.add(Restrictions.eq("affId", affId));
+    c.setFirstResult(common.offset());
+    c.setMaxResults(common.limit());
+    switch (common.ordering()) {
+      case AFFILIATE_EMAIL:
+        c.createAlias("affiliate", "affiliate");
+        addOrder(c, "affiliate.email", common.direction());
+        break;
+      case DESCRIPTION:
+        addOrder(c, "description", common.direction());
+        break;
+      case ID:
+        addOrder(c, "id", common.direction());
+        break;
+      case TYPE:
+        addOrder(c, "type", common.direction());
+        break;
+      case APPROVED:
+        addOrder(c, "approvedByAdmin", common.direction());
+        break;
+    }
+    List<Site> result = (List<Site>) c.list();
+
+    Criteria countQuery = repo.session().createCriteria(Site.class);
+    if (affId != null) countQuery.add(Restrictions.eq("affId", affId));
+    countQuery.setProjection(Projections.count("id"));
+    Long count = (Long) countQuery.uniqueResult();
+    return Pair.of(result, count);
+  }
+
+  private void addOrder(Criteria c, String name, OrderingDirection direction) {
+    switch (direction) {
+      case ASC :
+        c.addOrder(Order.asc(name));
+        break;
+      case DESC:
+        c.addOrder(Order.desc(name));
+        break;
+    }
   }
 
 
