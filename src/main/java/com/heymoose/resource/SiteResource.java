@@ -107,6 +107,19 @@ public class SiteResource {
   }
 
   @PUT
+  @Path("placements/{id}")
+  @Transactional
+  public Response updatePlacement(@PathParam("id") Long id,
+                                  @FormParam("back_url") String backUrl,
+                                  @FormParam("postback_url") String postbackUrl) {
+    OfferSite offerSite = sites.getOfferSite(id);
+    if (offerSite == null) throw new WebApplicationException(404);
+    offerSite.setBackUrl(backUrl).setPostbackUrl(postbackUrl);
+    sites.put(offerSite);
+    return Response.ok().build();
+  }
+
+  @PUT
   @Path("{id}/approve")
   @Transactional
   public Response approveSite(@PathParam("id") Long siteId) {
