@@ -9,8 +9,6 @@ import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.infrastructure.service.OfferLoader;
-import com.heymoose.infrastructure.service.processing.ActionProcessor;
-import com.heymoose.infrastructure.service.processing.CashbackProcessor;
 import com.heymoose.infrastructure.service.processing.ProcessableData;
 import com.heymoose.infrastructure.service.processing.Processor;
 import com.heymoose.infrastructure.service.processing.ReferralActionProcessor;
@@ -44,21 +42,18 @@ public final class ActionTracker implements  Tracker {
           .maximumSize(100)
           .build();
 
-  private ActionProcessor actionProcessor;
+  private Processor defaultProcessor;
   private OfferLoader offerLoader;
   private ReferralActionProcessor referralProcessor;
-  private CashbackProcessor cashbackProcessor;
   private Repo repo;
 
   @Inject
-  public ActionTracker(Repo repo, ActionProcessor processor,
+  public ActionTracker(Repo repo, Processor defaultProcessor,
                        ReferralActionProcessor referralProcessor,
-                       CashbackProcessor cashbackProcessor,
                        OfferLoader offerLoader) {
-    this.actionProcessor = processor;
+    this.defaultProcessor = defaultProcessor;
     this.offerLoader = offerLoader;
     this.referralProcessor = referralProcessor;
-    this.cashbackProcessor = cashbackProcessor;
     this.repo = repo;
   }
 
@@ -91,7 +86,7 @@ public final class ActionTracker implements  Tracker {
           .setToken(token)
           .setTransactionId(transactionId)
           .setOffer(offer);
-      processSafe(data, actionProcessor, referralProcessor, cashbackProcessor);
+      processSafe(data, defaultProcessor, referralProcessor);
     } else {
       for (String keyVal : PERIOD_SPLITTER.split(offerString)) {
         Iterator<String> keyValIterator = COLON_SPLITTER.split(keyVal)
@@ -103,7 +98,7 @@ public final class ActionTracker implements  Tracker {
             .setTransactionId(transactionId)
             .setOffer(offer)
             .setPrice(new BigDecimal(keyValIterator.next()));
-        processSafe(data, actionProcessor, cashbackProcessor);
+        processSafe(data, defaultProcessor);
       }
     }
     noCache(response.status(200));

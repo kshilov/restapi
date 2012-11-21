@@ -160,7 +160,7 @@ public class Sites {
       throw new IllegalArgumentException(
           "Site " + site + " not approved by admin");
     OfferSite offerSite = repo.byHQL(OfferSite.class,
-        "from OfferSite where offer = ? and site = ? and approved = ?",
+        "from OfferSite where offer = ? and site = ? and approved = true",
         offer.masterOffer(), site);
     if (offerSite == null) {
       throw new IllegalStateException("No permission for offer " +

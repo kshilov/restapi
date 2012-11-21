@@ -35,10 +35,12 @@ public final class ActionProcessor implements Processor {
 
   @Inject
   protected ActionProcessor(Repo repo, Accounting accounting,
-                            OfferGrantRepository offerGrants) {
+                            OfferGrantRepository offerGrants,
+                            Sites sites) {
     this.repo = repo;
     this.accounting = accounting;
     this.offerGrants = offerGrants;
+    this.sites = sites;
   }
 
 
@@ -110,6 +112,7 @@ public final class ActionProcessor implements Processor {
     BigDecimal heymoosePart = tariff.heymoosePart(advertiserCharge);
     OfferStat stat = copyStat(source, offer)
         .setProduct(data.product())
+        .setSiteId(data.site() == null ? null : data.site().id())
         .addToNotConfirmedRevenue(affiliatePart)
         .addToNotConfirmedFee(heymoosePart);
     if (tariff.cpaPolicy() == CpaPolicy.PERCENT) {
