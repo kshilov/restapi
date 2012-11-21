@@ -3,7 +3,6 @@ package com.heymoose.infrastructure.service;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
-import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.site.SiteAttribute;
@@ -85,10 +84,7 @@ public class Sites {
     return site;
   }
 
-  public OfferSite placeOffer(Offer offer, Site site) {
-    OfferSite offerSite = new OfferSite()
-        .setOffer(offer)
-        .setSite(site);
+  public OfferSite addOfferSite(OfferSite offerSite) {
     repo.put(offerSite);
     return offerSite;
   }

@@ -101,12 +101,19 @@ public class SiteResource {
   @Path("placements")
   @Transactional
   public Response placeOffer(@FormParam("site_id") Long siteId,
-                             @FormParam("offer_id") Long offerId) {
+                             @FormParam("offer_id") Long offerId,
+                             @FormParam("back_url") String backUrl,
+                             @FormParam("postback_url") String postbacUrl) {
     if (offerId == null) throw new WebApplicationException(400);
     Offer offer = offers.activeOfferById(offerId);
     Site site = sites.approvedSite(siteId);
     if (offer == null || site == null) throw new WebApplicationException(404);
-    sites.placeOffer(offer, site);
+    OfferSite offerSite = new OfferSite()
+        .setOffer(offer)
+        .setSite(site)
+        .setBackUrl(backUrl)
+        .setPostbackUrl(postbacUrl);
+    sites.addOfferSite(offerSite);
     return Response.ok().build();
   }
 

@@ -75,4 +75,14 @@ public final class OfferSite extends ModifiableEntity {
   public String postBackUrl() {
     return this.postbackUrl;
   }
+
+  public OfferSite setBackUrl(String backUrl) {
+    this.backUrl = backUrl;
+    return this;
+  }
+
+  public OfferSite setPostbackUrl(String postbackUrl) {
+    this.postbackUrl = postbackUrl;
+    return this;
+  }
 }
