@@ -69,3 +69,12 @@ create table offer_site(
 );
 
 end;
+
+begin;
+grant select on site to dumper;
+grant select on site_seq to dumper;
+grant select on site_attribute to dumper;
+grant select on site_attribute_seq to dumper;
+grant select on offer_site to dumper;
+grant select on offer_site_seq to dumper;
+end;
