@@ -98,9 +98,9 @@ public class SiteResource {
   }
 
   @POST
-  @Path("{id}/place_offer")
+  @Path("placements")
   @Transactional
-  public Response placeOffer(@PathParam("id") Long siteId,
+  public Response placeOffer(@FormParam("site_id") Long siteId,
                              @FormParam("offer_id") Long offerId) {
     if (offerId == null) throw new WebApplicationException(400);
     Offer offer = offers.activeOfferById(offerId);
@@ -110,7 +110,7 @@ public class SiteResource {
     return Response.ok().build();
   }
 
-  @POST
+  @PUT
   @Path("{id}/approve")
   @Transactional
   public Response approveSite(@PathParam("id") Long siteId) {
@@ -120,7 +120,7 @@ public class SiteResource {
     return Response.ok().build();
   }
 
-  @POST
+  @PUT
   @Path("placement/{id}/approve")
   @Transactional
   public Response approveOfferSite(@PathParam("id") Long offerSiteId) {
