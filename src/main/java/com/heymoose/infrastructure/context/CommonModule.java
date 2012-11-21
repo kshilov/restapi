@@ -64,6 +64,7 @@ import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.CashbackProcessor;
+import com.heymoose.infrastructure.service.processing.ExtractSiteProcessor;
 import com.heymoose.infrastructure.service.processing.Processor;
 import com.heymoose.infrastructure.service.processing.Processors;
 
@@ -144,8 +145,9 @@ public class CommonModule extends AbstractModule {
   }
 
   @Provides @Inject
-  protected Processor defaultProcessor(ActionProcessor actionProcessor,
-                                       CashbackProcessor cashbackProcessor) {
-    return Processors.chain(actionProcessor, cashbackProcessor);
+  protected Processor defaultProcessor(ActionProcessor createAction,
+                                       CashbackProcessor trackCashback,
+                                       ExtractSiteProcessor extractSite) {
+    return Processors.chain(extractSite, createAction, trackCashback);
   }
 }

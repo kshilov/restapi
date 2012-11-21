@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.product.Product;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.statistics.Token;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ public final class ProcessableData {
   private String transactionId;
   private Product product;
   private OfferAction offerAction;
+  private Site site;
 
   public BaseOffer offer() {
     return offer;
@@ -69,6 +71,15 @@ public final class ProcessableData {
 
   public OfferAction offerAction() {
     return this.offerAction;
+  }
+
+  public ProcessableData setSite(Site site) {
+    this.site = site;
+    return this;
+  }
+
+  public Site site() {
+    return this.site;
   }
 
 

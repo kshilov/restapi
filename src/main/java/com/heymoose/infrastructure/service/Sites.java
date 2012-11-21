@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
+import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
@@ -153,6 +154,21 @@ public class Sites {
         break;
     }
   }
+
+  public OfferSite checkPermission(BaseOffer offer, Site site) {
+    if (!site.approvedByAdmin())
+      throw new IllegalArgumentException(
+          "Site " + site + " not approved by admin");
+    OfferSite offerSite = repo.byHQL(OfferSite.class,
+        "from OfferSite where offer = ? and site = ? and approved = ?",
+        offer.masterOffer(), site);
+    if (offerSite == null) {
+      throw new IllegalStateException("No permission for offer " +
+          offer + " and site " + site);
+    }
+    return offerSite;
+  }
+
 
   public Pair<QueryResult, Long> listOfferSites(Long affId, Long offerId,
                                                 int offset, int limit) {

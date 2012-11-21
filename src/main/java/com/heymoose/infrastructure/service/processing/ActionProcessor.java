@@ -10,9 +10,11 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.tariff.Tariff;
+import com.heymoose.infrastructure.service.Sites;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ public final class ActionProcessor implements Processor {
   protected Repo repo;
   protected Accounting accounting;
   protected OfferGrantRepository offerGrants;
+  protected Sites sites;
 
   @Inject
   protected ActionProcessor(Repo repo, Accounting accounting,
@@ -45,7 +48,14 @@ public final class ActionProcessor implements Processor {
     BaseOffer offer = data.offer();
     String transactionId = data.transactionId();
     OfferStat source = token.stat();
-    OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
+    String postbackUrl;
+    if (data.site() != null) {
+      OfferSite offerSite = sites.checkPermission(data.offer(), data.site());
+      postbackUrl = offerSite.postBackUrl();
+    } else {
+      OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
+      postbackUrl = grant.postBackUrl();
+    }
 
     if (!offer.reentrant()) {
       OfferAction existed = findAction(repo, offer, token, transactionId);
@@ -113,6 +123,7 @@ public final class ActionProcessor implements Processor {
         source, offer, transactionId);
     action.setProduct(data.product());
     action.setPurchasePrice(data.price());
+    action.setSite(data.site());
     repo.put(action);
     accounting.notConfirmedActionPayments(action, affiliatePart, heymoosePart);
     log.info("Tracked conversion of data: {}:\n" +
@@ -123,7 +134,7 @@ public final class ActionProcessor implements Processor {
         new Object[] { data,
             advertiserCharge, affiliatePart, heymoosePart, action.id() } );
 
-    doPostBack(grant, action);
+    doPostBack(postbackUrl, action);
     data.setOfferAction(action);
   }
 }
