@@ -93,4 +93,8 @@ public final class OfferSite extends ModifiableEntity {
     this.approvedByAdmin = approved;
     return this;
   }
+
+  public Offer offer() {
+    return this.offer;
+  }
 }

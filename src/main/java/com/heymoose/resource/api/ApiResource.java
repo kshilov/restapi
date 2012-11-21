@@ -7,6 +7,7 @@ import com.heymoose.infrastructure.service.tracking.ActionTracker;
 import com.heymoose.infrastructure.service.tracking.ClickTracker;
 import com.heymoose.infrastructure.service.tracking.InviteTracker;
 import com.heymoose.infrastructure.service.tracking.LeadTracker;
+import com.heymoose.infrastructure.service.tracking.PlacementTracker;
 import com.heymoose.infrastructure.service.tracking.ShowTracker;
 import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
@@ -23,6 +24,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -50,6 +52,7 @@ public class ApiResource {
   private final LeadTracker leadTracker;
   private final InviteTracker inviteTracker;
   private final ErrorInfoRepository errorInfoRepo;
+  private final PlacementTracker placementTracker;
 
   private final static String REQUEST_ID_KEY = "request-id";
 
@@ -60,6 +63,7 @@ public class ApiResource {
                      ActionTracker actionTracker,
                      LeadTracker leadTracker,
                      InviteTracker inviteTracker,
+                     PlacementTracker placementTracker,
                      ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
     this.clickTracker = clickTracker;
@@ -68,6 +72,7 @@ public class ApiResource {
     this.leadTracker = leadTracker;
     this.inviteTracker = inviteTracker;
     this.errorInfoRepo = errorInfoRepo;
+    this.placementTracker = placementTracker;
   }
 
   @GET
@@ -85,6 +90,19 @@ public class ApiResource {
     } finally {
       MDC.remove(REQUEST_ID_KEY);
     }
+  }
+
+  @GET
+  @Path("{id}")
+  @Transactional
+  public Response callByPlacement(@PathParam("id") Long placementId)
+      throws ApiRequestException {
+    HttpRequestContext context = requestContextProvider.get();
+    context
+        .getQueryParameters()
+        .putSingle("placement_id", placementId.toString());
+    placementTracker.track(context, null);
+    return callMethod("click");
   }
 
   private Response callMethodInternal(@QueryParam("method") String method)
