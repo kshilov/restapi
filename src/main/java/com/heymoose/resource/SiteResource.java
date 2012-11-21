@@ -111,10 +111,13 @@ public class SiteResource {
   @Transactional
   public Response updatePlacement(@PathParam("id") Long id,
                                   @FormParam("back_url") String backUrl,
-                                  @FormParam("postback_url") String postbackUrl) {
+                                  @FormParam("postback_url") String postbackUrl,
+                                  @FormParam("approved") Boolean approved) {
     OfferSite offerSite = sites.getOfferSite(id);
     if (offerSite == null) throw new WebApplicationException(404);
-    offerSite.setBackUrl(backUrl).setPostbackUrl(postbackUrl);
+    offerSite.setBackUrl(coalesce(backUrl, offerSite.backUrl()))
+        .setPostbackUrl(coalesce(postbackUrl, offerSite.postBackUrl()))
+        .setApprovedByAdmin(coalesce(approved, offerSite.approvedByAdmin()));
     sites.put(offerSite);
     return Response.ok().build();
   }
@@ -428,5 +431,10 @@ public class SiteResource {
         .setName(name)
         .setAffId(affId)
         .addAttributesFromMap(siteAttributes.build());
+  }
+
+  private <T> T coalesce(T first, T second) {
+    if (first == null) return second;
+    return first;
   }
 }

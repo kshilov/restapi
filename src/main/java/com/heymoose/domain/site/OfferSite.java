@@ -39,6 +39,9 @@ public final class OfferSite extends ModifiableEntity {
   @Column(name = "postback_url")
   private String postbackUrl;
 
+  public OfferSite() {
+    this.approvedByAdmin = true;
+  }
 
   @Override
   public Long id() {
@@ -83,6 +86,11 @@ public final class OfferSite extends ModifiableEntity {
 
   public OfferSite setPostbackUrl(String postbackUrl) {
     this.postbackUrl = postbackUrl;
+    return this;
+  }
+
+  public OfferSite setApprovedByAdmin(Boolean approved) {
+    this.approvedByAdmin = approved;
     return this;
   }
 }

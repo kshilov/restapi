@@ -182,7 +182,7 @@ public class Sites {
   public void merge(Site from, Site to) {
     to.setName(from.name())
         .setType(from.type())
-        .setApprovedByAdmin(false)
+        .setApprovedByAdmin(from.approvedByAdmin())
         .touch();
     List<SiteAttribute> toAttrList = to.attributeList();
     Map<String, String> fromAttrMap = from.attributeMap();
