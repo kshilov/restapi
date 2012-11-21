@@ -54,6 +54,9 @@ public class Site extends ModifiableEntity {
   @Column(name = "approved")
   private boolean approvedByAdmin = false;
 
+  @Column(name = "description")
+  private String description;
+
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "site",
       cascade = CascadeType.REMOVE)
@@ -165,6 +168,15 @@ public class Site extends ModifiableEntity {
 
   public boolean approvedByAdmin() {
     return approvedByAdmin;
+  }
+
+  public Site setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public String description() {
+    return this.description;
   }
 
   public boolean matches(String referer) {

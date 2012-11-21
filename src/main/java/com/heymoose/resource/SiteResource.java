@@ -410,6 +410,7 @@ public class SiteResource {
     String name = null;
     String type = null;
     Long affId = null;
+    String description = null;
     ImmutableMap.Builder<String, String> siteAttributes =
         ImmutableMap.builder();
     for (Map.Entry<String, List<String>> entry : form.entrySet()) {
@@ -425,11 +426,16 @@ public class SiteResource {
         name = entry.getValue().get(0);
         continue;
       }
+      if (entry.getKey().equals("description")) {
+        description = entry.getValue().get(0);
+        continue;
+      }
       siteAttributes.put(entry.getKey(), entry.getValue().get(0));
     }
     return new Site(Site.Type.valueOf(type))
         .setName(name)
         .setAffId(affId)
+        .setDescription(description)
         .addAttributesFromMap(siteAttributes.build());
   }
 
