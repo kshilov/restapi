@@ -27,7 +27,7 @@ import java.util.Set;
 public class Sites {
 
   public enum Ordering {
-    ID, AFFILIATE_EMAIL, NAME, TYPE, APPROVED
+    ID, AFFILIATE_EMAIL, NAME, TYPE, APPROVED, DESCRIPTION, CREATION_TIME
   }
 
   public enum StatOrdering {
@@ -132,6 +132,12 @@ public class Sites {
         break;
       case APPROVED:
         addOrder(c, "approvedByAdmin", common.direction());
+        break;
+      case DESCRIPTION:
+        addOrder(c, "description", common.direction());
+        break;
+      case CREATION_TIME:
+        addOrder(c, "creationTime", common.direction());
         break;
     }
     List<Site> result = (List<Site>) c.list();
