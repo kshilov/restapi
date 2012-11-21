@@ -89,7 +89,9 @@ public class ClickTracker implements Tracker {
         response.status(409);
         return;
       }
-      if (!offerSite.approvedByAdmin()) {
+      if (!offerSite.approvedByAdmin() ||
+          !offerSite.site().approvedByAdmin() ||
+          !offerSite.site().matches(context.getHeaderValue("Referer"))) {
         forbidden(offerSite.backUrl(), response);
         return;
       }

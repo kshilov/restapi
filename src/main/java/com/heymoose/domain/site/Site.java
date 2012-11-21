@@ -130,5 +130,15 @@ public class Site extends ModifiableEntity {
     return approvedByAdmin;
   }
 
+  public boolean matches(String referer) {
+    switch (this.type) {
+      case WEB_SITE:
+        return this.attributeMap().get("url").equals(referer);
+      case SOCIAL_NETWORK:
+        return this.attributeMap().get("url").equals(referer);
+      default: return true;
+    }
+  }
+
 
 }
