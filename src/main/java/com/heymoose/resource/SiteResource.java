@@ -62,31 +62,7 @@ public class SiteResource {
   @POST
   @Transactional
   public Response register(@Context HttpContext context) {
-    Form form = context.getRequest().getEntity(Form.class);
-    String name = null;
-    String type = null;
-    Long affId = null;
-    ImmutableMap.Builder<String, String> siteAttributes =
-        ImmutableMap.builder();
-    for (Map.Entry<String, List<String>> entry : form.entrySet()) {
-      if (entry.getKey().equals("aff_id")) {
-        affId = Long.valueOf(entry.getValue().get(0));
-        continue;
-      }
-      if (entry.getKey().equals("type")) {
-        type = entry.getValue().get(0);
-        continue;
-      }
-      if (entry.getKey().equals("name")) {
-        name = entry.getValue().get(0);
-        continue;
-      }
-      siteAttributes.put(entry.getKey(), entry.getValue().get(0));
-    }
-    Site site = new Site(Site.Type.valueOf(type))
-        .setName(name)
-        .setAffId(affId)
-        .addAttributesFromMap(siteAttributes.build());
+    Site site = parseSiteForm(context);
     sites.add(site);
     try {
       return Response
@@ -95,6 +71,19 @@ public class SiteResource {
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @PUT
+  @Path("{id}")
+  @Transactional
+  public Response updateSite(@PathParam("id") Long siteId,
+                             @Context HttpContext context) {
+    if (siteId == null) throw new WebApplicationException(400);
+    Site site = sites.get(siteId);
+    if (site == null) throw new WebApplicationException(404);
+    Site updatedSite = parseSiteForm(context);
+    sites.merge(updatedSite, site);
+    return Response.ok().build();
   }
 
   @POST
@@ -126,6 +115,7 @@ public class SiteResource {
     sites.put(site.adminApprove());
     return Response.ok().build();
   }
+
 
   @PUT
   @Path("placement/{id}/approve")
@@ -397,5 +387,33 @@ public class SiteResource {
       siteElement.addContent(element(entry.getKey(), entry.getValue()));
     }
     return siteElement;
+  }
+
+  private Site parseSiteForm(HttpContext context) {
+    Form form = context.getRequest().getEntity(Form.class);
+    String name = null;
+    String type = null;
+    Long affId = null;
+    ImmutableMap.Builder<String, String> siteAttributes =
+        ImmutableMap.builder();
+    for (Map.Entry<String, List<String>> entry : form.entrySet()) {
+      if (entry.getKey().equals("aff_id")) {
+        affId = Long.valueOf(entry.getValue().get(0));
+        continue;
+      }
+      if (entry.getKey().equals("type")) {
+        type = entry.getValue().get(0);
+        continue;
+      }
+      if (entry.getKey().equals("name")) {
+        name = entry.getValue().get(0);
+        continue;
+      }
+      siteAttributes.put(entry.getKey(), entry.getValue().get(0));
+    }
+    return new Site(Site.Type.valueOf(type))
+        .setName(name)
+        .setAffId(affId)
+        .addAttributesFromMap(siteAttributes.build());
   }
 }

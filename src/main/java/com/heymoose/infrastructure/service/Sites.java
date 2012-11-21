@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
@@ -20,6 +21,8 @@ import org.joda.time.DateTime;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Sites {
 
@@ -174,6 +177,35 @@ public class Sites {
         .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
         .addQueryParamIfNotNull(offerId, "offer_id", offerId)
         .executeAndCount(offset, limit);
+  }
+
+  public void merge(Site from, Site to) {
+    to.setName(from.name())
+        .setType(from.type())
+        .setApprovedByAdmin(false)
+        .touch();
+    List<SiteAttribute> toAttrList = to.attributeList();
+    Map<String, String> fromAttrMap = from.attributeMap();
+    for (SiteAttribute attr : toAttrList) {
+      if (!fromAttrMap.containsKey(attr.key())) {
+        repo.remove(attr);
+        continue;
+      }
+      if (!fromAttrMap.get(attr.key()).equals(attr.value())) {
+        attr.setValue(fromAttrMap.get(attr.key()));
+        repo.put(attr);
+      }
+    }
+    Set<String> unTrackedKeys = Sets.difference(
+        fromAttrMap.keySet(),
+        to.attributeMap().keySet());
+    for (String key : unTrackedKeys) {
+      repo.put(new SiteAttribute()
+          .setSite(to)
+          .setKey(key)
+          .setValue(fromAttrMap.get(key)));
+    }
+    repo.put(to);
   }
 
 

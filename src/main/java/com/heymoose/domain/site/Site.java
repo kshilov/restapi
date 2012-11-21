@@ -3,10 +3,12 @@ package com.heymoose.domain.site;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.user.User;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,8 +22,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Table(name = "site")
@@ -51,7 +55,8 @@ public class Site extends ModifiableEntity {
   private boolean approvedByAdmin = false;
 
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "site")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "site",
+      cascade = CascadeType.REMOVE)
   private List<SiteAttribute> attributeList = Lists.newArrayList();
 
 
@@ -124,6 +129,38 @@ public class Site extends ModifiableEntity {
       builder.put(entry.key(), entry.value());
     }
     return builder.build();
+  }
+
+  @Override
+  public void touch() {
+    super.touch();
+  }
+
+
+  public Site setApprovedByAdmin(boolean b) {
+    this.approvedByAdmin = b;
+    return this;
+  }
+
+  public Site mergeAttributesFrom(Map<String, String> attributeMap) {
+    Iterator<SiteAttribute> attrIterator = attributeList.iterator();
+    while (attrIterator.hasNext()) {
+      SiteAttribute attr = attrIterator.next();
+      if (!attributeMap.containsKey(attr.key())) {
+        attrIterator.remove();
+        continue;
+      }
+      if (!attributeMap.get(attr.key()).equals(attr.value())) {
+        attr.setValue(attributeMap.get(attr.key()));
+      }
+    }
+    Set<String> unTrackedKeys = Sets.difference(
+        attributeMap.keySet(),
+        this.attributeMap().keySet());
+    for (String key : unTrackedKeys) {
+      this.addAttribute(key, attributeMap.get(key));
+    }
+    return this;
   }
 
   public boolean approvedByAdmin() {
