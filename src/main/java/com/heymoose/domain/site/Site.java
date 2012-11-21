@@ -51,7 +51,7 @@ public class Site extends ModifiableEntity {
   private boolean approvedByAdmin = false;
 
 
-  @OneToMany(fetch = FetchType.EAGER, mappedBy = "site")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "site")
   private List<SiteAttribute> attributeList = Lists.newArrayList();
 
 
