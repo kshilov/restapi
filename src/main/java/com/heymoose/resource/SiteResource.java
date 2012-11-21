@@ -396,6 +396,7 @@ public class SiteResource {
         .addContent(element("email", site.affiliate().email()));
     siteElement.addContent(aff);
     siteElement.addContent(element("name", site.name()));
+    siteElement.addContent(element("description", site.description()));
     siteElement.addContent(element("type", site.type().toString()));
     siteElement.addContent(element("approved",
         String.valueOf(site.approvedByAdmin())));
