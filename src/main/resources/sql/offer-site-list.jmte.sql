@@ -4,7 +4,7 @@ select
   coalesce(offer_site.back_url, '')     back_url,
   coalesce(offer_site.postback_url, '') postback_url,
   site.id             site_id,
-  site.description    site_description,
+  site.name           site_name,
   site.type           site_type,
   offer.id            offer_id,
   offer.title         offer_title,

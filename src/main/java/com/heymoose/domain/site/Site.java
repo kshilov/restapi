@@ -35,7 +35,7 @@ public class Site extends ModifiableEntity {
   private Long id;
 
   @Basic(optional = false)
-  private String description;
+  private String name;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "aff_id", insertable = false, updatable = false)
@@ -71,8 +71,8 @@ public class Site extends ModifiableEntity {
     return this;
   }
 
-  public Site setDescription(String description) {
-    this.description = description;
+  public Site setName(String name) {
+    this.name = name;
     return this;
   }
 
@@ -106,8 +106,8 @@ public class Site extends ModifiableEntity {
     return this;
   }
 
-  public String description() {
-    return this.description;
+  public String name() {
+    return this.name;
   }
 
   public Type type() {

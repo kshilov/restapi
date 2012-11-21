@@ -25,7 +25,7 @@ import java.util.List;
 public class Sites {
 
   public enum Ordering {
-    ID, AFFILIATE_EMAIL, DESCRIPTION, TYPE, APPROVED
+    ID, AFFILIATE_EMAIL, NAME, TYPE, APPROVED
   }
 
   public enum StatOrdering {
@@ -122,8 +122,8 @@ public class Sites {
         c.createAlias("affiliate", "affiliate");
         addOrder(c, "affiliate.email", common.direction());
         break;
-      case DESCRIPTION:
-        addOrder(c, "description", common.direction());
+      case NAME:
+        addOrder(c, "name", common.direction());
         break;
       case ID:
         addOrder(c, "id", common.direction());

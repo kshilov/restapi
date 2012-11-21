@@ -24,7 +24,7 @@ create table site(
   id bigint default nextval('site_seq') primary key,
   aff_id bigint not null,
   type varchar(20) not null,
-  description text not null,
+  name text not null,
   approved boolean not null default false,
   creation_time timestamp without time zone default now(),
   last_change_time timestamp without time zone default now(),

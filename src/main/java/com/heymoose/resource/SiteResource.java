@@ -63,7 +63,7 @@ public class SiteResource {
   @Transactional
   public Response register(@Context HttpContext context) {
     Form form = context.getRequest().getEntity(Form.class);
-    String description = null;
+    String name = null;
     String type = null;
     Long affId = null;
     ImmutableMap.Builder<String, String> siteAttributes =
@@ -77,14 +77,14 @@ public class SiteResource {
         type = entry.getValue().get(0);
         continue;
       }
-      if (entry.getKey().equals("description")) {
-        description = entry.getValue().get(0);
+      if (entry.getKey().equals("name")) {
+        name = entry.getValue().get(0);
         continue;
       }
       siteAttributes.put(entry.getKey(), entry.getValue().get(0));
     }
     Site site = new Site(Site.Type.valueOf(type))
-        .setDescription(description)
+        .setName(name)
         .setAffId(affId)
         .addAttributesFromMap(siteAttributes.build());
     sites.add(site);
@@ -187,8 +187,7 @@ public class SiteResource {
       Element siteXml = new Element("site")
           .setAttribute("id", entry.getString("site_id"))
           .addContent(element("type", entry.getString("site_type")))
-          .addContent(element("description",
-              entry.getString("site_description")));
+          .addContent(element("name", entry.getString("site_name")));
       entryXml.addContent(offerXml)
           .addContent(affiliateXml)
           .addContent(siteXml);
@@ -383,7 +382,7 @@ public class SiteResource {
         .setAttribute("id", site.affiliate().id().toString())
         .addContent(element("email", site.affiliate().email()));
     siteElement.addContent(aff);
-    siteElement.addContent(element("description", site.description()));
+    siteElement.addContent(element("name", site.name()));
     siteElement.addContent(element("type", site.type().toString()));
     siteElement.addContent(element("approved",
         String.valueOf(site.approvedByAdmin())));
