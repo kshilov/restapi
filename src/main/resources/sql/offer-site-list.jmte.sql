@@ -3,6 +3,7 @@ select
   offer_site.admin_state    admin_state,
   offer_site.admin_comment  admin_comment,
   offer_site.creation_time  creation_time,
+  offer_site.last_change_time last_change_time,
   coalesce(offer_site.back_url, '')     back_url,
   coalesce(offer_site.postback_url, '') postback_url,
   site.id             site_id,
@@ -11,7 +12,8 @@ select
   offer.id            offer_id,
   offer.title         offer_title,
   affiliate.id        affiliate_id,
-  affiliate.email     affiliate_email
+  affiliate.email     affiliate_email,
+  affiliate.blocked   affiliate_blocked
 
 from offer_site
 

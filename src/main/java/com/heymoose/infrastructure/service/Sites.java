@@ -28,7 +28,8 @@ import java.util.Set;
 public class Sites {
 
   public enum Ordering {
-    ID, AFFILIATE_EMAIL, NAME, TYPE, ADMIN_STATE, DESCRIPTION, CREATION_TIME
+    ID, AFFILIATE_EMAIL, NAME, TYPE, ADMIN_STATE, DESCRIPTION, CREATION_TIME,
+    LAST_CHANGE_TIME
   }
 
   public enum StatOrdering {
@@ -143,6 +144,8 @@ public class Sites {
       case CREATION_TIME:
         addOrder(c, "creationTime", common.direction());
         break;
+      case LAST_CHANGE_TIME:
+        addOrder(c, "lastChangeTime", common.direction());
     }
     List<Site> result = (List<Site>) c.list();
 
@@ -219,5 +222,18 @@ public class Sites {
     repo.put(to);
   }
 
+  public void moderate(OfferSite offerSite,
+                       AdminState state,
+                       String adminComment) {
+    offerSite.setAdminState(state).setAdminComment(adminComment).touch();
+    repo.put(offerSite);
+  }
+
+  public void moderate(Site site,
+                       AdminState state,
+                       String adminComment) {
+    site.setAdminState(state).setAdminComment(adminComment).touch();
+    repo.put(site);
+  }
 
 }

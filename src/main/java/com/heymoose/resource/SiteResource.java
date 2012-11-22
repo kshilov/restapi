@@ -15,10 +15,10 @@ import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.resource.xml.JDomUtil;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.representation.Form;
 import org.jdom2.Element;
-import org.jdom2.output.XMLOutputter;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
@@ -41,12 +41,11 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import static com.heymoose.resource.xml.JDomUtil.element;
+
 @Singleton
 @Path("sites")
 public class SiteResource {
-
-  private static final XMLOutputter XML_OUTPUTTER = new XMLOutputter();
-
   private final Sites sites;
   private final BlackList blackList;
   private final OfferLoader offers;
@@ -108,20 +107,6 @@ public class SiteResource {
   }
 
   @PUT
-  @Path("placements/{id}")
-  @Transactional
-  public Response updatePlacement(@PathParam("id") Long id,
-                                  @FormParam("back_url") String backUrl,
-                                  @FormParam("postback_url") String postbackUrl) {
-    OfferSite offerSite = sites.getOfferSite(id);
-    if (offerSite == null) throw new WebApplicationException(404);
-    offerSite.setBackUrl(coalesce(backUrl, offerSite.backUrl()))
-        .setPostbackUrl(coalesce(postbackUrl, offerSite.postBackUrl()));
-    sites.put(offerSite);
-    return Response.ok().build();
-  }
-
-  @PUT
   @Path("{id}/moderate")
   @Transactional
   public Response moderateSite(@PathParam("id") Long siteId,
@@ -131,27 +116,10 @@ public class SiteResource {
                                @FormParam("admin_comment") String adminComment) {
     Site site = sites.get(siteId);
     if (site == null) throw new WebApplicationException(404);
-    site.setAdminState(state).setAdminComment(adminComment);
-    sites.put(site);
+    sites.moderate(site, state, adminComment);
     return Response.ok().build();
   }
 
-
-  @PUT
-  @Path("placements/{id}/moderate")
-  @Transactional
-  public Response moderateOfferSite(@PathParam("id") Long offerSiteId,
-                                    @FormParam("admin_state")
-                                    @DefaultValue("MODERATION")
-                                    AdminState state,
-                                    @FormParam("admin_comment")
-                                    String adminComment) {
-    OfferSite offerSite = sites.getOfferSite(offerSiteId);
-    if (offerSite == null) throw new WebApplicationException(404);
-    offerSite.setAdminState(state).setAdminComment(adminComment);
-    sites.put(offerSite);
-    return Response.ok().build();
-  }
 
   @GET
   @Produces("application/xml")
@@ -179,16 +147,6 @@ public class SiteResource {
     Site site = sites.get(siteId);
     if (site == null) throw new WebApplicationException(404);
     return toSiteXml(site);
-  }
-
-  @GET
-  @Path("placements")
-  @Transactional
-  public String listPlacements(@QueryParam("aff_id") Long affId,
-                               @QueryParam("offer_id") Long offerId,
-                               @QueryParam("offset") int offset,
-                               @QueryParam("limit") @DefaultValue("20") int limit) {
-    return toPlacementXml(sites.listOfferSites(affId, offerId, offset, limit));
   }
 
   @GET
@@ -252,7 +210,7 @@ public class SiteResource {
               map.getString("click_count_diff")));
       root.addContent(stat);
     }
-    return XML_OUTPUTTER.outputString(root);
+    return JDomUtil.XML_OUTPUTTER.outputString(root);
   }
 
   @PUT
@@ -313,7 +271,7 @@ public class SiteResource {
     BlackListEntry entry = blackList.getById(id);
     if (entry == null) return Response.status(404).build();
     return Response.ok()
-        .entity(XML_OUTPUTTER.outputString(blackListEntryXml(entry)))
+        .entity(JDomUtil.XML_OUTPUTTER.outputString(blackListEntryXml(entry)))
         .build();
   }
 
@@ -339,7 +297,7 @@ public class SiteResource {
     for (BlackListEntry entry : blackList.fst) {
       root.addContent(blackListEntryXml(entry));
     }
-    return XML_OUTPUTTER.outputString(root);
+    return JDomUtil.XML_OUTPUTTER.outputString(root);
   }
 
   private Element blackListEntryXml(BlackListEntry entry) {
@@ -352,23 +310,17 @@ public class SiteResource {
         .addContent(new Element("comment").setText(entry.comment()));
   }
 
-  private Element element(String name, Object text) {
-    Element element = new Element(name);
-    if (text != null) element.setText(text.toString());
-    return element;
-  }
-
   private String toSiteXml(Pair<List<Site>, Long> result) {
     Element root = new Element("sites")
         .setAttribute("count", result.snd.toString());
     for (Site site : result.fst) {
       root.addContent(toSiteElement(site));
     }
-    return XML_OUTPUTTER.outputString(root);
+    return JDomUtil.XML_OUTPUTTER.outputString(root);
   }
 
   private String toSiteXml(Site site) {
-    return XML_OUTPUTTER.outputString(toSiteElement(site));
+    return JDomUtil.XML_OUTPUTTER.outputString(toSiteElement(site));
   }
 
   private Element toSiteElement(Site site) {
@@ -384,40 +336,11 @@ public class SiteResource {
     siteElement.addContent(element("admin-state", site.adminState()));
     siteElement.addContent(element("admin-comment", site.adminComment()));
     siteElement.addContent(element("creation-time", site.creationTime()));
+    siteElement.addContent(element("last-change-time", site.lastChangeTime()));
     for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
       siteElement.addContent(element(entry.getKey(), entry.getValue()));
     }
     return siteElement;
-  }
-
-  private String toPlacementXml(Pair<QueryResult, Long> result) {
-    Element root = new Element("placements")
-        .setAttribute("count", result.snd.toString());
-    for (Map<String, Object> map : result.fst) {
-      TypedMap entry = TypedMap.wrap(map);
-      Element entryXml = new Element("placement")
-          .setAttribute("id", entry.getString("id"))
-          .addContent(element("admin-state", entry.getString("admin_state")))
-          .addContent(element("admin-comment", entry.getString("admin_comment")))
-          .addContent(element("creation-time", entry.getDateTime("creation_time")))
-          .addContent(element("back-url", entry.getString("back_url")))
-          .addContent(element("postback-url", entry.getString("postback_url")));
-      Element offerXml = new Element("offer")
-          .setAttribute("id", entry.getString("offer_id"))
-          .addContent(element("title", entry.getString("offer_title")));
-      Element affiliateXml = new Element("affiliate")
-          .setAttribute("id", entry.getString("affiliate_id"))
-          .addContent(element("email", entry.getString("affiliate_email")));
-      Element siteXml = new Element("site")
-          .setAttribute("id", entry.getString("site_id"))
-          .addContent(element("type", entry.getString("site_type")))
-          .addContent(element("name", entry.getString("site_name")));
-      entryXml.addContent(offerXml)
-          .addContent(affiliateXml)
-          .addContent(siteXml);
-      root.addContent(entryXml);
-    }
-    return XML_OUTPUTTER.outputString(root);
   }
 
 
@@ -456,8 +379,4 @@ public class SiteResource {
         .addAttributesFromMap(siteAttributes.build());
   }
 
-  private <T> T coalesce(T first, T second) {
-    if (first == null) return second;
-    return first;
-  }
 }
