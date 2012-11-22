@@ -328,7 +328,8 @@ public class SiteResource {
         .setAttribute("id", site.id().toString());
     Element aff = new Element("affiliate")
         .setAttribute("id", site.affiliate().id().toString())
-        .addContent(element("email", site.affiliate().email()));
+        .addContent(element("email", site.affiliate().email()))
+        .addContent(element("blocked", site.affiliate().blocked()));
     siteElement.addContent(aff);
     siteElement.addContent(element("name", site.name()));
     siteElement.addContent(element("description", site.description()));
