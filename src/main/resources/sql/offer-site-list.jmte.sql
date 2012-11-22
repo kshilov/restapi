@@ -1,6 +1,7 @@
 select
-  offer_site.id       id,
-  offer_site.approved approved,
+  offer_site.id             id,
+  offer_site.approved       approved,
+  offer_site.creation_time  creation_time,
   coalesce(offer_site.back_url, '')     back_url,
   coalesce(offer_site.postback_url, '') postback_url,
   site.id             site_id,

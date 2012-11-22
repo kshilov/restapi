@@ -189,6 +189,7 @@ public class SiteResource {
       Element entryXml = new Element("placement")
           .setAttribute("id", entry.getString("id"))
           .addContent(element("approved", entry.getString("approved")))
+          .addContent(element("creation-time", entry.getDateTime("creation_time")))
           .addContent(element("back-url", entry.getString("back_url")))
           .addContent(element("postback-url", entry.getString("postback_url")));
       Element offerXml = new Element("offer")
@@ -371,8 +372,8 @@ public class SiteResource {
         .addContent(new Element("comment").setText(entry.comment()));
   }
 
-  private Element element(String name, String text) {
-    return new Element(name).setText(text);
+  private Element element(String name, Object text) {
+    return new Element(name).setText(text.toString());
   }
 
   private String toSiteXml(Pair<List<Site>, Long> result) {
@@ -397,9 +398,9 @@ public class SiteResource {
     siteElement.addContent(aff);
     siteElement.addContent(element("name", site.name()));
     siteElement.addContent(element("description", site.description()));
-    siteElement.addContent(element("type", site.type().toString()));
-    siteElement.addContent(element("approved",
-        String.valueOf(site.approvedByAdmin())));
+    siteElement.addContent(element("type", site.type()));
+    siteElement.addContent(element("approved", site.approvedByAdmin()));
+    siteElement.addContent(element("creation-time", site.creationTime()));
     for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
       siteElement.addContent(element(entry.getKey(), entry.getValue()));
     }
