@@ -1,6 +1,7 @@
 select
   offer_site.id             id,
-  offer_site.approved       approved,
+  offer_site.admin_state    admin_state,
+  offer_site.admin_comment  admin_comment,
   offer_site.creation_time  creation_time,
   coalesce(offer_site.back_url, '')     back_url,
   coalesce(offer_site.postback_url, '') postback_url,
@@ -23,5 +24,5 @@ on offer.id = offer_site.offer_id
 join user_profile affiliate
 on affiliate.id = site.aff_id
 
-where site.approved = true
+where site.admin_state = 'APPROVED'
 

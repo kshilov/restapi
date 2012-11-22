@@ -2,6 +2,7 @@ package com.heymoose.infrastructure.service;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import com.heymoose.domain.base.AdminState;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.site.OfferSite;
@@ -27,7 +28,7 @@ import java.util.Set;
 public class Sites {
 
   public enum Ordering {
-    ID, AFFILIATE_EMAIL, NAME, TYPE, APPROVED, DESCRIPTION, CREATION_TIME
+    ID, AFFILIATE_EMAIL, NAME, TYPE, ADMIN_STATE, DESCRIPTION, CREATION_TIME
   }
 
   public enum StatOrdering {
@@ -84,6 +85,9 @@ public class Sites {
 
   public Site put(Site site) {
     repo.put(site);
+    for (SiteAttribute attr : site.attributeList()) {
+      repo.put(attr);
+    }
     return site;
   }
 
@@ -94,7 +98,7 @@ public class Sites {
 
   public Site approvedSite(Long siteId) {
     return repo.byHQL(Site.class,
-        "from Site where id = ? and approvedByAdmin = true", siteId);
+        "from Site where id = ? and adminState = 'APPROVED'", siteId);
   }
 
   public Site get(Long siteId) {
@@ -130,8 +134,8 @@ public class Sites {
       case TYPE:
         addOrder(c, "type", common.direction());
         break;
-      case APPROVED:
-        addOrder(c, "approvedByAdmin", common.direction());
+      case ADMIN_STATE:
+        addOrder(c, "adminState", common.direction());
         break;
       case DESCRIPTION:
         addOrder(c, "description", common.direction());
@@ -165,7 +169,7 @@ public class Sites {
       throw new IllegalArgumentException(
           "Site " + site + " not approved by admin");
     OfferSite offerSite = repo.byHQL(OfferSite.class,
-        "from OfferSite where offer = ? and site = ? and approved = true",
+        "from OfferSite where offer = ? and site = ? and adminState = 'APPROVED'",
         offer.masterOffer(), site);
     if (offerSite == null) {
       throw new IllegalStateException("No permission for offer " +
@@ -189,7 +193,7 @@ public class Sites {
     to.setName(from.name())
         .setType(from.type())
         .setDescription(from.description())
-        .setApprovedByAdmin(false)
+        .setAdminState(AdminState.MODERATION)
         .touch();
     List<SiteAttribute> toAttrList = to.attributeList();
     Map<String, String> fromAttrMap = from.attributeMap();

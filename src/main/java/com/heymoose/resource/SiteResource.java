@@ -1,6 +1,7 @@
 package com.heymoose.resource;
 
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.domain.base.AdminState;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.BlackListEntry;
 import com.heymoose.domain.site.OfferSite;
@@ -111,35 +112,44 @@ public class SiteResource {
   @Transactional
   public Response updatePlacement(@PathParam("id") Long id,
                                   @FormParam("back_url") String backUrl,
-                                  @FormParam("postback_url") String postbackUrl,
-                                  @FormParam("approved") Boolean approved) {
+                                  @FormParam("postback_url") String postbackUrl) {
     OfferSite offerSite = sites.getOfferSite(id);
     if (offerSite == null) throw new WebApplicationException(404);
     offerSite.setBackUrl(coalesce(backUrl, offerSite.backUrl()))
-        .setPostbackUrl(coalesce(postbackUrl, offerSite.postBackUrl()))
-        .setApprovedByAdmin(coalesce(approved, offerSite.approvedByAdmin()));
+        .setPostbackUrl(coalesce(postbackUrl, offerSite.postBackUrl()));
     sites.put(offerSite);
     return Response.ok().build();
   }
 
   @PUT
-  @Path("{id}/approve")
+  @Path("{id}/moderate")
   @Transactional
-  public Response approveSite(@PathParam("id") Long siteId) {
+  public Response moderateSite(@PathParam("id") Long siteId,
+                               @FormParam("admin_state")
+                               @DefaultValue("MODERATION")
+                               AdminState state,
+                               @FormParam("admin_comment") String adminComment) {
     Site site = sites.get(siteId);
     if (site == null) throw new WebApplicationException(404);
-    sites.put(site.adminApprove());
+    site.setAdminState(state).setAdminComment(adminComment);
+    sites.put(site);
     return Response.ok().build();
   }
 
 
   @PUT
-  @Path("placement/{id}/approve")
+  @Path("placements/{id}/moderate")
   @Transactional
-  public Response approveOfferSite(@PathParam("id") Long offerSiteId) {
+  public Response moderateOfferSite(@PathParam("id") Long offerSiteId,
+                                    @FormParam("admin_state")
+                                    @DefaultValue("MODERATION")
+                                    AdminState state,
+                                    @FormParam("admin_comment")
+                                    String adminComment) {
     OfferSite offerSite = sites.getOfferSite(offerSiteId);
     if (offerSite == null) throw new WebApplicationException(404);
-    sites.put(offerSite.adminApprove());
+    offerSite.setAdminState(state).setAdminComment(adminComment);
+    sites.put(offerSite);
     return Response.ok().build();
   }
 
@@ -180,36 +190,6 @@ public class SiteResource {
                                @QueryParam("limit") @DefaultValue("20") int limit) {
     return toPlacementXml(sites.listOfferSites(affId, offerId, offset, limit));
   }
-
-  private String toPlacementXml(Pair<QueryResult, Long> result) {
-    Element root = new Element("placements")
-        .setAttribute("count", result.snd.toString());
-    for (Map<String, Object> map : result.fst) {
-      TypedMap entry = TypedMap.wrap(map);
-      Element entryXml = new Element("placement")
-          .setAttribute("id", entry.getString("id"))
-          .addContent(element("approved", entry.getString("approved")))
-          .addContent(element("creation-time", entry.getDateTime("creation_time")))
-          .addContent(element("back-url", entry.getString("back_url")))
-          .addContent(element("postback-url", entry.getString("postback_url")));
-      Element offerXml = new Element("offer")
-          .setAttribute("id", entry.getString("offer_id"))
-          .addContent(element("title", entry.getString("offer_title")));
-      Element affiliateXml = new Element("affiliate")
-          .setAttribute("id", entry.getString("affiliate_id"))
-          .addContent(element("email", entry.getString("affiliate_email")));
-      Element siteXml = new Element("site")
-          .setAttribute("id", entry.getString("site_id"))
-          .addContent(element("type", entry.getString("site_type")))
-          .addContent(element("name", entry.getString("site_name")));
-      entryXml.addContent(offerXml)
-          .addContent(affiliateXml)
-          .addContent(siteXml);
-      root.addContent(entryXml);
-    }
-    return XML_OUTPUTTER.outputString(root);
-  }
-
 
   @GET
   @Path("stats")
@@ -373,7 +353,9 @@ public class SiteResource {
   }
 
   private Element element(String name, Object text) {
-    return new Element(name).setText(text.toString());
+    Element element = new Element(name);
+    if (text != null) element.setText(text.toString());
+    return element;
   }
 
   private String toSiteXml(Pair<List<Site>, Long> result) {
@@ -399,13 +381,46 @@ public class SiteResource {
     siteElement.addContent(element("name", site.name()));
     siteElement.addContent(element("description", site.description()));
     siteElement.addContent(element("type", site.type()));
-    siteElement.addContent(element("approved", site.approvedByAdmin()));
+    siteElement.addContent(element("admin-state", site.adminState()));
+    siteElement.addContent(element("admin-comment", site.adminComment()));
     siteElement.addContent(element("creation-time", site.creationTime()));
     for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
       siteElement.addContent(element(entry.getKey(), entry.getValue()));
     }
     return siteElement;
   }
+
+  private String toPlacementXml(Pair<QueryResult, Long> result) {
+    Element root = new Element("placements")
+        .setAttribute("count", result.snd.toString());
+    for (Map<String, Object> map : result.fst) {
+      TypedMap entry = TypedMap.wrap(map);
+      Element entryXml = new Element("placement")
+          .setAttribute("id", entry.getString("id"))
+          .addContent(element("admin-state", entry.getString("admin_state")))
+          .addContent(element("admin-comment", entry.getString("admin_comment")))
+          .addContent(element("creation-time", entry.getDateTime("creation_time")))
+          .addContent(element("back-url", entry.getString("back_url")))
+          .addContent(element("postback-url", entry.getString("postback_url")));
+      Element offerXml = new Element("offer")
+          .setAttribute("id", entry.getString("offer_id"))
+          .addContent(element("title", entry.getString("offer_title")));
+      Element affiliateXml = new Element("affiliate")
+          .setAttribute("id", entry.getString("affiliate_id"))
+          .addContent(element("email", entry.getString("affiliate_email")));
+      Element siteXml = new Element("site")
+          .setAttribute("id", entry.getString("site_id"))
+          .addContent(element("type", entry.getString("site_type")))
+          .addContent(element("name", entry.getString("site_name")));
+      entryXml.addContent(offerXml)
+          .addContent(affiliateXml)
+          .addContent(siteXml);
+      root.addContent(entryXml);
+    }
+    return XML_OUTPUTTER.outputString(root);
+  }
+
+
 
   private Site parseSiteForm(HttpContext context) {
     Form form = context.getRequest().getEntity(Form.class);

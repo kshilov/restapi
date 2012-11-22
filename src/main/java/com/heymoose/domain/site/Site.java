@@ -3,7 +3,8 @@ package com.heymoose.domain.site;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.heymoose.domain.base.AdminState;
+import com.heymoose.domain.base.Moderatable;
 import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.user.User;
 
@@ -22,14 +23,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Entity
 @Table(name = "site")
-public class Site extends ModifiableEntity {
+public class Site extends ModifiableEntity implements Moderatable {
 
   public enum Type { WEB_SITE, SOCIAL_NETWORK }
 
@@ -51,8 +50,12 @@ public class Site extends ModifiableEntity {
   @Enumerated(EnumType.STRING)
   private Type type;
 
-  @Column(name = "approved")
-  private boolean approvedByAdmin = false;
+  @Column(name = "admin_state", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private AdminState adminState = AdminState.MODERATION;
+
+  @Column(name = "admin_comment")
+  private String adminComment;
 
   @Column(name = "description")
   private String description;
@@ -109,11 +112,6 @@ public class Site extends ModifiableEntity {
     return ImmutableList.copyOf(this.attributeList);
   }
 
-  public Site adminApprove() {
-    this.approvedByAdmin = true;
-    return this;
-  }
-
   public String name() {
     return this.name;
   }
@@ -139,35 +137,8 @@ public class Site extends ModifiableEntity {
     super.touch();
   }
 
-
-  public Site setApprovedByAdmin(boolean b) {
-    this.approvedByAdmin = b;
-    return this;
-  }
-
-  public Site mergeAttributesFrom(Map<String, String> attributeMap) {
-    Iterator<SiteAttribute> attrIterator = attributeList.iterator();
-    while (attrIterator.hasNext()) {
-      SiteAttribute attr = attrIterator.next();
-      if (!attributeMap.containsKey(attr.key())) {
-        attrIterator.remove();
-        continue;
-      }
-      if (!attributeMap.get(attr.key()).equals(attr.value())) {
-        attr.setValue(attributeMap.get(attr.key()));
-      }
-    }
-    Set<String> unTrackedKeys = Sets.difference(
-        attributeMap.keySet(),
-        this.attributeMap().keySet());
-    for (String key : unTrackedKeys) {
-      this.addAttribute(key, attributeMap.get(key));
-    }
-    return this;
-  }
-
   public boolean approvedByAdmin() {
-    return approvedByAdmin;
+    return AdminState.APPROVED == adminState;
   }
 
   public Site setDescription(String description) {
@@ -187,6 +158,40 @@ public class Site extends ModifiableEntity {
         return this.attributeMap().get("url").equals(referer);
       default: return true;
     }
+  }
+  @Override
+  public AdminState adminState() {
+    return adminState;
+  }
+
+  @Override
+  public String adminComment() {
+    return this.adminComment;
+  }
+
+  public Site setAdminComment(String comment) {
+    this.adminComment = comment;
+    return this;
+  }
+
+
+  public Site setAdminState(AdminState state) {
+    this.adminState = state;
+    return this;
+  }
+
+  public Site setAttribute(String name, String value) {
+    boolean set = false;
+    for (SiteAttribute attr : attributeList) {
+      if (attr.key().equals(name)) {
+        set = true;
+        attr.setValue(value);
+      }
+    }
+    if (!set) attributeList.add(new SiteAttribute()
+        .setKey(name)
+        .setValue(value));
+    return this;
   }
 
 
