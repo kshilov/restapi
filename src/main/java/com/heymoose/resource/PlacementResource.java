@@ -12,7 +12,6 @@ import com.heymoose.infrastructure.util.MapToXml;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.QueryResultToXml;
 import com.heymoose.infrastructure.util.db.QueryResult;
-import com.heymoose.resource.xml.JDomUtil;
 import org.jdom2.Element;
 
 import javax.ws.rs.DefaultValue;
@@ -22,7 +21,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -40,9 +38,8 @@ public class PlacementResource {
   }
 
   @GET
-  @Produces("application/xml")
   @Transactional
-  public String listPlacements(@QueryParam("aff_id") Long affId,
+  public Element listPlacements(@QueryParam("aff_id") Long affId,
                                @QueryParam("offer_id") Long offerId,
                                @QueryParam("offset") int offset,
                                @QueryParam("limit") @DefaultValue("20") int limit) {
@@ -106,8 +103,8 @@ public class PlacementResource {
 
 
 
-  private String toPlacementXml(Pair<QueryResult, Long> result) {
-    Element root = new QueryResultToXml()
+  private Element toPlacementXml(Pair<QueryResult, Long> result) {
+    return new QueryResultToXml()
         .setElementName("placements")
         .setAttribute("count", result.snd.toString())
         .setMapper(new MapToXml()
@@ -134,7 +131,6 @@ public class PlacementResource {
                 .addChild("type")
                 .addChild("name")))
         .execute(result.fst);
-    return JDomUtil.toXmlString(root);
   }
 
   private <T> T coalesce(T first, T second) {
