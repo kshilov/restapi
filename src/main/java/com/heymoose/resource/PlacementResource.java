@@ -2,8 +2,11 @@ package com.heymoose.resource;
 
 import com.google.inject.Inject;
 import com.heymoose.domain.base.AdminState;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Site;
 import com.heymoose.infrastructure.persistence.Transactional;
+import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.infrastructure.util.TypedMap;
@@ -14,6 +17,7 @@ import org.jdom2.Element;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,10 +32,12 @@ import static com.heymoose.resource.xml.JDomUtil.element;
 public class PlacementResource {
 
   private final Sites sites;
+  private final OfferLoader offers;
 
   @Inject
-  public PlacementResource(Sites sites) {
+  public PlacementResource(Sites sites, OfferLoader offers) {
     this.sites = sites;
+    this.offers = offers;
   }
 
   @GET
@@ -42,6 +48,27 @@ public class PlacementResource {
                                @QueryParam("limit") @DefaultValue("20") int limit) {
     return toPlacementXml(sites.listOfferSites(affId, offerId, offset, limit));
   }
+
+
+  @POST
+  @Transactional
+  public Response placeOffer(@FormParam("site_id") Long siteId,
+                             @FormParam("offer_id") Long offerId,
+                             @FormParam("back_url") String backUrl,
+                             @FormParam("postback_url") String postbacUrl) {
+    if (offerId == null) throw new WebApplicationException(400);
+    Offer offer = offers.activeOfferById(offerId);
+    Site site = sites.approvedSite(siteId);
+    if (offer == null || site == null) throw new WebApplicationException(404);
+    OfferSite offerSite = new OfferSite()
+        .setOffer(offer)
+        .setSite(site)
+        .setBackUrl(backUrl)
+        .setPostbackUrl(postbacUrl);
+    sites.addOfferSite(offerSite);
+    return Response.ok().build();
+  }
+
 
 
   @PUT

@@ -2,13 +2,10 @@ package com.heymoose.resource;
 
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.domain.base.AdminState;
-import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.BlackListEntry;
-import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
-import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.OrderingDirection;
@@ -48,15 +45,12 @@ import static com.heymoose.resource.xml.JDomUtil.element;
 public class SiteResource {
   private final Sites sites;
   private final BlackList blackList;
-  private final OfferLoader offers;
 
   @Inject
   public SiteResource(Sites sites,
-                      BlackList blackList,
-                      OfferLoader offers) {
+                      BlackList blackList) {
     this.sites = sites;
     this.blackList = blackList;
-    this.offers = offers;
   }
 
   @POST
@@ -83,26 +77,6 @@ public class SiteResource {
     if (site == null) throw new WebApplicationException(404);
     Site updatedSite = parseSiteForm(context);
     sites.merge(updatedSite, site);
-    return Response.ok().build();
-  }
-
-  @POST
-  @Path("placements")
-  @Transactional
-  public Response placeOffer(@FormParam("site_id") Long siteId,
-                             @FormParam("offer_id") Long offerId,
-                             @FormParam("back_url") String backUrl,
-                             @FormParam("postback_url") String postbacUrl) {
-    if (offerId == null) throw new WebApplicationException(400);
-    Offer offer = offers.activeOfferById(offerId);
-    Site site = sites.approvedSite(siteId);
-    if (offer == null || site == null) throw new WebApplicationException(404);
-    OfferSite offerSite = new OfferSite()
-        .setOffer(offer)
-        .setSite(site)
-        .setBackUrl(backUrl)
-        .setPostbackUrl(postbacUrl);
-    sites.addOfferSite(offerSite);
     return Response.ok().build();
   }
 
@@ -330,14 +304,14 @@ public class SiteResource {
         .setAttribute("id", site.affiliate().id().toString())
         .addContent(element("email", site.affiliate().email()))
         .addContent(element("blocked", site.affiliate().blocked()));
-    siteElement.addContent(aff);
-    siteElement.addContent(element("name", site.name()));
-    siteElement.addContent(element("description", site.description()));
-    siteElement.addContent(element("type", site.type()));
-    siteElement.addContent(element("admin-state", site.adminState()));
-    siteElement.addContent(element("admin-comment", site.adminComment()));
-    siteElement.addContent(element("creation-time", site.creationTime()));
-    siteElement.addContent(element("last-change-time", site.lastChangeTime()));
+    siteElement.addContent(aff)
+        .addContent(element("name", site.name()))
+        .addContent(element("description", site.description()))
+        .addContent(element("type", site.type()))
+        .addContent(element("admin-state", site.adminState()))
+        .addContent(element("admin-comment", site.adminComment()))
+        .addContent(element("creation-time", site.creationTime()))
+        .addContent(element("last-change-time", site.lastChangeTime()));
     for (Map.Entry<String, String> entry : site.attributeMap().entrySet()) {
       siteElement.addContent(element(entry.getKey(), entry.getValue()));
     }
