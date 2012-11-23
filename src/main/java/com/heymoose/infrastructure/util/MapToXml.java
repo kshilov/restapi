@@ -80,7 +80,7 @@ public final class MapToXml {
   }
 
   public MapToXml addChild(String key) {
-    this.childNameMap.put(key, key);
+    this.childNameMap.put(key, key.replaceAll("_", "-"));
     return this;
   }
 

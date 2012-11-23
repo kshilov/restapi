@@ -8,8 +8,9 @@ import com.heymoose.domain.site.Site;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.Sites;
+import com.heymoose.infrastructure.util.MapToXml;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.TypedMap;
+import com.heymoose.infrastructure.util.QueryResultToXml;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.JDomUtil;
 import org.jdom2.Element;
@@ -25,9 +26,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.Map;
-
-import static com.heymoose.resource.xml.JDomUtil.element;
 
 @Path("placements")
 public class PlacementResource {
@@ -109,34 +107,33 @@ public class PlacementResource {
 
 
   private String toPlacementXml(Pair<QueryResult, Long> result) {
-    Element root = new Element("placements")
-        .setAttribute("count", result.snd.toString());
-    for (Map<String, Object> map : result.fst) {
-      TypedMap entry = TypedMap.wrap(map);
-      Element entryXml = new Element("placement")
-          .setAttribute("id", entry.getString("id"))
-          .addContent(element("admin-state", entry.getString("admin_state")))
-          .addContent(element("admin-comment", entry.getString("admin_comment")))
-          .addContent(element("creation-time", entry.getDateTime("creation_time")))
-          .addContent(element("last-change-time", entry.getDateTime("last_change_time")))
-          .addContent(element("back-url", entry.getString("back_url")))
-          .addContent(element("postback-url", entry.getString("postback_url")));
-      Element offerXml = new Element("offer")
-          .setAttribute("id", entry.getString("offer_id"))
-          .addContent(element("name", entry.getString("offer_name")));
-      Element affiliateXml = new Element("affiliate")
-          .setAttribute("id", entry.getString("affiliate_id"))
-          .addContent(element("email", entry.getString("affiliate_email")))
-          .addContent(element("blocked", entry.getString("affiliate_blocked")));
-      Element siteXml = new Element("site")
-          .setAttribute("id", entry.getString("site_id"))
-          .addContent(element("type", entry.getString("site_type")))
-          .addContent(element("name", entry.getString("site_name")));
-      entryXml.addContent(offerXml)
-          .addContent(affiliateXml)
-          .addContent(siteXml);
-      root.addContent(entryXml);
-    }
+    Element root = new QueryResultToXml()
+        .setElementName("placements")
+        .setAttribute("count", result.snd.toString())
+        .setMapper(new MapToXml()
+            .setElementName("placement")
+            .addAttribute("id")
+            .addChild("admin_state")
+            .addChild("admin_comment")
+            .addChild("creation_time")
+            .addChild("last_change_time")
+            .addChild("back_url")
+            .addChild("postback_url")
+            .addSubMapper(new MapToXml()
+                .setElementName("offer")
+                .addAttribute("id")
+                .addChild("name"))
+            .addSubMapper(new MapToXml()
+                .setElementName("affiliate")
+                .addAttribute("id")
+                .addChild("email")
+                .addChild("blocked"))
+            .addSubMapper(new MapToXml()
+                .setElementName("site")
+                .addAttribute("id")
+                .addChild("type")
+                .addChild("name")))
+        .execute(result.fst);
     return JDomUtil.toXmlString(root);
   }
 
