@@ -59,6 +59,15 @@ public final class QueryResultToXmlTest {
     assertEquals("offer_id", entry.getChild("offer").getChildText("id"));
   }
 
+  @Test
+  public void rootAttributes() throws Exception {
+    Element element = new QueryResultToXml()
+        .setElementName("root")
+        .setAttribute("count", "10")
+        .execute(QueryResult.empty());
+    assertEquals("10", element.getAttributeValue("count"));
+  }
+
   @SuppressWarnings("unchecked")
   private QueryResult queryResultWith(Map<String, ? extends Object> entry) {
     List<Map<String, Object>> list =
