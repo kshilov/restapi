@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.Map;
 
-import static com.heymoose.infrastructure.util.HibernateUtil.*;
+import static com.heymoose.infrastructure.util.db.HibernateUtil.*;
 
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements

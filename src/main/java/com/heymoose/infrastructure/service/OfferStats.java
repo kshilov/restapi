@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.heymoose.infrastructure.util.HibernateUtil.addEqOrIsNull;
+import static com.heymoose.infrastructure.util.db.HibernateUtil.addEqOrIsNull;
 
 @Singleton
 public class OfferStats {
