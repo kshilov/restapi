@@ -25,7 +25,7 @@ create table site(
   aff_id bigint not null,
   type varchar(20) not null,
   name text not null,
-  description text not null,
+  description text,
   admin_state varchar(20) not null,
   admin_comment text,
   creation_time timestamp without time zone default now(),
