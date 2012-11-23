@@ -10,7 +10,7 @@ select
   site.name           site_name,
   site.type           site_type,
   offer.id            offer_id,
-  offer.title         offer_title,
+  offer.name          offer_name,
   affiliate.id        affiliate_id,
   affiliate.email     affiliate_email,
   affiliate.blocked   affiliate_blocked

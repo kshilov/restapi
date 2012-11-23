@@ -91,7 +91,7 @@ public class PlacementResource {
           .addContent(element("postback-url", entry.getString("postback_url")));
       Element offerXml = new Element("offer")
           .setAttribute("id", entry.getString("offer_id"))
-          .addContent(element("title", entry.getString("offer_title")));
+          .addContent(element("name", entry.getString("offer_name")));
       Element affiliateXml = new Element("affiliate")
           .setAttribute("id", entry.getString("affiliate_id"))
           .addContent(element("email", entry.getString("affiliate_email")))
