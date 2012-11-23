@@ -132,7 +132,7 @@ public class PlacementResource {
           .addContent(siteXml);
       root.addContent(entryXml);
     }
-    return JDomUtil.XML_OUTPUTTER.outputString(root);
+    return JDomUtil.toXmlString(root);
   }
 
   private <T> T coalesce(T first, T second) {

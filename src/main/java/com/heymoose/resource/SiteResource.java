@@ -184,7 +184,7 @@ public class SiteResource {
               map.getString("click_count_diff")));
       root.addContent(stat);
     }
-    return JDomUtil.XML_OUTPUTTER.outputString(root);
+    return JDomUtil.toXmlString(root);
   }
 
   @PUT
