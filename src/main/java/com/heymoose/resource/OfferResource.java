@@ -4,7 +4,6 @@ import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantFilter;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
@@ -20,8 +19,8 @@ import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
-import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlOffers;
@@ -133,28 +132,10 @@ public class OfferResource {
   @Transactional
   public XmlOffers listRequested(@QueryParam("offset") @DefaultValue("0") int offset,
                                  @QueryParam("limit") @DefaultValue("20") int limit,
-                                 @QueryParam("aff_id") long affiliateId,
-                                 @QueryParam("active") Boolean active,
-                                 @QueryParam("pay_method") String payMethod,
-                                 @QueryParam("cpa_policy") String cpaPolicy,
-                                 @QueryParam("region") List<String> regionList,
-                                 @QueryParam("category") List<Long> categoryList) {
-    OfferGrantFilter filter = new OfferGrantFilter()
-        .setActive(active)
-        .setAffiliateId(affiliateId)
-        .setRegionList(regionList)
-        .setCategoryList(categoryList);
-
-    if (payMethod != null)
-      filter.setPayMethod(PayMethod.valueOf(payMethod.toUpperCase()));
-
-    if (cpaPolicy != null)
-      filter.setCpaPolicy(CpaPolicy.valueOf(cpaPolicy.toUpperCase()));
-
-    return Mappers.toXmlGrantedOffers(
-        offerGrants.list(Ordering.ID, OrderingDirection.DESC, offset, limit, filter),
-        offerGrants.count(filter)
-    );
+                                 @QueryParam("aff_id") long affiliateId) {
+    Pair<List<Offer>, Long> result =
+        offers.affiliateOfferList(affiliateId, offset, limit);
+    return Mappers.toXmlOffers(result.fst, result.snd);
   }
 
   @GET
