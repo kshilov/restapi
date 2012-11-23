@@ -25,8 +25,9 @@ public final class QueryResultToXmlTest {
     QueryResult result = oneEntryResult("key", "value");
     QueryResultToXml transformer = new QueryResultToXml()
         .setElementName("results")
-        .addMapToXml(new MapToXml()
-            .setElementName("result"));
+        .setMapper(new MapToXml()
+            .setElementName("result")
+            .addChild("key"));
     Element resultsXml = transformer.execute(result);
 
     log.info("{}", OUT.outputString(resultsXml));
@@ -41,14 +42,21 @@ public final class QueryResultToXmlTest {
         "offer_id", "offer_id"));
     QueryResultToXml transformer = new QueryResultToXml()
         .setElementName("results")
-        .addMapToXml(new MapToXml()
-            .setElementName("result"))
-        .addMapToXml(new MapToXml()
-            .setElementName("offer")
-            .setPrefix("offer_"));
+        .setMapper(new MapToXml()
+            .setElementName("result")
+            .addAttribute("id")
+            .addSubMapper(new MapToXml()
+              .setElementName("offer")
+              .setPrefix("offer_")
+              .addChild("id")));
     Element xmlResult = transformer.execute(result);
 
     log.info("{}", OUT.outputString(xmlResult));
+    assertEquals(1, xmlResult.getChildren().size());
+    Element entry = xmlResult.getChildren("result").get(0);
+    assertEquals("id", entry.getAttributeValue("id"));
+    assertEquals(1, entry.getChildren("offer").size());
+    assertEquals("offer_id", entry.getChild("offer").getChildText("id"));
   }
 
   @SuppressWarnings("unchecked")

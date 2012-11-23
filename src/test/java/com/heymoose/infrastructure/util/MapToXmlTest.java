@@ -16,7 +16,7 @@ public final class MapToXmlTest {
       LoggerFactory.getLogger(MapToXmlTest.class);
 
   @Test
-  public void noPrefixNoAttributesTest() throws Exception {
+  public void noPrefixNoAttributes() throws Exception {
     MapToXml mapper = new MapToXml()
         .setElementName("element-name")
         .addChild("key");
@@ -34,7 +34,7 @@ public final class MapToXmlTest {
   public void attribute() throws Exception {
     MapToXml mapper = new MapToXml()
         .setElementName("name")
-        .addAttributeName("id");
+        .addAttribute("id");
     Element element = mapper.execute(ImmutableMap.of("id", "value"));
 
     assertEquals("id", element.getAttributes().get(0).getName());
@@ -62,5 +62,35 @@ public final class MapToXmlTest {
 
     log.info("{}", OUT.outputString(element));
     assertEquals("Moose", element.getChildText("full-name"));
+  }
+
+  @Test
+  public void subMapper() throws Exception {
+    MapToXml mapper = new MapToXml()
+        .setElementName("stat")
+        .addChild("id")
+        .addSubMapper(new MapToXml()
+            .setPrefix("offer_")
+            .setElementName("offer")
+            .addChild("url"));
+    Element result = mapper.execute(ImmutableMap.of(
+        "id", "stat-id",
+        "offer_url", "http://offer.url"));
+
+    log.info("{}", OUT.outputString(result));
+    assertEquals(2, result.getChildren().size());
+    assertEquals("stat-id", result.getChildText("id"));
+    Element offer = result.getChild("offer");
+    assertEquals("http://offer.url", offer.getChildText("url"));
+  }
+
+  @Test
+  public void defaultPrefixForSubMapperIsElementName() throws Exception {
+    Element result = new MapToXml()
+        .setElementName("root")
+        .addSubMapper(new MapToXml()
+            .setElementName("sub")
+            .addAttribute("id")).execute(ImmutableMap.of("sub_id", "sub"));
+    assertEquals("sub", result.getChild("sub").getAttributeValue("id"));
   }
 }

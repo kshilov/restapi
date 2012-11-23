@@ -1,6 +1,8 @@
 package com.heymoose.infrastructure.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.jdom2.Element;
@@ -19,12 +21,19 @@ public final class MapToXml {
   private String prefix = "";
   private ImmutableMap.Builder<String, String> childNameMap =
       ImmutableMap.builder();
+  private ImmutableList.Builder<MapToXml> subMapperList =
+      ImmutableList.builder();
 
   public Element execute(Map<String, ?> map) {
     Preconditions.checkNotNull(elementName, "Name an element!");
     ImmutableSet<String> attributes = attributeNameSet.build();
     Element element = new Element(elementName);
     Map<String, String> children = childNameMap.build();
+
+    for (MapToXml subMapper : subMapperList.build()) {
+      element.addContent(subMapper.execute(map));
+    }
+
     for (Map.Entry<String, ?> entry : map.entrySet()) {
       if (!entry.getKey().startsWith(prefix)) continue;
 
@@ -55,7 +64,7 @@ public final class MapToXml {
     return this;
   }
 
-  public MapToXml addAttributeName(String name) {
+  public MapToXml addAttribute(String name) {
     this.attributeNameSet.add(name);
     return this;
   }
@@ -72,6 +81,14 @@ public final class MapToXml {
 
   public MapToXml addChild(String key) {
     this.childNameMap.put(key, key);
+    return this;
+  }
+
+  public MapToXml addSubMapper(MapToXml subMapper) {
+    if (Strings.isNullOrEmpty(subMapper.prefix)) {
+      subMapper.prefix = subMapper.elementName + "_";
+    }
+    this.subMapperList.add(subMapper);
     return this;
   }
 }
