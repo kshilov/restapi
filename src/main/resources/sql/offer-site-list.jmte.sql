@@ -22,9 +22,15 @@ on site.id = offer_site.site_id
 
 join offer
 on offer.id = offer_site.offer_id
+${if filterByOffer}
+and offer.id = :offer_id
+${end}
 
 join user_profile affiliate
 on affiliate.id = site.aff_id
+${if filterByAffiliate}
+and affiliate.id = :aff_id
+${end}
 
 where site.admin_state = 'APPROVED'
 
