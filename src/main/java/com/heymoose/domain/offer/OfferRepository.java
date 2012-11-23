@@ -19,6 +19,8 @@ public interface OfferRepository extends Repository<Offer> {
   Pair<List<Offer>, Long> affiliateOfferList(long affId,
                                              int offset, int limit);
 
+  Offer get(long offerId);
+
   public enum Ordering {
     ID, NAME, URL, ADVERTISER_LAST_NAME,
     GRANT_ID,

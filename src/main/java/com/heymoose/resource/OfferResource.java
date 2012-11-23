@@ -1,10 +1,9 @@
 package com.heymoose.resource;
 
+import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.CpaPolicy;
@@ -16,10 +15,12 @@ import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
 import com.heymoose.domain.settings.Settings;
+import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BannerStore;
+import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.Pair;
 import com.heymoose.resource.xml.Mappers;
 import com.heymoose.resource.xml.XmlOffer;
@@ -47,7 +48,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -60,7 +60,7 @@ public class OfferResource {
 
   private final OfferRepository offers;
   private final SubOfferRepository subOffers;
-  private final OfferGrantRepository offerGrants;
+  private final Sites sites;
   private final UserRepository users;
   private final Accounting accounting;
   private final Repo repo;
@@ -68,12 +68,12 @@ public class OfferResource {
   private final Settings settings;
 
   @Inject
-  public OfferResource(OfferRepository offers, SubOfferRepository subOffers, OfferGrantRepository offerGrants,
+  public OfferResource(OfferRepository offers, SubOfferRepository subOffers, Sites sites,
                        UserRepository users, Accounting accounting, Repo repo, BannerStore bannerStore,
                        Settings settings) {
     this.offers = offers;
     this.subOffers = subOffers;
-    this.offerGrants = offerGrants;
+    this.sites = sites;
     this.users = users;
     this.accounting = accounting;
     this.repo = repo;
@@ -118,13 +118,18 @@ public class OfferResource {
     Iterable<Offer> offers = this.offers.list(ord, asc, offset, limit, filter);
     long count = this.offers.count(filter);
     if (affiliateId != null && count > 0) {
-      List<Long> offerIds = newArrayList();
-      for (Offer offer : offers)
-        offerIds.add(offer.id());
-      Map<Long, OfferGrant> grants = offerGrants.byOffersAndAffiliate(offerIds, affiliateId);
-      return Mappers.toXmlOffers(offers, grants, count);
-    } else
+      XmlOffers xmlOffers = new XmlOffers();
+      xmlOffers.count = count;
+      for (Offer offer: offers) {
+        List<OfferSite> offerSiteList =
+            sites.offerSiteList(offer.id(), affiliateId);
+        if (offerSiteList.isEmpty()) continue;
+        xmlOffers.offers.add(Mappers.toXmlOffer(offer, offerSiteList));
+      }
+      return xmlOffers;
+    } else {
       return Mappers.toXmlOffers(offers, count);
+    }
   }
 
   @GET
@@ -142,12 +147,16 @@ public class OfferResource {
   @Path("{id}")
   @Transactional
   public XmlOffer get(@PathParam("id") long offerId,
+                      @QueryParam("aff_id") Long affId,
                       @QueryParam("approved") @DefaultValue("false") boolean approved,
                       @QueryParam("active") @DefaultValue("false") boolean active) {
     Offer offer = existing(offerId);
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
-    return Mappers.toXmlOffer(offer);
+    List<OfferSite> offerSiteList = ImmutableList.of();
+    if (affId != null)
+      offerSiteList = sites.offerSiteList(offerId, affId);
+    return Mappers.toXmlOffer(offer, offerSiteList);
   }
 
   @GET
@@ -155,16 +164,7 @@ public class OfferResource {
   @Transactional
   public XmlOffer referralOffer() {
     Long referralOfferId = settings.getLongOrNull(Settings.REFERRAL_OFFER);
-    return get(referralOfferId, true, true);
-  }
-
-  @GET
-  @Path("{id}/requested")
-  @Transactional
-  public XmlOffer getRequested(@PathParam("id") long offerId,
-                               @QueryParam("aff_id") long affiliateId) {
-    OfferGrant grant = existingGrant(offerId, affiliateId);
-    return Mappers.toXmlGrantedNewOffer(grant);
+    return get(referralOfferId, null, true, true);
   }
 
   @POST
@@ -533,13 +533,6 @@ public class OfferResource {
     if (offer == null)
       throw new WebApplicationException(404);
     return offer;
-  }
-
-  private OfferGrant existingGrant(long offerId, long affiliateId) {
-    OfferGrant grant = offerGrants.byOfferAndAffiliate(offerId, affiliateId);
-    if (grant == null)
-      throw new WebApplicationException(404);
-    return grant;
   }
 
   private Banner existingBanner(Offer offer, long bannerId) {

@@ -236,4 +236,10 @@ public class Sites {
     repo.put(site);
   }
 
+  public List<OfferSite> offerSiteList(long offerId, long affiliateId) {
+    return repo.allByHQL(OfferSite.class,
+        "from OfferSite where offer.id = ? and site.affId = ?",
+        offerId, affiliateId);
+  }
+
 }

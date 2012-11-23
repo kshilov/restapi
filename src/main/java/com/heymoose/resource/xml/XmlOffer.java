@@ -1,5 +1,6 @@
 package com.heymoose.resource.xml;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -7,6 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @XmlRootElement(name = "offer")
@@ -137,4 +139,8 @@ public class XmlOffer {
 
   @XmlElement(name = "allow-cashback")
   public boolean allowCashback;
+
+  @XmlElementWrapper(name = "placements")
+  @XmlElement(name = "placement")
+  public List<XmlOfferSite> offerSiteList = Lists.newArrayList();
 }

@@ -9,10 +9,13 @@ import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
+import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 
+import java.util.List;
 import java.util.Map;
 
 public class Mappers {
@@ -226,14 +229,6 @@ public class Mappers {
     return xmlOffers;
   }
 
-  public static XmlOffers toXmlGrantedOffers(Iterable<OfferGrant> grants, Long count) {
-    XmlOffers xmlOffers = new XmlOffers();
-    xmlOffers.count = count;
-    for (OfferGrant grant : grants)
-      xmlOffers.offers.add(toXmlGrantedNewOffer(grant));
-    return xmlOffers;
-  }
-
   public static XmlSubOffer toXmlSubOffer(SubOffer offer) {
     XmlSubOffer xmlSubOffer = new XmlSubOffer();
     xmlSubOffer.id = offer.id();
@@ -358,4 +353,33 @@ public class Mappers {
     xmlRegion.countryName = countryName;
     return xmlRegion;
   }
+
+  public static XmlOffer toXmlOffer(Offer offer, List<OfferSite> offerSiteList) {
+    XmlOffer xmlOffer = toXmlOffer(offer);
+    for (OfferSite offerSite : offerSiteList) {
+      xmlOffer.offerSiteList.add(toXmlOfferSite(offerSite));
+    }
+    return xmlOffer;
+  }
+
+  private static XmlOfferSite toXmlOfferSite(OfferSite offerSite) {
+    XmlOfferSite xmlOfferSite = new XmlOfferSite();
+    xmlOfferSite.id = offerSite.id();
+    xmlOfferSite.site = toXmlSite(offerSite.site());
+    xmlOfferSite.adminState = offerSite.adminState();
+    xmlOfferSite.adminComment = offerSite.adminComment();
+    return xmlOfferSite;
+  }
+
+  private static XmlSite toXmlSite(Site site) {
+    XmlSite xmlSite = new XmlSite();
+    xmlSite.id = site.id();
+    xmlSite.adminComment = site.adminComment();
+    xmlSite.adminState = site.adminState();
+    xmlSite.name = site.name();
+    xmlSite.type = site.type();
+    xmlSite.affiliate = toXmlUser(site.affiliate());
+    return xmlSite;
+  }
+
 }

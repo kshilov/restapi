@@ -96,6 +96,11 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
   }
 
   @Override
+  public Offer get(long offerId) {
+    return (Offer) hiber().get(Offer.class, offerId);
+  }
+
+  @Override
   public long countRequested(long affiliateId, Boolean active) {
     Criteria criteria = hiber()
         .createCriteria(getEntityClass())
@@ -139,6 +144,16 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
 
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+
+    if (filter.affiliateId() != null) {
+      criteria.add(Restrictions.sqlRestriction(
+          "exists (select * from offer_site " +
+              "join site on site.id = offer_site.site_id " +
+              "where offer_id = {alias}.id " +
+              "and site.aff_id = ?)",
+          filter.affiliateId(),
+          StandardBasicTypes.LONG));
+    }
 
     if (filter.payMethod() == PayMethod.CPA) {
       Criterion parentPayMethodMatches = Restrictions.and(
