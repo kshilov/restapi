@@ -56,10 +56,13 @@ public class PlacementResource {
                              @FormParam("offer_id") Long offerId,
                              @FormParam("back_url") String backUrl,
                              @FormParam("postback_url") String postbacUrl) {
-    if (offerId == null) throw new WebApplicationException(400);
+    if (offerId == null || siteId == null)
+      throw new WebApplicationException(400);
     Offer offer = offers.activeOfferById(offerId);
     Site site = sites.approvedSite(siteId);
     if (offer == null || site == null) throw new WebApplicationException(404);
+    if (sites.findOfferSite(site, offer) != null)
+      throw new WebApplicationException(409);
     OfferSite offerSite = new OfferSite()
         .setOffer(offer)
         .setSite(site)

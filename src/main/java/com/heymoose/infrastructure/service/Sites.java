@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.heymoose.domain.base.AdminState;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
+import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.site.SiteAttribute;
@@ -240,6 +241,11 @@ public class Sites {
     return repo.allByHQL(OfferSite.class,
         "from OfferSite where offer.id = ? and site.affId = ?",
         offerId, affiliateId);
+  }
+
+  public OfferSite findOfferSite(Site site, Offer offer) {
+    return repo.byHQL(OfferSite.class,
+        "from OfferSite where site = ? and offer = ?", site, offer);
   }
 
 }
