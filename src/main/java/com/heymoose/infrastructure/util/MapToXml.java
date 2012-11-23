@@ -17,27 +17,27 @@ public final class MapToXml {
       ImmutableSet.builder();
   private String elementName;
   private String prefix = "";
-  private ImmutableMap.Builder<String, String> aliasMap =
+  private ImmutableMap.Builder<String, String> childNameMap =
       ImmutableMap.builder();
 
   public Element execute(Map<String, ?> map) {
     Preconditions.checkNotNull(elementName, "Name an element!");
     ImmutableSet<String> attributes = attributeNameSet.build();
     Element element = new Element(elementName);
-    Map<String, String> aliases = aliasMap.build();
+    Map<String, String> children = childNameMap.build();
     for (Map.Entry<String, ?> entry : map.entrySet()) {
       if (!entry.getKey().startsWith(prefix)) continue;
 
       String key = entry.getKey().substring(prefix.length());
 
-      if (aliases.containsKey(key)) key = aliases.get(key);
+      if (!children.containsKey(key) && !attributes.contains(key)) continue;
 
       String value = value(entry.getValue());
       if (attributes.contains(key)) {
         element.setAttribute(key, value);
-      } else {
-        element.addContent(element(key, value));
+        continue;
       }
+      element.addContent(element(children.get(key), value));
     }
     return element;
   }
@@ -65,8 +65,13 @@ public final class MapToXml {
    return this;
   }
 
-  public MapToXml addAlias(String keyName, String childName) {
-    this.aliasMap.put(keyName, childName);
+  public MapToXml addChild(String keyName, String alias) {
+    this.childNameMap.put(keyName, alias);
+    return this;
+  }
+
+  public MapToXml addChild(String key) {
+    this.childNameMap.put(key, key);
     return this;
   }
 }

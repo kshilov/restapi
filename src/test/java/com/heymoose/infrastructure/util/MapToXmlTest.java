@@ -18,7 +18,8 @@ public final class MapToXmlTest {
   @Test
   public void noPrefixNoAttributesTest() throws Exception {
     MapToXml mapper = new MapToXml()
-        .setElementName("element-name");
+        .setElementName("element-name")
+        .addChild("key");
     Element element = mapper.execute(ImmutableMap.of("key", "value"));
 
 
@@ -44,7 +45,8 @@ public final class MapToXmlTest {
   public void prefix() throws Exception {
     MapToXml mapper = new MapToXml()
         .setElementName("offer")
-        .setPrefix("offer_");
+        .setPrefix("offer_")
+        .addChild("id");
     Element element = mapper.execute(ImmutableMap.of("offer_id", "value"));
 
     log.info("{}", OUT.outputString(element));
@@ -55,7 +57,7 @@ public final class MapToXmlTest {
   public void alias() throws Exception {
     MapToXml mapper = new MapToXml()
         .setElementName("element")
-        .addAlias("name", "full-name");
+        .addChild("name", "full-name");
     Element element = mapper.execute(ImmutableMap.of("name", "Moose"));
 
     log.info("{}", OUT.outputString(element));
