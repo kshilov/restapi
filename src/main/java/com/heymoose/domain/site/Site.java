@@ -1,5 +1,6 @@
 package com.heymoose.domain.site;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -23,6 +24,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -153,7 +156,14 @@ public class Site extends ModifiableEntity implements Moderatable {
   public boolean matches(String referer) {
     switch (this.type) {
       case WEB_SITE:
-        return this.attributeMap().get("url").equals(referer);
+        if (!referer.contains("://")) referer = "http://" + referer;
+        try {
+          URL refererUrl = new URL(referer);
+          URL siteUrl = new URL(this.attributeMap().get("url"));
+          return siteUrl.getHost().equals(refererUrl.getHost());
+        } catch (MalformedURLException e) {
+          throw new RuntimeException("Illegal url. " + referer + " " + this);
+        }
       case SOCIAL_NETWORK:
         return this.attributeMap().get("url").equals(referer);
       default: return true;
@@ -194,5 +204,13 @@ public class Site extends ModifiableEntity implements Moderatable {
     return this;
   }
 
-
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(Site.class)
+        .add("id", id)
+        .add("type", type)
+        .add("name", name)
+        .add("adminState", adminState)
+        .toString();
+  }
 }
