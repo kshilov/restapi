@@ -9,10 +9,12 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.Products;
+import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.service.yml.YmlWriter;
 import com.heymoose.infrastructure.util.Cacheable;
 import org.jdom2.Document;
@@ -41,15 +43,18 @@ public class ProductResource {
   private final OfferGrantRepository grants;
   private final UserRepositoryHiber users;
   private final String trackerHost;
+  private final Sites sites;
   private final Repo repo;
 
   @Inject
   public ProductResource(Repo repo, Products products,
                          OfferGrantRepository grants,
                          UserRepositoryHiber users,
+                         Sites sites,
                          @Named("tracker.host") String trackerHost) {
     this.repo = repo;
     this.products = products;
+    this.sites = sites;
     this.grants = grants;
     this.users = users;
     this.trackerHost = trackerHost;
@@ -62,7 +67,7 @@ public class ProductResource {
   @Cacheable
   @Transactional
   public Response feed(@QueryParam("key") String key,
-                       @QueryParam("site") Long site,
+                       @QueryParam("site") Long siteId,
                        @QueryParam("s") List<Long> offerList,
                        @QueryParam("c") List<Long> categoryList,
                        @QueryParam("q") String queryString,
@@ -86,13 +91,21 @@ public class ProductResource {
       return status(401, "No user found for given 'key'.");
     }
 
+    Site site = null;
+    if (siteId != null) {
+      site = sites.approvedSite(siteId);
+      if (site == null || site.affiliate() != user)
+        return status(400, "No active site found with id: " + siteId);
+    }
+
     final Iterable<Product> productList =
-        products.list(user, offerList, categoryList, queryString,
+        products.list(user, site, offerList, categoryList, queryString,
             offset, limit);
     final Iterable<ShopCategory> shopCategoryList =
-        products.categoryList(user, offerList, categoryList, queryString);
+        products.categoryList(user, site, offerList, categoryList, queryString);
     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     new YmlWriter(byteStream)
+        .setSite(site)
         .setCategoryList(shopCategoryList)
         .setProductList(productList)
         .setTrackerHost(this.trackerHost)
@@ -106,6 +119,7 @@ public class ProductResource {
   @Path("feed/size")
   @Transactional
   public String feedSize(@QueryParam("key") String key,
+                         @QueryParam("site") Long siteId,
                          @QueryParam("s") List<Long> offerList,
                          @QueryParam("c") List<Long> categoryList,
                          @QueryParam("q") String queryString) {
@@ -113,8 +127,16 @@ public class ProductResource {
 
     final User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
+    Site site = null;
+    if (siteId != null) {
+      site = sites.approvedSite(siteId);
+      if (site == null || site.affiliate() != user)
+        throw new WebApplicationException(400);
+    }
 
-    return products.count(user, offerList, categoryList, queryString).toString();
+    return products
+        .count(user, site, offerList, categoryList, queryString)
+        .toString();
   }
 
 

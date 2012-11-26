@@ -12,6 +12,7 @@ import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ProductCategoryMapping;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.util.TypedMap;
@@ -145,12 +146,13 @@ public class Products {
 
 
   @SuppressWarnings("unchecked")
-  public Iterable<Product> list(User user, Collection<Long> offerList,
+  public Iterable<Product> list(User user, Site site,
+                                Collection<Long> offerList,
                                 List<Long> categoryList,
                                 String queryString,
                                 int offset, Integer limit) {
     TemplateQuery query = productTemplateQuery(
-        user, offerList, categoryList, queryString);
+        user, site, offerList, categoryList, queryString);
     query.addTemplateParam("productInfo", true);
     Iterable<Map<String, Object>> mapIterator = query.execute(offset, limit);
 
@@ -162,22 +164,25 @@ public class Products {
   }
 
   public Long count(User user,
+                    Site site,
                     List<Long> offerList,
                     List<Long> categoryList,
                     String queryString) {
     TemplateQuery query = productTemplateQuery(
-        user, offerList, categoryList, queryString);
+        user, site, offerList, categoryList, queryString);
     query.addTemplateParam("productInfo", true);
     return query.count();
   }
 
 
 
-  public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
+  public Iterable<ShopCategory> categoryList(User user,
+                                             Site site,
+                                             List<Long> offerList,
                                              List<Long> categoryList,
                                              String queryString) {
     TemplateQuery query = productTemplateQuery(
-        user, offerList, categoryList, queryString);
+        user, site, offerList, categoryList, queryString);
     query.addTemplateParam("categoryInfo", true);
     QueryResult result = query.execute();
     ImmutableList.Builder<ShopCategory> categoryResultList =
@@ -243,11 +248,14 @@ public class Products {
   }
 
   private TemplateQuery productTemplateQuery(User user,
+                                             Site site,
                                              Collection<Long> offerList,
                                              Collection<Long> categoryList,
                                              String queryString) {
     TemplateQuery query = SqlLoader
-        .templateQuery("product-list", repo.session());
+        .templateQuery("product-list", repo.session())
+        .addTemplateParamIfNotNull(site, "filterBySite", true)
+        .addQueryParamIfNotNull(site, "site_id", site.id());
 
     if (!Strings.isNullOrEmpty(queryString)) {
       query.addTemplateParam("filterByName", true);

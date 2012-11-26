@@ -41,6 +41,9 @@ join site
 on site.id = offer_site.site_id
 and site.aff_id = :user_id
 and site.admin_state = 'APPROVED'
+${if filterBySite}
+and site.id = :site_id
+${end}
 
 left join tariff
 on tariff.id = product.tariff_id
