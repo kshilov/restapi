@@ -4,7 +4,7 @@ insert into site(type, aff_id, name, admin_state)
 select 'GRANT', id, 'Моя площадка', 'APPROVED' from
 user_profile where affiliate_account_id is not null;
 
-insert into offer_site
+insert into placement
 (offer_id, site_id, admin_state, admin_comment, back_url, postback_url)
 select
 offer_grant.offer_id  offer_id,

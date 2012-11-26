@@ -18,12 +18,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "offer_site")
-public final class OfferSite extends ModifiableEntity implements Moderatable {
+@Table(name = "placement")
+public final class Placement extends ModifiableEntity implements Moderatable {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "offer-site-seq")
-  @SequenceGenerator(name = "offer-site-seq", sequenceName = "offer_site_seq", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "placement-seq")
+  @SequenceGenerator(name = "placement-seq", sequenceName = "placement_seq", allocationSize = 1)
   private Long id;
 
   @ManyToOne
@@ -47,7 +47,7 @@ public final class OfferSite extends ModifiableEntity implements Moderatable {
   @Column(name = "postback_url")
   private String postbackUrl;
 
-  public OfferSite() {
+  public Placement() {
   }
 
   @Override
@@ -55,12 +55,12 @@ public final class OfferSite extends ModifiableEntity implements Moderatable {
     return this.id;
   }
 
-  public OfferSite setOffer(Offer offer) {
+  public Placement setOffer(Offer offer) {
     this.offer = offer;
     return this;
   }
 
-  public OfferSite setSite(Site site) {
+  public Placement setSite(Site site) {
     this.site = site;
     return this;
   }
@@ -81,17 +81,17 @@ public final class OfferSite extends ModifiableEntity implements Moderatable {
     return this.postbackUrl;
   }
 
-  public OfferSite setBackUrl(String backUrl) {
+  public Placement setBackUrl(String backUrl) {
     this.backUrl = backUrl;
     return this;
   }
 
-  public OfferSite setPostbackUrl(String postbackUrl) {
+  public Placement setPostbackUrl(String postbackUrl) {
     this.postbackUrl = postbackUrl;
     return this;
   }
 
-  public OfferSite setAdminState(AdminState state) {
+  public Placement setAdminState(AdminState state) {
     this.adminState = state;
     return this;
   }
@@ -104,7 +104,7 @@ public final class OfferSite extends ModifiableEntity implements Moderatable {
     return this.offer;
   }
 
-  public OfferSite setAdminComment(String adminComment) {
+  public Placement setAdminComment(String adminComment) {
     this.adminComment = adminComment;
     return this;
   }

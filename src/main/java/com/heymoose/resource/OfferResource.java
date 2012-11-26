@@ -119,7 +119,7 @@ public class OfferResource {
       XmlOffers xmlOffers = new XmlOffers();
       xmlOffers.count = count;
       for (Offer offer: offers) {
-        Long offerSiteCount = sites.offerSiteCount(offer.id(), affiliateId);
+        Long offerSiteCount = sites.placementCount(offer.id(), affiliateId);
         xmlOffers.offers.add(Mappers.toXmlOffer(offer, offerSiteCount));
       }
       return xmlOffers;
@@ -151,7 +151,7 @@ public class OfferResource {
       throw new WebApplicationException(403);
     Long placementsCount = null;
     if (affId != null)
-      placementsCount = sites.offerSiteCount(offerId, affId);
+      placementsCount = sites.placementCount(offerId, affId);
     return Mappers.toXmlOffer(offer, placementsCount);
   }
 

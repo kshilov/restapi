@@ -3,7 +3,7 @@ package com.heymoose.resource;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.AdminState;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.site.Site;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.OfferLoader;
@@ -71,7 +71,7 @@ public class PlacementResource {
                                @QueryParam("offer_id") Long offerId,
                                @QueryParam("offset") int offset,
                                @QueryParam("limit") @DefaultValue("20") int limit) {
-    return toPlacementXml(sites.listOfferSites(affId, offerId, offset, limit));
+    return toPlacementXml(sites.listPlacements(affId, offerId, offset, limit));
   }
 
 
@@ -86,14 +86,14 @@ public class PlacementResource {
     Offer offer = offers.activeOfferById(offerId);
     Site site = sites.approvedSite(siteId);
     if (offer == null || site == null) throw new WebApplicationException(404);
-    if (sites.findOfferSite(site, offer) != null)
+    if (sites.findPlacement(site, offer) != null)
       throw new WebApplicationException(409);
-    OfferSite offerSite = new OfferSite()
+    Placement placement = new Placement()
         .setOffer(offer)
         .setSite(site)
         .setBackUrl(backUrl)
         .setPostbackUrl(postbacUrl);
-    sites.addOfferSite(offerSite);
+    sites.addPlacement(placement);
     return Response.ok().build();
   }
 
@@ -108,9 +108,9 @@ public class PlacementResource {
                                     AdminState state,
                                     @FormParam("admin_comment")
                                     String adminComment) {
-    OfferSite offerSite = sites.getOfferSite(offerSiteId);
-    if (offerSite == null) throw new WebApplicationException(404);
-    sites.moderate(offerSite, state, adminComment);
+    Placement placement = sites.getOfferSite(offerSiteId);
+    if (placement == null) throw new WebApplicationException(404);
+    sites.moderate(placement, state, adminComment);
     return Response.ok().build();
   }
 
@@ -120,12 +120,12 @@ public class PlacementResource {
   public Response updatePlacement(@PathParam("id") Long id,
                                   @FormParam("back_url") String backUrl,
                                   @FormParam("postback_url") String postbackUrl) {
-    OfferSite offerSite = sites.getOfferSite(id);
-    if (offerSite == null) throw new WebApplicationException(404);
-    offerSite.setBackUrl(coalesce(backUrl, offerSite.backUrl()))
-        .setPostbackUrl(coalesce(postbackUrl, offerSite.postBackUrl()))
+    Placement placement = sites.getOfferSite(id);
+    if (placement == null) throw new WebApplicationException(404);
+    placement.setBackUrl(coalesce(backUrl, placement.backUrl()))
+        .setPostbackUrl(coalesce(postbackUrl, placement.postBackUrl()))
         .touch();
-    sites.put(offerSite);
+    sites.put(placement);
     return Response.ok().build();
   }
 
@@ -133,7 +133,7 @@ public class PlacementResource {
   @Path("{id}")
   @Transactional
   public Element getPlacement(@PathParam("id") Long id) {
-    Map<String, Object> result = sites.getOfferSiteAsMap(id);
+    Map<String, Object> result = sites.getPlacementAsMap(id);
     if (result.isEmpty()) throw new WebApplicationException(404);
     return PLACEMENT_MAPPER.execute(result);
   }
@@ -142,9 +142,9 @@ public class PlacementResource {
   @Path("{id}")
   @Transactional
   public Response deletePlacement(@PathParam("id") Long id) {
-    OfferSite offerSite = sites.getOfferSite(id);
-    if (offerSite == null) throw new WebApplicationException(404);
-    sites.removeOfferSite(offerSite);
+    Placement placement = sites.getOfferSite(id);
+    if (placement == null) throw new WebApplicationException(404);
+    sites.removeOfferSite(placement);
     return Response.ok().build();
   }
 

@@ -7,7 +7,7 @@ import com.heymoose.domain.base.AdminState;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.site.SiteAttribute;
 import com.heymoose.infrastructure.util.Cacheable;
@@ -94,9 +94,9 @@ public class Sites {
     return site;
   }
 
-  public OfferSite addOfferSite(OfferSite offerSite) {
-    repo.put(offerSite);
-    return offerSite;
+  public Placement addPlacement(Placement placement) {
+    repo.put(placement);
+    return placement;
   }
 
   public Site approvedSite(Long siteId) {
@@ -108,12 +108,12 @@ public class Sites {
     return repo.get(Site.class, siteId);
   }
 
-  public void put(OfferSite offerSite) {
-    repo.put(offerSite);
+  public void put(Placement placement) {
+    repo.put(placement);
   }
 
-  public OfferSite getOfferSite(Long id) {
-    return repo.get(OfferSite.class, id);
+  public Placement getOfferSite(Long id) {
+    return repo.get(Placement.class, id);
   }
 
   @SuppressWarnings("unchecked")
@@ -169,24 +169,24 @@ public class Sites {
     }
   }
 
-  public OfferSite checkPermission(BaseOffer offer, Site site) {
+  public Placement checkPermission(BaseOffer offer, Site site) {
     if (!site.approvedByAdmin())
       throw new IllegalArgumentException(
           "Site " + site + " not approved by admin");
-    OfferSite offerSite = repo.byHQL(OfferSite.class,
-        "from OfferSite where offer = ? and site = ? and adminState = 'APPROVED'",
+    Placement placement = repo.byHQL(Placement.class,
+        "from Placement where offer = ? and site = ? and adminState = 'APPROVED'",
         offer.masterOffer(), site);
-    if (offerSite == null) {
+    if (placement == null) {
       throw new IllegalStateException("No permission for offer " +
           offer + " and site " + site);
     }
-    return offerSite;
+    return placement;
   }
 
 
-  public Pair<QueryResult, Long> listOfferSites(Long affId, Long offerId,
+  public Pair<QueryResult, Long> listPlacements(Long affId, Long offerId,
                                                 int offset, int limit) {
-    return SqlLoader.templateQuery("offer-site-list", repo.session())
+    return SqlLoader.templateQuery("placement-list", repo.session())
         .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
         .addQueryParamIfNotNull(affId, "aff_id", affId)
         .addTemplateParamIfNotNull(offerId, "filterByOffer", true)
@@ -224,11 +224,11 @@ public class Sites {
     repo.put(to);
   }
 
-  public void moderate(OfferSite offerSite,
+  public void moderate(Placement placement,
                        AdminState state,
                        String adminComment) {
-    offerSite.setAdminState(state).setAdminComment(adminComment).touch();
-    repo.put(offerSite);
+    placement.setAdminState(state).setAdminComment(adminComment).touch();
+    repo.put(placement);
   }
 
   public void moderate(Site site,
@@ -238,29 +238,29 @@ public class Sites {
     repo.put(site);
   }
 
-  public List<OfferSite> offerSiteList(long offerId, long affiliateId) {
-    return repo.allByHQL(OfferSite.class,
-        "from OfferSite where offer.id = ? and site.affId = ?",
+  public List<Placement> placementList(long offerId, long affiliateId) {
+    return repo.allByHQL(Placement.class,
+        "from Placement where offer.id = ? and site.affId = ?",
         offerId, affiliateId);
   }
 
-  public Long offerSiteCount(long offerId, long affiliateId) {
+  public Long placementCount(long offerId, long affiliateId) {
     return (Long) repo.session().createQuery(
-        "select count(*) from OfferSite " +
+        "select count(*) from Placement " +
             "where offer.id = :offerId and site.affId = :affId")
         .setParameter("offerId", offerId)
         .setParameter("affId", affiliateId)
         .uniqueResult();
   }
 
-  public OfferSite findOfferSite(Site site, Offer offer) {
-    return repo.byHQL(OfferSite.class,
-        "from OfferSite where site = ? and offer = ?", site, offer);
+  public Placement findPlacement(Site site, Offer offer) {
+    return repo.byHQL(Placement.class,
+        "from Placement where site = ? and offer = ?", site, offer);
   }
 
-  public Map<String, Object> getOfferSiteAsMap(Long id) {
+  public Map<String, Object> getPlacementAsMap(Long id) {
     Pair<QueryResult, Long> result = SqlLoader
-        .templateQuery("offer-site-list", repo.session())
+        .templateQuery("placement-list", repo.session())
         .addTemplateParam("filterById", true)
         .addQueryParam("id", id)
         .executeAndCount(0, 1);
@@ -268,8 +268,8 @@ public class Sites {
     return result.fst.get(0);
   }
 
-  public void removeOfferSite(OfferSite offerSite) {
-    repo.session().delete(offerSite);
+  public void removeOfferSite(Placement placement) {
+    repo.session().delete(placement);
   }
 
 

@@ -11,7 +11,7 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
-import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
@@ -87,12 +87,12 @@ public class ClickTracker implements Tracker {
       siteId = Long.valueOf(params.get("site_id"));
       Site site = sites.get(siteId);
       try {
-        OfferSite offerSite = sites.checkPermission(offer, site);
+        Placement placement = sites.checkPermission(offer, site);
         if(!site.matches(context.getHeaderValue("Referer"))) {
-          forbidden(offerSite.backUrl(), response);
+          forbidden(placement.backUrl(), response);
           return;
         }
-        backUrl = offerSite.backUrl();
+        backUrl = placement.backUrl();
       } catch (IllegalStateException e) {
         response.status(409);
         return;

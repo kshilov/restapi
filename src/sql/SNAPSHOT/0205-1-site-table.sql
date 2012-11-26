@@ -6,6 +6,9 @@ drop table if exists site_region;
 drop table if exists offer_site;
 drop sequence if exists offer_site_seq;
 
+drop table if exists placement;
+drop sequence if exists placement_seq;
+
 drop table if exists site_attribute;
 drop sequence if exists site_attribute_seq;
 
@@ -49,15 +52,15 @@ create table site_attribute(
   foreign key (site_id) references site (id)
 );
 
-create sequence offer_site_seq
+create sequence placement_seq
   start with 1
   increment by 1
   no minvalue
   no maxvalue
   cache 1;
 
-create table offer_site(
-  id bigint default nextval('offer_site_seq') primary key,
+create table placement(
+  id bigint default nextval('placement_seq') primary key,
   offer_id bigint not null,
   site_id bigint not null,
   admin_state varchar(20) not null,
@@ -77,6 +80,6 @@ grant select on site to dumper;
 grant select on site_seq to dumper;
 grant select on site_attribute to dumper;
 grant select on site_attribute_seq to dumper;
-grant select on offer_site to dumper;
-grant select on offer_site_seq to dumper;
+grant select on placement to dumper;
+grant select on placement_seq to dumper;
 end;

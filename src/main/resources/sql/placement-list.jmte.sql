@@ -1,11 +1,11 @@
 select
-  offer_site.id             id,
-  offer_site.admin_state    admin_state,
-  offer_site.admin_comment  admin_comment,
-  offer_site.creation_time  creation_time,
-  offer_site.last_change_time last_change_time,
-  coalesce(offer_site.back_url, '')     back_url,
-  coalesce(offer_site.postback_url, '') postback_url,
+  placement.id              id,
+  placement.admin_state     admin_state,
+  placement.admin_comment   admin_comment,
+  placement.creation_time   creation_time,
+  placement.last_change_time           last_change_time,
+  coalesce(placement.back_url, '')     back_url,
+  coalesce(placement.postback_url, '') postback_url,
   site.id             site_id,
   site.name           site_name,
   site.type           site_type,
@@ -17,13 +17,13 @@ select
   affiliate.email     affiliate_email,
   affiliate.blocked   affiliate_blocked
 
-from offer_site
+from placement
 
 join site
-on site.id = offer_site.site_id
+on site.id = placement.site_id
 
 join offer
-on offer.id = offer_site.offer_id
+on offer.id = placement.offer_id
 ${if filterByOffer}
 and offer.id = :offer_id
 ${end}
@@ -35,7 +35,7 @@ and affiliate.id = :aff_id
 ${end}
 
 ${if filterById}
-where offer_site.id = :id
+where placement.id = :id
 ${else}
 where site.admin_state = 'APPROVED'
 ${end}

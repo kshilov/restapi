@@ -10,7 +10,7 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
-import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.tariff.Tariff;
@@ -52,8 +52,8 @@ public final class ActionProcessor implements Processor {
     OfferStat source = token.stat();
     String postbackUrl;
     if (data.site() != null) {
-      OfferSite offerSite = sites.checkPermission(data.offer(), data.site());
-      postbackUrl = offerSite.postBackUrl();
+      Placement placement = sites.checkPermission(data.offer(), data.site());
+      postbackUrl = placement.postBackUrl();
     } else {
       OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
       postbackUrl = grant.postBackUrl();

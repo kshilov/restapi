@@ -9,7 +9,7 @@ import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Category;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.SubOffer;
-import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.site.Site;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.Role;
@@ -359,12 +359,12 @@ public class Mappers {
     return xmlOffer;
   }
 
-  private static XmlOfferSite toXmlOfferSite(OfferSite offerSite) {
+  private static XmlOfferSite toXmlOfferSite(Placement placement) {
     XmlOfferSite xmlOfferSite = new XmlOfferSite();
-    xmlOfferSite.id = offerSite.id();
-    xmlOfferSite.site = toXmlSite(offerSite.site());
-    xmlOfferSite.adminState = offerSite.adminState();
-    xmlOfferSite.adminComment = offerSite.adminComment();
+    xmlOfferSite.id = placement.id();
+    xmlOfferSite.site = toXmlSite(placement.site());
+    xmlOfferSite.adminState = placement.adminState();
+    xmlOfferSite.adminComment = placement.adminComment();
     return xmlOfferSite;
   }
 

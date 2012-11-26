@@ -1,7 +1,7 @@
 package com.heymoose.infrastructure.service.tracking;
 
 import com.google.inject.Inject;
-import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
@@ -25,9 +25,9 @@ public class PlacementTracker implements Tracker {
       throws ApiRequestException {
     MultivaluedMap<String, String> queryParams = context.getQueryParameters();
     String id = queryParams.getFirst("placement_id");
-    OfferSite offerSite = sites.getOfferSite(Long.valueOf(id));
-    queryParams.putSingle("aff_id", offerSite.site().affiliate().id().toString());
-    queryParams.putSingle("offer_id", offerSite.offer().id().toString());
-    queryParams.putSingle("site_id", offerSite.site().id().toString());
+    Placement placement = sites.getOfferSite(Long.valueOf(id));
+    queryParams.putSingle("aff_id", placement.site().affiliate().id().toString());
+    queryParams.putSingle("offer_id", placement.offer().id().toString());
+    queryParams.putSingle("site_id", placement.site().id().toString());
   }
 }
