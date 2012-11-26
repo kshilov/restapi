@@ -8,9 +8,10 @@ import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.BlackList;
 import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.util.DataFilter;
+import com.heymoose.infrastructure.util.MapToXml;
 import com.heymoose.infrastructure.util.OrderingDirection;
 import com.heymoose.infrastructure.util.Pair;
-import com.heymoose.infrastructure.util.TypedMap;
+import com.heymoose.infrastructure.util.QueryResultToXml;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import com.heymoose.resource.xml.JDomUtil;
 import com.sun.jersey.api.core.HttpContext;
@@ -28,7 +29,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
@@ -96,9 +96,8 @@ public class SiteResource {
 
 
   @GET
-  @Produces("application/xml")
   @Transactional
-  public String listSites(@QueryParam("aff_id") Long affId,
+  public Element listSites(@QueryParam("aff_id") Long affId,
                           @QueryParam("offset") int offset,
                           @QueryParam("limit") @DefaultValue("20") int limit,
                           @QueryParam("ordering") @DefaultValue("AFFILIATE_EMAIL")
@@ -115,9 +114,8 @@ public class SiteResource {
 
   @GET
   @Path("{id}")
-  @Produces("application/xml")
   @Transactional
-  public String getSite(@PathParam("id") Long siteId) {
+  public Element getSite(@PathParam("id") Long siteId) {
     Site site = sites.get(siteId);
     if (site == null) throw new WebApplicationException(404);
     return toSiteXml(site);
@@ -125,20 +123,19 @@ public class SiteResource {
 
   @GET
   @Path("stats")
-  @Produces("application/xml")
   @Transactional
-  public String stats(@QueryParam("first_period_from") Long firstPeriodFrom,
-                      @QueryParam("first_period_to") Long firstPeriodTo,
-                      @QueryParam("second_period_from") Long secondPeriodFrom,
-                      @QueryParam("second_period_to") Long secondPeriodTo,
-                      @QueryParam("removed_only") @DefaultValue("false")
-                      boolean removedOnly,
-                      @QueryParam("ordering") @DefaultValue("CLICK_COUNT_DIFF")
-                      Sites.StatOrdering ordering,
-                      @QueryParam("direction") @DefaultValue("ASC")
-                      OrderingDirection direction,
-                      @QueryParam("offset") int offset,
-                      @QueryParam("limit") @DefaultValue("20") int limit) {
+  public Element stats(@QueryParam("first_period_from") Long firstPeriodFrom,
+                       @QueryParam("first_period_to") Long firstPeriodTo,
+                       @QueryParam("second_period_from") Long secondPeriodFrom,
+                       @QueryParam("second_period_to") Long secondPeriodTo,
+                       @QueryParam("removed_only") @DefaultValue("false")
+                       boolean removedOnly,
+                       @QueryParam("ordering") @DefaultValue("CLICK_COUNT_DIFF")
+                       Sites.StatOrdering ordering,
+                       @QueryParam("direction") @DefaultValue("ASC")
+                       OrderingDirection direction,
+                       @QueryParam("offset") int offset,
+                       @QueryParam("limit") @DefaultValue("20") int limit) {
     DateTime firstFromDate = new DateTime(firstPeriodFrom);
     DateTime firstToDate = new DateTime(firstPeriodTo);
     DateTime secondFromDate = new DateTime(secondPeriodFrom);
@@ -154,37 +151,23 @@ public class SiteResource {
         secondFromDate, secondToDate,
         removedOnly);
 
-    Element root = new Element("stats")
-        .setAttribute("count", count.toString());
-    for (Map<String, Object> entry : result) {
-      TypedMap map = TypedMap.wrap(entry);
-      Element stat = new Element("stat");
-      Element aff = new Element("affiliate")
-          .setAttribute("id", map.getString("affiliate_id"))
-          .addContent(element("email", map.getString("affiliate_email")));
-      stat.addContent(aff)
-          .addContent(element("referer", map.getString("referer")))
-          .addContent(element(
-              "first-period-show-count",
-              map.getString("first_period_show_count")))
-          .addContent(element(
-              "second-period-show-count",
-              map.getString("second_period_show_count")))
-          .addContent(element(
-              "show-count-diff",
-              map.getString("show_count_diff")))
-          .addContent(element(
-              "first-period-click-count",
-              map.getString("first_period_click_count")))
-          .addContent(element(
-              "second-period-click-count",
-              map.getString("second_period_click_count")))
-          .addContent(element(
-              "click-count-diff",
-              map.getString("click_count_diff")));
-      root.addContent(stat);
-    }
-    return JDomUtil.toXmlString(root);
+    return new QueryResultToXml()
+        .setElementName("stats")
+        .setAttribute("count", count.toString())
+        .setMapper(new MapToXml()
+            .setElementName("stat")
+            .addSubMapper(new MapToXml()
+                .setElementName("affiliate")
+                .addChild("id")
+                .addChild("email"))
+            .addChild("referer")
+            .addChild("first_period_show_count")
+            .addChild("second_period_show_count")
+            .addChild("show_count_diff")
+            .addChild("first_period_click_count")
+            .addChild("second_period_click_count")
+            .addChild("click_count_diff"))
+        .execute(result);
   }
 
   @PUT
@@ -284,17 +267,17 @@ public class SiteResource {
         .addContent(new Element("comment").setText(entry.comment()));
   }
 
-  private String toSiteXml(Pair<List<Site>, Long> result) {
+  private Element toSiteXml(Pair<List<Site>, Long> result) {
     Element root = new Element("sites")
         .setAttribute("count", result.snd.toString());
     for (Site site : result.fst) {
       root.addContent(toSiteElement(site));
     }
-    return JDomUtil.XML_OUTPUTTER.outputString(root);
+    return root;
   }
 
-  private String toSiteXml(Site site) {
-    return JDomUtil.XML_OUTPUTTER.outputString(toSiteElement(site));
+  private Element toSiteXml(Site site) {
+    return toSiteElement(site);
   }
 
   private Element toSiteElement(Site site) {
