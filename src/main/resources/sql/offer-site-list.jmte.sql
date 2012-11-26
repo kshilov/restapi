@@ -40,3 +40,4 @@ ${else}
 where site.admin_state = 'APPROVED'
 ${end}
 
+order by last_change_time desc
