@@ -243,6 +243,15 @@ public class Sites {
         offerId, affiliateId);
   }
 
+  public Long offerSiteCount(long offerId, long affiliateId) {
+    return (Long) repo.session().createQuery(
+        "select count(*) from OfferSite " +
+            "where offer.id = :offerId and site.affId = :affId")
+        .setParameter("offerId", offerId)
+        .setParameter("affId", affiliateId)
+        .uniqueResult();
+  }
+
   public OfferSite findOfferSite(Site site, Offer offer) {
     return repo.byHQL(OfferSite.class,
         "from OfferSite where site = ? and offer = ?", site, offer);

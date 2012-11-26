@@ -15,7 +15,6 @@ import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.Role;
 import com.heymoose.domain.user.User;
 
-import java.util.List;
 import java.util.Map;
 
 public class Mappers {
@@ -354,11 +353,9 @@ public class Mappers {
     return xmlRegion;
   }
 
-  public static XmlOffer toXmlOffer(Offer offer, List<OfferSite> offerSiteList) {
+  public static XmlOffer toXmlOffer(Offer offer, Long offerSiteCount) {
     XmlOffer xmlOffer = toXmlOffer(offer);
-    for (OfferSite offerSite : offerSiteList) {
-      xmlOffer.offerSiteList.add(toXmlOfferSite(offerSite));
-    }
+    xmlOffer.placementCount = offerSiteCount;
     return xmlOffer;
   }
 

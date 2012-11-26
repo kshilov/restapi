@@ -1,6 +1,5 @@
 package com.heymoose.resource;
 
-import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.accounting.AccountingEvent;
 import com.heymoose.domain.base.Repo;
@@ -15,7 +14,6 @@ import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.SubOffer;
 import com.heymoose.domain.offer.SubOfferRepository;
 import com.heymoose.domain.settings.Settings;
-import com.heymoose.domain.site.OfferSite;
 import com.heymoose.domain.user.User;
 import com.heymoose.domain.user.UserRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
@@ -121,10 +119,8 @@ public class OfferResource {
       XmlOffers xmlOffers = new XmlOffers();
       xmlOffers.count = count;
       for (Offer offer: offers) {
-        List<OfferSite> offerSiteList =
-            sites.offerSiteList(offer.id(), affiliateId);
-        if (offerSiteList.isEmpty()) continue;
-        xmlOffers.offers.add(Mappers.toXmlOffer(offer, offerSiteList));
+        Long offerSiteCount = sites.offerSiteCount(offer.id(), affiliateId);
+        xmlOffers.offers.add(Mappers.toXmlOffer(offer, offerSiteCount));
       }
       return xmlOffers;
     } else {
@@ -153,10 +149,10 @@ public class OfferResource {
     Offer offer = existing(offerId);
     if (approved && !offer.approved() || active && !offer.active())
       throw new WebApplicationException(403);
-    List<OfferSite> offerSiteList = ImmutableList.of();
+    Long placementsCount = null;
     if (affId != null)
-      offerSiteList = sites.offerSiteList(offerId, affId);
-    return Mappers.toXmlOffer(offer, offerSiteList);
+      placementsCount = sites.offerSiteCount(offerId, affId);
+    return Mappers.toXmlOffer(offer, placementsCount);
   }
 
   @GET
