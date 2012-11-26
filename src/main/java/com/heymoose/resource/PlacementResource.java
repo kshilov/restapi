@@ -14,6 +14,7 @@ import com.heymoose.infrastructure.util.QueryResultToXml;
 import com.heymoose.infrastructure.util.db.QueryResult;
 import org.jdom2.Element;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -24,9 +25,36 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 @Path("placements")
 public class PlacementResource {
+
+  private static final MapToXml PLACEMENT_MAPPER = new MapToXml()
+            .setElementName("placement")
+            .addAttribute("id")
+            .addChild("admin_state")
+            .addChild("admin_comment")
+            .addChild("creation_time")
+            .addChild("last_change_time")
+            .addChild("back_url")
+            .addChild("postback_url")
+            .addSubMapper(new MapToXml()
+                .setElementName("offer")
+                .addAttribute("id")
+                .addChild("name"))
+            .addSubMapper(new MapToXml()
+                .setElementName("affiliate")
+                .addAttribute("id")
+                .addChild("email")
+                .addChild("blocked"))
+            .addSubMapper(new MapToXml()
+                .setElementName("site")
+                .addAttribute("id")
+                .addChild("type")
+                .addChild("name")
+                .addChild("admin_state")
+                .addChild("admin_comment"));
 
   private final Sites sites;
   private final OfferLoader offers;
@@ -101,37 +129,32 @@ public class PlacementResource {
     return Response.ok().build();
   }
 
+  @GET
+  @Path("{id}")
+  @Transactional
+  public Element getPlacement(@PathParam("id") Long id) {
+    Map<String, Object> result = sites.getOfferSiteAsMap(id);
+    if (result.isEmpty()) throw new WebApplicationException(404);
+    return PLACEMENT_MAPPER.execute(result);
+  }
+
+  @DELETE
+  @Path("{id}")
+  @Transactional
+  public Response deletePlacement(@PathParam("id") Long id) {
+    OfferSite offerSite = sites.getOfferSite(id);
+    if (offerSite == null) throw new WebApplicationException(404);
+    sites.removeOfferSite(offerSite);
+    return Response.ok().build();
+  }
+
 
 
   private Element toPlacementXml(Pair<QueryResult, Long> result) {
     return new QueryResultToXml()
         .setElementName("placements")
         .setAttribute("count", result.snd.toString())
-        .setMapper(new MapToXml()
-            .setElementName("placement")
-            .addAttribute("id")
-            .addChild("admin_state")
-            .addChild("admin_comment")
-            .addChild("creation_time")
-            .addChild("last_change_time")
-            .addChild("back_url")
-            .addChild("postback_url")
-            .addSubMapper(new MapToXml()
-                .setElementName("offer")
-                .addAttribute("id")
-                .addChild("name"))
-            .addSubMapper(new MapToXml()
-                .setElementName("affiliate")
-                .addAttribute("id")
-                .addChild("email")
-                .addChild("blocked"))
-            .addSubMapper(new MapToXml()
-                .setElementName("site")
-                .addAttribute("id")
-                .addChild("type")
-                .addChild("name")
-                .addChild("admin_state")
-                .addChild("admin_comment")))
+        .setMapper(PLACEMENT_MAPPER)
         .execute(result.fst);
   }
 

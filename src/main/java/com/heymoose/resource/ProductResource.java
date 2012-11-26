@@ -62,11 +62,12 @@ public class ProductResource {
   @Cacheable
   @Transactional
   public Response feed(@QueryParam("key") String key,
-                     @QueryParam("s") List<Long> offerList,
-                     @QueryParam("c") List<Long> categoryList,
-                     @QueryParam("q") String queryString,
-                     @QueryParam("offset") @DefaultValue("0") int offset,
-                     @QueryParam("limit") @DefaultValue("1000") int limit)
+                       @QueryParam("site") Long site,
+                       @QueryParam("s") List<Long> offerList,
+                       @QueryParam("c") List<Long> categoryList,
+                       @QueryParam("q") String queryString,
+                       @QueryParam("offset") @DefaultValue("0") int offset,
+                       @QueryParam("limit") @DefaultValue("1000") int limit)
       throws Exception {
     if (Strings.isNullOrEmpty(key)) {
       return status(400, "Request should contain 'key' parameter.");

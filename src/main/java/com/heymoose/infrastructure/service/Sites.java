@@ -1,5 +1,6 @@
 package com.heymoose.infrastructure.service;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.heymoose.domain.base.AdminState;
@@ -256,5 +257,20 @@ public class Sites {
     return repo.byHQL(OfferSite.class,
         "from OfferSite where site = ? and offer = ?", site, offer);
   }
+
+  public Map<String, Object> getOfferSiteAsMap(Long id) {
+    Pair<QueryResult, Long> result = SqlLoader
+        .templateQuery("offer-site-list", repo.session())
+        .addTemplateParam("filterById", true)
+        .addQueryParam("id", id)
+        .executeAndCount(0, 1);
+    if (result.snd.equals(0L)) return ImmutableMap.of();
+    return result.fst.get(0);
+  }
+
+  public void removeOfferSite(OfferSite offerSite) {
+    repo.session().delete(offerSite);
+  }
+
 
 }

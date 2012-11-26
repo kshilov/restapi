@@ -34,5 +34,9 @@ ${if filterByAffiliate}
 and affiliate.id = :aff_id
 ${end}
 
+${if filterById}
+where offer_site.id = :id
+${else}
 where site.admin_state = 'APPROVED'
+${end}
 
