@@ -245,12 +245,12 @@ public class Sites {
   }
 
   public Long placementCount(long offerId, long affiliateId) {
-    return (Long) repo.session().createQuery(
-        "select count(*) from Placement " +
-            "where offer.id = :offerId and site.affId = :affId")
-        .setParameter("offerId", offerId)
-        .setParameter("affId", affiliateId)
-        .uniqueResult();
+    return SqlLoader.templateQuery("placement-list", repo.session())
+        .addTemplateParam("filterByAffiliate", true)
+        .addQueryParam("aff_id", affiliateId)
+        .addTemplateParam("filterByOffer", true)
+        .addQueryParam("offer_id", offerId)
+        .executeAndCount(0, 1).snd;
   }
 
   public Placement findPlacement(Site site, Offer offer) {
