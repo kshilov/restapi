@@ -64,6 +64,9 @@ public final class ShowTracker implements Tracker {
     );
     String sourceId = params.get("source_id");
 
+    Long siteId = null;
+    if (params.containsKey("site_id"))
+      siteId = safeGetLongParam(params, "site_id");
     // tracking
     OfferStat stat = new OfferStat()
         .setMaster(offer.master())
@@ -72,7 +75,8 @@ public final class ShowTracker implements Tracker {
         .setAffiliateId(affId)
         .setSourceId(sourceId)
         .setSubs(subs)
-        .setReferer(extractReferer(context));
+        .setReferer(extractReferer(context))
+        .setSiteId(siteId);
     OfferStat existed = offerStats.findStat(stat);
     if (existed != null) {
       bufferedShows.inc(existed.id());

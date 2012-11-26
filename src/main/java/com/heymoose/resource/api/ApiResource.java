@@ -93,9 +93,9 @@ public class ApiResource {
   }
 
   @GET
-  @Path("{id}")
+  @Path("/click/{id}")
   @Transactional
-  public Response callByPlacement(@PathParam("id") Long placementId)
+  public Response clickFromPlacement(@PathParam("id") Long placementId)
       throws ApiRequestException {
     HttpRequestContext context = requestContextProvider.get();
     context
@@ -103,6 +103,19 @@ public class ApiResource {
         .putSingle("placement_id", placementId.toString());
     placementTracker.track(context, null);
     return callMethod("click");
+  }
+
+  @GET
+  @Path("/show/{id}")
+  @Transactional
+  public Response showFromPlacement(@PathParam("id") Long placementId)
+      throws ApiRequestException {
+    HttpRequestContext context = requestContextProvider.get();
+    context
+        .getQueryParameters()
+        .putSingle("placement_id", placementId.toString());
+    placementTracker.track(context, null);
+    return callMethod("show");
   }
 
   private Response callMethodInternal(@QueryParam("method") String method)
