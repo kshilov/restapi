@@ -28,5 +28,6 @@ public class PlacementTracker implements Tracker {
     OfferSite offerSite = sites.getOfferSite(Long.valueOf(id));
     queryParams.putSingle("aff_id", offerSite.site().affiliate().id().toString());
     queryParams.putSingle("offer_id", offerSite.offer().id().toString());
+    queryParams.putSingle("site_id", offerSite.site().id().toString());
   }
 }

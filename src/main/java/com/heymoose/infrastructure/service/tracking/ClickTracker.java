@@ -12,6 +12,7 @@ import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.site.OfferSite;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
@@ -82,20 +83,20 @@ public class ClickTracker implements Tracker {
 
     String backUrl = null;
     Long siteId = null;
-    if (params.containsKey("placement_id")) {
-      OfferSite offerSite = sites.getOfferSite(
-          Long.valueOf(params.get("placement_id")));
-      if (offerSite == null) {
+    if (params.containsKey("site_id")) {
+      siteId = Long.valueOf(params.get("site_id"));
+      Site site = sites.get(siteId);
+      try {
+        OfferSite offerSite = sites.checkPermission(offer, site);
+        if(!site.matches(context.getHeaderValue("Referer"))) {
+          forbidden(offerSite.backUrl(), response);
+          return;
+        }
+        backUrl = offerSite.backUrl();
+      } catch (IllegalStateException e) {
         response.status(409);
         return;
       }
-      if (!offerSite.approvedByAdmin() ||
-          !offerSite.site().approvedByAdmin() ||
-          !offerSite.site().matches(context.getHeaderValue("Referer"))) {
-        forbidden(offerSite.backUrl(), response);
-        return;
-      }
-      siteId = offerSite.site().id();
     } else {
       OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
       backUrl = grant.backUrl();

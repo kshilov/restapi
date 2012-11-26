@@ -113,6 +113,7 @@ public class YmlWriter {
     }
     String newUrl = String.format(urlMask,
           product.offer().id(), user.id(), originalUrlEncoded);
+    if (site != null) newUrl += "&site_id=" + site.id();
     writeElement("url", newUrl);
 
     BigDecimal price = product.price();
