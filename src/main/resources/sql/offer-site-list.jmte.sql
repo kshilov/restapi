@@ -9,6 +9,8 @@ select
   site.id             site_id,
   site.name           site_name,
   site.type           site_type,
+  site.admin_state    site_admin_state,
+  site.admin_comment  site_admin_comment,
   offer.id            offer_id,
   offer.name          offer_name,
   affiliate.id        affiliate_id,

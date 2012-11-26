@@ -129,7 +129,9 @@ public class PlacementResource {
                 .setElementName("site")
                 .addAttribute("id")
                 .addChild("type")
-                .addChild("name")))
+                .addChild("name")
+                .addChild("admin_state")
+                .addChild("admin_comment")))
         .execute(result.fst);
   }
 
