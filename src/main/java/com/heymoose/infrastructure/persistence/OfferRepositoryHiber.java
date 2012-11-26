@@ -150,13 +150,19 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
       criteria.add(Restrictions.or(parentPayMethodMatches, subPayMethodMatches));
     }
 
-    String existsRegion = "exists (select * from offer_region r " +
-            "where {alias}.id = r.offer_id and region in (?))";
+    String existsRegion = "(exists " +
+        "(select * from offer_region r " +
+        "where {alias}.id = r.offer_id and region in (?)) " +
+        "or not exists " +
+        "(select * from offer_region r where r.offer_id = {alias}.id))";
     addSqlInRestriction(criteria, existsRegion, filter.regionList(),
         StandardBasicTypes.STRING);
 
-    String existsCategory = "exists (select * from offer_category c " +
-            "where {alias}.id = c.offer_id and category_id in (?))";
+    String existsCategory = "(exists " +
+        "(select * from offer_category c " +
+        "where {alias}.id = c.offer_id and category_id in (?)) " +
+        "or not exists " +
+        "(select * from offer_category c where c.offer_id = {alias}.id))";
     addSqlInRestriction(criteria, existsCategory, filter.categoryIdList(),
         StandardBasicTypes.LONG);
 
