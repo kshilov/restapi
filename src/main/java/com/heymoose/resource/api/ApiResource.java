@@ -115,7 +115,7 @@ public class ApiResource {
         .getQueryParameters()
         .putSingle("placement_id", placementId.toString());
     placementTracker.track(context, null);
-    return callMethod("show");
+    return callMethod("track");
   }
 
   private Response callMethodInternal(@QueryParam("method") String method)
