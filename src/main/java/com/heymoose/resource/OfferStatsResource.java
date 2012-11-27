@@ -306,6 +306,28 @@ public class OfferStatsResource {
   }
 
   @GET
+  @Path("sites")
+  @Produces("application/xml")
+  @Transactional
+  public String siteStat(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("20") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+    OfferStats.CommonParams filter = new OfferStats.CommonParams();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    return toOfferStatXml(stats.siteStats(affId, filter));
+  }
+
+  @GET
   @Path("suboffers")
   @Produces("application/xml")
   @Transactional
@@ -524,6 +546,29 @@ public class OfferStatsResource {
 
   }
 
+  @GET
+  @Path("suboffers/site")
+  @Produces("application/xml")
+  @Transactional
+  public String subofferStatBySite(
+      @QueryParam("aff_id") Long affId,
+      @QueryParam("site_id") Long siteId,
+      @QueryParam("from") @DefaultValue("0") Long from,
+      @QueryParam("to") Long to,
+      @QueryParam("offset") @DefaultValue("0") int offset,
+      @QueryParam("limit") @DefaultValue("2147483647") int limit,
+      @QueryParam("ordering") @DefaultValue("DESCR") OfferStats.Ordering ordering,
+      @QueryParam("direction") @DefaultValue("DESC") OrderingDirection direction) {
+
+    OfferStats.CommonParams filter = new OfferStats.CommonParams();
+    filter.setFrom(from)
+        .setTo(to)
+        .setOffset(offset)
+        .setLimit(limit)
+        .setOrdering(ordering)
+        .setDirection(direction);
+    return toOfferStatXml(stats.subofferStatForSite(affId, siteId, filter));
+  }
   @GET
   @Path("referer")
   @Produces("application/xml")

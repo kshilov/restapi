@@ -63,6 +63,9 @@ ${end}
 ${if filterByCashback}
   and coalesce(offer_stat.cashback_target_id, '') = coalesce(:cashback, '')
 ${end}
+${if filterBySite}
+  and coalesce(offer_stat.site_id, -1) = coalesce(:site_id, -1)
+${end}
 
 group by o.id, o.title, parent.name, o.name, o.exclusive, product.name, tariff.exclusive
 

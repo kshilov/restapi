@@ -203,6 +203,17 @@ public class OfferStats {
 
 
   @Transactional
+  public Pair<QueryResult, Long> siteStats(Long affId, CommonParams common) {
+    return offerStats(common)
+        .addTemplateParam("groupBySite", true)
+        .addTemplateParamIfNotNull(affId, "filterByAffiliate", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .executeAndCount(common);
+  }
+
+
+
+  @Transactional
   public Pair<QueryResult, Long> refererStats(
       Long affId, Long offerId, CommonParams common) {
     return offerStats(common)
@@ -327,6 +338,18 @@ public class OfferStats {
         .addQueryParam("cashback", cashback)
         .executeAndCount(common.offset(), common.limit());
   }
+
+
+  public Pair<QueryResult, Long> subofferStatForSite(Long affId, Long siteId,
+                                                     CommonParams common) {
+    return subOfferStats(common)
+        .addTemplateParamIfNotNull(affId, "filterByAffId", true)
+        .addQueryParamIfNotNull(affId, "aff_id", affId)
+        .addTemplateParam("filterBySite", true)
+        .addQueryParam("site_id", siteId)
+        .executeAndCount(common);
+  }
+
 
 
   public OfferStat findStat(OfferStat stat) {
