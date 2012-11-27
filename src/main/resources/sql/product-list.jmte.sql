@@ -1,5 +1,6 @@
 select
 ${if productInfo}
+  distinct
   product.id                product_id,
   product.name              product_name,
   product.url               product_url,
