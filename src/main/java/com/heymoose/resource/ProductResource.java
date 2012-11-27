@@ -99,10 +99,10 @@ public class ProductResource {
     }
 
     final Iterable<Product> productList =
-        products.list(user, site, offerList, categoryList, queryString,
+        products.list(user, siteId, offerList, categoryList, queryString,
             offset, limit);
     final Iterable<ShopCategory> shopCategoryList =
-        products.categoryList(user, site, offerList, categoryList, queryString);
+        products.categoryList(user, siteId, offerList, categoryList, queryString);
     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     new YmlWriter(byteStream)
         .setSite(site)
@@ -135,7 +135,7 @@ public class ProductResource {
     }
 
     return products
-        .count(user, site, offerList, categoryList, queryString)
+        .count(user, siteId, offerList, categoryList, queryString)
         .toString();
   }
 
