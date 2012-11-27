@@ -20,6 +20,8 @@ import com.heymoose.infrastructure.util.Cacheable;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -38,6 +40,9 @@ import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 @Singleton
 @Path("products")
 public class ProductResource {
+
+  private static final Logger log =
+      LoggerFactory.getLogger(ProductResource.class);
 
   private final Products products;
   private final OfferGrantRepository grants;
@@ -67,13 +72,16 @@ public class ProductResource {
   @Cacheable
   @Transactional
   public Response feed(@QueryParam("key") String key,
-                       @QueryParam("site") Long siteId,
+                       @QueryParam("site") String siteIdString,
                        @QueryParam("s") List<Long> offerList,
                        @QueryParam("c") List<Long> categoryList,
                        @QueryParam("q") String queryString,
                        @QueryParam("offset") @DefaultValue("0") int offset,
                        @QueryParam("limit") @DefaultValue("1000") int limit)
       throws Exception {
+    log.debug("Entering feed key: {}, site: {}, s: {}, c: {}, q: {}",
+        new Object[] { key, siteIdString, offerList, categoryList, queryString });
+    Long siteId = parseSiteId(siteIdString);
     if (Strings.isNullOrEmpty(key)) {
       return status(400, "Request should contain 'key' parameter.");
     }
@@ -119,7 +127,7 @@ public class ProductResource {
   @Path("feed/size")
   @Transactional
   public String feedSize(@QueryParam("key") String key,
-                         @QueryParam("site") Long siteId,
+                         @QueryParam("site") String siteIdString,
                          @QueryParam("s") List<Long> offerList,
                          @QueryParam("c") List<Long> categoryList,
                          @QueryParam("q") String queryString) {
@@ -127,6 +135,8 @@ public class ProductResource {
 
     final User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
+
+    Long siteId = parseSiteId(siteIdString);
     Site site = null;
     if (siteId != null) {
       site = sites.approvedSite(siteId);
@@ -197,4 +207,11 @@ public class ProductResource {
         .entity(body)
         .build();
   }
+
+  private Long parseSiteId(String siteIdString) {
+    if (!Strings.isNullOrEmpty(siteIdString))
+      return Long.valueOf(siteIdString);
+    return null;
+  }
+
 }
