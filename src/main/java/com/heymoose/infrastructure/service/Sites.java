@@ -31,7 +31,7 @@ public class Sites {
 
   public enum Ordering {
     ID, AFFILIATE_EMAIL, NAME, TYPE, ADMIN_STATE, DESCRIPTION, CREATION_TIME,
-    LAST_CHANGE_TIME
+    LAST_CHANGE_TIME, APPROVED
   }
 
   public enum StatOrdering {
