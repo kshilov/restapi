@@ -147,8 +147,8 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
 
     if (filter.affiliateId() != null) {
       criteria.add(Restrictions.sqlRestriction(
-          "exists (select * from offer_site " +
-              "join site on site.id = offer_site.site_id " +
+          "exists (select * from placement " +
+              "join site on site.id = placement.site_id " +
               "where offer_id = {alias}.id " +
               "and site.aff_id = ?)",
           filter.affiliateId(),

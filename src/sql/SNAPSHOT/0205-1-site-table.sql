@@ -6,13 +6,13 @@ drop table if exists site_region;
 drop table if exists offer_site;
 drop sequence if exists offer_site_seq;
 
-drop table if exists placement;
+drop table if exists placement cascade;
 drop sequence if exists placement_seq;
 
 drop table if exists site_attribute;
 drop sequence if exists site_attribute_seq;
 
-drop table if exists site;
+drop table if exists site cascade;
 drop sequence if exists site_seq;
 
 
@@ -73,6 +73,11 @@ create table placement(
   foreign key (site_id) references site(id)
 );
 
+end;
+begin;
+create index site_aff_id_idx on site(aff_id);
+create index site_attribute_site_id_idx on site_attribute(site_id);
+create index placement_site_id_offer_id_idx on placement(site_id, offer_id);
 end;
 
 begin;
