@@ -12,7 +12,8 @@ insert into placement
 select
 offer_grant.offer_id  offer_id,
 site.id         site_id,
-case (offer_grant.blocked) when true then 'BLOCKED' else 'APPROVED' end admin_state,
+case when offer_grant.blocked || offer_grant.state != 'APPROVED'
+then 'BLOCKED' else 'APPROVED' end admin_state,
 offer_grant.block_reason  admin_comment,
 offer_grant.back_url      back_url,
 offer_grant.postback_url  postback_url
@@ -21,8 +22,7 @@ from offer_grant
 
 join site
 on site.aff_id = offer_grant.aff_id
-and site.type = 'GRANT'
-and offer_grant.state = 'APPROVED';
+and site.type = 'GRANT';
 
 update offer_stat
 set site_id = (select id
