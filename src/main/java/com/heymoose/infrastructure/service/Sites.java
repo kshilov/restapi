@@ -31,7 +31,7 @@ public class Sites {
 
   public enum Ordering {
     ID, AFFILIATE_EMAIL, NAME, TYPE, ADMIN_STATE, DESCRIPTION, CREATION_TIME,
-    LAST_CHANGE_TIME, APPROVED
+    LAST_CHANGE_TIME
   }
 
   public enum StatOrdering {
@@ -148,7 +148,9 @@ public class Sites {
         break;
       case LAST_CHANGE_TIME:
         addOrder(c, "lastChangeTime", common.direction());
+        break;
     }
+    c.addOrder(Order.desc("lastChangeTime"));
     List<Site> result = (List<Site>) c.list();
 
     Criteria countQuery = repo.session().createCriteria(Site.class);
