@@ -9,10 +9,11 @@ and exists (select * from offer_grant where offer_grant.aff_id = aff.id);
 
 insert into placement
 (offer_id, site_id, admin_state, admin_comment, back_url, postback_url)
+
 select
 offer_grant.offer_id  offer_id,
 site.id         site_id,
-case when offer_grant.blocked || offer_grant.state != 'APPROVED'
+case when offer_grant.blocked or offer_grant.state != 'APPROVED'
 then 'BLOCKED' else 'APPROVED' end admin_state,
 offer_grant.block_reason  admin_comment,
 offer_grant.back_url      back_url,
