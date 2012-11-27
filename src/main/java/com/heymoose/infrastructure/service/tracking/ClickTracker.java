@@ -27,6 +27,8 @@ import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -38,6 +40,8 @@ import static com.heymoose.resource.api.ApiExceptions.notFound;
 
 @Singleton
 public class ClickTracker implements Tracker {
+
+  private static final Logger log = LoggerFactory.getLogger(ClickTracker.class);
 
   private final Repo repo;
   private final GeoTargeting geoTargeting;
@@ -70,16 +74,21 @@ public class ClickTracker implements Tracker {
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     Map<String, String> params = queryParams(context);
+    log.debug("Entering click tracking. Query params: {}", params);
     String sBannerId = params.get("banner_id");
     Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
     long offerId = safeGetLongParam(params, "offer_id");
     long affId = safeGetLongParam(params, "aff_id");
     Offer offer = repo.get(Offer.class, offerId);
-    if (offer == null)
+    if (offer == null) {
+      log.debug("Offer with id {} not found. Throwing not found.", offerId);
       throw notFound(Offer.class, offerId);
+    }
     User affiliate = repo.get(User.class, affId);
-    if (affiliate == null)
+    if (affiliate == null) {
+      log.debug("Affiliate with id {} not found. Throwing not found.", affId);
       throw notFound(Offer.class, offerId);
+    }
 
     String backUrl = null;
     Long siteId = null;
@@ -88,12 +97,16 @@ public class ClickTracker implements Tracker {
       Site site = sites.get(siteId);
       try {
         Placement placement = sites.checkPermission(offer, site);
-        if(!site.matches(context.getHeaderValue("Referer"))) {
+        String referer = context.getHeaderValue("Referer");
+        if(!site.matches(referer)) {
+          log.debug("Referer {} does not match site {}. Forbidden.",
+              referer, site);
           forbidden(placement.backUrl(), response);
           return;
         }
         backUrl = placement.backUrl();
       } catch (IllegalStateException e) {
+        log.error("Returning 409", e);
         response.status(409);
         return;
       }
@@ -101,10 +114,12 @@ public class ClickTracker implements Tracker {
       OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
       backUrl = grant.backUrl();
       if (grant == null) {
+        log.debug("Grant not found for {} and {}. 409", offer, affiliate);
         response.status(409);
         return;
       }
       if (!visible(offer)) {
+        log.debug("{} not visible. Forbidden", offer);
         forbidden(backUrl, response);
         return;
       }
