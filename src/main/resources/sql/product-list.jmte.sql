@@ -33,12 +33,12 @@ and offer.is_product_offer = true
 and offer.active = true
 and offer.approved = true
 
-join offer_site
-on offer_site.offer_id = product.offer_id
-and offer_site.admin_state = 'APPROVED'
+join placement
+on placement.offer_id = product.offer_id
+and placement.admin_state = 'APPROVED'
 
 join site
-on site.id = offer_site.site_id
+on site.id = placement.site_id
 and site.aff_id = :user_id
 and site.admin_state = 'APPROVED'
 ${if filterBySite}
