@@ -158,7 +158,7 @@ public class SiteResource {
             .setElementName("stat")
             .addSubMapper(new MapToXml()
                 .setElementName("affiliate")
-                .addChild("id")
+                .addAttribute("id")
                 .addChild("email"))
             .addChild("referer")
             .addChild("first_period_show_count")
