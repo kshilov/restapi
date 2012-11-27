@@ -100,7 +100,7 @@ public class SiteResource {
   public Element listSites(@QueryParam("aff_id") Long affId,
                           @QueryParam("offset") int offset,
                           @QueryParam("limit") @DefaultValue("20") int limit,
-                          @QueryParam("ordering") @DefaultValue("AFFILIATE_EMAIL")
+                          @QueryParam("ordering") @DefaultValue("LAST_CHANGE_TIME")
                           Sites.Ordering ordering,
                           @QueryParam("direction") @DefaultValue("ASC")
                           OrderingDirection direction) {
