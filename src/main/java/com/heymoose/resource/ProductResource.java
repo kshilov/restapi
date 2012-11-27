@@ -5,8 +5,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.site.Site;
@@ -45,7 +45,7 @@ public class ProductResource {
       LoggerFactory.getLogger(ProductResource.class);
 
   private final Products products;
-  private final OfferGrantRepository grants;
+  private final OfferRepository offers;
   private final UserRepositoryHiber users;
   private final String trackerHost;
   private final Sites sites;
@@ -53,14 +53,14 @@ public class ProductResource {
 
   @Inject
   public ProductResource(Repo repo, Products products,
-                         OfferGrantRepository grants,
+                         OfferRepository offers,
                          UserRepositoryHiber users,
                          Sites sites,
                          @Named("tracker.host") String trackerHost) {
     this.repo = repo;
     this.products = products;
     this.sites = sites;
-    this.grants = grants;
+    this.offers = offers;
     this.users = users;
     this.trackerHost = trackerHost;
   }
@@ -155,10 +155,13 @@ public class ProductResource {
   @Produces("application/xml")
   @Transactional
   @Cacheable(period = "PT1H") // cache for 1 hour
-  public String categoryList(@QueryParam("aff_id") Long affId) {
+  public String categoryList(@QueryParam("aff_id") Long affId,
+                             @QueryParam("site_id") String siteIdString) {
     if (affId == null) throw new WebApplicationException(400);
+    Long siteId = parseSiteId(siteIdString);
+
     Iterable<Offer> grantedProductOffers =
-        grants.grantedProductOffers(affId);
+        offers.listProductOffers(affId, siteId);
 
     Element result = new Element("result");
     for (Offer offer : grantedProductOffers) {

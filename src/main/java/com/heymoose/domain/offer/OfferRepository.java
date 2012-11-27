@@ -21,6 +21,8 @@ public interface OfferRepository extends Repository<Offer> {
 
   Offer get(long offerId);
 
+  Iterable<Offer> listProductOffers(Long affId, Long siteId);
+
   public enum Ordering {
     ID, NAME, URL, ADVERTISER_LAST_NAME,
     GRANT_ID,

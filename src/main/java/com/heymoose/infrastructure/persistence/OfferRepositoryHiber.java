@@ -101,6 +101,25 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
   }
 
   @Override
+  public Iterable<Offer> listProductOffers(Long affId, Long siteId) {
+    QueryResult result = SqlLoader.templateQuery("product-offer-list", hiber())
+        .addTemplateParamIfNotNull(siteId, "filterBySite", true)
+        .addQueryParamIfNotNull(siteId, "site_id", siteId)
+        .addQueryParam("aff_id", affId)
+        .execute();
+    ImmutableList.Builder<Offer> builder = ImmutableList.builder();
+    for (Map<String, Object> map : result) {
+      TypedMap offerMap = TypedMap.wrap(map);
+      Offer offer = new Offer()
+          .setId(offerMap.getLong("id"))
+          .setYmlUrl(offerMap.getString("yml_url"))
+          .setName(offerMap.getString("name"));
+      builder.add(offer);
+    }
+    return builder.build();
+  }
+
+  @Override
   public long countRequested(long affiliateId, Boolean active) {
     Criteria criteria = hiber()
         .createCriteria(getEntityClass())
