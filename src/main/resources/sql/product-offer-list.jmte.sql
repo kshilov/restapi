@@ -18,3 +18,5 @@ and site.id = :site_id
 ${end}
 
 where offer.is_product_offer = true
+and offer.approved = true
+and offer.active = true
