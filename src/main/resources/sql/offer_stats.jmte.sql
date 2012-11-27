@@ -173,6 +173,10 @@ from
       offer_stat.cashback_target_id
     ${end}
 
+    ${if groupBySite}
+      site.id, site.name
+    ${end}
+
   ) as sums
 
 where descr is not null
