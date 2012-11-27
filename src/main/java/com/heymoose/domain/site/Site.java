@@ -164,8 +164,6 @@ public class Site extends ModifiableEntity implements Moderatable {
         } catch (MalformedURLException e) {
           throw new RuntimeException("Illegal url. " + referer + " " + this);
         }
-      case SOCIAL_NETWORK:
-        return this.attributeMap().get("url").equals(referer);
       default: return true;
     }
   }
