@@ -33,7 +33,10 @@ import java.util.Map;
 @Table(name = "site")
 public class Site extends ModifiableEntity implements Moderatable {
 
-  public enum Type { WEB_SITE, SOCIAL_NETWORK, GRANT }
+  public enum Type {
+    WEB_SITE, SOCIAL_NETWORK, CONTEXT,
+    MAIL, DOORWAY, ARBITRAGE,
+    GRANT }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "site-seq")
