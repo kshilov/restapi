@@ -274,5 +274,11 @@ public class Sites {
     repo.session().delete(placement);
   }
 
+  public Site findSite(long affId, Site.Type siteType) {
+    return repo.byHQL(Site.class,
+        "from Site where aff_id = ? and type = ?",
+        affId, siteType);
+  }
+
 
 }

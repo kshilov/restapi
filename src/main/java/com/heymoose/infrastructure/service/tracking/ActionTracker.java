@@ -58,7 +58,7 @@ public final class ActionTracker implements  Tracker {
   }
 
   @Override
-  public void track(HttpRequestContext context,
+  public boolean track(HttpRequestContext context,
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     Map<String, String> params = queryParams(context);
@@ -77,7 +77,7 @@ public final class ActionTracker implements  Tracker {
     if (RECENT_REQUEST_MAP.asMap().putIfAbsent(requestKey, DUMMY) != null) {
       log.warn("Ignoring repeated request: {}", requestKey);
       response.status(304);
-      return;
+      return false;
     }
 
     if (!offerString.contains(":")) {
@@ -102,6 +102,7 @@ public final class ActionTracker implements  Tracker {
       }
     }
     noCache(response.status(200));
+    return true;
   }
 
   private void processSafe(ProcessableData data, Processor... processorList)

@@ -6,16 +6,11 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrant;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Banner;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
-import com.heymoose.domain.site.Placement;
-import com.heymoose.domain.site.Site;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
-import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.persistence.KeywordPatternDao;
 import com.heymoose.infrastructure.service.BlackList;
@@ -36,7 +31,6 @@ import java.util.Map;
 
 import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
 import static com.heymoose.infrastructure.util.QueryUtil.appendQueryParam;
-import static com.heymoose.resource.api.ApiExceptions.notFound;
 
 @Singleton
 public class ClickTracker implements Tracker {
@@ -45,7 +39,6 @@ public class ClickTracker implements Tracker {
 
   private final Repo repo;
   private final GeoTargeting geoTargeting;
-  private final OfferGrantRepository offerGrants;
   private final OfferStats offerStats;
   private final KeywordPatternDao keywordPatternDao;
   private final BufferedClicks bufferedClicks;
@@ -55,14 +48,13 @@ public class ClickTracker implements Tracker {
   @Inject
   public ClickTracker(BufferedClicks bufferedClicks, GeoTargeting geoTargeting,
                       KeywordPatternDao keywordPatternDao,
-                      OfferGrantRepository offerGrants, OfferStats offerStats,
+                      OfferStats offerStats,
                       BlackList blackList,
                       Sites sites,
                       Repo repo) {
     this.bufferedClicks = bufferedClicks;
     this.geoTargeting = geoTargeting;
     this.keywordPatternDao = keywordPatternDao;
-    this.offerGrants = offerGrants;
     this.offerStats = offerStats;
     this.blackList = blackList;
     this.repo = repo;
@@ -70,7 +62,7 @@ public class ClickTracker implements Tracker {
   }
 
   @Override
-  public void track(HttpRequestContext context,
+  public boolean track(HttpRequestContext context,
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     Map<String, String> params = queryParams(context);
@@ -80,56 +72,6 @@ public class ClickTracker implements Tracker {
     long offerId = safeGetLongParam(params, "offer_id");
     long affId = safeGetLongParam(params, "aff_id");
     Offer offer = repo.get(Offer.class, offerId);
-    if (offer == null) {
-      log.debug("Offer with id {} not found. Throwing not found.", offerId);
-      throw notFound(Offer.class, offerId);
-    }
-    User affiliate = repo.get(User.class, affId);
-    if (affiliate == null) {
-      log.debug("Affiliate with id {} not found. Throwing not found.", affId);
-      throw notFound(Offer.class, offerId);
-    }
-    String backUrl = null;
-    Long siteId = null;
-    if (params.containsKey("site_id")) {
-      siteId = Long.valueOf(params.get("site_id"));
-      Site site = sites.get(siteId);
-      try {
-        Placement placement = sites.checkPermission(offer, site);
-        String referer = context.getHeaderValue("Referer");
-        if(!site.matches(referer)) {
-          log.debug("Referer {} does not match site {}. Forbidden.",
-              referer, site);
-          forbidden(placement.backUrl(), response);
-          return;
-        }
-        backUrl = placement.backUrl();
-      } catch (IllegalStateException e) {
-        log.error("Returning 409", e);
-        response.status(409);
-        return;
-      }
-    } else {
-      OfferGrant grant = offerGrants.visibleByOfferAndAff(offer, affiliate);
-      backUrl = grant.backUrl();
-      if (grant == null) {
-        log.debug("Grant not found for {} and {}. 409", offer, affiliate);
-        response.status(409);
-        return;
-      }
-      if (!visible(offer)) {
-        log.debug("{} not visible. Forbidden", offer);
-        forbidden(backUrl, response);
-        return;
-      }
-    }
-
-    if (!affiliate.confirmed() || !affiliate.active()) {
-      log.debug("Affiliate forbidden {}", affiliate);
-      forbidden(backUrl, response);
-      return;
-    }
-
 
     // sourceId and subIds extracting
     Subs subs = new Subs(
@@ -141,18 +83,20 @@ public class ClickTracker implements Tracker {
     );
     String sourceId = params.get("source_id");
 
+    String backUrl = params.get("back_url");
+
     // geo targeting
     Long ipNum = getRealIp(context);
     if (ipNum == null)
       throw new ApiRequestException(409, "Can't get IP address");
     if (!geoTargeting.isAllowed(offer, ipNum)) {
       forbidden(backUrl, response);
-      return;
+      return false;
     }
 
     if (blackList.ban(context.getHeaderValue("Referer"))) {
       forbidden(backUrl, response);
-      return;
+      return false;
     }
     String referer = extractReferer(context);
 
@@ -186,7 +130,7 @@ public class ClickTracker implements Tracker {
         .setKeywords(keywords)
         .setCashbackTargetId(params.get("cashback"))
         .setCashbackReferrer(cashbackReferrer)
-        .setSiteId(siteId);
+        .setSiteId(Long.valueOf(params.get("site_id")));
     OfferStat existedStat = offerStats.findStat(stat);
     if (existedStat == null) {
       stat.incClicks();
@@ -239,6 +183,7 @@ public class ClickTracker implements Tracker {
     addCookie(response, "hm_token_" + offer.advertiser().id(), token.value(),
         maxAge);
     noCache(response);
+    return true;
   }
 
 }

@@ -20,7 +20,7 @@ public class PlacementTracker implements Tracker {
 
 
   @Override
-  public void track(HttpRequestContext context,
+  public boolean track(HttpRequestContext context,
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     MultivaluedMap<String, String> queryParams = context.getQueryParameters();
@@ -29,5 +29,6 @@ public class PlacementTracker implements Tracker {
     queryParams.putSingle("aff_id", placement.site().affiliate().id().toString());
     queryParams.putSingle("offer_id", placement.offer().id().toString());
     queryParams.putSingle("site_id", placement.site().id().toString());
+    return true;
   }
 }

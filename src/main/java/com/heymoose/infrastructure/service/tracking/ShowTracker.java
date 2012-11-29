@@ -7,9 +7,9 @@ import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
-import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.OfferStats;
+import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import static com.heymoose.infrastructure.service.tracking.TrackingUtils.*;
-import static com.heymoose.resource.api.ApiExceptions.*;
+import static com.heymoose.resource.api.ApiExceptions.notFound;
 
 @Singleton
 public final class ShowTracker implements Tracker {
@@ -30,19 +30,22 @@ public final class ShowTracker implements Tracker {
   private OfferGrantRepository offerGrants;
   private OfferStats offerStats;
   private BufferedShows bufferedShows;
+  private Sites sites;
 
   @Inject
   public ShowTracker(BufferedShows bufferedShows,
                      OfferGrantRepository offerGrants, OfferStats offerStats,
+                     Sites sites,
                      Repo repo) {
     this.bufferedShows = bufferedShows;
     this.offerGrants = offerGrants;
     this.offerStats = offerStats;
+    this.sites = sites;
     this.repo = repo;
   }
 
   @Override
-  public void track(HttpRequestContext context,
+  public boolean track(HttpRequestContext context,
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     Map<String, String> params = queryParams(context);
@@ -54,11 +57,6 @@ public final class ShowTracker implements Tracker {
     Offer offer = repo.get(Offer.class, offerId);
     if (offer == null)
       throw notFound(Offer.class, offerId);
-    User affiliate = repo.get(User.class, affId);
-    if (affiliate == null)
-      throw notFound(Offer.class, offerId);
-    if (offerGrants.visibleByOfferAndAff(offer, affiliate) == null)
-      throw illegalState("Offer was not granted: " + offerId);
 
     Subs subs = new Subs(
         params.get("sub_id"),
@@ -69,9 +67,6 @@ public final class ShowTracker implements Tracker {
     );
     String sourceId = params.get("source_id");
 
-    Long siteId = null;
-    if (params.containsKey("site_id"))
-      siteId = safeGetLongParam(params, "site_id");
     // tracking
     OfferStat stat = new OfferStat()
         .setMaster(offer.master())
@@ -81,7 +76,7 @@ public final class ShowTracker implements Tracker {
         .setSourceId(sourceId)
         .setSubs(subs)
         .setReferer(extractReferer(context))
-        .setSiteId(siteId);
+        .setSiteId(Long.valueOf(params.get("site_id")));
     OfferStat existed = offerStats.findStat(stat);
     if (existed != null) {
       bufferedShows.inc(existed.id());
@@ -90,5 +85,6 @@ public final class ShowTracker implements Tracker {
       repo.put(stat);
     }
     noCache(response.status(200));
+    return true;
   }
 }

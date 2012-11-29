@@ -38,7 +38,7 @@ public final class LeadTracker implements Tracker {
   }
 
   @Override
-  public void track(HttpRequestContext context,
+  public boolean track(HttpRequestContext context,
                     Response.ResponseBuilder response)
       throws ApiRequestException {
 
@@ -57,7 +57,7 @@ public final class LeadTracker implements Tracker {
       String tokenValueResponseCookie = extractCookie(response, cookieName);
       if (tokenValueRequestCookie == null && tokenValueResponseCookie == null) {
         log.info("Can't get token cookie. Skipping lead tracking. {}", offer);
-        return;
+        return true;
       }
       // it's important to check response cookie first, it is set later
       String tokenValue = firstNonNull(
@@ -80,6 +80,7 @@ public final class LeadTracker implements Tracker {
     } catch (Throwable e) {
       log.error("Exception during tracking lead: {}", e);
     }
+    return true;
   }
 
   private Offer getOffer(MultivaluedMap<String, String> queryParams) {
