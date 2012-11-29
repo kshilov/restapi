@@ -2,7 +2,7 @@ begin;
 
 insert into site(type, aff_id, name, admin_state)
 
-select 'GRANT', aff.id, 'Моя площадка', 'APPROVED' from
+select 'GRANT', aff.id, 'Площадка пользователя ' || aff.email, 'APPROVED' from
 user_profile aff
 where affiliate_account_id is not null
 and exists (select * from offer_grant where offer_grant.aff_id = aff.id);
