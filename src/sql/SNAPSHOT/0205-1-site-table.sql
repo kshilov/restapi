@@ -48,7 +48,7 @@ create table site_attribute(
   id bigint default nextval('site_attribute_seq') primary key,
   site_id bigint not null,
   key varchar(255) not null,
-  value varchar(255) not null,
+  value text not null,
   foreign key (site_id) references site (id)
 );
 
