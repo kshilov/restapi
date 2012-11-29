@@ -1,4 +1,4 @@
-backend (1.0.17-1) UNRELEASED; urgency=low
+backend (1.0.18-1) UNRELEASED; urgency=low
 
   * release 1.0.10
   * release 1.0.11
@@ -8,8 +8,9 @@ backend (1.0.17-1) UNRELEASED; urgency=low
   * release 1.0.15
   * release 1.0.16
   * release 1.0.17
+  * release 1.0.18
 
- -- filipovskii_off <filipovskii_off@NickelBook>  Mon, 19 Nov 2012 13:58:42 +0400
+ -- filipovskii_off <filipovskii_off@NickelBook>  Thu, 29 Nov 2012 18:38:35 +0400
 
 backend (1.0.9-1) precise; urgency=low
 
