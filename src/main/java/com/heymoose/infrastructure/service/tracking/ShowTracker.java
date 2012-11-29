@@ -12,6 +12,8 @@ import com.heymoose.infrastructure.counter.BufferedShows;
 import com.heymoose.infrastructure.service.OfferStats;
 import com.heymoose.resource.api.ApiRequestException;
 import com.sun.jersey.api.core.HttpRequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.util.Map;
@@ -21,6 +23,8 @@ import static com.heymoose.resource.api.ApiExceptions.*;
 
 @Singleton
 public final class ShowTracker implements Tracker {
+
+  private static final Logger log = LoggerFactory.getLogger(ShowTracker.class);
 
   private Repo repo;
   private OfferGrantRepository offerGrants;
@@ -42,6 +46,7 @@ public final class ShowTracker implements Tracker {
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     Map<String, String> params = queryParams(context);
+    log.debug("Entering show tracking {}", params);
     String sBannerId = params.get("banner_id");
     Long bannerId = sBannerId == null ? null : Long.parseLong(sBannerId);
     long offerId = safeGetLongParam(params, "offer_id");
