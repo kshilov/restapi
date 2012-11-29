@@ -1,6 +1,7 @@
 package com.heymoose.domain.site;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -159,11 +160,14 @@ public class Site extends ModifiableEntity implements Moderatable {
   public boolean matches(String referer) {
     switch (this.type) {
       case WEB_SITE:
+        if (Strings.isNullOrEmpty(referer)) return false;
         if (!referer.contains("://")) referer = "http://" + referer;
         try {
           URL refererUrl = new URL(referer);
           URL siteUrl = new URL(this.attributeMap().get("url"));
-          return siteUrl.getHost().equals(refererUrl.getHost());
+          String refererHost = refererUrl.getHost().replaceAll("^www\\.", "");
+          String siteHost = siteUrl.getHost().replaceAll("^www\\.", "");
+          return refererHost.equals(siteHost);
         } catch (MalformedURLException e) {
           throw new RuntimeException("Illegal url. " + referer + " " + this);
         }
