@@ -3,7 +3,6 @@ package com.heymoose.test;
 import com.google.common.io.InputSupplier;
 import com.heymoose.domain.action.ItemListActionData;
 import com.heymoose.domain.action.OfferAction;
-import com.heymoose.domain.action.OfferActions;
 import com.heymoose.domain.base.Repo;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.Offer;
@@ -15,7 +14,6 @@ import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.service.Tariffs;
 import com.heymoose.infrastructure.service.action.ItemListProductImporter;
-import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.topshop.TopShopActionParser;
 import com.heymoose.test.base.RestTest;
 import org.hibernate.Session;
@@ -68,10 +66,8 @@ public final class TopShopImportTest extends RestTest {
     Double price = 100.0;
     Long productSubOfferId = null;
     Repo repo = injector().getInstance(Repo.class);
-    ItemListProductImporter importer = new ItemListProductImporter(
-        repo,
-        injector().getInstance(OfferActions.class),
-        injector().getInstance(ActionProcessor.class));
+    ItemListProductImporter importer = injector()
+        .getInstance(ItemListProductImporter.class);
     TopShopActionParser converter = new TopShopActionParser();
     String topShopXml =
         "<payment_list>" +

@@ -62,18 +62,12 @@ public class ClickTest extends RestTest {
     return heymoose().clickWithUlp(offerId, affId, sourceId, subs, ulp);
   }
 
-  private void doCreateGrant(long offerId, long affId) {
-    long grantId = heymoose().createGrant(offerId, affId, "msg", baseUrl() + "/postback");
-    heymoose().unblockGrant(grantId);
-    heymoose().approveGrant(grantId);
-  }
-
   @Test
   public void click() {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, false);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     URI location = doClick(offerId, affId, null, Subs.empty(), null);
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
@@ -84,7 +78,7 @@ public class ClickTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, true);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     String ulp = "http://www.google.com/a/b/c";
     URI location = doClick(offerId, affId, null, Subs.empty(), ulp);
@@ -96,7 +90,7 @@ public class ClickTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, false);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     String ulp = "http://www.google.com/a/b/c";
     URI location = doClick(offerId, affId, null, Subs.empty(), ulp);
@@ -108,7 +102,7 @@ public class ClickTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, true);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     String s = "http://www.google.com/a/b/c";
     String ulp = null;
@@ -126,7 +120,7 @@ public class ClickTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, true);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     String ulp = "http://www.google.com/a/b/c?a=12&ulp=qwerty&c=98";
     URI location = doClick(offerId, affId, null, Subs.empty(), ulp);
@@ -138,7 +132,7 @@ public class ClickTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, true);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     String ulp = "not an url";
     URI location = doClick(offerId, affId, null, Subs.empty(), ulp);
@@ -151,7 +145,7 @@ public class ClickTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId, true);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     sqlUpdate(
         "update offer " +
         "set required_get_parameters = 'a=a&b=b' " +

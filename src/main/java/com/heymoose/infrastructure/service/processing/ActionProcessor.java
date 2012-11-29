@@ -5,7 +5,6 @@ import com.google.inject.Singleton;
 import com.heymoose.domain.accounting.Accounting;
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.CpaPolicy;
@@ -51,13 +50,12 @@ public final class ActionProcessor implements Processor {
     String transactionId = data.transactionId();
     OfferStat source = token.stat();
     String postbackUrl;
-    if (data.site() != null) {
-      Placement placement = sites.checkPermission(data.offer(), data.site());
-      postbackUrl = placement.postBackUrl();
-    } else {
-      OfferGrant grant = offerGrants.checkGrant(source.affiliate(), offer);
-      postbackUrl = grant.postBackUrl();
+    if (data.site() == null) {
+      log.warn("No site in data: {}", data);
+      return;
     }
+    Placement placement = sites.checkPermission(data.offer(), data.site());
+    postbackUrl = placement.postBackUrl();
 
     if (!offer.reentrant()) {
       OfferAction existed = findAction(repo, offer, token, transactionId);
