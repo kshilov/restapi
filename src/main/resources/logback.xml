@@ -35,7 +35,6 @@
 
     <logger name="com.heymoose.resource.api.ApiResource" additivity="false">
       <appender-ref ref="API"/>
-      <appender-ref ref="FILE"/>
       <appender-ref ref="CONSOLE"/>
     </logger>
 
