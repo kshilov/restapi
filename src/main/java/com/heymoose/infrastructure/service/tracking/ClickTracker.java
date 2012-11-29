@@ -89,7 +89,6 @@ public class ClickTracker implements Tracker {
       log.debug("Affiliate with id {} not found. Throwing not found.", affId);
       throw notFound(Offer.class, offerId);
     }
-
     String backUrl = null;
     Long siteId = null;
     if (params.containsKey("site_id")) {
@@ -124,6 +123,13 @@ public class ClickTracker implements Tracker {
         return;
       }
     }
+
+    if (!affiliate.confirmed() || !affiliate.active()) {
+      log.debug("Affiliate forbidden {}", affiliate);
+      forbidden(backUrl, response);
+      return;
+    }
+
 
     // sourceId and subIds extracting
     Subs subs = new Subs(
