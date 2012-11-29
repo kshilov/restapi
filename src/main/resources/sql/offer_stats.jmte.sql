@@ -76,6 +76,10 @@ from
       0 id, offer_stat.cashback_target_id descr
     ${end}
 
+    ${if groupBySite}
+      site.id id, site.name descr
+    ${end}
+
   from
     offer o
 
@@ -91,6 +95,11 @@ from
 
   ${if groupByAdvertiser}
     left join user_profile p on o.user_id = p.id
+  ${end}
+
+  ${if groupBySite}
+    left join site
+    on site.id = offer_stat.site_id
   ${end}
 
 
@@ -162,6 +171,10 @@ from
 
     ${if groupByCashback}
       offer_stat.cashback_target_id
+    ${end}
+
+    ${if groupBySite}
+      site.id, site.name
     ${end}
 
   ) as sums

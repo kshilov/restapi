@@ -2,10 +2,8 @@ package com.heymoose.resource.xml;
 
 import com.google.common.collect.ImmutableMap;
 import com.heymoose.infrastructure.util.db.QueryResult;
-import org.jdom2.Namespace;
-import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.output.XMLOutputter;
+import org.jdom2.Namespace;
 import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
@@ -82,7 +80,7 @@ public final class XmlQueryResult {
         }
       rootElement.addContent(childElement);
     }
-    return new XMLOutputter().outputString(new Document(rootElement));
+    return JDomUtil.toXmlString(rootElement);
   }
 
   public XmlQueryResult addFieldMapping(String queryName, String xmlName) {

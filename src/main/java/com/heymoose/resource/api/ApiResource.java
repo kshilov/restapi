@@ -4,10 +4,13 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.heymoose.domain.errorinfo.ErrorInfoRepository;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.service.tracking.ActionTracker;
+import com.heymoose.infrastructure.service.tracking.CheckPermissionsTracker;
 import com.heymoose.infrastructure.service.tracking.ClickTracker;
 import com.heymoose.infrastructure.service.tracking.InviteTracker;
 import com.heymoose.infrastructure.service.tracking.LeadTracker;
+import com.heymoose.infrastructure.service.tracking.PlacementTracker;
 import com.heymoose.infrastructure.service.tracking.ShowTracker;
+import com.heymoose.infrastructure.service.tracking.Tracker;
 import com.sun.jersey.api.core.HttpRequestContext;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -23,6 +26,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -50,24 +54,30 @@ public class ApiResource {
   private final LeadTracker leadTracker;
   private final InviteTracker inviteTracker;
   private final ErrorInfoRepository errorInfoRepo;
+  private final PlacementTracker placementTracker;
+  private final CheckPermissionsTracker checkPermissions;
 
   private final static String REQUEST_ID_KEY = "request-id";
 
   @Inject
   public ApiResource(Provider<HttpRequestContext> requestContextProvider,
+                     CheckPermissionsTracker checkPermissions,
                      ShowTracker showTracker,
                      ClickTracker clickTracker,
                      ActionTracker actionTracker,
                      LeadTracker leadTracker,
                      InviteTracker inviteTracker,
+                     PlacementTracker placementTracker,
                      ErrorInfoRepository errorInfoRepo) {
     this.requestContextProvider = requestContextProvider;
+    this.checkPermissions = checkPermissions;
     this.clickTracker = clickTracker;
     this.showTracker = showTracker;
     this.actionTracker = actionTracker;
     this.leadTracker = leadTracker;
     this.inviteTracker = inviteTracker;
     this.errorInfoRepo = errorInfoRepo;
+    this.placementTracker = placementTracker;
   }
 
   @GET
@@ -85,6 +95,32 @@ public class ApiResource {
     } finally {
       MDC.remove(REQUEST_ID_KEY);
     }
+  }
+
+  @GET
+  @Path("/click/{id}")
+  @Transactional
+  public Response clickFromPlacement(@PathParam("id") Long placementId)
+      throws ApiRequestException {
+    HttpRequestContext context = requestContextProvider.get();
+    context
+        .getQueryParameters()
+        .putSingle("placement_id", placementId.toString());
+    placementTracker.track(context, null);
+    return callMethod("click");
+  }
+
+  @GET
+  @Path("/show/{id}")
+  @Transactional
+  public Response showFromPlacement(@PathParam("id") Long placementId)
+      throws ApiRequestException {
+    HttpRequestContext context = requestContextProvider.get();
+    context
+        .getQueryParameters()
+        .putSingle("placement_id", placementId.toString());
+    placementTracker.track(context, null);
+    return callMethod("track");
   }
 
   private Response callMethodInternal(@QueryParam("method") String method)
@@ -106,7 +142,7 @@ public class ApiResource {
   @Transactional
   public Response invite() throws ApiRequestException {
     Response.ResponseBuilder response = new ResponseBuilderImpl();
-    inviteTracker.track(requestContextProvider.get(), response);
+    runTrackers(requestContextProvider.get(), response, inviteTracker);
     return response.build();
   }
 
@@ -117,12 +153,11 @@ public class ApiResource {
     Response.ResponseBuilder response = new ResponseBuilderImpl();
     HttpRequestContext context = requestContextProvider.get();
     try {
-      actionTracker.track(requestContextProvider.get(), response);
-      leadTracker.track(context, response);
+      runTrackers(context, response, actionTracker, leadTracker);
       return response.build();
     } finally {
       log.debug("Report Action url: {} time: {}",
-          requestContextProvider.get().getRequestUri(),
+          context.getRequestUri(),
           new Duration(start, DateTime.now()));
     }
   }
@@ -131,15 +166,15 @@ public class ApiResource {
   public Response click() throws ApiRequestException {
     Response.ResponseBuilder response = new ResponseBuilderImpl();
     HttpRequestContext context = requestContextProvider.get();
-    clickTracker.track(context, response);
-    leadTracker.track(context, response);
+    runTrackers(context, response, checkPermissions, clickTracker, leadTracker);
     return response.build();
   }
 
   @Transactional
   public Response track() throws ApiRequestException {
     Response.ResponseBuilder response = new ResponseBuilderImpl();
-    showTracker.track(requestContextProvider.get(), response);
+    HttpRequestContext context = requestContextProvider.get();
+    runTrackers(context, response, checkPermissions, showTracker);
     return response.build();
   }
 
@@ -192,6 +227,19 @@ public class ApiResource {
     }
     uriBuilder.setLength(uriBuilder.length() - 1); // remove redundant symbol
     errorInfoRepo.track(uriBuilder.toString(), DateTime.now(), cause);
+  }
+
+  private void runTrackers(HttpRequestContext request,
+                           Response.ResponseBuilder response,
+                           Tracker... trackerList) throws ApiRequestException {
+    for (Tracker tracker : trackerList) {
+      if (!tracker.track(request, response)) {
+        log.warn("{} failed for request: {}",
+            tracker.getClass().getSimpleName(),
+            queryParams(request));
+        break;
+      }
+    }
   }
 
   private static String fetchStackTrace(Throwable th) {

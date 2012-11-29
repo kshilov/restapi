@@ -1,5 +1,6 @@
 select
 ${if productInfo}
+  distinct
   product.id                product_id,
   product.name              product_name,
   product.url               product_url,
@@ -33,10 +34,17 @@ and offer.is_product_offer = true
 and offer.active = true
 and offer.approved = true
 
-join offer_grant
-on offer_grant.offer_id = product.offer_id
-and offer_grant.blocked = false
-and offer_grant.aff_id = :user_id
+join placement
+on placement.offer_id = product.offer_id
+and placement.admin_state = 'APPROVED'
+
+join site
+on site.id = placement.site_id
+and site.aff_id = :user_id
+and site.admin_state = 'APPROVED'
+${if filterBySite}
+and site.id = :site_id
+${end}
 
 left join tariff
 on tariff.id = product.tariff_id

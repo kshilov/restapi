@@ -35,7 +35,9 @@ import com.heymoose.domain.product.ShopCategory;
 import com.heymoose.domain.settings.Setting;
 import com.heymoose.domain.settings.Settings;
 import com.heymoose.domain.site.BlackListEntry;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.site.Site;
+import com.heymoose.domain.site.SiteAttribute;
 import com.heymoose.domain.statistics.LeadStat;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
@@ -62,6 +64,7 @@ import com.heymoose.infrastructure.service.OfferActionsStoredFunc;
 import com.heymoose.infrastructure.service.OfferLoader;
 import com.heymoose.infrastructure.service.processing.ActionProcessor;
 import com.heymoose.infrastructure.service.processing.CashbackProcessor;
+import com.heymoose.infrastructure.service.processing.ExtractSiteProcessor;
 import com.heymoose.infrastructure.service.processing.Processor;
 import com.heymoose.infrastructure.service.processing.Processors;
 
@@ -93,7 +96,7 @@ public class CommonModule extends AbstractModule {
     bind(Cashbacks.class).to(CashbacksHiber.class);
 
     bindEntities(Offer.class, User.class, Banner.class,
-        Setting.class, Site.class,
+        Setting.class, Site.class, SiteAttribute.class, Placement.class,
         BaseOffer.class, SubOffer.class, OfferGrant.class,
         Category.class, CategoryGroup.class,
         IpSegment.class, Account.class,
@@ -142,8 +145,9 @@ public class CommonModule extends AbstractModule {
   }
 
   @Provides @Inject
-  protected Processor defaultProcessor(ActionProcessor actionProcessor,
-                                       CashbackProcessor cashbackProcessor) {
-    return Processors.chain(actionProcessor, cashbackProcessor);
+  protected Processor defaultProcessor(ActionProcessor createAction,
+                                       CashbackProcessor trackCashback,
+                                       ExtractSiteProcessor extractSite) {
+    return Processors.chain(extractSite, createAction, trackCashback);
   }
 }

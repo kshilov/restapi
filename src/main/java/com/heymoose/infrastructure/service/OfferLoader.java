@@ -49,6 +49,12 @@ public class OfferLoader {
   }
 
   @Transactional
+  public Offer activeOfferById(Long id) {
+    return repo.byHQL(Offer.class,
+        "from Offer where id = ? and approved = true and active = true", id);
+  }
+
+  @Transactional
   public BaseOffer findActiveOffer(long advertiserId, String code) {
     SubOffer existentSub = repo.byHQL(SubOffer.class,
         "from SubOffer o" +

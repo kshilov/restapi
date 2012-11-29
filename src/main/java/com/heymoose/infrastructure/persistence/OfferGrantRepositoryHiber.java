@@ -30,7 +30,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.heymoose.infrastructure.util.HibernateUtil.*;
+import static com.heymoose.infrastructure.util.db.HibernateUtil.*;
 
 public class OfferGrantRepositoryHiber extends RepositoryHiber<OfferGrant> implements
     OfferGrantRepository {

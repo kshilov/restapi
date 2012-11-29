@@ -5,6 +5,7 @@ import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.product.Product;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.statistics.OfferStat;
 import com.heymoose.domain.statistics.Token;
 import com.heymoose.domain.user.User;
@@ -68,6 +69,10 @@ public class OfferAction extends ModifiableEntity {
 
   @Column(name = "purchase_price", nullable = true)
   private BigDecimal purchasePrice;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @JoinColumn(name = "site_id")
+  private Site site;
 
   @Override
   public Long id() {
@@ -179,5 +184,10 @@ public class OfferAction extends ModifiableEntity {
 
   public BigDecimal purchasePrice() {
     return purchasePrice;
+  }
+
+  public OfferAction setSite(Site site) {
+    this.site = site;
+    return this;
   }
 }

@@ -137,4 +137,7 @@ public class XmlOffer {
 
   @XmlElement(name = "allow-cashback")
   public boolean allowCashback;
+
+  @XmlElement(name = "placements-count")
+  public Long placementCount;
 }

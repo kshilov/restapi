@@ -2,7 +2,6 @@ package com.heymoose.infrastructure.service.processing;
 
 import com.heymoose.domain.action.OfferAction;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrant;
 import com.heymoose.domain.offer.BaseOffer;
 import com.heymoose.domain.offer.Subs;
 import com.heymoose.domain.statistics.OfferStat;
@@ -40,11 +39,11 @@ public final class ProcessorUtils {
         .setCashbackReferrer(source.cashbackReferrer());
   }
 
-  public static void doPostBack(OfferGrant grant, OfferAction action) {
+  public static void doPostBack(String url, OfferAction action) {
     try {
-      if (grant.postBackUrl() != null) {
+      if (url != null) {
         getRequest(makeFullPostBackUri(
-            URI.create(grant.postBackUrl()),
+            URI.create(url),
             action.stat().sourceId(),
             action.stat().subs(),
             action.stat().referer(),
@@ -53,7 +52,7 @@ public final class ProcessorUtils {
             action.token().affParams()));
       }
     } catch (Exception e) {
-      log.warn("Error while requesting postBackUrl: " + grant.postBackUrl(), e);
+      log.warn("Error while requesting postBackUrl: " + url, e);
     }
 
   }

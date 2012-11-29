@@ -145,12 +145,13 @@ public class Products {
 
 
   @SuppressWarnings("unchecked")
-  public Iterable<Product> list(User user, Collection<Long> offerList,
+  public Iterable<Product> list(User user, Long siteId,
+                                Collection<Long> offerList,
                                 List<Long> categoryList,
                                 String queryString,
                                 int offset, Integer limit) {
     TemplateQuery query = productTemplateQuery(
-        user, offerList, categoryList, queryString);
+        user, siteId, offerList, categoryList, queryString);
     query.addTemplateParam("productInfo", true);
     Iterable<Map<String, Object>> mapIterator = query.execute(offset, limit);
 
@@ -162,22 +163,25 @@ public class Products {
   }
 
   public Long count(User user,
+                    Long siteId,
                     List<Long> offerList,
                     List<Long> categoryList,
                     String queryString) {
     TemplateQuery query = productTemplateQuery(
-        user, offerList, categoryList, queryString);
+        user, siteId, offerList, categoryList, queryString);
     query.addTemplateParam("productInfo", true);
     return query.count();
   }
 
 
 
-  public Iterable<ShopCategory> categoryList(User user, List<Long> offerList,
+  public Iterable<ShopCategory> categoryList(User user,
+                                             Long siteId,
+                                             List<Long> offerList,
                                              List<Long> categoryList,
                                              String queryString) {
     TemplateQuery query = productTemplateQuery(
-        user, offerList, categoryList, queryString);
+        user, siteId, offerList, categoryList, queryString);
     query.addTemplateParam("categoryInfo", true);
     QueryResult result = query.execute();
     ImmutableList.Builder<ShopCategory> categoryResultList =
@@ -243,11 +247,14 @@ public class Products {
   }
 
   private TemplateQuery productTemplateQuery(User user,
+                                             Long siteId,
                                              Collection<Long> offerList,
                                              Collection<Long> categoryList,
                                              String queryString) {
     TemplateQuery query = SqlLoader
-        .templateQuery("product-list", repo.session());
+        .templateQuery("product-list", repo.session())
+        .addTemplateParamIfNotNull(siteId, "filterBySite", true)
+        .addQueryParamIfNotNull(siteId, "site_id", siteId);
 
     if (!Strings.isNullOrEmpty(queryString)) {
       query.addTemplateParam("filterByName", true);

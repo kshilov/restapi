@@ -1,14 +1,14 @@
 package com.heymoose.test;
 
-import com.heymoose.domain.user.Role;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.user.Role;
+import com.heymoose.infrastructure.util.QueryUtil;
+import com.heymoose.infrastructure.util.URLEncodedUtils;
 import com.heymoose.resource.xml.XmlOffer;
 import com.heymoose.resource.xml.XmlUser;
 import com.heymoose.test.base.RestTest;
-import com.heymoose.infrastructure.util.QueryUtil;
-import com.heymoose.infrastructure.util.URLEncodedUtils;
 import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,12 +65,6 @@ public class OfferTest extends RestTest {
     return location;
   }
 
-  private void doCreateGrant(long offerId, long affId) {
-    long grantId = heymoose().createGrant(offerId, affId, "msg", baseUrl() + "/postback");
-    heymoose().unblockGrant(grantId);
-    heymoose().approveGrant(grantId);
-  }
-
   @Test
   public void createOffer() {
     long advertiserId = doRegisterAdvertiser();
@@ -84,7 +78,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
   }
 
@@ -93,7 +87,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     assertEquals(200, heymoose().track(offerId, affId, null, Subs.empty()));
     URI location = doClick(offerId, affId, null, Subs.empty());
     assertEquals(URI.create(OFFER_URL).getHost(), location.getHost());
@@ -104,7 +98,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     Subs subs = new Subs(null, null, null, null, null);
     assertEquals(200, heymoose().track(offerId, affId, "test-source-id", subs));
     URI location = doClick(offerId, affId, "test-source-id", subs);
@@ -116,7 +110,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     Subs subs = new Subs("test-subId", null, null, null, null);
     assertEquals(200, heymoose().track(offerId, affId, "test-sourceId", subs));
     URI location = doClick(offerId, affId, "test-sourceId", subs);
@@ -128,7 +122,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     Subs subs = new Subs("test-subId", null, "test-subId3", null, "test-subId5");
     assertEquals(200, heymoose().track(offerId, affId, "test-sourceId", subs));
     URI location = doClick(offerId, affId, "test-sourceId", subs);
@@ -140,7 +134,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     Subs subs = new Subs("test-subId", null, null, null, null);
     assertEquals(200, heymoose().track(offerId, affId, "test-sourceId", subs));
 
@@ -158,7 +152,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     URI location = doClick(offerId, affId, null, Subs.empty());
     String token = QueryUtil.extractParam(URLEncodedUtils.parse(location, "UTF-8"), "_hm_token");
     assertEquals(200, heymoose().action(token, "tx1", advertiserId, OFFER_CODE));
@@ -174,7 +168,7 @@ public class OfferTest extends RestTest {
     long advertiserId = doRegisterAdvertiser();
     long offerId = doCreateOffer(advertiserId);
     long affId = doRegisterAffiliate();
-    doCreateGrant(offerId, affId);
+    heymoose().doCreateGrant(offerId, affId);
     URI location = doClick(offerId, affId, "test-sourceId",
         new Subs("test-subId", null, "test-subId3", null, "test-subId5")
     );

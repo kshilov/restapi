@@ -7,6 +7,10 @@ import javax.ws.rs.core.Response;
 
 public interface Tracker {
 
-  void track(HttpRequestContext context, Response.ResponseBuilder response)
+  /**
+   * @return false if request should not be processed further
+   * @throws ApiRequestException
+   */
+  boolean track(HttpRequestContext context, Response.ResponseBuilder response)
       throws ApiRequestException;
 }

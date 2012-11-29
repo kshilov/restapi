@@ -1,6 +1,7 @@
 package com.heymoose.infrastructure.util.db;
 
 import com.google.common.collect.ImmutableMap;
+import com.heymoose.infrastructure.util.DataFilter;
 import com.heymoose.infrastructure.util.Pair;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -107,5 +108,9 @@ public class TemplateQuery {
   public TemplateQuery addQueryParamsFromMap(Map<String, String> map) {
     this.queryParamMap.putAll(map);
     return this;
+  }
+
+  public Pair<QueryResult, Long> executeAndCount(DataFilter<?> common) {
+    return this.executeAndCount(common.offset(), common.limit());
   }
 }

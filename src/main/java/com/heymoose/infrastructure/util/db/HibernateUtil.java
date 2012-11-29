@@ -1,4 +1,4 @@
-package com.heymoose.infrastructure.util;
+package com.heymoose.infrastructure.util.db;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;

@@ -4,6 +4,7 @@ import com.heymoose.domain.base.IdEntity;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ProductAttribute;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.tariff.Tariff;
 import com.heymoose.domain.user.User;
 import org.joda.time.DateTime;
@@ -24,6 +25,7 @@ public class YmlWriter {
   private Iterable<ShopCategory> categoryList;
   private User user;
   private String urlMask;
+  private Site site;
 
   public YmlWriter(OutputStream stream) {
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
@@ -110,7 +112,8 @@ public class YmlWriter {
     } catch (UnsupportedEncodingException e) {
     }
     String newUrl = String.format(urlMask,
-        product.offer().id(), user.id(), originalUrlEncoded);
+          product.offer().id(), user.id(), originalUrlEncoded);
+    if (site != null) newUrl += "&site_id=" + site.id();
     writeElement("url", newUrl);
 
     BigDecimal price = product.price();
@@ -197,6 +200,11 @@ public class YmlWriter {
 
   public YmlWriter setUser(User user) {
     this.user = user;
+    return this;
+  }
+
+  public YmlWriter setSite(Site site) {
+    this.site = site;
     return this;
   }
 }

@@ -2,6 +2,7 @@ package com.heymoose.domain.offer;
 
 import com.heymoose.domain.accounting.Account;
 import com.heymoose.domain.grant.OfferGrant;
+import com.heymoose.domain.site.Placement;
 import com.heymoose.domain.user.User;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
@@ -44,6 +45,9 @@ public class Offer extends BaseOffer {
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<OfferGrant> grants;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<Placement> placements;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "offer", fetch = FetchType.LAZY, orphanRemoval = true)
   protected Set<Banner> banners;

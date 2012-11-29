@@ -22,7 +22,12 @@ public abstract class ModifiableEntity extends BaseEntity {
     this.lastChangeTime = time;
   }
 
-  protected void touch() {
+  public void touch() {
     lastChangeTime = DateTime.now();
   }
+
+  public DateTime lastChangeTime() {
+    return lastChangeTime;
+  }
+
 }

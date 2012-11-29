@@ -1,4 +1,4 @@
-package com.heymoose.infrastructure.util;
+package com.heymoose.infrastructure.util.db;
 
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.transform.BasicTransformerAdapter;

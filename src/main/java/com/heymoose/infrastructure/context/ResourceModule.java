@@ -13,6 +13,7 @@ import com.heymoose.resource.OfferActionResource;
 import com.heymoose.resource.OfferGrantResource;
 import com.heymoose.resource.OfferResource;
 import com.heymoose.resource.OfferStatsResource;
+import com.heymoose.resource.PlacementResource;
 import com.heymoose.resource.ProductResource;
 import com.heymoose.resource.PublicDataResource;
 import com.heymoose.resource.RegionResource;
@@ -47,6 +48,7 @@ public class ResourceModule extends AbstractModule {
     bind(UserStatsResource.class);
     bind(ProductResource.class);
     bind(CashbackResource.class);
+    bind(PlacementResource.class);
     bindInterceptor(
         Matchers.any(),
         Matchers.annotatedWith(Cacheable.class),

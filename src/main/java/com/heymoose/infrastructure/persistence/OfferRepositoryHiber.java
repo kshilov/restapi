@@ -1,9 +1,14 @@
 package com.heymoose.infrastructure.persistence;
 
+import com.google.common.collect.ImmutableList;
 import com.heymoose.domain.offer.Offer;
 import com.heymoose.domain.offer.OfferFilter;
 import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.offer.PayMethod;
+import com.heymoose.infrastructure.util.Pair;
+import com.heymoose.infrastructure.util.TypedMap;
+import com.heymoose.infrastructure.util.db.QueryResult;
+import com.heymoose.infrastructure.util.db.SqlLoader;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -16,8 +21,10 @@ import org.joda.time.DateTime;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import java.util.List;
+import java.util.Map;
 
-import static com.heymoose.infrastructure.util.HibernateUtil.*;
+import static com.heymoose.infrastructure.util.db.HibernateUtil.*;
 
 @Singleton
 public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
@@ -65,12 +72,51 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
     
     if (active != null)
       criteria.add(Restrictions.eq("grants.active", active));
-    
+
     setOrdering(criteria, ord, asc);
     return criteria
         .setFirstResult(offset)
         .setMaxResults(limit)
         .list();
+  }
+
+  @Override
+  public Pair<List<Offer>, Long> affiliateOfferList(long affId,
+                                                    int offset, int limit) {
+    Pair<QueryResult, Long> idResult = SqlLoader
+        .sqlQuery("affiliate-offer-id-list", hiber())
+        .addQueryParam("aff_id", affId)
+        .executeAndCount(offset, limit);
+    ImmutableList.Builder<Offer> offerList = ImmutableList.builder();
+    for (Map<String, Object> idMap : idResult.fst) {
+      TypedMap map = TypedMap.wrap(idMap);
+      offerList.add((Offer) hiber().get(Offer.class, map.getLong("id")));
+    }
+    return Pair.of((List<Offer>) offerList.build(), idResult.snd);
+  }
+
+  @Override
+  public Offer get(long offerId) {
+    return (Offer) hiber().get(Offer.class, offerId);
+  }
+
+  @Override
+  public Iterable<Offer> listProductOffers(Long affId, Long siteId) {
+    QueryResult result = SqlLoader.templateQuery("product-offer-list", hiber())
+        .addTemplateParamIfNotNull(siteId, "filterBySite", true)
+        .addQueryParamIfNotNull(siteId, "site_id", siteId)
+        .addQueryParam("aff_id", affId)
+        .execute();
+    ImmutableList.Builder<Offer> builder = ImmutableList.builder();
+    for (Map<String, Object> map : result) {
+      TypedMap offerMap = TypedMap.wrap(map);
+      Offer offer = new Offer()
+          .setId(offerMap.getLong("id"))
+          .setYmlUrl(offerMap.getString("yml_url"))
+          .setName(offerMap.getString("name"));
+      builder.add(offer);
+    }
+    return builder.build();
   }
 
   @Override
@@ -117,6 +163,16 @@ public class OfferRepositoryHiber extends RepositoryHiber<Offer> implements
 
     if (filter.launched() != null && filter.launched())
       criteria.add(Restrictions.lt("launchTime", DateTime.now()));
+
+    if (filter.affiliateId() != null) {
+      criteria.add(Restrictions.sqlRestriction(
+          "exists (select * from placement " +
+              "join site on site.id = placement.site_id " +
+              "where offer_id = {alias}.id " +
+              "and site.aff_id = ?)",
+          filter.affiliateId(),
+          StandardBasicTypes.LONG));
+    }
 
     if (filter.payMethod() == PayMethod.CPA) {
       Criterion parentPayMethodMatches = Restrictions.and(

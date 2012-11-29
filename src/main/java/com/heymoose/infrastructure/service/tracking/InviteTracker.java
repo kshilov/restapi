@@ -22,7 +22,7 @@ public class InviteTracker implements Tracker {
   public static final String REFERRER_PARAM = "referrer";
   public static final String LOCATION_PARAM = "ulp";
 
-  public void track(HttpRequestContext context,
+  public boolean track(HttpRequestContext context,
                     Response.ResponseBuilder response)
       throws ApiRequestException {
     Map<String, String> queryParams = queryParams(context);
@@ -49,5 +49,6 @@ public class InviteTracker implements Tracker {
     log.info("Tracking cashback invite. aff_id:{}, referrer: {}, ulp: {}",
         new Object[] { affId, referrer, ulp });
     response.status(302).header("Location", ulp);
+    return false;
   }
 }

@@ -34,10 +34,12 @@
 
     <logger name="com.heymoose.resource.api.ApiResource" additivity="false">
         <appender-ref ref="API"/>
+        <appender-ref ref="CONSOLE" />
     </logger>
 
     <logger name="com.heymoose.infrastructure.service.GeoTargeting" additivity="false">
         <appender-ref ref="IP"/>
+        <appender-ref ref="CONSOLE" />
     </logger>
 
     <root level="DEBUG">

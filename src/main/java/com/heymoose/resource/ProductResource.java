@@ -5,19 +5,23 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.heymoose.domain.base.Repo;
-import com.heymoose.domain.grant.OfferGrantRepository;
 import com.heymoose.domain.offer.Offer;
+import com.heymoose.domain.offer.OfferRepository;
 import com.heymoose.domain.product.Product;
 import com.heymoose.domain.product.ShopCategory;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.user.User;
 import com.heymoose.infrastructure.persistence.Transactional;
 import com.heymoose.infrastructure.persistence.UserRepositoryHiber;
 import com.heymoose.infrastructure.service.Products;
+import com.heymoose.infrastructure.service.Sites;
 import com.heymoose.infrastructure.service.yml.YmlWriter;
 import com.heymoose.infrastructure.util.Cacheable;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -37,20 +41,26 @@ import static com.heymoose.infrastructure.util.WebAppUtil.checkNotNull;
 @Path("products")
 public class ProductResource {
 
+  private static final Logger log =
+      LoggerFactory.getLogger(ProductResource.class);
+
   private final Products products;
-  private final OfferGrantRepository grants;
+  private final OfferRepository offers;
   private final UserRepositoryHiber users;
   private final String trackerHost;
+  private final Sites sites;
   private final Repo repo;
 
   @Inject
   public ProductResource(Repo repo, Products products,
-                         OfferGrantRepository grants,
+                         OfferRepository offers,
                          UserRepositoryHiber users,
+                         Sites sites,
                          @Named("tracker.host") String trackerHost) {
     this.repo = repo;
     this.products = products;
-    this.grants = grants;
+    this.sites = sites;
+    this.offers = offers;
     this.users = users;
     this.trackerHost = trackerHost;
   }
@@ -62,12 +72,16 @@ public class ProductResource {
   @Cacheable
   @Transactional
   public Response feed(@QueryParam("key") String key,
-                     @QueryParam("s") List<Long> offerList,
-                     @QueryParam("c") List<Long> categoryList,
-                     @QueryParam("q") String queryString,
-                     @QueryParam("offset") @DefaultValue("0") int offset,
-                     @QueryParam("limit") @DefaultValue("1000") int limit)
+                       @QueryParam("site") String siteIdString,
+                       @QueryParam("s") List<Long> offerList,
+                       @QueryParam("c") List<Long> categoryList,
+                       @QueryParam("q") String queryString,
+                       @QueryParam("offset") @DefaultValue("0") int offset,
+                       @QueryParam("limit") @DefaultValue("1000") int limit)
       throws Exception {
+    log.debug("Entering feed key: {}, site: {}, s: {}, c: {}, q: {}",
+        new Object[] { key, siteIdString, offerList, categoryList, queryString });
+    Long siteId = parseSiteId(siteIdString);
     if (Strings.isNullOrEmpty(key)) {
       return status(400, "Request should contain 'key' parameter.");
     }
@@ -85,13 +99,21 @@ public class ProductResource {
       return status(401, "No user found for given 'key'.");
     }
 
+    Site site = null;
+    if (siteId != null) {
+      site = sites.approvedSite(siteId);
+      if (site == null || site.affiliate() != user)
+        return status(400, "No active site found with id: " + siteId);
+    }
+
     final Iterable<Product> productList =
-        products.list(user, offerList, categoryList, queryString,
+        products.list(user, siteId, offerList, categoryList, queryString,
             offset, limit);
     final Iterable<ShopCategory> shopCategoryList =
-        products.categoryList(user, offerList, categoryList, queryString);
+        products.categoryList(user, siteId, offerList, categoryList, queryString);
     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     new YmlWriter(byteStream)
+        .setSite(site)
         .setCategoryList(shopCategoryList)
         .setProductList(productList)
         .setTrackerHost(this.trackerHost)
@@ -105,6 +127,7 @@ public class ProductResource {
   @Path("feed/size")
   @Transactional
   public String feedSize(@QueryParam("key") String key,
+                         @QueryParam("site") String siteIdString,
                          @QueryParam("s") List<Long> offerList,
                          @QueryParam("c") List<Long> categoryList,
                          @QueryParam("q") String queryString) {
@@ -113,7 +136,17 @@ public class ProductResource {
     final User user = users.bySecretKey(key);
     if (user == null) throw new WebApplicationException(401);
 
-    return products.count(user, offerList, categoryList, queryString).toString();
+    Long siteId = parseSiteId(siteIdString);
+    Site site = null;
+    if (siteId != null) {
+      site = sites.approvedSite(siteId);
+      if (site == null || site.affiliate() != user)
+        throw new WebApplicationException(400);
+    }
+
+    return products
+        .count(user, siteId, offerList, categoryList, queryString)
+        .toString();
   }
 
 
@@ -122,10 +155,13 @@ public class ProductResource {
   @Produces("application/xml")
   @Transactional
   @Cacheable(period = "PT1H") // cache for 1 hour
-  public String categoryList(@QueryParam("aff_id") Long affId) {
+  public String categoryList(@QueryParam("aff_id") Long affId,
+                             @QueryParam("site_id") String siteIdString) {
     if (affId == null) throw new WebApplicationException(400);
+    Long siteId = parseSiteId(siteIdString);
+
     Iterable<Offer> grantedProductOffers =
-        grants.grantedProductOffers(affId);
+        offers.listProductOffers(affId, siteId);
 
     Element result = new Element("result");
     for (Offer offer : grantedProductOffers) {
@@ -174,4 +210,11 @@ public class ProductResource {
         .entity(body)
         .build();
   }
+
+  private Long parseSiteId(String siteIdString) {
+    if (!Strings.isNullOrEmpty(siteIdString))
+      return Long.valueOf(siteIdString);
+    return null;
+  }
+
 }

@@ -1,14 +1,18 @@
 package com.heymoose.domain.site;
 
-import com.heymoose.domain.base.IdEntity;
-import com.heymoose.domain.offer.Category;
-import com.heymoose.domain.user.Lang;
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.heymoose.domain.base.AdminState;
+import com.heymoose.domain.base.Moderatable;
+import com.heymoose.domain.base.ModifiableEntity;
 import com.heymoose.domain.user.User;
 
 import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -17,19 +21,23 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "site")
-public class Site extends IdEntity {
+public class Site extends ModifiableEntity implements Moderatable {
+
+  public enum Type {
+    WEB_SITE, SOCIAL_NETWORK, CONTEXT,
+    MAIL, DOORWAY, ARBITRAGE,
+    GRANT }
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "site-seq")
@@ -39,35 +47,31 @@ public class Site extends IdEntity {
   @Basic(optional = false)
   private String name;
 
-  @Basic(optional = false)
-  private String domain;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "lang", nullable = false)
-  private Lang lang;
-
-  @Basic(optional = false)
-  private String comment;
-
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "aff_id", insertable = false, updatable = false)
   private User affiliate;
 
-  @ManyToMany
-  @JoinTable(
-      name = "site_category",
-      joinColumns = @JoinColumn(name = "offer_id", referencedColumnName = "id"),
-      inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id")
-  )
-  private Set<Category> categories;
+  @Column(name = "aff_id")
+  private Long affId;
 
-  @ElementCollection
-  @CollectionTable(
-      name = "site_region",
-      joinColumns = @JoinColumn(name = "site_id", referencedColumnName = "id")
-  )
-  @Column(name = "region")
-  private Set<String> regions;
+  @Enumerated(EnumType.STRING)
+  private Type type;
+
+  @Column(name = "admin_state", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private AdminState adminState = AdminState.MODERATION;
+
+  @Column(name = "admin_comment")
+  private String adminComment;
+
+  @Column(name = "description")
+  private String description;
+
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "site",
+      cascade = CascadeType.REMOVE)
+  private List<SiteAttribute> attributeList = Lists.newArrayList();
+
 
   @Override
   public Long id() {
@@ -76,25 +80,142 @@ public class Site extends IdEntity {
 
   protected Site() {}
   
-  public Site(String name, String domain, Lang lang, String comment, User affiliate, Set<Category> categories, Set<String> regions) {
+  public Site(Type type) {
+    this.type = type;
+  }
+
+  public Site setType(Type type) {
+    this.type = type;
+    return this;
+  }
+
+  public Site setName(String name) {
     this.name = name;
-    this.domain = domain;
-    this.lang = lang;
-    this.comment = comment;
-    this.affiliate = affiliate;
-    this.categories = newHashSet(categories);
-    this.regions = newHashSet(regions);
+    return this;
   }
-  
-  public Set<Category> categories() {
-    if (categories == null)
-      return emptySet();
-    return unmodifiableSet(categories);
+
+  public Site setAffId(Long affId) {
+    this.affId = affId;
+    return this;
   }
-  
-  public Set<String> regions() {
-    if (regions == null)
-      return emptySet();
-    return unmodifiableSet(regions);
+
+  public Site addAttribute(String key, String value) {
+    SiteAttribute attr = new SiteAttribute()
+        .setSite(this)
+        .setKey(key)
+        .setValue(value);
+    this.attributeList.add(attr);
+    return this;
+  }
+
+  public Site addAttributesFromMap(Map<String, String> siteAttributeMap) {
+    for (Map.Entry<String, String> entry : siteAttributeMap.entrySet()) {
+      addAttribute(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
+  public List<SiteAttribute> attributeList() {
+    return ImmutableList.copyOf(this.attributeList);
+  }
+
+  public String name() {
+    return this.name;
+  }
+
+  public Type type() {
+    return type;
+  }
+
+  public User affiliate() {
+    return affiliate;
+  }
+
+  public Map<String, String> attributeMap() {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (SiteAttribute entry : attributeList) {
+      builder.put(entry.key(), entry.value());
+    }
+    return builder.build();
+  }
+
+  @Override
+  public void touch() {
+    super.touch();
+  }
+
+  public boolean approvedByAdmin() {
+    return AdminState.APPROVED == adminState;
+  }
+
+  public Site setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public String description() {
+    return this.description;
+  }
+
+  public boolean matches(String referer) {
+    switch (this.type) {
+      case WEB_SITE:
+        if (Strings.isNullOrEmpty(referer)) return false;
+        if (!referer.contains("://")) referer = "http://" + referer;
+        try {
+          URL refererUrl = new URL(referer);
+          URL siteUrl = new URL(this.attributeMap().get("url"));
+          String refererHost = refererUrl.getHost().replaceAll("^www\\.", "");
+          String siteHost = siteUrl.getHost().replaceAll("^www\\.", "");
+          return refererHost.equals(siteHost);
+        } catch (MalformedURLException e) {
+          throw new RuntimeException("Illegal url. " + referer + " " + this);
+        }
+      default: return true;
+    }
+  }
+  @Override
+  public AdminState adminState() {
+    return adminState;
+  }
+
+  @Override
+  public String adminComment() {
+    return this.adminComment;
+  }
+
+  public Site setAdminComment(String comment) {
+    this.adminComment = comment;
+    return this;
+  }
+
+
+  public Site setAdminState(AdminState state) {
+    this.adminState = state;
+    return this;
+  }
+
+  public Site setAttribute(String name, String value) {
+    boolean set = false;
+    for (SiteAttribute attr : attributeList) {
+      if (attr.key().equals(name)) {
+        set = true;
+        attr.setValue(value);
+      }
+    }
+    if (!set) attributeList.add(new SiteAttribute()
+        .setKey(name)
+        .setValue(value));
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(Site.class)
+        .add("id", id)
+        .add("type", type)
+        .add("name", name)
+        .add("adminState", adminState)
+        .toString();
   }
 }

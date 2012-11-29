@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import com.heymoose.domain.offer.CpaPolicy;
 import com.heymoose.domain.offer.PayMethod;
 import com.heymoose.domain.offer.Subs;
+import com.heymoose.domain.site.Site;
 import com.heymoose.domain.user.Role;
 import com.heymoose.infrastructure.counter.BufferedClicks;
 import com.heymoose.infrastructure.counter.BufferedShows;
@@ -213,9 +214,9 @@ public class Heymoose {
   }
 
   public void doCreateGrant(long offerId, long affId) {
-    long grantId = createGrant(offerId, affId, "msg", RestTest.baseUrl() + "/postback");
-    unblockGrant(grantId);
-    approveGrant(grantId);
+    long siteId = createSite(affId, Site.Type.GRANT);
+    approveSite(siteId);
+    createPlacement(offerId, siteId);
   }
 
 
@@ -467,4 +468,30 @@ public class Heymoose {
     return client.path("account").path("aff").path(Long.toString(affId)).path("withdraws").get(XmlWithdraws.class);
   }
 
+  public long createSite(long affId, Site.Type type) {
+    Form form = new Form();
+    form.putSingle("aff_id", affId);
+    form.putSingle("type", type);
+    form.putSingle("name", "Site name");
+    ClientResponse resp = client.path("sites").post(ClientResponse.class, form);
+    String location = resp.getHeaders().getFirst("Location");
+    String[] locationArr = location.split("/");
+    return Long.valueOf(locationArr[locationArr.length - 1]);
+  }
+
+  public void approveSite(long siteId) {
+    Form form = new Form();
+    form.putSingle("admin_state", "APPROVED");
+    client.path("sites")
+        .path(String.valueOf(siteId))
+        .path("moderate")
+        .put(form);
+  }
+
+  public void createPlacement(long offerId, long siteId) {
+    Form form = new Form();
+    form.putSingle("offer_id", offerId);
+    form.putSingle("site_id", siteId);
+    client.path("placements").post(ClientResponse.class, form);
+  }
 }

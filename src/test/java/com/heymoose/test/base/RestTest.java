@@ -101,6 +101,8 @@ public class RestTest {
       session.createQuery("delete from Token").executeUpdate();
       session.createQuery("delete from OfferStat").executeUpdate();
       session.createQuery("delete from OfferGrant").executeUpdate();
+      session.createQuery("delete from Placement").executeUpdate();
+      session.createSQLQuery("delete from site").executeUpdate();
       session.createQuery("delete from Banner").executeUpdate();
       session.createSQLQuery("delete from offer_category").executeUpdate();
       session.createSQLQuery("delete from offer_region").executeUpdate();
