@@ -98,18 +98,19 @@ public class SiteResource {
   @GET
   @Transactional
   public Element listSites(@QueryParam("aff_id") Long affId,
-                          @QueryParam("offset") int offset,
-                          @QueryParam("limit") @DefaultValue("20") int limit,
-                          @QueryParam("ordering") @DefaultValue("LAST_CHANGE_TIME")
-                          Sites.Ordering ordering,
-                          @QueryParam("direction") @DefaultValue("ASC")
-                          OrderingDirection direction) {
+                           @QueryParam("admin_state") AdminState state,
+                           @QueryParam("offset") int offset,
+                           @QueryParam("limit") @DefaultValue("20") int limit,
+                           @QueryParam("ordering") @DefaultValue("LAST_CHANGE_TIME")
+                           Sites.Ordering ordering,
+                           @QueryParam("direction") @DefaultValue("ASC")
+                           OrderingDirection direction) {
     DataFilter<Sites.Ordering> common = DataFilter.newInstance();
     common.setOffset(offset)
         .setLimit(limit)
         .setOrdering(ordering)
         .setDirection(direction);
-    return toSiteXml(sites.list(affId, common));
+    return toSiteXml(sites.list(affId, state, common));
   }
 
   @GET
@@ -330,11 +331,18 @@ public class SiteResource {
       }
       siteAttributes.put(entry.getKey(), entry.getValue().get(0));
     }
+    checkNotNull(affId, name, type, description);
     return new Site(Site.Type.valueOf(type))
         .setName(name)
         .setAffId(affId)
         .setDescription(description)
         .addAttributesFromMap(siteAttributes.build());
+  }
+
+  private void checkNotNull(Object... list) {
+    for (Object o : list) {
+      if (o == null) throw new WebApplicationException(400);
+    }
   }
 
 }
