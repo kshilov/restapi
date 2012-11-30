@@ -117,10 +117,12 @@ public class Sites {
   }
 
   @SuppressWarnings("unchecked")
-  public Pair<List<Site>, Long> list(Long affId, DataFilter<Ordering> common) {
+  public Pair<List<Site>, Long> list(Long affId, AdminState state,
+                                     DataFilter<Ordering> common) {
     if (common.limit() == 0) return Pair.of(Collections.<Site>emptyList(), 0L);
     Criteria c = repo.session().createCriteria(Site.class);
     if (affId != null) c.add(Restrictions.eq("affId", affId));
+    if (state != null) c.add(Restrictions.eq("adminState", state));
     c.setFirstResult(common.offset());
     c.setMaxResults(common.limit());
     switch (common.ordering()) {
@@ -155,6 +157,7 @@ public class Sites {
 
     Criteria countQuery = repo.session().createCriteria(Site.class);
     if (affId != null) countQuery.add(Restrictions.eq("affId", affId));
+    if (state != null) countQuery.add(Restrictions.eq("adminState", state));
     countQuery.setProjection(Projections.count("id"));
     Long count = (Long) countQuery.uniqueResult();
     return Pair.of(result, count);
