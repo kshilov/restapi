@@ -331,7 +331,7 @@ public class SiteResource {
       }
       siteAttributes.put(entry.getKey(), entry.getValue().get(0));
     }
-    checkNotNull(affId, name, type, description);
+    checkNotNull(affId, name, type);
     return new Site(Site.Type.valueOf(type))
         .setName(name)
         .setAffId(affId)
