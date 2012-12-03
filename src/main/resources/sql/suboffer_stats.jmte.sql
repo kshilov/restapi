@@ -1,5 +1,8 @@
 select
   coalesce(sum(action_count - canceled_action_count),  0) leads_count,
+  coalesce(sum(action_count), 0)            action_count,
+  coalesce(sum(canceled_action_count),  0)  canceled_action_count,
+  coalesce(sum(confirmed_action_count), 0)  confirmed_action_count,
   0 sales_count,
 ${if addFee}
   coalesce(sum(confirmed_revenue      + confirmed_fee),     0.00) confirmed_revenue,

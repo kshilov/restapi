@@ -21,9 +21,9 @@ from
   select
     coalesce(sum(show_count),   0) shows_count,
     coalesce(sum(click_count),  0) clicks_count,
-    sum(action_count)              action_count,
-    sum(canceled_action_count)     canceled_action_count,
-    sum(confirmed_action_count)    confirmed_action_count,
+    coalesce(sum(action_count), 0)            action_count,
+    coalesce(sum(canceled_action_count),  0)  canceled_action_count,
+    coalesce(sum(confirmed_action_count), 0)  confirmed_action_count,
     sum(action_count - canceled_action_count) leads_count,
     0                                         sales_count,
     ${if addFee}
