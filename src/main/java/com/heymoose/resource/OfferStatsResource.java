@@ -660,6 +660,7 @@ public class OfferStatsResource {
         .addFieldMapping("not_confirmed_revenue", "not-confirmed-revenue")
         .addFieldMapping("canceled_revenue", "canceled-revenue")
         .addFieldMapping("action_count", "action-count")
+        .addFieldMapping("not_confirmed_action_count", "not-confirmed-action-count")
         .addFieldMapping("canceled_action_count", "canceled-action-count")
         .addFieldMapping("confirmed_action_count", "confirmed-action-count")
         .toString();
