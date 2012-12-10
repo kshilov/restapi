@@ -54,6 +54,10 @@ public final class ActionProcessor implements Processor {
       log.warn("No site in data: {}", data);
       return;
     }
+    if (data.site().affiliate().blocked()) {
+      log.warn("{} blocked. Skipping {}", data.site().affiliate(), data);
+      return;
+    }
     Placement placement = sites.checkPermission(data.offer(), data.site());
     postbackUrl = placement.postBackUrl();
 

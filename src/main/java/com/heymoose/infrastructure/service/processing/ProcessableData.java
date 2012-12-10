@@ -88,6 +88,7 @@ public final class ProcessableData {
     return Objects.toStringHelper(ProcessableData.class)
         .add("token", token)
         .add("transactionId", transactionId)
+        .add("site", site)
         .add("offer", offer)
         .add("product", product)
         .add("price", price)
